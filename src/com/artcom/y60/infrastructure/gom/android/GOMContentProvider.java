@@ -29,13 +29,43 @@
 
 package com.artcom.y60.infrastructure.gom.android;
 
+import java.io.IOException;
+import java.util.Iterator;
+
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
+
+import org.xml.sax.Attributes;
+import org.xml.sax.SAXException;
+import org.xml.sax.XMLReader;
+import org.xml.sax.helpers.DefaultHandler;
+
+import com.artcom.tgallery.applications.messaging.android.addressbook.TgAddressBook.AddressBookHandler;
+import com.artcom.tgallery.core.android.TgParty;
+
 import android.content.ContentProvider;
 import android.content.ContentValues;
+import android.content.UriMatcher;
 import android.database.Cursor;
 import android.net.Uri;
+import android.util.Log;
 
-public class TgGOMContentProvider extends ContentProvider {
+public class GOMContentProvider extends ContentProvider {
 
+	private static final String myURI = "com.artcom.y60.infrastructure.gom";
+	public static final Uri CONTENT_URI = Uri.parse( myURI );
+	
+	private static final int URI_TYPE_NODE  = 1;
+	private static final int URI_TYPE_ENTRY = 2;
+	
+	private static final UriMatcher uriMatcher;
+	
+	static {
+		uriMatcher = new UriMatcher( UriMatcher.NO_MATCH );
+		uriMatcher.addURI( "com.artcom.y60.infrastructure.gom", "/", URI_TYPE_NODE );
+		uriMatcher.addURI( "com.artcom.y60.infrastructure.gom", "/*:*", URI_TYPE_ENTRY );
+	}
+	
 	@Override
 	public int delete(Uri uri, String selection, String[] selectionArgs) {
 		// TODO Auto-generated method stub
@@ -44,7 +74,9 @@ public class TgGOMContentProvider extends ContentProvider {
 
 	@Override
 	public String getType(Uri uri) {
-		// TODO Auto-generated method stub
+		
+
+		
 		return null;
 	}
 
@@ -63,7 +95,16 @@ public class TgGOMContentProvider extends ContentProvider {
 	@Override
 	public Cursor query(Uri uri, String[] projection, String selection,
 			String[] selectionArgs, String sortOrder) {
-		// TODO Auto-generated method stub
+		
+		switch (uriMatcher.match( uri ))
+		{
+		case URI_TYPE_NODE:
+			break;
+		case URI_TYPE_ENTRY:
+			break;
+		default: throw new IllegalArgumentException( "Unsupported URI: " + uri );
+		}
+		
 		return null;
 	}
 
@@ -73,4 +114,6 @@ public class TgGOMContentProvider extends ContentProvider {
 		// TODO Auto-generated method stub
 		return 0;
 	}
+
+	
 }
