@@ -27,7 +27,7 @@
  *  along with ART+COM Y60.  If not, see <http: * www.gnu.org/licenses/>.
  */
 
-package com.artcom.android.y60;
+package com.artcom.y60.configuration;
 
 import android.app.Activity;
 import android.os.Bundle;
