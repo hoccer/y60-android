@@ -40,9 +40,6 @@ import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.DefaultHandler;
 
-import com.artcom.tgallery.applications.messaging.android.addressbook.TgAddressBook.AddressBookHandler;
-import com.artcom.tgallery.core.android.TgParty;
-
 import android.content.ContentProvider;
 import android.content.ContentValues;
 import android.content.UriMatcher;
