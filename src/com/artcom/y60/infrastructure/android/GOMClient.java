@@ -27,7 +27,7 @@
  *  along with ART+COM Y60.  If not, see <http: * www.gnu.org/licenses/>.
  */
 
-package com.artcom.y60.infrastructure.gom.android;
+package com.artcom.y60.infrastructure.android;
 
 import java.io.IOException;
 import java.util.Iterator;
@@ -47,7 +47,7 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.util.Log;
 
-public class GOMContentProvider extends ContentProvider {
+public class GOMClient extends ContentProvider {
 
 	private static final String myURI = "com.artcom.y60.infrastructure.gom";
 	public static final Uri CONTENT_URI = Uri.parse( myURI );
