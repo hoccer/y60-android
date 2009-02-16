@@ -1,4 +1,4 @@
-package com.artcom.y60.infrastructure.gom.android;
+package com.artcom.y60.infrastructure;
 
 public class GOMEntry
 {
