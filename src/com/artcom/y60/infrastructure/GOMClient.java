@@ -27,7 +27,7 @@
  *  along with ART+COM Y60.  If not, see <http: * www.gnu.org/licenses/>.
  */
 
-package com.artcom.y60.infrastructure.android;
+package com.artcom.y60.infrastructure;
 
 import java.io.IOException;
 import java.util.Iterator;
