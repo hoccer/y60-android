@@ -29,6 +29,8 @@
 
 package com.artcom.y60.configuration;
 
+import com.artcom.y60.R;
+
 import android.app.Activity;
 import android.os.Bundle;
 

@@ -13,12 +13,4 @@
             </intent-filter>
         </activity>
     </application>
-    <instrumentation android:name="android.test.InstrumentationTestRunner" 
-        android:targetPackage="com.artcom.y60.configuration" 
-        android:label="@string">
-  	</instrumentation>
-    <instrumentation android:name="android.test.InstrumentationTestRunner" 
-        android:targetPackage="com.artcom.y60.infrastructure" 
-        android:label="GOMClient">
-  	</instrumentation>
 </manifest> 
