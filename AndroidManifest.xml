@@ -4,6 +4,7 @@
       android:versionCode="1"
       android:versionName="1.0.0">
     <application android:icon="@drawable/icon" android:label="@string/app_name">
+    	<uses-library android:name="android.test.runner" /> 
         <activity android:name=".Y60"
                   android:label="@string/app_name">
             <intent-filter>
@@ -12,4 +13,12 @@
             </intent-filter>
         </activity>
     </application>
+    <instrumentation android:name="android.test.InstrumentationTestRunner" 
+        android:targetPackage="com.artcom.y60.configuration" 
+        android:label="@string">
+  	</instrumentation>
+    <instrumentation android:name="android.test.InstrumentationTestRunner" 
+        android:targetPackage="com.artcom.y60.infrastructure" 
+        android:label="GOMClient">
+  	</instrumentation>
 </manifest> 
