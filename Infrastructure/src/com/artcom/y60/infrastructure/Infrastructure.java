@@ -1,5 +1,7 @@
 package com.artcom.y60.infrastructure;
 
+import com.artcom.y60.infrastructure.R;
+
 import android.app.Activity;
 import android.os.Bundle;
 

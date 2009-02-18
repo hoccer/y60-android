@@ -3,22 +3,20 @@
       package="com.artcom.y60.infrastructure"
       android:versionCode="1"
       android:versionName="1.0.0">
-    <application android:icon="@drawable/icon" android:label="@string/app_name">
-        <activity android:name=".Infrastructure"
-                  android:label="@string/app_name">
-            <intent-filter>
+    <application  android:icon="@drawable/icon" android:label="@string/app_name">
+        <uses-library android:name="android.test.runner" />  
+		<activity android:name=".Infrastructure" android:label="@string/app_name">
+		<intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-		<uses-library android:name="android.test.runner" />  
-		<uses-library android:name="com.artcom.y60.infrastructure.tests" />
 	</application>
 
 	<uses-permission android:name="android.permission.RUN_INSTRUMENTATION" />
 
-	<instrumentation android:name="android.test.TestRunner" 
-      android:targetPackage="com.artcom.y60.infrastructure.tests" 
+	<instrumentation android:name="android.test.InstrumentationTestRunner" 
+      android:targetPackage="com.artcom.y60.infrastructure" 
       android:label="Infrastructure">
    	</instrumentation> 
 </manifest> 
