@@ -58,7 +58,7 @@ public class DeviceControllerActivity extends Activity
     public static final String __PORT = "com.artcom.y60.infrastructure.dc.port";
     public static final String __NIO = "com.artcom.y60.infrastructure.dc.nio";
     
-    public static final String __PORT_DEFAULT = "8080";
+    public static final String __PORT_DEFAULT = "4042";
     public static final boolean __NIO_DEFAULT = true;
     public static final String __CONSOLE_PWD_DEFAULT = "admin";
     

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.artcom.y60.infrastructure.dc">
-    <application android:label="@string/manage_jetty" android:icon="@drawable/jetty">
+    <application android:label="@string/manage_jetty" android:icon="@drawable/smooth">
         <activity android:name=".DeviceControllerActivity"
                   android:label="@string/manage_jetty"
                   android:icon="@drawable/jetty"

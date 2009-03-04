@@ -81,6 +81,7 @@ public class DeviceControllerService extends Service
             preferences = PreferenceManager.getDefaultSharedPreferences(this);
 
             String portDefault = getText(R.string.pref_port_value).toString();
+            Log.v( "DeviceControllerService", "Default port is " + portDefault );
             String pwdDefault = getText(R.string.pref_console_pwd_value).toString();
             String nioDefault = getText(R.string.pref_nio_value).toString();
 
@@ -211,7 +212,7 @@ public class DeviceControllerService extends Service
         // Bridge Jetty logging to Android logging
         System.setProperty("org.mortbay.log.class",
                            "org.mortbay.log.AndroidLog");
-        org.mortbay.log.Log.setLog(new AndroidLog());
+//        org.mortbay.log.Log.setLog(new AndroidLog());
 
         HandlerCollection handlers = new HandlerCollection();
         ContextHandlerCollection contexts = new ContextHandlerCollection();

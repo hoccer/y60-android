@@ -20,7 +20,7 @@
     <string name="pref_nio_value">false</string>
     <string name="pref_nio_title">Use NIO</string>
     <string name="pref_nio_key">com.artcom.y60.infrastructure.dc.pref_nio</string>
-    <string name="pref_port_value">8080</string>
+    <string name="pref_port_value">4042</string>
     <string name="pref_port">Port</string>
     <string name="pref_port_title">Edit Port</string>
     <string name="pref_port_key">com.artcom.y60.infrastructure.dc.pref.port</string>
