@@ -21,10 +21,20 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.client.DefaultRedirectHandler;
 import org.apache.http.message.BasicHttpResponse;
 import org.apache.http.protocol.HttpContext;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import android.util.Log;
 
 public class HTTPHelper {
+
+    // Constants ---------------------------------------------------------
+
+    private static final String TAG = "HTTPHelper";
+    
+    
+    
+    // Static Methods ----------------------------------------------------
 
 	public static String putXML(String uri, String body) {
 		HttpPut put = new HttpPut(uri);
@@ -42,25 +52,46 @@ public class HTTPHelper {
 
 	public static String get(String uri) {
 
+        Log.v(TAG, "get('"+uri+"')");
 		HttpGet get = new HttpGet(uri);
 		HttpEntity entity = executeHTTPMethod(get).getEntity();
 		String result = extractBody(entity);
-		Log.v("HTTPHelper", "got: " + result);
+		Log.v(TAG, "got: " + result);
 		return result;
+	}
+	
+	
+	public static JSONObject getJson(String uri) throws JSONException {
+	    
+	    if (uri.endsWith(".xml")) {
+	        // an xml uri means that someone is using this method in a wrong way
+	        // --> fail fast
+	        throw new IllegalArgumentException(
+	                "HttpHelper.getJson was passed a URI which explicitly "+
+	                "asked for a different format: '"+uri+"'!");
+	    }
+	    
+	    // gracefully accept format-agnostic URIs
+	    if (!uri.endsWith(".json")) {
+	        uri = uri + ".json";
+	    }
+	    
+	    String result = get(uri);
+	    return new JSONObject(result);
 	}
 
 	private static String extractBody(HttpEntity entity) {
 		try {
 			ByteArrayOutputStream ostream = new ByteArrayOutputStream();
 			entity.writeTo(ostream);
-			Log.v("HTTPHelper", ostream.toString());
+			Log.v(TAG, ostream.toString());
 			return ostream.toString();
 		} catch (IllegalStateException e) {
-			Log.e("HTTPHelper", "illegal state: " + e.getMessage());
+			Log.e(TAG, "illegal state: " + e.getMessage());
 			e.printStackTrace();
 			return e.getMessage();
 		} catch (IOException e) {
-			Log.e("HTTPHelper", "io: " + e.getMessage());
+			Log.e(TAG, "io: " + e.getMessage());
 			e.printStackTrace();
 			return e.getMessage();
 		}
@@ -74,7 +105,7 @@ public class HTTPHelper {
 			method.addHeader("Content-Type", "text/xml");
 			method.addHeader("Accept", "text/xml");			
 		} catch (UnsupportedEncodingException e) {
-			Log.e("HTTPHelper", "unsupported encoding: " + e.getMessage());
+			Log.e(TAG, "unsupported encoding: " + e.getMessage());
 			e.printStackTrace();
 		}
 	}
@@ -87,7 +118,7 @@ public class HTTPHelper {
             @Override
             public URI getLocationURI(HttpResponse response, HttpContext context) throws ProtocolException {
                 URI uri = super.getLocationURI(response, context);
-                Log.v("HTTPHelper", response.getStatusLine().getStatusCode() + " redirect to: " + uri);
+                Log.v(TAG, response.getStatusLine().getStatusCode() + " redirect to: " + uri);
                 return uri;
             }
         });
@@ -97,13 +128,13 @@ public class HTTPHelper {
 		try {
 			response = httpclient.execute(method);
 		} catch (ClientProtocolException e) {
-			Log.e("HTTPHelper", "protocol exception: " + e.getMessage());
+			Log.e(TAG, "protocol exception: " + e.getMessage());
 			e.printStackTrace();
 		} catch (IOException e) {
-			Log.e("HTTPHelper", "io exception: " + e.getMessage());
+			Log.e(TAG, "io exception: " + e.getMessage());
 			e.printStackTrace();
 		} catch (Exception e) {
-			Log.e("HTTPHelper", "unknown exception:" + e.getMessage());
+			Log.e(TAG, "unknown exception:" + e.getMessage());
 			e.printStackTrace();
 		}
 		return response;
