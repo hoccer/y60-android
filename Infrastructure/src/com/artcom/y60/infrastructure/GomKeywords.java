@@ -1,7 +1,7 @@
 package com.artcom.y60.infrastructure;
 
 
-public interface GOMConstants {
+public interface GomKeywords {
 
     // GOM keywords
     public static final String NODE      = "node",
@@ -12,5 +12,4 @@ public interface GOMConstants {
                                VALUE     = "value",
                                TYPE      = "type";
 
-    public static final String GOM_BASE_URL = "http://t-gom.service.t-gallery.act";
 }
