@@ -39,4 +39,13 @@
     <string name="overwrite">Replace existing file?</string>
     <string name="loading">Loading ... </string>
     <string name="context_path">Context Path</string>
+    <string name="gom_settings_title">GOM settings</string>
+	<string name="gom_location_title">GOM Location</string>
+	<string name="device_settings_title">Device Settings</string>
+	<string name="device_id_title">Device ID</string>
+    <string name="pref_gom_location">pref_gom_location</string>
+	<string name="pref_device_id">pref_device_id</string>
+	<string name="device_path_title">GOM Path to Devices</string>
+	<string name="gom_paths_title">GOM Paths</string>
+	<string name="pref_device_path">pref_device_path</string>
 </resources>

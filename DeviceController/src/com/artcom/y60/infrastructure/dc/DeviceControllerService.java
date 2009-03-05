@@ -216,7 +216,7 @@ public class DeviceControllerService extends Service
 
         HandlerCollection handlers = new HandlerCollection();
         ContextHandlerCollection contexts = new ContextHandlerCollection();
-        handlers.setHandlers(new Handler[] { new DeviceControllerHandler() });
+        handlers.setHandlers(new Handler[] { new DeviceControllerHandler( this ) });
         server.setHandler(handlers);
         
         server.start();
