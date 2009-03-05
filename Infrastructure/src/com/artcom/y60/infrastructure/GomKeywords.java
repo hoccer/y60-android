@@ -1,6 +1,12 @@
 package com.artcom.y60.infrastructure;
 
-
+/**
+ * Contains the keywords from the GOM vocabulary, i.e. that are used in
+ * serialized formats of GOM resources.
+ * 
+ * @author arne
+ *
+ */
 public interface GomKeywords {
 
     // GOM keywords

@@ -6,6 +6,13 @@ import org.json.JSONObject;
 import android.util.Log;
 
 
+/**
+ * Represents the state of an attribute resource in the GOM. Some attributes contain references
+ * (i.e. paths) to other resources which can be dereferenced by calling resolveReference() on an
+ * attribute.
+ * 
+ * @author arne
+ */
 public class GomAttribute extends GomEntry {
 
     // Constants ---------------------------------------------------------
@@ -17,12 +24,14 @@ public class GomAttribute extends GomEntry {
 
     // Instance Variables ------------------------------------------------
 
+    /** The attribute value */
     private String mValue;
     
     
     
     // Static Methods ----------------------------------------------------
 
+    /** Constructs an attribute from a JSON representation */
     static GomAttribute fromJson(JSONObject pJson, GomRepository pRepos) throws JSONException {
         
         JSONObject jAttr = JsonHelper.getMemberOrSelf(pJson, GomKeywords.NODE); 
@@ -38,6 +47,10 @@ public class GomAttribute extends GomEntry {
 
     // Constructors ------------------------------------------------------
 
+    /**
+     * Used internally only. Use the methods of GomRepository to load resource
+     * states.
+     */
     GomAttribute(String pName, String pValue, String pPath, GomRepository pRepos) {
         
         super(pName, pPath, pRepos);
@@ -49,6 +62,7 @@ public class GomAttribute extends GomEntry {
     }
     
     
+    
     // Public Instance Methods -------------------------------------------
 
     public String getValue() {
@@ -57,6 +71,13 @@ public class GomAttribute extends GomEntry {
     }
     
     
+    /** 
+     * Dereferences this attribute, if it contains a path to another resource.
+     * 
+     * @return the referenced resource, if resolution was successful
+     * @throws GomResolutionFailedException if the resolution failed, e.g. because
+     *                                      this attribute didn't point a resource
+     */
     public GomEntry resolveReference() throws GomResolutionFailedException {
         
         GomEntry entry = getRepository().getEntry(mValue);

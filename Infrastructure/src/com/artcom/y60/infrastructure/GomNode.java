@@ -11,11 +11,11 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 /**
- * Representation of a node in the GOM. Instances may (and will) load data lazily, i.e.
- * fetching nodes/attributes may trigger reading new data from the GOM repository!
+ * Representation of the state of a node resource in the GOM. Instances may (and will) load data
+ * lazily, i.e. fetching nodes/attributes may trigger reading new data from the GOM repository.
  * 
  * This implementation is whiny regarding clients trying to fetch non existing entries,
- * i.e. throws a NoSuchElementException
+ * i.e. throws a NoSuchElementException.
  * 
  * Getter methods for collections (entries/attributes/nodes) always return copies of internal
  * collections.
@@ -26,6 +26,7 @@ public class GomNode extends GomEntry {
     
     // Instance Variables ------------------------------------------------
 
+    /** All entries of this node */
     private Map<String, GomEntry> mEntries;
 
     

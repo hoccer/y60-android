@@ -9,10 +9,7 @@ import android.util.Log;
 
 
 /**
- * If needed, this class might be enriched e.g. by adding
- *  - getUri to retrieve the GOM URI of this entry
- *  - getParent to retrieve the parent node
- *  - getRepository to retrieve this entry's repository
+ * Represents the state of a GOM resource, i.e. a node or an attribute.
  * 
  * @author arne
  *
@@ -21,18 +18,26 @@ public abstract class GomEntry {
 
     // Instance Variables ------------------------------------------------
 
+    /** This resources path relative to the repository base URI */
     private String mPath;
     
+    /** The name of this resource (the last element of the path) */
     private String mName;
     
+    /** The complete URI of this resource */
     private URI mUri;
     
+    /** The repository this resource was loaded from */
     private GomRepository mRepos;
     
     
     
     // Static Methods ----------------------------------------------------
 
+    /**
+     * Constructs a new GomEntry from a JSON representation. Used internally only. Use the
+     * methods of class GomRepository to retrieve GOM entries.
+     */
     static GomEntry fromJson(JSONObject pRoot, GomRepository pRepos) throws JSONException {
         
         JSONObject content = JsonHelper.getMemberOrSelf(pRoot, GomKeywords.ATTRIBUTE);
@@ -100,6 +105,12 @@ public abstract class GomEntry {
     }
     
     
+    /**
+     * Helper method for assuring this resource is an attribute resp. to get
+     * a meaningful error message otherwise.
+     * 
+     * @return
+     */
     public GomAttribute forceAttributeOrException() {
         
         if (this instanceof GomAttribute) {
@@ -113,6 +124,12 @@ public abstract class GomEntry {
     }
     
 
+    /**
+     * Helper method for assuring this resource is a node resp. to get
+     * a meaningful error message otherwise.
+     * 
+     * @return
+     */
     public GomNode forceNodeOrException() {
         
         if (this instanceof GomNode) {
@@ -123,14 +140,5 @@ public abstract class GomEntry {
             
             throw new GomEntryTypeMismatchException("Entry '"+mPath+"' of repository '"+mRepos.getBaseUri()+"' is not a node!");
         }
-    }
-    
-
-    
-    // Protected Instance Methods ----------------------------------------
-
-    protected void setPath(String pPath) {
-        
-        mPath = pPath;
     }
 }

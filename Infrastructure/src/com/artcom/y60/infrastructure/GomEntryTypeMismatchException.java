@@ -1,5 +1,11 @@
 package com.artcom.y60.infrastructure;
 
+/**
+ * Represents the circumstance that a GOM node has been accessed as an attribute
+ * or vice versa.
+ * 
+ * @author arne
+ */
 public class GomEntryTypeMismatchException extends RuntimeException {
 
     public GomEntryTypeMismatchException() {
