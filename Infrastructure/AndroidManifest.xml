@@ -8,9 +8,11 @@
 	</application>
 
 	<uses-permission android:name="android.permission.RUN_INSTRUMENTATION" />
+    <uses-permission android:name="android.permission.INTERNET" />
 
 	<instrumentation android:name="android.test.InstrumentationTestRunner" 
       android:targetPackage="com.artcom.y60.infrastructure" 
       android:label="Infrastructure">
-   	</instrumentation> 
+   	</instrumentation>
+
 </manifest> 

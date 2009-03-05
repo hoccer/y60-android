@@ -1,7 +1,13 @@
 package com.artcom.y60.infrastructure;
 
-
-public interface GOMConstants {
+/**
+ * Contains the keywords from the GOM vocabulary, i.e. that are used in
+ * serialized formats of GOM resources.
+ * 
+ * @author arne
+ *
+ */
+public interface GomKeywords {
 
     // GOM keywords
     public static final String NODE      = "node",
@@ -12,5 +18,4 @@ public interface GOMConstants {
                                VALUE     = "value",
                                TYPE      = "type";
 
-    public static final String GOM_BASE_URL = "http://t-gom.service.t-gallery.act";
 }
