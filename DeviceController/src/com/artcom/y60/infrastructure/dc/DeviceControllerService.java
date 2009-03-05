@@ -15,7 +15,6 @@
 
 package com.artcom.y60.infrastructure.dc;
 
-import java.io.File;
 import java.io.InputStream;
 
 import org.mortbay.jetty.Connector;
@@ -57,17 +56,18 @@ public class DeviceControllerService extends Service
 
     private SharedPreferences preferences;
    
+    private static final String LOG_TAG = "DeviceControllerService";
 
     public void onCreate()
     {
-            Log.i("Jetty", "onCreate called");
+            Log.i( LOG_TAG, "onCreate called");
             __resources = getResources();
     }
 
 
     public void onStart(Intent intent, int startId)
     {
-        Log.i("Jetty", "onStart called");
+        Log.i( LOG_TAG, "onStart called");
         if (server != null)
         {
             Toast.makeText(DeviceControllerService.this, R.string.jetty_already_started,
@@ -110,7 +110,7 @@ public class DeviceControllerService extends Service
 
             CharSequence text = getText(R.string.manage_jetty);
 
-            Notification notification = new Notification(R.drawable.jicon, 
+            Notification notification = new Notification(R.drawable.smooth, 
                     text, 
                     System.currentTimeMillis());
 
@@ -216,63 +216,15 @@ public class DeviceControllerService extends Service
 
         HandlerCollection handlers = new HandlerCollection();
         ContextHandlerCollection contexts = new ContextHandlerCollection();
-        handlers.setHandlers(new Handler[] {contexts, new DefaultHandler()});
+        handlers.setHandlers(new Handler[] { new DeviceControllerHandler() });
         server.setHandler(handlers);
-
-//        File jettyDir = new File(DeviceControllerActivity.__JETTY_DIR);
-//        
-//        // Load any webapps we find on the card.
-//        if (jettyDir.exists())
-//        {
-//            System.setProperty ("jetty.home", DeviceControllerActivity.__JETTY_DIR);
-//            AndroidWebAppDeployer staticDeployer = null;
-//            
-//            // Deploy any static webapps we have.
-//            if (new File(jettyDir, DeviceControllerActivity.__WEBAPP_DIR).exists())
-//            {
-//                staticDeployer = new AndroidWebAppDeployer();
-//                staticDeployer.setWebAppDir(DeviceControllerActivity.__JETTY_DIR+"/"+DeviceControllerActivity.__WEBAPP_DIR);
-//                staticDeployer.setDefaultsDescriptor(DeviceControllerActivity.__JETTY_DIR+"/"+DeviceControllerActivity.__ETC_DIR+"/webdefault.xml");
-//                staticDeployer.setContexts(contexts);
-//                staticDeployer.setContentResolver (getContentResolver());
-//                staticDeployer.setConfigurationClasses(__configurationClasses);
-//            }
-//            ContextDeployer contextDeployer = null;
-//            // Use a ContextDeploy so we can hot-deploy webapps and config at startup.
-//            if (new File(jettyDir, DeviceControllerActivity.__CONTEXTS_DIR).exists())
-//            {
-//                contextDeployer = new ContextDeployer();
-//                contextDeployer.setScanInterval(0); // Don't eat the battery (scan only at server-start)
-//                contextDeployer.setConfigurationDir(DeviceControllerActivity.__JETTY_DIR+"/"+DeviceControllerActivity.__CONTEXTS_DIR);
-//                contextDeployer.setContexts(contexts);
-//            }
-//            File realmProps = new File(DeviceControllerActivity.__JETTY_DIR+"/"+DeviceControllerActivity.__ETC_DIR+"/realm.properties");
-//            if (realmProps.exists())
-//            {
-//                HashUserRealm realm = new HashUserRealm("Console", DeviceControllerActivity.__JETTY_DIR+"/"+DeviceControllerActivity.__ETC_DIR+"/realm.properties");
-//                realm.setRefreshInterval(0);
-//                if (_consolePassword != null)
-//                    realm.put("admin", _consolePassword); //set the admin password for console webapp
-//                server.addUserRealm(realm);
-//            }
-//
-//            if (contextDeployer != null)
-//                server.addLifeCycle(contextDeployer);
-//
-//            if (staticDeployer != null)
-//                server.addLifeCycle(staticDeployer);
-//        }
-//        else
-//        {
-//            Log.w("Jetty", "Not loading any webapps - none on SD card.");
-//        }
         
         server.start();
     }
 
     private void stopJetty() throws Exception
     {
-        Log.i("Jetty", "Jetty stopping");
+        Log.i(LOG_TAG, "DeviceControllerService stopping");
         server.stop();
         server.join();
         server = null;

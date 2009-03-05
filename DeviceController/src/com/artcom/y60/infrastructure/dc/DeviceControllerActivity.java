@@ -13,9 +13,7 @@
 //limitations under the License.
 //========================================================================
 
-
 package com.artcom.y60.infrastructure.dc;
-
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -42,17 +40,6 @@ import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 
-/**
- * DeviceControllerActivity
- *
- * Main Jetty activity.
- * Can start other activities:
- *   + configure
- *   + download
- *   
- *  Can start/stop services:
- *   + DeviceControllerService
- */
 public class DeviceControllerActivity extends Activity 
 {
     public static final String __PORT = "com.artcom.y60.infrastructure.dc.port";
@@ -60,16 +47,9 @@ public class DeviceControllerActivity extends Activity
     
     public static final String __PORT_DEFAULT = "4042";
     public static final boolean __NIO_DEFAULT = true;
-    public static final String __CONSOLE_PWD_DEFAULT = "admin";
-    
-    public static final String __JETTY_DIR = "/sdcard/jetty";
-    public static final String __WEBAPP_DIR = "webapps";
-    public static final String __ETC_DIR = "etc";
-    public static final String __CONTEXTS_DIR = "contexts";
-    public static final String __TMP_DIR = "tmp";
     
     private IPList _ipList;
-
+    private static final String LOG_TAG = "DeviceController";
 
     private class IPList 
     {
@@ -108,7 +88,7 @@ public class DeviceControllerActivity extends Activity
             }
             catch (Exception e)
             {
-                Log.e("JETTY", "Problem retrieving ip addresses", e);
+                Log.e(LOG_TAG, "Problem retrieving ip addresses", e);
             }
         }
     }
@@ -167,14 +147,11 @@ public class DeviceControllerActivity extends Activity
     }
 
 
-
-
-    /** Called when the activity is first created. */
     public void onCreate(Bundle icicle) 
     {
-        setupJetty();
+        setupDeviceController();
         super.onCreate(icicle);
-        setContentView(R.layout.jetty_controller);
+        setContentView(R.layout.dc_console);
 
         // Watch for button clicks.
         final Button startButton = (Button)findViewById(R.id.start);
@@ -183,7 +160,7 @@ public class DeviceControllerActivity extends Activity
                 {
                     public void onClick(View v)
                     {  
-                        //TODO get these values from editable UI elements
+                    	// TODO make this an implicit attempt
                         Intent intent = new Intent(DeviceControllerActivity.this, DeviceControllerService.class);
                         intent.putExtra(__PORT, __PORT_DEFAULT);
                         intent.putExtra(__NIO, __NIO_DEFAULT);
@@ -216,77 +193,8 @@ public class DeviceControllerActivity extends Activity
     }
     
     
-    public void setupJetty ()
+    public void setupDeviceController ()
     {
-        //create the jetty dir structure
-        File jettyDir = new File(__JETTY_DIR);
-        if (!jettyDir.exists())
-            jettyDir.mkdirs();
-        
-        //make jetty/tmp
-        File tmpDir = new File(jettyDir, __TMP_DIR);
-        if (!tmpDir.exists())
-            tmpDir.mkdirs();
-        
-        //make jetty/webapps
-        File webappsDir = new File (jettyDir, __WEBAPP_DIR);
-        if (!webappsDir.exists())
-            webappsDir.mkdirs();           
 
-        //make jetty/etc
-        File etcDir = new File (jettyDir, __ETC_DIR);
-        if (!etcDir.exists())
-            etcDir.mkdirs();
-
-        File webdefaults = new File (etcDir, "webdefault.xml");
-        if (!webdefaults.exists())
-        {
-            //get the webdefaults.xml file out of resources
-            try
-            {
-                InputStream is = getResources().openRawResource(R.raw.webdefault);
-                OutputStream os = new FileOutputStream(webdefaults);
-                IO.copy(is, os);
-                Log.i("Jetty", "Loaded webdefault.xml");
-            }
-            catch (Exception e)
-            {
-                Log.e("Jetty", "Error loading webdefault.xml", e);
-            }
-        }
-        File realm = new File (etcDir, "realm.properties"); 
-        if (!realm.exists())
-        {
-            try
-            {
-                //get the realm.properties file out resources
-                InputStream is = getResources().openRawResource(R.raw.realm_properties);
-                OutputStream os = new FileOutputStream(realm);
-                IO.copy(is,os);
-                Log.i("Jetty", "Loaded realm.properties");
-            }
-            catch (Exception e)
-            {
-                Log.e("Jetty", "Error loading realm.propeties", e);
-            }
-        }
-
-        //make jetty/contexts
-        File contextsDir = new File (jettyDir, __CONTEXTS_DIR);
-        if (!contextsDir.exists())
-            contextsDir.mkdirs();
-
-//        //unpack the console war, but don't make a context.xml for it
-//        //Must be deployed by webapp deployer to get the Android ContentResolver
-//        //setting.
-//        File consoleWar = new File (webappsDir, "console");
-//        boolean exists = consoleWar.exists();
-//        String[] files = consoleWar.list();
-        
-//        if (!exists || files == null || files.length == 0)
-//        {
-//            InputStream is = this.getClassLoader().getResourceAsStream("console.war");
-//            Installer.install(is, "/console", webappsDir, "console", false);
-//        }
     }
 }

@@ -4,7 +4,7 @@
     <application android:label="@string/manage_jetty" android:icon="@drawable/smooth">
         <activity android:name=".DeviceControllerActivity"
                   android:label="@string/manage_jetty"
-                  android:icon="@drawable/jetty"
+                  android:icon="@drawable/smooth"
                   android:multiprocess="false"
                   android:launchMode="singleInstance">
             <intent-filter>
@@ -15,6 +15,19 @@
 
         <service android:name=".DeviceControllerService" android:process=":remote"/>
     </application>
+    
+    <receiver android:name=".StatusCollector">
+    	<intent-filter>
+    		<action android:name="android.intent.action.BATTERY_CHANGED" />
+    	</intent-filter>
+    	<intent-filter>
+    		<action android:name="android.intent.action.SCREEN_OFF" />
+    	</intent-filter>
+    	<intent-filter>
+    		<action android:name="android.intent.action.SCREEN_ON" />
+    	</intent-filter>
+
+    </receiver>
     
     <uses-permission android:name="android.permission.READ_CONTACTS"/>
     <uses-permission android:name="android.permission.WRITE_CONTACTS"/>
