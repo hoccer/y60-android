@@ -30,6 +30,7 @@ import org.mortbay.util.IO;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -42,9 +43,6 @@ import android.widget.TextView;
 
 public class DeviceControllerActivity extends Activity 
 {
-    public static final String __PORT = "com.artcom.y60.infrastructure.dc.port";
-    public static final String __NIO = "com.artcom.y60.infrastructure.dc.nio";
-    
     public static final String __PORT_DEFAULT = "4042";
     public static final boolean __NIO_DEFAULT = true;
     
@@ -153,6 +151,11 @@ public class DeviceControllerActivity extends Activity
         super.onCreate(icicle);
         setContentView(R.layout.dc_console);
 
+        IntentFilter flt_screen_on = new IntentFilter(Intent.ACTION_SCREEN_ON);
+        IntentFilter flt_screen_off = new IntentFilter(Intent.ACTION_SCREEN_OFF);
+        registerReceiver( StatusCollector.getInstance(), flt_screen_on );
+        registerReceiver( StatusCollector.getInstance(), flt_screen_off);
+        
         // Watch for button clicks.
         final Button startButton = (Button)findViewById(R.id.start);
         startButton.setOnClickListener(
@@ -162,8 +165,8 @@ public class DeviceControllerActivity extends Activity
                     {  
                     	// TODO make this an implicit attempt
                         Intent intent = new Intent(DeviceControllerActivity.this, DeviceControllerService.class);
-                        intent.putExtra(__PORT, __PORT_DEFAULT);
-                        intent.putExtra(__NIO, __NIO_DEFAULT);
+                        intent.putExtra(DeviceControllerService.DEFAULT_PORTNAME, __PORT_DEFAULT);
+                        intent.putExtra(DeviceControllerService.DEFAULT_NIONAME, __NIO_DEFAULT);
                         startService(intent);
                     }
                 }
@@ -183,7 +186,14 @@ public class DeviceControllerActivity extends Activity
         ListView list = (ListView) findViewById(R.id.list);
         _ipList = new IPList();
         list.setAdapter(new NetworkListAdapter(this, _ipList));
-
+        
+        // Automatically start the device controller. Useful during development, possibly remove/refactor
+        // in the production code.
+        
+        Intent intent = new Intent(DeviceControllerActivity.this, DeviceControllerService.class);
+        intent.putExtra(DeviceControllerService.DEFAULT_PORTNAME, __PORT_DEFAULT);
+        intent.putExtra(DeviceControllerService.DEFAULT_NIONAME, __NIO_DEFAULT);
+        startService(intent);
     }
 
     protected void onResume()
@@ -192,6 +202,11 @@ public class DeviceControllerActivity extends Activity
         super.onResume();
     }
     
+    protected void onStop()
+    {
+    	super.onStop();
+    	unregisterReceiver( StatusCollector.getInstance() );
+    }
     
     public void setupDeviceController ()
     {

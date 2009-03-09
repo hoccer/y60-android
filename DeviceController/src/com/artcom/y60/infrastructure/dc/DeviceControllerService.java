@@ -33,6 +33,7 @@ import android.app.Service;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
+import android.os.Bundle;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.util.Log;
@@ -55,6 +56,8 @@ public class DeviceControllerService extends Service
     private static Resources __resources;
 
     private SharedPreferences preferences;
+	public static final String DEFAULT_NIONAME = "com.artcom.y60.infrastructure.dc.nio";
+	public static final String DEFAULT_PORTNAME = "com.artcom.y60.infrastructure.dc.port";
    
     private static final String LOG_TAG = "DeviceControllerService";
 
@@ -90,7 +93,14 @@ public class DeviceControllerService extends Service
             String nioKey = getText(R.string.pref_nio_key).toString();
             
             _useNIO = preferences.getBoolean(nioKey, Boolean.valueOf(nioDefault));
-            _port = Integer.parseInt(preferences.getString(portKey, portDefault));
+            
+            Bundle bundle = intent.getExtras();
+            if (bundle.containsKey(DEFAULT_PORTNAME)) {
+            	_port = Integer.parseInt( bundle.getString(DEFAULT_PORTNAME) );
+            } else {            
+            	_port = Integer.parseInt(preferences.getString(portKey, portDefault));
+            }
+           
             _consolePassword = preferences.getString(pwdKey, pwdDefault);
 
             Log.i("Jetty", "pref port = "+preferences.getString(portKey, portDefault));

@@ -53,8 +53,8 @@ public class DeviceControllerHandler extends DefaultHandler
 		String location = "";
 
 		String self = device_path + "/" + device_id;
-		
-		if (path.equals( "/proc" )) {
+
+		if (path.startsWith( "/proc" )) {
 			// Requests directed at the DC's own resources.
 			Log.v( LOG_TAG, "Handling /proc request" );
 			ProcHandler procHandler = new ProcHandler();

@@ -24,10 +24,11 @@ public class StatusCollector extends BroadcastReceiver
 		
 		String action = intent.getAction();
 		Log.v( LOG_TAG, "Received action " + action );
+		Log.v(LOG_TAG, "(" + Intent.ACTION_SCREEN_OFF + ")" );
 
-		if (action.equals( "SCREEN_ON" )) {
+		if (action.equals( Intent.ACTION_SCREEN_ON )) {
 			m_screenState = ScreenState.ON;
-		} else if (action.equals( "SCREEN_OFF" )) {
+		} else if (action.equals( Intent.ACTION_SCREEN_OFF )) {
 			m_screenState = ScreenState.OFF;
 		}
 	}
