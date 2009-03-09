@@ -87,7 +87,7 @@ public class GomNodeTest extends AndroidTestCase {
         
         // test data...?!
         expected.put("colour_code", "orange");
-        expected.put("active_mood", "/users/orange/personal_storage:mood_002");
+        expected.put("active_mood", "/users/orange/personal_storage:mood_001");
         expected.put("party", "http://storage.service.t-gallery.act/parties/01.xml");
         expected.put("active_profile", "home");
         
@@ -107,7 +107,7 @@ public class GomNodeTest extends AndroidTestCase {
         
         Map<String, String> expAtts = new HashMap<String, String>();
         expAtts.put("colour_code", "orange");
-        expAtts.put("active_mood", "/users/orange/personal_storage:mood_002");
+        expAtts.put("active_mood", "/users/orange/personal_storage:mood_001");
         expAtts.put("party", "http://storage.service.t-gallery.act/parties/01.xml");
         expAtts.put("active_profile", "home");
         Set<String> expNodes = new HashSet<String>();

@@ -5,6 +5,14 @@ import android.util.Log;
 
 public class GomAttributeTest extends AndroidTestCase {
 
+    // Constants ---------------------------------------------------------
+
+    static final String PATH = "/users/orange:active_mood";
+    
+    static final String VALUE = "/users/orange/personal_storage:mood_001"; 
+    
+
+    
     // Instance Variables ------------------------------------------------
 
     private GomAttribute mTestAttr;
@@ -17,19 +25,19 @@ public class GomAttributeTest extends AndroidTestCase {
     public void setUp() {
         
         GomRepository repos = new GomRepository(GomTestConstants.TEST_REPOSITORY_URI);
-        mTestAttr = (GomAttribute)repos.getEntry("/users/orange:active_mood");
+        mTestAttr = (GomAttribute)repos.getEntry(PATH);
     }
 
     
     public void testGetValue() {
 
-        assertEquals("/users/orange/personal_storage:mood_002", mTestAttr.getValue());
+        assertEquals(VALUE, mTestAttr.getValue());
     }
     
     
     public void testGetPath() {
         
-        assertEquals("/users/orange:active_mood", mTestAttr.getPath());
+        assertEquals(PATH, mTestAttr.getPath());
     }
     
     
@@ -47,9 +55,9 @@ public class GomAttributeTest extends AndroidTestCase {
         
         Log.v("GomAttributeTest", "resolveReference got entry with path "+entry.getPath());
         
-        assertEquals("/users/orange/personal_storage:mood_002", entry.getPath());
+        assertEquals(VALUE, entry.getPath());
         assertTrue(entry instanceof GomAttribute);
-        assertEquals("http://storage.service.t-gallery.act/moods/italian.xml",
+        assertEquals("http://storage.service.t-gallery.act/moods/cinema.xml",
                      ((GomAttribute)entry).getValue());
     }
 }
