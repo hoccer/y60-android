@@ -14,7 +14,7 @@ import android.view.MotionEvent;
  *
  * @param <T> the activity class to be tested
  */
-public abstract class Y60ActivityTest<T extends Activity> extends ActivityInstrumentationTestCase<T> {
+public abstract class Y60ActivityInstrumentationTest<T extends Activity> extends ActivityInstrumentationTestCase<T> {
 
     // Constants ---------------------------------------------------------
 
@@ -34,7 +34,7 @@ public abstract class Y60ActivityTest<T extends Activity> extends ActivityInstru
 
     // Constructors ------------------------------------------------------
 
-    public Y60ActivityTest(String pkg, Class<T> activityClass,
+    public Y60ActivityInstrumentationTest(String pkg, Class<T> activityClass,
             boolean initialTouchMode) {
         super(pkg, activityClass, initialTouchMode);
         // TODO Auto-generated constructor stub
@@ -42,7 +42,7 @@ public abstract class Y60ActivityTest<T extends Activity> extends ActivityInstru
 
 
 
-    public Y60ActivityTest(String pkg, Class<T> activityClass) {
+    public Y60ActivityInstrumentationTest(String pkg, Class<T> activityClass) {
         super(pkg, activityClass);
         // TODO Auto-generated constructor stub
     }
