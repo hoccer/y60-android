@@ -21,8 +21,6 @@ import org.mortbay.jetty.Connector;
 import org.mortbay.jetty.Handler;
 import org.mortbay.jetty.Server;
 import org.mortbay.jetty.bio.SocketConnector;
-import org.mortbay.jetty.handler.ContextHandlerCollection;
-import org.mortbay.jetty.handler.DefaultHandler;
 import org.mortbay.jetty.handler.HandlerCollection;
 import org.mortbay.jetty.nio.SelectChannelConnector;
 
@@ -41,17 +39,11 @@ import android.widget.Toast;
 
 public class DeviceControllerService extends Service
 {
-    private static final String[] __configurationClasses = 
-        new String[] {
-        "org.mortbay.jetty.webapp.WebXmlConfiguration",
-        "org.mortbay.jetty.webapp.JettyWebXmlConfiguration",
-        "org.mortbay.jetty.webapp.TagLibConfiguration" };
     private NotificationManager mNM;
 
     private Server server;
     private boolean _useNIO;
     private int _port;
-    private String _consolePassword;
 
     private static Resources __resources;
 
@@ -84,12 +76,10 @@ public class DeviceControllerService extends Service
             preferences = PreferenceManager.getDefaultSharedPreferences(this);
 
             String portDefault = getText(R.string.pref_port_value).toString();
-            Log.v( "DeviceControllerService", "Default port is " + portDefault );
-            String pwdDefault = getText(R.string.pref_console_pwd_value).toString();
+            Log.v( LOG_TAG, "Default port is " + portDefault );
             String nioDefault = getText(R.string.pref_nio_value).toString();
 
             String portKey = getText(R.string.pref_port_key).toString();
-            String pwdKey = getText(R.string.pref_console_pwd_key).toString();
             String nioKey = getText(R.string.pref_nio_key).toString();
             
             _useNIO = preferences.getBoolean(nioKey, Boolean.valueOf(nioDefault));
@@ -101,8 +91,6 @@ public class DeviceControllerService extends Service
             	_port = Integer.parseInt(preferences.getString(portKey, portDefault));
             }
            
-            _consolePassword = preferences.getString(pwdKey, pwdDefault);
-
             Log.i("Jetty", "pref port = "+preferences.getString(portKey, portDefault));
             Log.i("Jetty", "pref nio = "+preferences.getBoolean(nioKey, Boolean.valueOf(nioDefault)));
             //Log.i("Jetty", "pref pwd = "+preferences.getString(pwdKey, pwdDefault));
@@ -128,12 +116,12 @@ public class DeviceControllerService extends Service
                     text, contentIntent);
 
             mNM.notify(R.string.jetty_started, notification);
-            Log.i("Jetty", "Jetty started");
+            Log.i(LOG_TAG, "DeviceControllerService started");
             super.onStart(intent, startId);
         }
         catch (Exception e)
         {
-            Log.e("Jetty", "Error starting jetty", e);
+            Log.e(LOG_TAG, "Error starting DeviceControllerService", e);
             Toast.makeText(this, getText(R.string.jetty_not_started),
                     Toast.LENGTH_SHORT).show();
         }
@@ -152,19 +140,19 @@ public class DeviceControllerService extends Service
                 // Tell the user we stopped.
                 Toast.makeText(this, getText(R.string.jetty_stopped),
                         Toast.LENGTH_SHORT).show();
-                Log.i("Jetty", "Jetty stopped");
+                Log.i( LOG_TAG, "DeviceControllerService stopped");
                 __resources = null;
             }
             else
             {
-                Log.i("Jetty", "Jetty not running");
+                Log.i(LOG_TAG, "DeviceControllerService not running");
                 Toast.makeText(DeviceControllerService.this, R.string.jetty_not_running,
                     Toast.LENGTH_SHORT).show();
             }
         }
         catch (Exception e)
         {
-            Log.e("Jetty", "Error stopping jetty", e);
+            Log.e(LOG_TAG, "Error stopping DeviceControllerService", e);
             Toast.makeText(this, getText(R.string.jetty_not_stopped),
                     Toast.LENGTH_SHORT).show();
         }
@@ -174,7 +162,7 @@ public class DeviceControllerService extends Service
 
     public void onLowMemory()
     {
-        Log.i("Jetty", "Low on memory");
+        Log.i(LOG_TAG, "Low on memory");
         super.onLowMemory();
     }
 
@@ -196,7 +184,7 @@ public class DeviceControllerService extends Service
     @Override
     public IBinder onBind(Intent intent)
     {
-        Log.d("Jetty", "onBind called");
+        Log.d(LOG_TAG, "onBind called");
         return null;
     }
 
@@ -225,7 +213,7 @@ public class DeviceControllerService extends Service
 //        org.mortbay.log.Log.setLog(new AndroidLog());
 
         HandlerCollection handlers = new HandlerCollection();
-        ContextHandlerCollection contexts = new ContextHandlerCollection();
+
         handlers.setHandlers(new Handler[] { new DeviceControllerHandler( this ) });
         server.setHandler(handlers);
         

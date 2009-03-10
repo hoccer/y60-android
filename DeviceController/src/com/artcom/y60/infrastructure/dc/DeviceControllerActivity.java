@@ -147,7 +147,6 @@ public class DeviceControllerActivity extends Activity
 
     public void onCreate(Bundle icicle) 
     {
-        setupDeviceController();
         super.onCreate(icicle);
         setContentView(R.layout.dc_console);
 
@@ -204,12 +203,7 @@ public class DeviceControllerActivity extends Activity
     
     protected void onStop()
     {
-    	super.onStop();
     	unregisterReceiver( StatusCollector.getInstance() );
-    }
-    
-    public void setupDeviceController ()
-    {
-
-    }
+    	super.onStop();
+    } 
 }

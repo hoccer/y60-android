@@ -1,7 +1,6 @@
 package com.artcom.y60.infrastructure.dc;
 
 import java.io.IOException;
-import java.util.List;
 
 import javax.servlet.ServletException;
 import javax.servlet.ServletOutputStream;
@@ -12,15 +11,11 @@ import org.mortbay.jetty.HttpConnection;
 import org.mortbay.jetty.Request;
 import org.mortbay.jetty.handler.ContextHandler;
 
-import com.artcom.y60.infrastructure.dc.StatusCollector.ScreenState;
-
-import android.app.Activity;
-import android.app.ActivityManager;
-import android.app.ActivityManager.RecentTaskInfo;
-import android.content.Context;
 import android.util.Log;
 
-// TODO make this class do something useful - supply battery status, device status or something
+import com.artcom.y60.infrastructure.dc.StatusCollector.ScreenState;
+
+// TODO The functionality in this class is currently buggy. Fix and write tests.
 
 public class ProcHandler extends ContextHandler {
 	
@@ -28,8 +23,6 @@ public class ProcHandler extends ContextHandler {
 	private static final String REQ_RECENT = "/proc/recent";
 	
 	private static final String LOG_TAG = "ProcHandler";
-	
-	private static Activity m_Parent;
 	
 	public void handle(String target, HttpServletRequest request,
 			HttpServletResponse response, int dispatch) throws IOException,
