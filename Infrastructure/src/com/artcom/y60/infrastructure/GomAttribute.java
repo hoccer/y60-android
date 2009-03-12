@@ -51,7 +51,7 @@ public class GomAttribute extends GomEntry {
      * Used internally only. Use the methods of GomRepository to load resource
      * states.
      */
-    GomAttribute(String pName, String pValue, String pPath, GomRepository pRepos) {
+    protected GomAttribute(String pName, String pValue, String pPath, GomRepository pRepos) {
         
         super(pName, pPath, pRepos);
         

@@ -141,7 +141,7 @@ public class GomNodeTest extends AndroidTestCase {
     
     public void testKeys() {
      
-        Set<String> keys = mTestNode.keys();
+        Set<String> keys = mTestNode.entryNames();
         
         Set<String> expected = new HashSet<String>();
         expected.add("colour_code");
