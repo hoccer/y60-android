@@ -99,6 +99,8 @@ public abstract class GomEntry {
     
     // Public Instance Methods -------------------------------------------
 
+    public abstract JSONObject toJson();
+    
     public String getName() {
         
         return mName;

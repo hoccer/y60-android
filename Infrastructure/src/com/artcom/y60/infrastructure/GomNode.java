@@ -170,12 +170,73 @@ public class GomNode extends GomEntry {
     }
     
     
+    public JSONObject toJson() {
+        
+        return toJsonFlushEntries(true);
+    }
+    
+
     
     // Private Instance Methods ------------------------------------------
 
+    private JSONObject toJsonFlushEntries(boolean pFlush) {
+        
+//      { "node": {
+//          "uri": <uri>,
+//          "entries": [
+//              <children>
+//          ]
+//      } }
+        
+        try {
+            
+            JSONObject json = new JSONObject();
+            
+            JSONObject node = new JSONObject();
+            json.put(GomKeywords.NODE, node);
+            
+            node.put(GomKeywords.URI, getPath());
+            
+            if (pFlush) {
+                
+                loadDataIfNecessary();
+            }
+            
+            if (isDataLoaded()) {
+                
+                JSONArray entries = new JSONArray();
+                for (GomEntry entry: mEntries.values()) {
+                    
+                    if (entry instanceof GomNode) {
+                        
+                        entries.put(((GomNode)entry).toJsonFlushEntries(false));
+                        
+                    } else {
+                        
+                        entries.put(entry.toJson());
+                    }
+                            
+                }
+            }
+            
+            return json;
+            
+        } catch (JSONException e) {
+            
+            throw new RuntimeException(e);
+        }
+    }
+    
+    
+    private boolean isDataLoaded() {
+        
+        return (mEntries != null);
+    }
+    
+    
     private void loadDataIfNecessary() {
         
-        if (mEntries == null) {
+        if (!isDataLoaded()) {
             
             mEntries = new HashMap<String, GomEntry>();
             

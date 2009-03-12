@@ -61,24 +61,38 @@ public class HTTPHelper {
 	}
 	
 	
-	public static JSONObject getJson(String uri) throws JSONException {
+	public static JSONObject getJson(String pUrl) throws JSONException {
 	    
-	    if (uri.endsWith(".xml")) {
-	        // an xml uri means that someone is using this method in a wrong way
-	        // --> fail fast
-	        throw new IllegalArgumentException(
-	                "HttpHelper.getJson was passed a URI which explicitly "+
-	                "asked for a different format: '"+uri+"'!");
-	    }
-	    
-	    // gracefully accept format-agnostic URIs
-	    if (!uri.endsWith(".json")) {
-	        uri = uri + ".json";
-	    }
-	    
-	    String result = get(uri);
+	    String url    = toJsonUrl(pUrl);
+	    String result = get(url);
 	    return new JSONObject(result);
 	}
+	
+
+    public static JSONObject postJson(String pUrl, JSONObject pData) throws JSONException {
+        
+        String url = toJsonUrl(pUrl);
+        
+        Log.v(TAG, "POST to "+url+" JSON data "+pData.toString());
+        
+        HttpPost post = new HttpPost(url);
+        insertJson(pData.toString(), post);
+        HttpResponse result = executeHTTPMethod(post);
+        String body = extractBody(result.getEntity());
+        return new JSONObject(body);
+    }
+
+    
+    public static String putJson(String pUrl, JSONObject pData) throws JSONException {
+        
+        Log.v(TAG, "PUT to "+pUrl+" JSON data "+pData.toString());
+        
+        HttpPut put = new HttpPut(pUrl);
+        insertJson(pData.toString(), put);
+        StatusLine statusLine = executeHTTPMethod(put).getStatusLine();
+        return statusLine.getStatusCode() + " " + statusLine.getReasonPhrase();
+    }
+
 
 	private static String extractBody(HttpEntity entity) {
 		try {
@@ -97,17 +111,30 @@ public class HTTPHelper {
 		}
 	}
 
+	
 	private static void insertXML(String body, HttpEntityEnclosingRequestBase method) {
-		StringEntity entity;
-		try {
-			entity = new StringEntity(body);
-			method.setEntity(entity);
-			method.addHeader("Content-Type", "text/xml");
-			method.addHeader("Accept", "text/xml");			
-		} catch (UnsupportedEncodingException e) {
-			Log.e(TAG, "unsupported encoding: " + e.getMessage());
-			e.printStackTrace();
-		}
+	    
+        insert(body, "text/xml", "text/xml", method);
+	}
+	
+	
+    private static void insertJson(String body, HttpEntityEnclosingRequestBase method) {
+        
+        insert(body, "application/json", "application/json", method);
+    }
+    
+    
+	private static void insert(String pBody, String pContentType, String pAccept, HttpEntityEnclosingRequestBase pMethod) {
+        StringEntity entity;
+        try {
+            entity = new StringEntity(pBody);
+            pMethod.setEntity(entity);
+            pMethod.addHeader("Content-Type", pContentType);
+            pMethod.addHeader("Accept", pAccept);         
+        } catch (UnsupportedEncodingException e) {
+            Log.e(TAG, "unsupported encoding: " + e.getMessage());
+            e.printStackTrace();
+        }
 	}
 
 	private static HttpResponse executeHTTPMethod(HttpRequestBase method) {
@@ -138,6 +165,31 @@ public class HTTPHelper {
 			e.printStackTrace();
 		}
 		return response;
+	}
+	
+	
+	private static String toJsonUrl(String pUrl) {
+	    
+        if (pUrl.endsWith(".xml")) {
+            // an xml uri means that someone is using this method in a wrong way
+            // --> fail fast
+            throw new IllegalArgumentException(
+                    "HttpHelper was passed a URI which explicitly "+
+                    "asked for a different format: '"+pUrl+"'!");
+        }
+        
+        // remove trailing slashes
+        if (pUrl.endsWith("/")) {
+            
+            pUrl = pUrl.substring(0, pUrl.length()-1);
+        }
+        
+        // gracefully accept format-agnostic URIs
+        if (!pUrl.endsWith(".json")) {
+            pUrl = pUrl + ".json";
+        }
+        
+        return pUrl;
 	}
 
 }

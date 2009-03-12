@@ -21,7 +21,7 @@ public class GomNodeTest extends AndroidTestCase {
     public void setUp() {
         
         GomRepository repos = new GomRepository(GomTestConstants.TEST_REPOSITORY_URI);
-        mTestNode = (GomNode)repos.getEntry("/users/orange");
+        mTestNode = (GomNode)repos.getEntry("/tours/development/users/orange");
     }
     
     
