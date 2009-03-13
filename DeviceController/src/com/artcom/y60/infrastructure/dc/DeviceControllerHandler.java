@@ -69,8 +69,8 @@ public class DeviceControllerHandler extends DefaultHandler
 				path = "";
 			}
         
-			if (path.equals( "/self" )) {
-				location = gom_location + self; 
+			if (path.startsWith( "/self" )) {
+				location = gom_location + self + path.replaceFirst( "/self", "" ); 
 			} else {
 				location = gom_location + path;
 			}	

@@ -7,9 +7,9 @@ public class GomAttributeTest extends AndroidTestCase {
 
     // Constants ---------------------------------------------------------
 
-    static final String PATH = "/users/orange:active_mood";
+    static final String PATH = "/tours/development/users/orange:active_mood";
     
-    static final String VALUE = "/users/orange/personal_storage:mood_001"; 
+    static final String VALUE = "/tours/development/users/orange/personal_storage:mood_001"; 
     
 
     

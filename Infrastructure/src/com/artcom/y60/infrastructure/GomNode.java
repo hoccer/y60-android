@@ -66,7 +66,7 @@ public class GomNode extends GomEntry {
 
     // Constructors ------------------------------------------------------
 
-    GomNode(String pName, String pPath, GomRepository pRepos) {
+    protected GomNode(String pName, String pPath, GomRepository pRepos) {
         
         super(pName, pPath, pRepos);
         
@@ -124,58 +124,119 @@ public class GomNode extends GomEntry {
     }
     
     
-    public Set<String> keys() {
+    public Set<String> entryNames() {
         
         loadDataIfNecessary();
         
-        Set<String> keys = new HashSet<String>();
-        keys.addAll(mEntries.keySet());
+        Set<String> names = new HashSet<String>();
+        names.addAll(mEntries.keySet());
 
-        return keys;
+        return names;
     }
     
     
-    public GomEntry getEntry(String pKey) throws NoSuchElementException {
+    public GomEntry getEntry(String pName) throws NoSuchElementException {
         
         loadDataIfNecessary();
         
-        GomEntry entry = mEntries.get(pKey);
+        GomEntry entry = mEntries.get(pName);
         
         if (entry == null) {
             
-            throw new NoSuchElementException("There is no entry for '"+pKey+"' in node '"+getPath()+"'!");
+            throw new NoSuchElementException("There is no entry for '"+pName+"' in node '"+getPath()+"'!");
         }
         
         return entry;
     }
     
     
-    public GomAttribute getAttribute(String pKey) throws NoSuchElementException, GomEntryTypeMismatchException {
+    public GomAttribute getAttribute(String pName) throws NoSuchElementException, GomEntryTypeMismatchException {
      
         loadDataIfNecessary();
         
-        GomEntry entry = getEntry(pKey); // throws no such element if nonexist
+        GomEntry entry = getEntry(pName); // throws no such element if nonexist
         
         return entry.forceAttributeOrException();
     }
     
     
-    public GomNode getNode(String pKey) throws NoSuchElementException, GomEntryTypeMismatchException {
+    public GomNode getNode(String pName) throws NoSuchElementException, GomEntryTypeMismatchException {
         
         loadDataIfNecessary();
   
-        GomEntry entry = getEntry(pKey); // throws no such element if nonexist
+        GomEntry entry = getEntry(pName); // throws no such element if nonexist
         
         return entry.forceNodeOrException();
     }
     
     
+    public JSONObject toJson() {
+        
+        return toJsonFlushEntries(true);
+    }
+    
+
     
     // Private Instance Methods ------------------------------------------
 
+    private JSONObject toJsonFlushEntries(boolean pFlush) {
+        
+//      { "node": {
+//          "uri": <uri>,
+//          "entries": [
+//              <children>
+//          ]
+//      } }
+        
+        try {
+            
+            JSONObject json = new JSONObject();
+            
+            JSONObject node = new JSONObject();
+            json.put(GomKeywords.NODE, node);
+            
+            node.put(GomKeywords.URI, getPath());
+            
+            if (pFlush) {
+                
+                loadDataIfNecessary();
+            }
+            
+            if (isDataLoaded()) {
+                
+                JSONArray entries = new JSONArray();
+                for (GomEntry entry: mEntries.values()) {
+                    
+                    if (entry instanceof GomNode) {
+                        
+                        entries.put(((GomNode)entry).toJsonFlushEntries(false));
+                        
+                    } else {
+                        
+                        entries.put(entry.toJson());
+                    }
+                            
+                }
+            }
+            
+            return json;
+            
+        } catch (JSONException e) {
+            
+            throw new RuntimeException(e);
+        }
+    }
+    
+    
+    private boolean isDataLoaded() {
+        
+        return (mEntries != null);
+    }
+    
+    
     private void loadDataIfNecessary() {
         
-        if (mEntries == null) {
+        if (!isDataLoaded()) {
             
             mEntries = new HashMap<String, GomEntry>();
             

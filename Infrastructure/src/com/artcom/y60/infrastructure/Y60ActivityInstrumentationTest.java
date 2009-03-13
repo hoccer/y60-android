@@ -4,8 +4,10 @@ import android.app.Activity;
 import android.app.Instrumentation;
 import android.os.SystemClock;
 import android.test.ActivityInstrumentationTestCase;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
+import android.view.View;
 
 /**
  * Adds some helpers to the ActivityInstrumentationTestCase
@@ -49,7 +51,33 @@ public abstract class Y60ActivityInstrumentationTest<T extends Activity> extends
 
     
 
+    // Public Instance Methods -------------------------------------------
+
+    public void setUp() throws Exception {
+        
+        Log.v(tag(), " --- "+getName()+" -- setUp ------------------------------------------------------------");
+        
+        super.setUp();
+    }
+    
+
+    public void tearDown() throws Exception {
+        
+        Log.v(tag(), " --- "+getName()+" -- tearDown ------------------------------------------------------------");
+        
+        super.tearDown();
+    }
+    
+
+    
     // Protected Instance Methods ----------------------------------------
+    
+    protected void assertIsShown(int pViewId) {
+        
+        View view = getActivity().findViewById(pViewId);
+        assertTrue("visibility of view "+pViewId, view.isShown());
+    }
+    
     
     /**
      * In order for a fling gesture to be detected by the Android GestureDetector class,
@@ -110,5 +138,14 @@ public abstract class Y60ActivityInstrumentationTest<T extends Activity> extends
         instrumentation.sendKeySync(new KeyEvent(KeyEvent.ACTION_DOWN, pKeyCode));
         Thread.sleep(pDurationMillis);
         instrumentation.sendKeySync(new KeyEvent(KeyEvent.ACTION_UP, pKeyCode));
+    }
+    
+    
+    /**
+     * Shorthand for <code>getClass().getName()</code>, to be used for logcat logging.
+     */
+    protected String tag() {
+        
+        return getClass().getName();
     }
 } 
