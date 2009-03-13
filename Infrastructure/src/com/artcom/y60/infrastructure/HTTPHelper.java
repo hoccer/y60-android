@@ -1,6 +1,7 @@
 package com.artcom.y60.infrastructure;
 
 import java.io.ByteArrayOutputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
@@ -36,7 +37,6 @@ public class HTTPHelper {
     private static final String TAG = "HTTPHelper";
     
     
-    
     // Static Methods ----------------------------------------------------
 
 	public static String putXML(String uri, String body) {
@@ -61,6 +61,28 @@ public class HTTPHelper {
 		String result = extractBody(entity);
 		Log.v(TAG, "got: " + result);
 		return result;
+	}
+	
+	public static void fetchUriToFile( String uriString, String filename ) {
+		HttpGet get = new HttpGet(uriString);
+		HttpEntity entity = executeHTTPMethod(get).getEntity();
+		
+		// Generate a random filename to store the data under
+		
+		Log.v( TAG, "Storing content under filename " +  filename );
+
+		try {
+			FileOutputStream fstream = new FileOutputStream( filename );
+			entity.writeTo(fstream);
+		} catch (IllegalStateException e) {
+			Log.e(TAG, "illegal state: " + e.getMessage());
+			e.printStackTrace();
+			return;
+		} catch (IOException e) {
+			Log.e(TAG, "io: " + e.getMessage());
+			e.printStackTrace();
+			return;
+		}
 	}
 	
 	
