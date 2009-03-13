@@ -86,6 +86,10 @@ public abstract class GomEntry {
         return mName;
     }
     
+    public String toString() {
+    	return mName;
+    }
+    
     
     public String getPath() {
         
