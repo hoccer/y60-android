@@ -4,6 +4,9 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
+import java.net.URLEncoder;
+import java.util.Map;
+import java.util.Set;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -69,28 +72,40 @@ public class HTTPHelper {
 	}
 	
 
-    public static JSONObject postJson(String pUrl, JSONObject pData) throws JSONException {
+    public static StatusLine putUrlEncoded(String pUrl, Map<String, String> pData) {
         
-        String url = toJsonUrl(pUrl);
+        StringBuffer tmp = new StringBuffer();
+        Set<String> keys = pData.keySet();
+        int idx = 0;
+        for (String key: keys) {
+            
+            tmp.append(URLEncoder.encode(key));
+            tmp.append("=");
+            tmp.append(URLEncoder.encode(pData.get(key)));
+            
+            idx += 1;
+            
+            if (idx < keys.size()) {
+                
+                tmp.append("&");
+            }
+        }
         
-        Log.v(TAG, "POST to "+url+" JSON data "+pData.toString());
+        HttpPut put  = new HttpPut(pUrl);
+        String  body = tmp.toString();
         
-        HttpPost post = new HttpPost(url);
-        insertJson(pData.toString(), post);
-        HttpResponse result = executeHTTPMethod(post);
-        String body = extractBody(result.getEntity());
-        return new JSONObject(body);
+        Log.v(TAG, "PUT "+pUrl+" with body "+body);
+        
+        insertUrlEncoded(body, put);
+        return executeHTTPMethod(put).getStatusLine();
     }
-
     
-    public static String putJson(String pUrl, JSONObject pData) throws JSONException {
-        
-        Log.v(TAG, "PUT to "+pUrl+" JSON data "+pData.toString());
+    
+    public static StatusLine putUrlEncoded(String pUrl, String pData) {
         
         HttpPut put = new HttpPut(pUrl);
-        insertJson(pData.toString(), put);
-        StatusLine statusLine = executeHTTPMethod(put).getStatusLine();
-        return statusLine.getStatusCode() + " " + statusLine.getReasonPhrase();
+        insertUrlEncoded(URLEncoder.encode(pData), put);
+        return executeHTTPMethod(put).getStatusLine();
     }
 
 
@@ -118,20 +133,26 @@ public class HTTPHelper {
 	}
 	
 	
-    private static void insertJson(String body, HttpEntityEnclosingRequestBase method) {
+    private static void insertUrlEncoded(String pEncodedBody, HttpEntityEnclosingRequestBase method) {
         
-        insert(body, "application/json", "application/json", method);
+        insert(pEncodedBody, "application/x-www-form-urlencoded", "application/json", method);
     }
     
     
 	private static void insert(String pBody, String pContentType, String pAccept, HttpEntityEnclosingRequestBase pMethod) {
+	    
+	    Log.v(TAG, "inserting for content type "+pContentType+", body is "+pBody);
+	    
         StringEntity entity;
         try {
+            
             entity = new StringEntity(pBody);
             pMethod.setEntity(entity);
             pMethod.addHeader("Content-Type", pContentType);
-            pMethod.addHeader("Accept", pAccept);         
+            pMethod.addHeader("Accept", pAccept);      
+            
         } catch (UnsupportedEncodingException e) {
+            
             Log.e(TAG, "unsupported encoding: " + e.getMessage());
             e.printStackTrace();
         }

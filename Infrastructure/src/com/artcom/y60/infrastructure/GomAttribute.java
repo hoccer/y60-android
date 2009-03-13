@@ -1,5 +1,9 @@
 package com.artcom.y60.infrastructure;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import org.apache.http.StatusLine;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -86,12 +90,20 @@ public class GomAttribute extends GomEntry {
         try {
             
             mValue = pValue;
-            String     uri  = getUri().toString();
-            JSONObject json = toJson();
+            String uri = getUri().toString();
+
+            Map<String, String> formData = new HashMap<String, String>();
+            formData.put(GomKeywords.ATTRIBUTE, getValue());
             
-            String result = HTTPHelper.putJson(uri, json);
+            StatusLine sline  = HTTPHelper.putUrlEncoded(uri, formData);
             
-            Log.v("TAG", "HTTP result:"+result);
+            Log.v(TAG, "result code: "+sline.getStatusCode());
+            
+            if (sline.getStatusCode() >= 300) {
+                
+                // not want!
+                throw new RuntimeException("HTTP server returned status code "+sline.getStatusCode()+"!");
+            }
             
         } catch (Exception e) {
             
@@ -107,7 +119,7 @@ public class GomAttribute extends GomEntry {
         
 //      { "attribute": {
 //          "name": <name>,
-//          "node": <path>,
+//          "node": <node-path>,
 //          "value": <value>,
 //          "type": "string"
 //      } }
