@@ -4,6 +4,12 @@ import android.test.AndroidTestCase;
 
 public class GomRepositoryTest extends AndroidTestCase {
 
+    // Constants ---------------------------------------------------------
+
+    private static final String FIXTURES = GomTestConstants.FIXTURES+"gom_repository_test/";
+    
+    
+
     // Instance Variables ------------------------------------------------
 
     private GomRepository mRepos;
@@ -24,36 +30,28 @@ public class GomRepositoryTest extends AndroidTestCase {
     }
     
     
-    public void testGetATopLevelNode() {
+    public void testGetNode() {
         
-        GomEntry entry = mRepos.getEntry("/users");
+        String name = "node";
+        String path = FIXTURES+name;
+        GomEntry entry = mRepos.getEntry(path);
         
         assertNotNull(entry);
-        assertEquals("users", entry.getName());
-        assertEquals("/users", entry.getPath());
+        assertEquals(name, entry.getName());
+        assertEquals(path, entry.getPath());
         assertTrue(entry instanceof GomNode);
     }
     
     
     public void testGetAttribute() {
         
-        GomEntry entry = mRepos.getEntry("/users/orange/configuration:background");
+        String name = "attribute";
+        String path = FIXTURES+"node:"+name;
+        GomEntry entry = mRepos.getEntry(path);
         
         assertNotNull(entry);
-        assertEquals("background", entry.getName());
-        assertEquals("/users/orange/configuration:background", entry.getPath());
+        assertEquals(name, entry.getName());
+        assertEquals(path, entry.getPath());
         assertTrue(entry instanceof GomAttribute);
     }
-    
-    
-    public void testGetLowerLevelNode() {
-        
-        GomEntry entry = mRepos.getEntry("/users/orange/configuration");
-        
-        assertNotNull(entry);
-        assertEquals("configuration", entry.getName());
-        assertEquals("/users/orange/configuration", entry.getPath());
-        assertTrue(entry instanceof GomNode);
-    }
-
 }

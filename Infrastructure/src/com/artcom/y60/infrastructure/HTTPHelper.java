@@ -59,7 +59,7 @@ public class HTTPHelper {
 		HttpGet get = new HttpGet(uri);
 		HttpEntity entity = executeHTTPMethod(get).getEntity();
 		String result = extractBody(entity);
-		Log.v(TAG, "got: " + result);
+		//Log.v(TAG, "got: " + result);
 		return result;
 	}
 	

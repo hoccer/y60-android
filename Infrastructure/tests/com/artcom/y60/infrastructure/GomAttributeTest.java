@@ -7,9 +7,11 @@ public class GomAttributeTest extends AndroidTestCase {
 
     // Constants ---------------------------------------------------------
 
-    static final String PATH = "/tours/development/users/orange:active_mood";
+    static final String NAME = "attribute";
     
-    static final String VALUE = "/tours/development/users/orange/personal_storage:mood_001"; 
+    static final String PATH = GomTestConstants.FIXTURES+"gom_attribute_test:"+NAME;
+    
+    static final String VALUE = PATH; 
     
 
     
@@ -43,7 +45,7 @@ public class GomAttributeTest extends AndroidTestCase {
     
     public void testGetName() {
         
-        assertEquals("active_mood", mTestAttr.getName());
+        assertEquals(NAME, mTestAttr.getName());
     }
     
     
@@ -57,7 +59,6 @@ public class GomAttributeTest extends AndroidTestCase {
         
         assertEquals(VALUE, entry.getPath());
         assertTrue(entry instanceof GomAttribute);
-        assertEquals("http://storage.service.t-gallery.act/moods/cinema.xml",
-                     ((GomAttribute)entry).getValue());
+        assertEquals(VALUE, ((GomAttribute)entry).getValue());
     }
 }

@@ -9,6 +9,24 @@ import android.test.AndroidTestCase;
 
 public class GomNodeTest extends AndroidTestCase {
 
+    // Constants ---------------------------------------------------------
+
+    static final String NAME = "node";
+    
+    static final String PATH = GomTestConstants.FIXTURES+"gom_node_test/"+NAME;
+    
+    static final String ATTR_NAME = "attribute";
+    
+    static final String ATTR_VALUE = "value";
+    
+    static final String ATTR_PATH = PATH+":"+ATTR_NAME;
+    
+    static final String CHILD_NAME = "child";
+    
+    static final String CHILD_PATH = PATH+"/"+CHILD_NAME;
+    
+
+    
     // Instance Variables ------------------------------------------------
 
     private GomNode mTestNode;
@@ -21,61 +39,59 @@ public class GomNodeTest extends AndroidTestCase {
     public void setUp() {
         
         GomRepository repos = new GomRepository(GomTestConstants.TEST_REPOSITORY_URI);
-        mTestNode = (GomNode)repos.getEntry("/tours/development/users/orange");
+        mTestNode = (GomNode)repos.getEntry(PATH);
     }
     
     
     public void testGetName() {
         
-        assertEquals("orange", mTestNode.getName());
+        assertEquals(NAME, mTestNode.getName());
     }
     
     
     public void testGetPath() {
         
-        assertEquals("/users/orange", mTestNode.getPath());
+        assertEquals(PATH, mTestNode.getPath());
     }
     
     
     public void testGetChildNode() {
         
-        GomEntry entry = mTestNode.getNode("configuration");
+        GomEntry entry = mTestNode.getNode(CHILD_NAME);
         
         assertNotNull(entry);
-        assertEquals("configuration", entry.getName());
-        assertEquals("/users/orange/configuration", entry.getPath());
+        assertEquals(CHILD_NAME, entry.getName());
+        assertEquals(CHILD_PATH, entry.getPath());
         assertTrue(entry instanceof GomNode);
     }
     
     
     public void testGetAttribute() {
      
-        GomEntry entry = mTestNode.getEntry("colour_code");
+        GomEntry entry = mTestNode.getEntry(ATTR_NAME);
         
         assertNotNull(entry);
-        assertEquals("colour_code", entry.getName());
-        assertEquals("/users/orange:colour_code", entry.getPath());
+        assertEquals(ATTR_NAME, entry.getName());
+        assertEquals(ATTR_PATH, entry.getPath());
         assertTrue(entry instanceof GomAttribute);
-        assertEquals("orange", ((GomAttribute)entry).getValue());
+        assertEquals(ATTR_VALUE, ((GomAttribute)entry).getValue());
     }
     
     
     public void testGetEntry() {
         
-        GomEntry entry = mTestNode.getEntry("inbox");
-        
+        GomEntry entry = mTestNode.getEntry(CHILD_NAME);
         assertNotNull(entry);
-        assertEquals("inbox", entry.getName());
-        assertEquals("/users/orange/inbox", entry.getPath());
+        assertEquals(CHILD_NAME, entry.getName());
+        assertEquals(CHILD_PATH, entry.getPath());
         assertTrue(entry instanceof GomNode);
         
-        entry = mTestNode.getEntry("active_profile");
-        
+        entry = mTestNode.getEntry(ATTR_NAME);
         assertNotNull(entry);
-        assertEquals("active_profile", entry.getName());
-        assertEquals("/users/orange:active_profile", entry.getPath());
+        assertEquals(ATTR_NAME, entry.getName());
+        assertEquals(ATTR_PATH, entry.getPath());
         assertTrue(entry instanceof GomAttribute);
-        assertEquals("home", ((GomAttribute)entry).getValue());
+        assertEquals(ATTR_VALUE, ((GomAttribute)entry).getValue());
     }
     
     
@@ -84,12 +100,7 @@ public class GomNodeTest extends AndroidTestCase {
         Set<GomAttribute> attrs = mTestNode.attributes();
         
         Map<String, String> expected = new HashMap<String, String>();
-        
-        // test data...?!
-        expected.put("colour_code", "orange");
-        expected.put("active_mood", "/users/orange/personal_storage:mood_001");
-        expected.put("party", "http://storage.service.t-gallery.act/parties/01.xml");
-        expected.put("active_profile", "home");
+        expected.put(ATTR_NAME, ATTR_VALUE);
         
         assertEquals(expected.size(), attrs.size());
         
@@ -106,15 +117,9 @@ public class GomNodeTest extends AndroidTestCase {
         Set<GomEntry> entries = mTestNode.entries();
         
         Map<String, String> expAtts = new HashMap<String, String>();
-        expAtts.put("colour_code", "orange");
-        expAtts.put("active_mood", "/users/orange/personal_storage:mood_001");
-        expAtts.put("party", "http://storage.service.t-gallery.act/parties/01.xml");
-        expAtts.put("active_profile", "home");
+        expAtts.put(ATTR_NAME, ATTR_VALUE);
         Set<String> expNodes = new HashSet<String>();
-        expNodes.add("personal_storage");
-        expNodes.add("inbox");
-        expNodes.add("configuration");
-        expNodes.add("address_book");
+        expNodes.add(CHILD_NAME);
         
         assertEquals(expAtts.size()+expNodes.size(), entries.size());
         
@@ -144,14 +149,8 @@ public class GomNodeTest extends AndroidTestCase {
         Set<String> keys = mTestNode.entryNames();
         
         Set<String> expected = new HashSet<String>();
-        expected.add("colour_code");
-        expected.add("active_mood");
-        expected.add("party");
-        expected.add("active_profile");
-        expected.add("personal_storage");
-        expected.add("inbox");
-        expected.add("configuration");
-        expected.add("address_book");
+        expected.add(ATTR_NAME);
+        expected.add(CHILD_NAME);
         
         assertEquals(expected.size(), keys.size());
         
@@ -167,12 +166,7 @@ public class GomNodeTest extends AndroidTestCase {
         Set<GomNode> nodes = mTestNode.nodes();
         
         Set<String> expected = new HashSet<String>();
-        
-        // test data...?!
-        expected.add("personal_storage");
-        expected.add("inbox");
-        expected.add("configuration");
-        expected.add("address_book");
+        expected.add(CHILD_NAME);
         
         assertEquals(expected.size(), nodes.size());
         

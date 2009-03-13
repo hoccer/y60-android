@@ -8,6 +8,8 @@ public abstract class GomTestConstants {
 
     static final URI TEST_REPOSITORY_URI;
     
+    static final String FIXTURES = "/test/android/y60/infrastructure/";
+    
     static {
         
         try {
