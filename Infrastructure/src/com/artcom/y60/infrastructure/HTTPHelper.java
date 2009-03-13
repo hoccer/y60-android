@@ -28,6 +28,7 @@ import org.apache.http.protocol.HttpContext;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.net.Uri;
 import android.util.Log;
 
 public class HTTPHelper {
@@ -53,14 +54,19 @@ public class HTTPHelper {
 		return extractBody(result.getEntity());
 	}
 
-	public static String get(String uri) {
+	public static String get(Uri uri) {
 
-        Log.v(TAG, "get('"+uri+"')");
-		HttpGet get = new HttpGet(uri);
+		Log.v(TAG, "get('"+uri+"')");
+		HttpGet get = new HttpGet(uri.toString());
 		HttpEntity entity = executeHTTPMethod(get).getEntity();
 		String result = extractBody(entity);
 		//Log.v(TAG, "got: " + result);
 		return result;
+
+	}
+	
+	public static String get(String uri) {
+		return get(Uri.parse(uri));
 	}
 	
 	public static void fetchUriToFile( String uriString, String filename ) {
