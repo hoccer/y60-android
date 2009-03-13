@@ -1,6 +1,7 @@
 package com.artcom.y60.infrastructure;
 
 import java.net.URI;
+import java.util.Comparator;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -15,6 +16,18 @@ import android.util.Log;
  *
  */
 public abstract class GomEntry {
+
+    // Constants ---------------------------------------------------------
+
+    private static Comparator<GomEntry> BY_NAME_COMPARATOR = new Comparator<GomEntry>() {
+
+        public int compare(GomEntry pEntry1, GomEntry pEntry2) {
+
+            return pEntry1.getName().compareTo(pEntry2.getName());
+        }
+    };
+    
+    
 
     // Instance Variables ------------------------------------------------
 
@@ -34,6 +47,11 @@ public abstract class GomEntry {
     
     // Static Methods ----------------------------------------------------
 
+    public static Comparator<GomEntry> byNameComparator() {
+        
+        return BY_NAME_COMPARATOR;
+    }
+    
     /**
      * Constructs a new GomEntry from a JSON representation. Used internally only. Use the
      * methods of class GomRepository to retrieve GOM entries.
@@ -59,7 +77,7 @@ public abstract class GomEntry {
     
     // Constructors ------------------------------------------------------
 
-    GomEntry(String pName, String pPath, GomRepository pRepos) {
+    protected GomEntry(String pName, String pPath, GomRepository pRepos) {
         
         if (pName == null) {
             throw new IllegalArgumentException("Name can't be null!");
@@ -68,7 +86,7 @@ public abstract class GomEntry {
             throw new IllegalArgumentException("Path can't be null!");
         }
         if (pRepos == null) {
-            throw new IllegalArgumentException("Path can't be null!");
+            throw new IllegalArgumentException("Repository can't be null!");
         }
         
         mName  = pName;
@@ -81,6 +99,8 @@ public abstract class GomEntry {
     
     // Public Instance Methods -------------------------------------------
 
+    public abstract JSONObject toJson();
+    
     public String getName() {
         
         return mName;

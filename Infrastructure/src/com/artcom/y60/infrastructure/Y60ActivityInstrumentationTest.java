@@ -4,8 +4,10 @@ import android.app.Activity;
 import android.app.Instrumentation;
 import android.os.SystemClock;
 import android.test.ActivityInstrumentationTestCase;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
+import android.view.View;
 
 /**
  * Adds some helpers to the ActivityInstrumentationTestCase
@@ -14,7 +16,7 @@ import android.view.MotionEvent;
  *
  * @param <T> the activity class to be tested
  */
-public abstract class Y60ActivityTest<T extends Activity> extends ActivityInstrumentationTestCase<T> {
+public abstract class Y60ActivityInstrumentationTest<T extends Activity> extends ActivityInstrumentationTestCase<T> {
 
     // Constants ---------------------------------------------------------
 
@@ -34,7 +36,7 @@ public abstract class Y60ActivityTest<T extends Activity> extends ActivityInstru
 
     // Constructors ------------------------------------------------------
 
-    public Y60ActivityTest(String pkg, Class<T> activityClass,
+    public Y60ActivityInstrumentationTest(String pkg, Class<T> activityClass,
             boolean initialTouchMode) {
         super(pkg, activityClass, initialTouchMode);
         // TODO Auto-generated constructor stub
@@ -42,14 +44,40 @@ public abstract class Y60ActivityTest<T extends Activity> extends ActivityInstru
 
 
 
-    public Y60ActivityTest(String pkg, Class<T> activityClass) {
+    public Y60ActivityInstrumentationTest(String pkg, Class<T> activityClass) {
         super(pkg, activityClass);
         // TODO Auto-generated constructor stub
     }
 
     
 
+    // Public Instance Methods -------------------------------------------
+
+    public void setUp() throws Exception {
+        
+        Log.v(tag(), " --- "+getName()+" -- setUp ------------------------------------------------------------");
+        
+        super.setUp();
+    }
+    
+
+    public void tearDown() throws Exception {
+        
+        Log.v(tag(), " --- "+getName()+" -- tearDown ------------------------------------------------------------");
+        
+        super.tearDown();
+    }
+    
+
+    
     // Protected Instance Methods ----------------------------------------
+    
+    protected void assertIsShown(int pViewId) {
+        
+        View view = getActivity().findViewById(pViewId);
+        assertTrue("visibility of view "+pViewId, view.isShown());
+    }
+    
     
     /**
      * In order for a fling gesture to be detected by the Android GestureDetector class,
@@ -110,5 +138,14 @@ public abstract class Y60ActivityTest<T extends Activity> extends ActivityInstru
         instrumentation.sendKeySync(new KeyEvent(KeyEvent.ACTION_DOWN, pKeyCode));
         Thread.sleep(pDurationMillis);
         instrumentation.sendKeySync(new KeyEvent(KeyEvent.ACTION_UP, pKeyCode));
+    }
+    
+    
+    /**
+     * Shorthand for <code>getClass().getName()</code>, to be used for logcat logging.
+     */
+    protected String tag() {
+        
+        return getClass().getName();
     }
 } 

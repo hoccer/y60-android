@@ -27,6 +27,8 @@ public class GomAttribute extends GomEntry {
     /** The attribute value */
     private String mValue;
     
+    private String mNodePath;
+    
     
     
     // Static Methods ----------------------------------------------------
@@ -51,14 +53,15 @@ public class GomAttribute extends GomEntry {
      * Used internally only. Use the methods of GomRepository to load resource
      * states.
      */
-    GomAttribute(String pName, String pValue, String pPath, GomRepository pRepos) {
+    protected GomAttribute(String pName, String pValue, String pPath, GomRepository pRepos) {
         
         super(pName, pPath, pRepos);
         
         if (pValue == null) {
             throw new IllegalArgumentException("Value can't be null!");
         }
-        mValue = pValue;
+        mValue    = pValue;
+        mNodePath = pPath.substring(0, pPath.lastIndexOf(":"));
     }
     
     
@@ -68,6 +71,65 @@ public class GomAttribute extends GomEntry {
     public String getValue() {
         
         return mValue;
+    }
+    
+    
+    public GomNode getNode() {
+        
+        return getRepository().getNode(mNodePath);
+    }
+    
+    
+    public void putValue(String pValue)  {
+        
+        String oldValue = mValue;
+        try {
+            
+            mValue = pValue;
+            String     uri  = getUri().toString();
+            JSONObject json = toJson();
+            
+            String result = HTTPHelper.putJson(uri, json);
+            
+            Log.v("TAG", "HTTP result:"+result);
+            
+        } catch (Exception e) {
+            
+            // roll back
+            mValue = oldValue;
+            
+            throw new RuntimeException(e);
+        }
+    }
+    
+    
+    public JSONObject toJson() {
+        
+//      { "attribute": {
+//          "name": <name>,
+//          "node": <path>,
+//          "value": <value>,
+//          "type": "string"
+//      } }
+        
+        try {
+            
+            JSONObject json = new JSONObject();
+            
+            JSONObject attr = new JSONObject();
+            json.put(GomKeywords.ATTRIBUTE, attr);
+            
+            attr.put(GomKeywords.NAME, getName());
+            attr.put(GomKeywords.NODE, mNodePath);
+            attr.put(GomKeywords.VALUE, getValue());
+            attr.put(GomKeywords.TYPE, "string");
+    
+            return json;
+            
+        } catch (JSONException e) {
+            
+            throw new RuntimeException(e);
+        }
     }
     
     
