@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URLEncoder;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -97,6 +96,9 @@ public class HTTPHelper {
 	    
 	    String url    = toJsonUrl(pUrl);
 	    String result = get(url);
+	    
+	    Log.v(TAG, "JSON result: "+result);
+	    
 	    return new JSONObject(result);
 	}
 	
@@ -197,7 +199,7 @@ public class HTTPHelper {
 		DefaultHttpClient httpclient = new DefaultHttpClient();
 		
 		// Log redirects
-		httpclient.setRedirectHandler(new DefaultRedirectHandler(){
+		httpclient.setRedirectHandler(new DefaultRedirectHandler() {
             @Override
             public URI getLocationURI(HttpResponse response, HttpContext context) throws ProtocolException {
                 URI uri = super.getLocationURI(response, context);
