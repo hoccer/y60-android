@@ -117,6 +117,12 @@ public class HTTPHelper {
 	    return new JSONObject(result);
 	}
 	
+	public static StatusLine getStatusLine(String url) {
+	    
+		HttpGet get = new HttpGet(url);
+		return executeHTTPMethod(get).getStatusLine();
+	}
+	
 
     public static StatusLine putUrlEncoded(String pUrl, Map<String, String> pData) {
         
