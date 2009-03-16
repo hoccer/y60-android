@@ -31,11 +31,14 @@ import android.app.Service;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
+import android.os.Binder;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.widget.Toast;
+
+import com.artcom.y60.infrastructure.PreferencesActivity;
 
 public class DeviceControllerService extends Service
 {
@@ -53,6 +56,8 @@ public class DeviceControllerService extends Service
    
     private static final String LOG_TAG = "DeviceControllerService";
 
+    private IBinder binder = new DeviceControllerBinder();
+    
     public void onCreate()
     {
             Log.i( LOG_TAG, "onCreate called");
@@ -181,11 +186,26 @@ public class DeviceControllerService extends Service
             return null;
     }
 
+    
+    public String getGomLocation() {
+        
+        return preferences.getString(PreferencesActivity.KEY_GOM_LOCATION, "");
+    }
+    
+    
+    public String getSelfPath() {
+        
+        return preferences.getString(PreferencesActivity.KEY_DEVICES_PATH, "")+
+               "/"+preferences.getString(PreferencesActivity.KEY_DEVICE_ID, "");
+    }
+    
+    
     @Override
     public IBinder onBind(Intent intent)
     {
         Log.d(LOG_TAG, "onBind called");
-        return null;
+        
+        return binder;
     }
 
     private void startJetty() throws Exception
@@ -226,5 +246,14 @@ public class DeviceControllerService extends Service
         server.stop();
         server.join();
         server = null;
+    }
+    
+    
+    public class DeviceControllerBinder extends Binder {
+        
+        public DeviceControllerService getService() {
+            
+            return DeviceControllerService.this;
+        }
     }
 }
