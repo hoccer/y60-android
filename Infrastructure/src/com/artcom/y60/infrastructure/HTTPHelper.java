@@ -5,13 +5,13 @@ import java.io.ByteArrayOutputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URLEncoder;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpVersion;
@@ -20,6 +20,7 @@ import org.apache.http.StatusLine;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpHead;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
 import org.apache.http.client.methods.HttpRequestBase;
@@ -117,10 +118,18 @@ public class HTTPHelper {
 	    return new JSONObject(result);
 	}
 	
-	public static StatusLine getStatusLine(String url) {
+	public static Uri getLocationHeader(String url) {
 	    
-		HttpGet get = new HttpGet(url);
-		return executeHTTPMethod(get).getStatusLine();
+		HttpHead head = new HttpHead(url);
+		HttpResponse response = executeHTTPMethod(head);
+		if (response.containsHeader( "Location" )) {
+			Header locationHeader = response.getFirstHeader( "Location" );
+			Log.v( LOG_TAG, "Location: " + locationHeader.getValue() );
+			return Uri.parse( locationHeader.getValue() );
+		} else {
+			Log.v( LOG_TAG, "HTTP response does not contain a Location header" );
+		}
+		throw new RuntimeException();
 	}
 	
 

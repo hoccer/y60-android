@@ -1,10 +1,12 @@
 package com.artcom.y60.infrastructure;
 
 import java.net.URI;
+import java.net.URISyntaxException;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.net.Uri;
 import android.util.Log;
 
 /**
@@ -29,16 +31,32 @@ public class GomRepository {
     
     // Constructors ------------------------------------------------------
 
-    public GomRepository(URI pBaseUri) {
+    public GomRepository(Uri uri) {
         
-        if (pBaseUri == null) {
+        if (uri == null) {
             throw new IllegalArgumentException("Base URI can't be null!");
         }
         
-        mBaseUri = pBaseUri;
+        // TODO refactor me! plzzzz!
+        try {
+			mBaseUri = new URI(uri.toString());
+		} catch (URISyntaxException e) {
+			// TODO Auto-generated catch block
+			throw new RuntimeException(e);
+		}
     }
     
-    
+   public GomRepository(URI uri) {
+        
+        if (uri == null) {
+            throw new IllegalArgumentException("Base URI can't be null!");
+        }
+        
+        // TODO refactor me! plzzzz!
+
+		mBaseUri = uri;
+
+    }
     
     // Public Instance Methods -------------------------------------------
 

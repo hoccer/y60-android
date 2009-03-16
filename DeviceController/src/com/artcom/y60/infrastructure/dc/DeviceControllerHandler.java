@@ -63,7 +63,7 @@ public class DeviceControllerHandler extends DefaultHandler
 		}
 		
 		// All other GET requests are redirected to the GOM
-		if (method.equals( "GET" )) {
+		if (method.equals( "GET" ) || method.equals( "HEAD" )) {
 			
 			if (path == null) {
 				path = "";
