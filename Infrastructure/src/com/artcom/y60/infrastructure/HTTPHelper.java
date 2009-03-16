@@ -1,8 +1,11 @@
 package com.artcom.y60.infrastructure;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URLEncoder;
@@ -35,7 +38,7 @@ public class HTTPHelper {
 
     // Constants ---------------------------------------------------------
 
-    private static final String TAG = "HTTPHelper";
+    private static final String LOG_TAG = "HTTPHelper";
     
     
     // Static Methods ----------------------------------------------------
@@ -54,9 +57,21 @@ public class HTTPHelper {
 		return extractBody(result.getEntity());
 	}
 
+	public static InputStream getAsInStream( String uri_string ) throws IOException {
+		
+		HttpGet get = new HttpGet(uri_string);
+		HttpEntity entity = executeHTTPMethod(get).getEntity();
+
+		ByteArrayOutputStream ostream = new ByteArrayOutputStream();
+		entity.writeTo(ostream);
+
+		ByteArrayInputStream istream = new ByteArrayInputStream( ostream.toByteArray() );
+		return istream;
+	}
+	
 	public static String get(Uri uri) {
 
-		Log.v(TAG, "get('"+uri+"')");
+		Log.v(LOG_TAG, "get('"+uri+"')");
 		HttpGet get = new HttpGet(uri.toString());
 		HttpEntity entity = executeHTTPMethod(get).getEntity();
 		String result = extractBody(entity);
@@ -75,17 +90,17 @@ public class HTTPHelper {
 		
 		// Generate a random filename to store the data under
 		
-		Log.v( TAG, "Storing content under filename " +  filename );
+		Log.v( LOG_TAG, "Storing content under filename " +  filename );
 
 		try {
 			FileOutputStream fstream = new FileOutputStream( filename );
 			entity.writeTo(fstream);
 		} catch (IllegalStateException e) {
-			Log.e(TAG, "illegal state: " + e.getMessage());
+			Log.e(LOG_TAG, "illegal state: " + e.getMessage());
 			e.printStackTrace();
 			return;
 		} catch (IOException e) {
-			Log.e(TAG, "io: " + e.getMessage());
+			Log.e(LOG_TAG, "io: " + e.getMessage());
 			e.printStackTrace();
 			return;
 		}
@@ -97,7 +112,7 @@ public class HTTPHelper {
 	    String url    = toJsonUrl(pUrl);
 	    String result = get(url);
 	    
-	    Log.v(TAG, "JSON result: "+result);
+	    Log.v(LOG_TAG, "JSON result: "+result);
 	    
 	    return new JSONObject(result);
 	}
@@ -125,7 +140,7 @@ public class HTTPHelper {
         HttpPut put  = new HttpPut(pUrl);
         String  body = tmp.toString();
         
-        Log.v(TAG, "PUT "+pUrl+" with body "+body);
+        Log.v(LOG_TAG, "PUT "+pUrl+" with body "+body);
         
         insertUrlEncoded(body, put);
         return executeHTTPMethod(put).getStatusLine();
@@ -144,14 +159,14 @@ public class HTTPHelper {
 		try {
 			ByteArrayOutputStream ostream = new ByteArrayOutputStream();
 			entity.writeTo(ostream);
-			Log.v(TAG, ostream.toString());
+			Log.v(LOG_TAG, ostream.toString());
 			return ostream.toString();
 		} catch (IllegalStateException e) {
-			Log.e(TAG, "illegal state: " + e.getMessage());
+			Log.e(LOG_TAG, "illegal state: " + e.getMessage());
 			e.printStackTrace();
 			return e.getMessage();
 		} catch (IOException e) {
-			Log.e(TAG, "io: " + e.getMessage());
+			Log.e(LOG_TAG, "io: " + e.getMessage());
 			e.printStackTrace();
 			return e.getMessage();
 		}
@@ -172,7 +187,7 @@ public class HTTPHelper {
     
 	private static void insert(String pBody, String pContentType, String pAccept, HttpEntityEnclosingRequestBase pMethod) {
 	    
-	    Log.v(TAG, "inserting for content type "+pContentType+", body is "+pBody);
+	    Log.v(LOG_TAG, "inserting for content type "+pContentType+", body is "+pBody);
 	    
         StringEntity entity;
         try {
@@ -184,7 +199,7 @@ public class HTTPHelper {
             
         } catch (UnsupportedEncodingException e) {
             
-            Log.e(TAG, "unsupported encoding: " + e.getMessage());
+            Log.e(LOG_TAG, "unsupported encoding: " + e.getMessage());
             e.printStackTrace();
         }
 	}
@@ -197,7 +212,7 @@ public class HTTPHelper {
             @Override
             public URI getLocationURI(HttpResponse response, HttpContext context) throws ProtocolException {
                 URI uri = super.getLocationURI(response, context);
-                Log.v(TAG, response.getStatusLine().getStatusCode() + " redirect to: " + uri);
+                Log.v(LOG_TAG, response.getStatusLine().getStatusCode() + " redirect to: " + uri);
                 return uri;
             }
         });
@@ -207,13 +222,13 @@ public class HTTPHelper {
 		try {
 			response = httpclient.execute(method);
 		} catch (ClientProtocolException e) {
-			Log.e(TAG, "protocol exception: " + e.getMessage());
+			Log.e(LOG_TAG, "protocol exception: " + e.getMessage());
 			e.printStackTrace();
 		} catch (IOException e) {
-			Log.e(TAG, "io exception: " + e.getMessage());
+			Log.e(LOG_TAG, "io exception: " + e.getMessage());
 			e.printStackTrace();
 		} catch (Exception e) {
-			Log.e(TAG, "unknown exception:" + e.getMessage());
+			Log.e(LOG_TAG, "unknown exception:" + e.getMessage());
 			e.printStackTrace();
 		}
 		return response;
@@ -266,7 +281,7 @@ public class HTTPHelper {
         HttpPost post  = new HttpPost(pUrl);
         String  body = tmp.toString();
         
-        Log.v(TAG, "POST "+pUrl+" with body "+body);
+        Log.v(LOG_TAG, "POST "+pUrl+" with body "+body);
         
         insertUrlEncoded(body, post);
         return executeHTTPMethod(post).getStatusLine();
