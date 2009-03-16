@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URLEncoder;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -240,5 +241,34 @@ public class HTTPHelper {
         
         return pUrl;
 	}
+
+    public static StatusLine postUrlEncoded( String pUrl, Map<String, String> pData)
+    {    
+        StringBuffer tmp = new StringBuffer();
+        Set<String> keys = pData.keySet();
+        int idx = 0;
+        for (String key: keys) {
+            
+            tmp.append(URLEncoder.encode(key));
+            tmp.append("=");
+            tmp.append(URLEncoder.encode(pData.get(key)));
+            
+            idx += 1;
+            
+            if (idx < keys.size()) {
+                
+                tmp.append("&");
+            }
+        }
+        
+        HttpPost post  = new HttpPost(pUrl);
+        String  body = tmp.toString();
+        
+        Log.v(TAG, "POST "+pUrl+" with body "+body);
+        
+        insertUrlEncoded(body, post);
+        return executeHTTPMethod(post).getStatusLine();
+    }
+
 
 }
