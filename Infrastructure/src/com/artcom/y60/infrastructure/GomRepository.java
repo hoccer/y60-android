@@ -102,4 +102,13 @@ public class GomRepository {
         
         return mBaseUri;
     }
+    
+    protected void setBaseUri(Uri baseUri) {
+        
+        try {
+			mBaseUri = new URI(baseUri.toString());
+		} catch (URISyntaxException e) {
+			throw new RuntimeException("error while parsing new base uri");
+		}
+    }
 }

@@ -15,17 +15,11 @@
 
 package com.artcom.y60.infrastructure.dc;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
-
-import org.mortbay.util.IO;
 
 import android.app.Activity;
 import android.content.Context;
