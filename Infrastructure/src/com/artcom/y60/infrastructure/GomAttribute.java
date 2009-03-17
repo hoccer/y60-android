@@ -72,6 +72,10 @@ public class GomAttribute extends GomEntry {
     
     // Public Instance Methods -------------------------------------------
 
+    public void refresh() {
+    	mValue = HTTPHelper.get( getUri().toString() + ".txt" );
+    }
+    
     public String getValue() {
         
         return mValue;
