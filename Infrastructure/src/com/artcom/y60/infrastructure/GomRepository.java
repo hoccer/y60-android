@@ -89,6 +89,10 @@ public class GomRepository {
         return entry.forceNodeOrException();
     }
     
+	public GomNode getNode(Uri uri) {
+		return getNode(uri.toString());
+	}
+
     
     public GomAttribute getAttribute(String pPath) throws GomEntryTypeMismatchException {
         
