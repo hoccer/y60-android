@@ -14,6 +14,7 @@ import java.util.Set;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
+import org.apache.http.HttpStatus;
 import org.apache.http.HttpVersion;
 import org.apache.http.ProtocolException;
 import org.apache.http.StatusLine;
@@ -75,7 +76,16 @@ public class HTTPHelper {
 
 		Log.v(LOG_TAG, "get('" + uri + "')");
 		HttpGet get = new HttpGet(uri.toString());
-		HttpEntity entity = executeHTTPMethod(get).getEntity();
+		HttpResponse response = executeHTTPMethod(get);
+		// Check for some common errors. Consider throwing an exception here? TODO
+		StatusLine status = response.getStatusLine();
+		int statusCode = status.getStatusCode();
+		if (statusCode == HttpStatus.SC_INTERNAL_SERVER_ERROR) {
+			Log.w( LOG_TAG, "Request came back with 501 Internal Server Error" );
+		} else if (statusCode == HttpStatus.SC_NOT_FOUND) {
+			Log.w( LOG_TAG, "Request came back with 404 Not Found" );		
+		}
+		HttpEntity entity = response.getEntity();
 		String result = extractBody(entity);
 		// Log.v(TAG, "got: " + result);
 		return result;
