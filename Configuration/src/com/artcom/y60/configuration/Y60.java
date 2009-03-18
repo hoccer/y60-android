@@ -32,13 +32,44 @@ package com.artcom.y60.configuration;
 import com.artcom.y60.configuration.R;
 
 import android.app.Activity;
+import android.content.ComponentName;
+import android.content.Intent;
 import android.os.Bundle;
+import android.view.MotionEvent;
+import android.view.Window;
+import android.view.WindowManager;
 
 public class Y60 extends Activity {
     /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    	launchEntryPoint();
+    	super.onCreate(savedInstanceState);
+        
+    	// hide status bar
+        Window win = getWindow();
+        win.setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        
         setContentView(R.layout.main);
     }
+    
+    public boolean onTouchEvent(MotionEvent event){
+    	
+		return true;
+    }
+    
+    private void launchEntryPoint(){
+    	/*
+    	Intent intent = new Intent();
+    	ComponentName component = new ComponentName(
+				"com.artcom.y60.homescreen",
+				"com.artcom.y60.homescreen.HomeScreen");
+		intent.setComponent(component);
+		startActivity(intent);
+		//finish();
+		    
+	    */
+    }
+    
+    
 }
