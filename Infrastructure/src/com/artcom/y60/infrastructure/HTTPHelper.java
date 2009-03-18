@@ -55,6 +55,12 @@ public class HTTPHelper {
 		HttpPost post = new HttpPost(uri);
 		insertXML(body, post);
 		HttpResponse result = executeHTTPMethod(post);
+
+		if (result.getStatusLine().getStatusCode() != 200) {
+			throw new RuntimeException("Execution of HTTP Method returend "
+					+ result.getStatusLine());
+		}
+
 		return extractBody(result.getEntity());
 	}
 
@@ -77,13 +83,16 @@ public class HTTPHelper {
 		Log.v(LOG_TAG, "get('" + uri + "')");
 		HttpGet get = new HttpGet(uri.toString());
 		HttpResponse response = executeHTTPMethod(get);
-		// Check for some common errors. Consider throwing an exception here? TODO
+		// Check for some common errors. Consider throwing an exception here?
+		// TODO
 		StatusLine status = response.getStatusLine();
 		int statusCode = status.getStatusCode();
 		if (statusCode == HttpStatus.SC_INTERNAL_SERVER_ERROR) {
-			Log.w( LOG_TAG, "Request came back with 501 Internal Server Error" );
+			Log.w(LOG_TAG, "Request came back with 501 Internal Server Error");
+			throw new RuntimeException("Request came back with 501 Internal Server Error");
 		} else if (statusCode == HttpStatus.SC_NOT_FOUND) {
-			Log.w( LOG_TAG, "Request came back with 404 Not Found" );		
+			Log.w(LOG_TAG, "Request came back with 404 Not Found");
+			throw new RuntimeException("Request came back with 404 Not Found");
 		}
 		HttpEntity entity = response.getEntity();
 		String result = extractBody(entity);
@@ -247,22 +256,24 @@ public class HTTPHelper {
 		HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_0,
 				500, "Client Error");
 		try {
-			response = httpclient.execute(method);
-		} catch (ClientProtocolException e) {
-			Log.e(LOG_TAG, "protocol exception: " + e.getMessage());
-			throw new RuntimeException("protocol error!");
-		} catch (IOException e) {
-			Log.e(LOG_TAG, "io exception: " + e.getMessage());
-			throw new RuntimeException("I/O error");
+
+			int retryCount = 3;
+			while (retryCount  <= 0) {
+				try {
+					response = httpclient.execute(method);
+					retryCount = 0;
+				} catch (IOException e) {
+					Log.e(LOG_TAG, "io exception: " + e.getMessage());
+					retryCount--;
+				}
+			}
+
 		} catch (Exception e) {
 			Log.e(LOG_TAG, "unknown exception:" + e.getMessage());
-			throw new RuntimeException("Error while executing HTTP method");
+			throw new RuntimeException("Error while executing HTTP method: "
+					+ e.getMessage());
 		}
-		
-		if (response.getStatusLine().getStatusCode() != 200){
-			throw new RuntimeException("Execution of HTTP POST returend " + response.getStatusLine());
-		}
-		
+
 		return response;
 	}
 

@@ -77,7 +77,6 @@ public class GomRepository {
             
             Log.v(TAG, "parsing GOM data from JSON failed", jx);
             throw new RuntimeException(jx);
-            
         }
     }
     
