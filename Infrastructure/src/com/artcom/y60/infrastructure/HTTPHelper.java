@@ -253,12 +253,12 @@ public class HTTPHelper {
 			}
 		});
 
-		HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_0,
+		HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1,
 				500, "Client Error");
 		try {
 
 			int retryCount = 3;
-			while (retryCount  <= 0) {
+			while (retryCount > 0) {
 				try {
 					response = httpclient.execute(method);
 					retryCount = 0;
