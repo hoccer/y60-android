@@ -18,7 +18,6 @@ import org.apache.http.HttpStatus;
 import org.apache.http.HttpVersion;
 import org.apache.http.ProtocolException;
 import org.apache.http.StatusLine;
-import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpHead;
@@ -61,7 +60,7 @@ public class HTTPHelper {
 					+ result.getStatusLine());
 		}
 
-		return extractBody(result.getEntity());
+		return extractBodyAsString(result.getEntity());
 	}
 
 	public static InputStream getAsInStream(String uri_string)
@@ -80,26 +79,15 @@ public class HTTPHelper {
 
 	public static String get(Uri uri) {
 
-		Log.v(LOG_TAG, "get('" + uri + "')");
-		HttpGet get = new HttpGet(uri.toString());
-		HttpResponse response = executeHTTPMethod(get);
-		// Check for some common errors. Consider throwing an exception here?
-		// TODO
-		StatusLine status = response.getStatusLine();
-		int statusCode = status.getStatusCode();
-		if (statusCode == HttpStatus.SC_INTERNAL_SERVER_ERROR) {
-			Log.w(LOG_TAG, "Request came back with 501 Internal Server Error");
-			throw new RuntimeException("Request came back with 501 Internal Server Error");
-		} else if (statusCode == HttpStatus.SC_NOT_FOUND) {
-			Log.w(LOG_TAG, "Request came back with 404 Not Found");
-			throw new RuntimeException("Request came back with 404 Not Found");
-		}
-		HttpEntity entity = response.getEntity();
-		String result = extractBody(entity);
-		// Log.v(TAG, "got: " + result);
-		return result;
-
+        HttpEntity result = getAsHttpEntity(uri);
+        return extractBodyAsString(result);
 	}
+	
+	public static byte[] getAsByteArray(Uri uri) throws IllegalStateException, IOException {
+	    
+	    HttpEntity result = getAsHttpEntity(uri);
+        return extractBodyAsByteArray(result);
+    }
 
 	public static String get(String uri) {
 		return get(Uri.parse(uri));
@@ -187,12 +175,34 @@ public class HTTPHelper {
 		return executeHTTPMethod(put).getStatusLine();
 	}
 
-	private static String extractBody(HttpEntity entity) {
+	
+	
+	// Private Instance Methods ------------------------------------------
+	
+	private static HttpEntity getAsHttpEntity(Uri uri) {
+	    
+        Log.v(LOG_TAG, "get('" + uri + "')");
+        HttpGet get = new HttpGet(uri.toString());
+        HttpResponse response = executeHTTPMethod(get);
+        // Check for some common errors. Consider throwing an exception here?
+        // TODO
+        StatusLine status = response.getStatusLine();
+        int statusCode = status.getStatusCode();
+        if (statusCode == HttpStatus.SC_INTERNAL_SERVER_ERROR) {
+            Log.w(LOG_TAG, "Request came back with 501 Internal Server Error");
+            throw new RuntimeException("Request came back with 501 Internal Server Error");
+        } else if (statusCode == HttpStatus.SC_NOT_FOUND) {
+            Log.w(LOG_TAG, "Request came back with 404 Not Found");
+            throw new RuntimeException("Request came back with 404 Not Found");
+        }
+        
+        return response.getEntity();
+	}
+
+	private static String extractBodyAsString(HttpEntity entity) {
+	    
 		try {
-			ByteArrayOutputStream ostream = new ByteArrayOutputStream();
-			entity.writeTo(ostream);
-			Log.v(LOG_TAG, ostream.toString());
-			return ostream.toString();
+		    return extractBody(entity).toString();
 		} catch (IllegalStateException e) {
 			Log.e(LOG_TAG, "illegal state: " + e.getMessage());
 			e.printStackTrace();
@@ -202,6 +212,19 @@ public class HTTPHelper {
 			e.printStackTrace();
 			return e.getMessage();
 		}
+	}
+	
+	private static byte[] extractBodyAsByteArray(HttpEntity entity) throws IllegalStateException, IOException {
+	    
+	    return extractBody(entity).toByteArray();
+	}
+	
+	private static ByteArrayOutputStream extractBody(HttpEntity entity) throws IOException {
+	    
+        ByteArrayOutputStream ostream = new ByteArrayOutputStream();
+        entity.writeTo(ostream);
+        Log.v(LOG_TAG, ostream.toString());
+        return ostream;
 	}
 
 	private static void insertXML(String body,
