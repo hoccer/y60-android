@@ -52,12 +52,13 @@ public class HTTPHelper {
 	}
 
 	public static String postXML(String uri, String body) {
+		//Log.v(LOG_TAG, "post('" + uri + "'): " + body);
 		HttpPost post = new HttpPost(uri);
 		insertXML(body, post);
 		HttpResponse result = executeHTTPMethod(post);
 
 		if (result.getStatusLine().getStatusCode() != 200) {
-			throw new RuntimeException("Execution of HTTP Method returend "
+			throw new RuntimeException("Execution of HTTP Method POST '" + uri + "' returend "
 					+ result.getStatusLine());
 		}
 

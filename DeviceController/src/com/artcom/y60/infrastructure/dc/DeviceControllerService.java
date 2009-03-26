@@ -38,222 +38,227 @@ import android.preference.PreferenceManager;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.artcom.y60.infrastructure.HTTPHelper;
 import com.artcom.y60.infrastructure.PreferencesActivity;
 
-public class DeviceControllerService extends Service
-{
-    private NotificationManager mNM;
+public class DeviceControllerService extends Service {
+	private NotificationManager mNM;
 
-    private Server server;
-    private boolean _useNIO;
-    private int _port;
+	private Server server;
+	private boolean _useNIO;
+	private int _port;
 
-    private static Resources __resources;
+	private static Resources __resources;
 
-    private SharedPreferences preferences;
+	private SharedPreferences preferences;
 	public static final String DEFAULT_NIONAME = "com.artcom.y60.infrastructure.dc.nio";
 	public static final String DEFAULT_PORTNAME = "com.artcom.y60.infrastructure.dc.port";
-   
-    private static final String LOG_TAG = "DeviceControllerService";
 
-    private IBinder binder = new DeviceControllerBinder();
-    
-    public void onCreate()
-    {
-            Log.i( LOG_TAG, "onCreate called");
-            __resources = getResources();
-    }
+	private static final String LOG_TAG = "DeviceControllerService";
 
+	private IBinder binder = new DeviceControllerBinder();
 
-    public void onStart(Intent intent, int startId)
-    {
-        Log.i( LOG_TAG, "onStart called");
-        if (server != null)
-        {
-            Toast.makeText(DeviceControllerService.this, R.string.jetty_already_started,
-                    Toast.LENGTH_SHORT).show();
-            Log.i("Jetty", "already running");
-            return;
-        }
-        
-        try
-        {
-            preferences = PreferenceManager.getDefaultSharedPreferences(this);
+	public void onCreate() {
+		Log.i(LOG_TAG, "onCreate called");
+		__resources = getResources();
 
-            String portDefault = getText(R.string.pref_port_value).toString();
-            Log.v( LOG_TAG, "Default port is " + portDefault );
-            String nioDefault = getText(R.string.pref_nio_value).toString();
+		Thread thread = new Thread(null, watchNetworkConnection,
+				"watch net connection");
+		thread.start();
+	}
 
-            String portKey = getText(R.string.pref_port_key).toString();
-            String nioKey = getText(R.string.pref_nio_key).toString();
-            
-            _useNIO = preferences.getBoolean(nioKey, Boolean.valueOf(nioDefault));
-            
-            Bundle bundle = intent.getExtras();
-            if (bundle.containsKey(DEFAULT_PORTNAME)) {
-            	_port = Integer.parseInt( bundle.getString(DEFAULT_PORTNAME) );
-            } else {            
-            	_port = Integer.parseInt(preferences.getString(portKey, portDefault));
-            }
-           
-            Log.i("Jetty", "pref port = "+preferences.getString(portKey, portDefault));
-            Log.i("Jetty", "pref nio = "+preferences.getBoolean(nioKey, Boolean.valueOf(nioDefault)));
-            //Log.i("Jetty", "pref pwd = "+preferences.getString(pwdKey, pwdDefault));
+	private Runnable watchNetworkConnection = new Runnable() {
 
-            startJetty();
+		@Override
+		public void run() {
+			while (true) {
+				Log.v(LOG_TAG, "checking gom");
+				try {
+					String content = HTTPHelper
+							.get("http://www.artcom.de/");
+					if (content.length() == 0) {
+						Log.v(LOG_TAG, "could not recive contenent");
+					}
+					Thread.sleep(2 * 1000);
+				} catch (Exception e) {
+					Log.v(LOG_TAG, "no network avialable");
+					Intent configureDC = new Intent("y60.intent.CONFIGURE_DEVICE_CONTROLLER");
+					startActivity(configureDC);
+				}
+			}
+		}
 
-            mNM = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+	};
 
-            Toast.makeText(DeviceControllerService.this, R.string.jetty_started,
-                    Toast.LENGTH_SHORT).show();
+	public void onStart(Intent intent, int startId) {
+		Log.i(LOG_TAG, "onStart called");
+		if (server != null) {
+			Toast.makeText(DeviceControllerService.this,
+					R.string.jetty_already_started, Toast.LENGTH_SHORT).show();
+			Log.i("Jetty", "already running");
+			return;
+		}
 
-            // The PendingIntent to launch DeviceControllerActivity activity if the user selects this notification
-            PendingIntent contentIntent = PendingIntent.getActivity(this, 0,
-                    new Intent(this, DeviceControllerActivity.class), 0);
+		try {
+			preferences = PreferenceManager.getDefaultSharedPreferences(this);
 
-            CharSequence text = getText(R.string.manage_jetty);
+			String portDefault = getText(R.string.pref_port_value).toString();
+			Log.v(LOG_TAG, "Default port is " + portDefault);
+			String nioDefault = getText(R.string.pref_nio_value).toString();
 
-            Notification notification = new Notification(R.drawable.smooth, 
-                    text, 
-                    System.currentTimeMillis());
+			String portKey = getText(R.string.pref_port_key).toString();
+			String nioKey = getText(R.string.pref_nio_key).toString();
 
-            notification.setLatestEventInfo(this, getText(R.string.app_name),
-                    text, contentIntent);
+			_useNIO = preferences.getBoolean(nioKey, Boolean
+					.valueOf(nioDefault));
 
-            mNM.notify(R.string.jetty_started, notification);
-            Log.i(LOG_TAG, "DeviceControllerService started");
-            super.onStart(intent, startId);
-        }
-        catch (Exception e)
-        {
-            Log.e(LOG_TAG, "Error starting DeviceControllerService", e);
-            Toast.makeText(this, getText(R.string.jetty_not_started),
-                    Toast.LENGTH_SHORT).show();
-        }
-    }
+			Bundle bundle = intent.getExtras();
+			if (bundle.containsKey(DEFAULT_PORTNAME)) {
+				_port = Integer.parseInt(bundle.getString(DEFAULT_PORTNAME));
+			} else {
+				_port = Integer.parseInt(preferences.getString(portKey,
+						portDefault));
+			}
 
+			Log.i("Jetty", "pref port = "
+					+ preferences.getString(portKey, portDefault));
+			Log.i("Jetty", "pref nio = "
+					+ preferences.getBoolean(nioKey, Boolean
+							.valueOf(nioDefault)));
+			// Log.i("Jetty", "pref pwd = "+preferences.getString(pwdKey,
+			// pwdDefault));
 
-    public void onDestroy()
-    {
-        try
-        {
-            if (server != null)
-            {
-                stopJetty();
-                // Cancel the persistent notification.
-                mNM.cancel(R.string.jetty_started);
-                // Tell the user we stopped.
-                Toast.makeText(this, getText(R.string.jetty_stopped),
-                        Toast.LENGTH_SHORT).show();
-                Log.i( LOG_TAG, "DeviceControllerService stopped");
-                __resources = null;
-            }
-            else
-            {
-                Log.i(LOG_TAG, "DeviceControllerService not running");
-                Toast.makeText(DeviceControllerService.this, R.string.jetty_not_running,
-                    Toast.LENGTH_SHORT).show();
-            }
-        }
-        catch (Exception e)
-        {
-            Log.e(LOG_TAG, "Error stopping DeviceControllerService", e);
-            Toast.makeText(this, getText(R.string.jetty_not_stopped),
-                    Toast.LENGTH_SHORT).show();
-        }
-    }
-    
-    
+			startJetty();
 
-    public void onLowMemory()
-    {
-        Log.i(LOG_TAG, "Low on memory");
-        super.onLowMemory();
-    }
+			mNM = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
 
+			Toast.makeText(DeviceControllerService.this,
+					R.string.jetty_started, Toast.LENGTH_SHORT).show();
 
-    /**
-     * Hack to get around bug in ResourceBundles
-     * 
-     * @param id
-     * @return
-     */
-    public static InputStream getStreamToRawResource(int id)
-    {
-        if (__resources != null)
-            return __resources.openRawResource(id);
-        else
-            return null;
-    }
+			// The PendingIntent to launch DeviceControllerActivity activity if
+			// the user selects this notification
+			PendingIntent contentIntent = PendingIntent.getActivity(this, 0,
+					new Intent(this, DeviceControllerActivity.class), 0);
 
-    
-    public String getGomLocation() {
-        
-        return preferences.getString(PreferencesActivity.KEY_GOM_LOCATION, "");
-    }
-    
-    
-    public String getSelfPath() {
-        
-        return preferences.getString(PreferencesActivity.KEY_DEVICES_PATH, "")+
-               "/"+preferences.getString(PreferencesActivity.KEY_DEVICE_ID, "");
-    }
-    
-    
-    @Override
-    public IBinder onBind(Intent intent)
-    {
-        Log.d(LOG_TAG, "onBind called");
-        
-        return binder;
-    }
+			CharSequence text = getText(R.string.manage_jetty);
 
-    private void startJetty() throws Exception
-    {
-        server = new Server();
-        Connector connector;
-        if (_useNIO)
-        {
-          SelectChannelConnector nioConnector = new SelectChannelConnector();
-          nioConnector.setUseDirectBuffers(false);
-          nioConnector.setPort(_port);
-          connector = nioConnector;
-        }
-        else
-        {
-            SocketConnector bioConnector = new SocketConnector();
-            bioConnector.setPort(_port);
-            connector = bioConnector;
-        }
-        server.setConnectors(new Connector[] { connector });
+			Notification notification = new Notification(R.drawable.smooth,
+					text, System.currentTimeMillis());
 
-        // Bridge Jetty logging to Android logging
-        System.setProperty("org.mortbay.log.class",
-                           "org.mortbay.log.AndroidLog");
-//        org.mortbay.log.Log.setLog(new AndroidLog());
+			notification.setLatestEventInfo(this, getText(R.string.app_name),
+					text, contentIntent);
 
-        HandlerCollection handlers = new HandlerCollection();
+			mNM.notify(R.string.jetty_started, notification);
+			Log.i(LOG_TAG, "DeviceControllerService started");
+			super.onStart(intent, startId);
+		} catch (Exception e) {
+			Log.e(LOG_TAG, "Error starting DeviceControllerService", e);
+			Toast.makeText(this, getText(R.string.jetty_not_started),
+					Toast.LENGTH_SHORT).show();
+		}
+	}
 
-        handlers.setHandlers(new Handler[] { new DeviceControllerHandler( this ) });
-        server.setHandler(handlers);
-        
-        server.start();
-    }
+	public void onDestroy() {
+		try {
+			if (server != null) {
+				stopJetty();
+				// Cancel the persistent notification.
+				mNM.cancel(R.string.jetty_started);
+				// Tell the user we stopped.
+				Toast.makeText(this, getText(R.string.jetty_stopped),
+						Toast.LENGTH_SHORT).show();
+				Log.i(LOG_TAG, "DeviceControllerService stopped");
+				__resources = null;
+			} else {
+				Log.i(LOG_TAG, "DeviceControllerService not running");
+				Toast.makeText(DeviceControllerService.this,
+						R.string.jetty_not_running, Toast.LENGTH_SHORT).show();
+			}
+		} catch (Exception e) {
+			Log.e(LOG_TAG, "Error stopping DeviceControllerService", e);
+			Toast.makeText(this, getText(R.string.jetty_not_stopped),
+					Toast.LENGTH_SHORT).show();
+		}
+	}
 
-    private void stopJetty() throws Exception
-    {
-        Log.i(LOG_TAG, "DeviceControllerService stopping");
-        server.stop();
-        server.join();
-        server = null;
-    }
-    
-    
-    public class DeviceControllerBinder extends Binder {
-        
-        public DeviceControllerService getService() {
-            
-            return DeviceControllerService.this;
-        }
-    }
+	public void onLowMemory() {
+		Log.i(LOG_TAG, "Low on memory");
+		super.onLowMemory();
+	}
+
+	/**
+	 * Hack to get around bug in ResourceBundles
+	 * 
+	 * @param id
+	 * @return
+	 */
+	public static InputStream getStreamToRawResource(int id) {
+		if (__resources != null)
+			return __resources.openRawResource(id);
+		else
+			return null;
+	}
+
+	public String getGomLocation() {
+
+		return preferences.getString(PreferencesActivity.KEY_GOM_LOCATION, "");
+	}
+
+	public String getSelfPath() {
+
+		return preferences.getString(PreferencesActivity.KEY_DEVICES_PATH, "")
+				+ "/"
+				+ preferences.getString(PreferencesActivity.KEY_DEVICE_ID, "");
+	}
+
+	@Override
+	public IBinder onBind(Intent intent) {
+		Log.d(LOG_TAG, "onBind called");
+
+		return binder;
+	}
+
+	private void startJetty() throws Exception {
+		server = new Server();
+		Connector connector;
+		if (_useNIO) {
+			SelectChannelConnector nioConnector = new SelectChannelConnector();
+			nioConnector.setUseDirectBuffers(false);
+			nioConnector.setPort(_port);
+			connector = nioConnector;
+		} else {
+			SocketConnector bioConnector = new SocketConnector();
+			bioConnector.setPort(_port);
+			connector = bioConnector;
+		}
+		server.setConnectors(new Connector[] { connector });
+
+		// Bridge Jetty logging to Android logging
+		System.setProperty("org.mortbay.log.class",
+				"org.mortbay.log.AndroidLog");
+		// org.mortbay.log.Log.setLog(new AndroidLog());
+
+		HandlerCollection handlers = new HandlerCollection();
+
+		handlers
+				.setHandlers(new Handler[] { new DeviceControllerHandler(this) });
+		server.setHandler(handlers);
+
+		server.start();
+	}
+
+	private void stopJetty() throws Exception {
+		Log.i(LOG_TAG, "DeviceControllerService stopping");
+		server.stop();
+		server.join();
+		server = null;
+	}
+
+	public class DeviceControllerBinder extends Binder {
+
+		public DeviceControllerService getService() {
+
+			return DeviceControllerService.this;
+		}
+	}
 }
