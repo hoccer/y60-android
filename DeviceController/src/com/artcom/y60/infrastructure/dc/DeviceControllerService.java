@@ -82,8 +82,8 @@ public class DeviceControllerService extends Service {
 					Thread.sleep(2 * 1000);
 				} catch (Exception e) {
 					Log.v(LOG_TAG, "no network avialable");
-					Intent configureDC = new Intent("y60.intent.CONFIGURE_DEVICE_CONTROLLER");
-					startActivity(configureDC);
+					//Intent configureDC = new Intent("y60.intent.CONFIGURE_DEVICE_CONTROLLER");
+					//startActivity(configureDC);
 				}
 			}
 		}
