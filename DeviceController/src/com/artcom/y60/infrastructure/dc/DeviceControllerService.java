@@ -16,6 +16,9 @@
 package com.artcom.y60.infrastructure.dc;
 
 import java.io.InputStream;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 
 import org.mortbay.jetty.Connector;
 import org.mortbay.jetty.Handler;
@@ -31,6 +34,7 @@ import android.app.Service;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
+import android.net.Uri;
 import android.os.Binder;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -38,7 +42,9 @@ import android.preference.PreferenceManager;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.artcom.y60.infrastructure.HTTPHelper;
+import com.artcom.y60.conf.DeviceConfiguration;
+import com.artcom.y60.infrastructure.GomNode;
+import com.artcom.y60.infrastructure.GomRepository;
 import com.artcom.y60.infrastructure.PreferencesActivity;
 
 public class DeviceControllerService extends Service {
@@ -71,19 +77,23 @@ public class DeviceControllerService extends Service {
 
 		@Override
 		public void run() {
+			DeviceConfiguration dc = DeviceConfiguration.load();
+			GomRepository repo = new GomRepository(Uri.parse(dc.getGomUrl()));
+			
+			Intent configureDC = new Intent("y60.intent.CONFIGURE_DEVICE_CONTROLLER");
+			configureDC.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+			
 			while (true) {
 				Log.v(LOG_TAG, "checking gom");
 				try {
-					String content = HTTPHelper
-							.get("http://www.artcom.de/");
-					if (content.length() == 0) {
-						Log.v(LOG_TAG, "could not recive contenent");
-					}
-					Thread.sleep(2 * 1000);
+					Thread.sleep(10 * 1000);
+					
+					GomNode device = repo.getNode(dc.getDevicePath());
+					String timestamp = (new SimpleDateFormat("MM/dd/yyyy HH:mm:ss.SS")).format(new Date());
+					device.getAttribute("last_alive_update").putValue(timestamp);
 				} catch (Exception e) {
-					Log.v(LOG_TAG, "no network avialable");
-					//Intent configureDC = new Intent("y60.intent.CONFIGURE_DEVICE_CONTROLLER");
-					//startActivity(configureDC);
+					Log.w(LOG_TAG, "no network avialable", e);
+					startActivity(configureDC);
 				}
 			}
 		}
