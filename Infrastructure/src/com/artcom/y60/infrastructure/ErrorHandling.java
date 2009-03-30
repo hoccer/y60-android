@@ -9,7 +9,7 @@ public class ErrorHandling {
 	
 	public static void signal_user_error( Context context, Throwable error )
 	{
-		Intent intent = new Intent( context, ErrorPresentationActivity.class );
+		Intent intent = new Intent( "y60.intent.ERROR_PRESENTATION" );
 		intent.putExtra( ERROR, error);
 		context.startActivity( intent );
 	}
