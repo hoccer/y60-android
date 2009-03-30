@@ -22,6 +22,8 @@ import android.os.IBinder;
 import android.os.RemoteException;
 import android.util.Log;
 
+import com.artcom.y60.infrastructure.BindingListener;
+
 /**
  * Helper class for activities which encapsulates the interaction with
  * the HttpProxyService, especially the listening to resource update
@@ -66,13 +68,13 @@ public class HttpProxyHelper {
     
     private HttpProxyServiceConnection mConnection;
     
-    private HttpProxyServiceBindingListener mBindingListener;
+    private BindingListener<HttpProxyHelper> mBindingListener;
     
     
     
     // Constructors ------------------------------------------------------
 
-    public HttpProxyHelper(Context pContext, HttpProxyServiceBindingListener pBindingListener) {
+    public HttpProxyHelper(Context pContext, BindingListener<HttpProxyHelper> pBindingListener) {
         
         mShutdown          = false;
         mContext           = pContext;

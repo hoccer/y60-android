@@ -1,4 +1,4 @@
-package com.artcom.y60.infrastructure;
+package com.artcom.y60.infrastructure.gom;
 
 import android.test.AndroidTestCase;
 import android.util.Log;
@@ -26,8 +26,16 @@ public class GomAttributeTest extends AndroidTestCase {
 
     public void setUp() {
         
-        GomRepository repos = new GomRepository(GomTestConstants.TEST_REPOSITORY_URI);
-        mTestAttr = (GomAttribute)repos.getEntry(PATH);
+        GomProxyHelper helper = new GomProxyHelper(getContext(), null);
+        
+        for (int i = 0; i < 200; i++) {
+            try {
+                Thread.sleep(10);
+            } catch (InterruptedException ix) {
+            }
+        }
+        
+        mTestAttr = helper.getAttribute(PATH);
     }
 
     

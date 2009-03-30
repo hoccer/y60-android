@@ -1,7 +1,9 @@
-package com.artcom.y60.infrastructure;
+package com.artcom.y60.infrastructure.gom;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
@@ -10,6 +12,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.os.RemoteException;
+import android.util.Log;
 /**
  * Representation of the state of a node resource in the GOM. Instances may (and will) load data
  * lazily, i.e. fetching nodes/attributes may trigger reading new data from the GOM repository.
@@ -24,6 +28,21 @@ import org.json.JSONObject;
  */
 public class GomNode extends GomEntry {
     
+    // Constants ---------------------------------------------------------
+
+    private static final String LOG_TAG = "GomNode";
+    
+    
+    
+    // Static Methods ----------------------------------------------------
+
+    public static String extractNameFromPath(String pPath) {
+        
+        return pPath.substring(pPath.lastIndexOf("/")+1);
+    }
+    
+    
+
     // Instance Variables ------------------------------------------------
 
     /** All entries of this node */
@@ -31,44 +50,11 @@ public class GomNode extends GomEntry {
 
     
     
-    // Static Methods ----------------------------------------------------
-
-    static GomNode fromJson(JSONObject pJson, GomRepository pRepos) throws JSONException {
-        
-        Object tmpNode = pJson.opt(GomKeywords.NODE);
-        
-        if (tmpNode instanceof String) {
-            
-            // it's just a reference to a node
-            String path = (String)tmpNode;
-            String name = path.substring(path.lastIndexOf("/")+1);
-            
-            return new GomNode(name, path, pRepos);
-            
-        } else if (tmpNode instanceof JSONObject) {
-            
-            JSONObject jsNode = (JSONObject)tmpNode;
-            String     path   = jsNode.getString(GomKeywords.URI);
-            String     name   = path.substring(path.lastIndexOf("/")+1);
-            
-            GomNode node = new GomNode(name, path, pRepos);
-            node.fillDataFromJson(jsNode);
-            
-            return node;
-            
-        } else {
-            
-            throw new IllegalArgumentException("Unrecognized JSON structure for reading as GOM node: "+pJson.toString());
-        }
-    }
-    
-    
-
     // Constructors ------------------------------------------------------
 
-    protected GomNode(String pName, String pPath, GomRepository pRepos) {
+    protected GomNode(String pPath, GomProxyHelper pHelper) {
         
-        super(pName, pPath, pRepos);
+        super(extractNameFromPath(pPath), pPath, pHelper);
         
         mEntries = null; // will be loaded lazily
     }
@@ -234,40 +220,38 @@ public class GomNode extends GomEntry {
     }
     
     
-    private void loadDataIfNecessary() {
+    private void loadDataIfNecessary()  {
         
         if (!isDataLoaded()) {
             
-            mEntries = new HashMap<String, GomEntry>();
-            
             try {
+                mEntries = new HashMap<String, GomEntry>();
                 
-                JSONObject jsob = HTTPHelper.getJson(getUri().toString());
-                JSONObject node = JsonHelper.getMemberOrSelf(jsob, GomKeywords.NODE);
-                fillDataFromJson(node);
+                List<String> subNodeNames   = new LinkedList<String>();
+                List<String> attributeNames = new LinkedList<String>();
+                String       path           = getPath();
                 
-            } catch (JSONException e) {
+                getProxy().getNodeData(path, subNodeNames, attributeNames);
                 
-                // this may happen while lazily loading data
-                // wrap as runtime ex to hide exception from interface
-                throw new RuntimeException(e);
+                GomProxyHelper helper = getGomProxyHelper();
+                
+                for (String name: attributeNames) {
+                    
+                    GomAttribute attr = helper.getAttribute(path+":"+name);
+                    mEntries.put(name, attr);
+                }
+                
+                for (String name: subNodeNames) {
+                    
+                    GomNode node = helper.getNode(path+"/"+name);
+                    mEntries.put(name, node);
+                }
+                
+            } catch (RemoteException rex) {
+         
+                Log.e(LOG_TAG, "failed to retrieve node data", rex);
+                throw new RuntimeException(rex);
             }
-        }
-    }
-    
-    
-    private void fillDataFromJson(JSONObject pJsob) throws JSONException {
-        
-        mEntries = new HashMap<String, GomEntry>();
-        
-        GomRepository repos   = getRepository();
-        JSONArray     entries = pJsob.getJSONArray(GomKeywords.ENTRIES);
-        
-        for (int i=0; i<entries.length(); i++) {
-            
-            JSONObject jEntry = entries.getJSONObject(i);
-            GomEntry   entry  = GomEntry.fromJson(jEntry, repos);
-            mEntries.put(entry.getName(), entry);
         }
     }
 }

@@ -1,4 +1,4 @@
-package com.artcom.y60.infrastructure;
+package com.artcom.y60.infrastructure.gom;
 
 /**
  * Contains the keywords from the GOM vocabulary, i.e. that are used in

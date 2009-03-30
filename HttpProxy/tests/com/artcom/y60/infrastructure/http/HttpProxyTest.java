@@ -7,6 +7,7 @@ import android.net.Uri;
 import android.test.ActivityUnitTestCase;
 import android.util.Log;
 
+import com.artcom.y60.infrastructure.BindingListener;
 import com.artcom.y60.infrastructure.HTTPHelper;
 
 
@@ -145,7 +146,7 @@ public class HttpProxyTest extends ActivityUnitTestCase<HttpProxyActivity> {
     }
     
     
-    class DummyListener implements HttpProxyServiceBindingListener {
+    class DummyListener implements BindingListener<HttpProxyHelper> {
         public void bound(HttpProxyHelper helper) {}
         public void unbound(HttpProxyHelper helper) {}
     }

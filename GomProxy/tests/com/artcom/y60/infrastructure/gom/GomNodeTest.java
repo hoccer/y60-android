@@ -1,4 +1,4 @@
-package com.artcom.y60.infrastructure;
+package com.artcom.y60.infrastructure.gom;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -38,8 +38,16 @@ public class GomNodeTest extends AndroidTestCase {
 
     public void setUp() {
         
-        GomRepository repos = new GomRepository(GomTestConstants.TEST_REPOSITORY_URI);
-        mTestNode = (GomNode)repos.getEntry(PATH);
+        GomProxyHelper helper = new GomProxyHelper(getContext(), null);
+        
+        for (int i = 0; i < 200; i++) {
+            try {
+                Thread.sleep(10);
+            } catch (InterruptedException ix) {
+            }
+        }
+        
+        mTestNode = helper.getNode(PATH);
     }
     
     

@@ -1,4 +1,4 @@
-package com.artcom.y60.infrastructure;
+package com.artcom.y60.infrastructure.gom;
 
 import java.net.URI;
 

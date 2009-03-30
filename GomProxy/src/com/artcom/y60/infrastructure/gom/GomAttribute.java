@@ -1,4 +1,4 @@
-package com.artcom.y60.infrastructure;
+package com.artcom.y60.infrastructure.gom;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -7,8 +7,10 @@ import org.apache.http.StatusLine;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.os.RemoteException;
 import android.util.Log;
 
+import com.artcom.y60.infrastructure.HTTPHelper;
 
 /**
  * Represents the state of an attribute resource in the GOM. Some attributes contain references
@@ -26,6 +28,15 @@ public class GomAttribute extends GomEntry {
     
     
 
+    // Static Methods ----------------------------------------------------
+
+    public static String extractNameFromPath(String pPath) {
+        
+        return pPath.substring(pPath.lastIndexOf(":")+1);
+    }
+    
+    
+
     // Instance Variables ------------------------------------------------
 
     /** The attribute value */
@@ -35,36 +46,17 @@ public class GomAttribute extends GomEntry {
     
     
     
-    // Static Methods ----------------------------------------------------
-
-    /** Constructs an attribute from a JSON representation */
-    static GomAttribute fromJson(JSONObject pJson, GomRepository pRepos) throws JSONException {
-        
-        JSONObject jAttr = JsonHelper.getMemberOrSelf(pJson, GomKeywords.NODE); 
-        
-        String name  = jAttr.getString(GomKeywords.NAME);
-        String path  = jAttr.getString(GomKeywords.NODE) + ":" + name;
-        String value = jAttr.getString(GomKeywords.VALUE);
-        
-        return new GomAttribute(name, value, path, pRepos);
-    }
-    
-    
-
     // Constructors ------------------------------------------------------
 
     /**
      * Used internally only. Use the methods of GomRepository to load resource
      * states.
      */
-    protected GomAttribute(String pName, String pValue, String pPath, GomRepository pRepos) {
+    protected GomAttribute(String pPath, GomProxyHelper pProxy) throws RemoteException {
         
-        super(pName, pPath, pRepos);
+        super(extractNameFromPath(pPath), pPath, pProxy);
         
-        if (pValue == null) {
-            throw new IllegalArgumentException("Value can't be null!");
-        }
-        mValue    = pValue;
+        mValue    = getProxy().getAttributeValue(pPath);
         mNodePath = pPath.substring(0, pPath.lastIndexOf(":"));
     }
     
@@ -84,7 +76,7 @@ public class GomAttribute extends GomEntry {
     
     public GomNode getNode() {
         
-        return getRepository().getNode(mNodePath);
+        return getGomProxyHelper().getNode(mNodePath);
     }
     
     
@@ -158,7 +150,7 @@ public class GomAttribute extends GomEntry {
      */
     public GomEntry resolveReference() throws GomResolutionFailedException {
         
-        GomEntry entry = getRepository().getEntry(mValue);
+        GomEntry entry = getGomProxyHelper().getEntry(mValue);
         
         Log.v(TAG, "resolved "+mValue+" to "+entry.toString());
         

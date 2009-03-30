@@ -9,7 +9,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.app.Activity;
-import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -17,10 +16,9 @@ import android.widget.Button;
 import android.widget.TableLayout;
 import android.widget.TextView;
 
-import com.artcom.y60.infrastructure.GomAttribute;
-import com.artcom.y60.infrastructure.GomNode;
-import com.artcom.y60.infrastructure.GomRepository;
 import com.artcom.y60.infrastructure.HTTPHelper;
+import com.artcom.y60.infrastructure.gom.GomNode;
+import com.artcom.y60.infrastructure.gom.GomProxyHelper;
 
 public class NetworkChecker extends Activity {
 
@@ -158,7 +156,7 @@ public class NetworkChecker extends Activity {
     		// Use the GomRepository interface to retrieve the 'self' node
 
     		say( "[" + i + "]" + ">> Retrieving 'self' node from GOM" );
-    		GomRepository rep = new GomRepository( Uri.parse( m_GomUriString ) );
+    		GomProxyHelper rep = new GomProxyHelper(this, null);
     		m_SelfNode  = rep.getNode( m_SelfPath );
     		say( "[" + i + "]" + "<< Retrieving 'self' node from GOM" );
     		rest(500);
@@ -172,7 +170,7 @@ public class NetworkChecker extends Activity {
     		String test_attribute = "http://t-gom.service.t-gallery.act/test/android/y60/infrastructure/gom_attribute_test:attribute";
 
     		say( "[" + i + "]" + ">> Retrieving attribute " + test_attribute );
-    		GomRepository rep = new GomRepository( Uri.parse( m_GomUriString ) );
+            GomProxyHelper rep = new GomProxyHelper(this, null);
     		rep.getAttribute( test_attribute );
     		say( "[" + i + "]" + "<< Retrieving attribute " + test_attribute );
     		rest(500);

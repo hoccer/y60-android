@@ -1,27 +1,25 @@
 package com.artcom.y60.infrastructure;
 
-public class GomResolutionFailedException extends RuntimeException {
+public class BindingException extends RuntimeException {
 
-    public GomResolutionFailedException() {
+    public BindingException() {
         super();
         // TODO Auto-generated constructor stub
     }
 
-    public GomResolutionFailedException(String detailMessage,
-            Throwable throwable) {
+    public BindingException(String detailMessage, Throwable throwable) {
         super(detailMessage, throwable);
         // TODO Auto-generated constructor stub
     }
 
-    public GomResolutionFailedException(String detailMessage) {
+    public BindingException(String detailMessage) {
         super(detailMessage);
         // TODO Auto-generated constructor stub
     }
 
-    public GomResolutionFailedException(Throwable throwable) {
+    public BindingException(Throwable throwable) {
         super(throwable);
         // TODO Auto-generated constructor stub
     }
 
-    
 }

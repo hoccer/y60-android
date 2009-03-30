@@ -1,4 +1,4 @@
-package com.artcom.y60.infrastructure;
+package com.artcom.y60.infrastructure.gom;
 
 /**
  * Represents the circumstance that a GOM node has been accessed as an attribute
