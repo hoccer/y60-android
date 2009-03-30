@@ -42,9 +42,9 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.artcom.y60.conf.DeviceConfiguration;
-import com.artcom.y60.infrastructure.GomNode;
-import com.artcom.y60.infrastructure.GomRepository;
 import com.artcom.y60.infrastructure.PreferencesActivity;
+import com.artcom.y60.infrastructure.gom.GomNode;
+import com.artcom.y60.infrastructure.gom.GomProxyHelper;
 
 public class DeviceControllerService extends Service {
 	private NotificationManager mNM;
@@ -84,8 +84,7 @@ public class DeviceControllerService extends Service {
 		@Override
 		public void run() {
 			DeviceConfiguration dc = DeviceConfiguration.load();
-			
-			GomRepository repo = new GomRepository(Uri.parse(dc.getGomUrl()));
+			GomProxyHelper repo = new GomProxyHelper( DeviceControllerService.this, null );
 
 			Intent configureDC = new Intent(
 					"y60.intent.CONFIGURE_DEVICE_CONTROLLER");
