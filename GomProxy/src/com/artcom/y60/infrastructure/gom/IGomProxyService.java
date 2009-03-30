@@ -1,6 +1,6 @@
 /*
  * This file is auto-generated.  DO NOT MODIFY.
- * Original file: /Users/arne/Development/work/t-gallery/devel/y60-android/GomProxy/src/com/artcom/y60/infrastructure/gom/IGomProxyService.aidl
+ * Original file: /home/lisa/code/y60/y60-android/GomProxy/src/com/artcom/y60/infrastructure/gom/IGomProxyService.aidl
  */
 package com.artcom.y60.infrastructure.gom;
 import java.lang.String;
