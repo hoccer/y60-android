@@ -64,8 +64,9 @@ public class GomAttribute extends GomEntry {
     
     // Public Instance Methods -------------------------------------------
 
-    public void refresh() {
-    	mValue = HTTPHelper.get( getUri().toString() + ".txt" );
+    public void refresh() throws RemoteException {
+    	getProxy().refreshEntry(getPath());
+    	mValue    = getProxy().getAttributeValue(getPath());
     }
     
     public String getValue() {

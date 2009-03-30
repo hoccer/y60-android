@@ -155,6 +155,10 @@ public class GomNode extends GomEntry {
         return entry.forceNodeOrException();
     }
     
+    public void refresh() throws RemoteException {
+    	getProxy().refreshEntry(getPath());
+    	loadData();
+    }
     
     public JSONObject toJson() {
         
@@ -224,34 +228,40 @@ public class GomNode extends GomEntry {
         
         if (!isDataLoaded()) {
             
-            try {
-                mEntries = new HashMap<String, GomEntry>();
-                
-                List<String> subNodeNames   = new LinkedList<String>();
-                List<String> attributeNames = new LinkedList<String>();
-                String       path           = getPath();
-                
-                getProxy().getNodeData(path, subNodeNames, attributeNames);
-                
-                GomProxyHelper helper = getGomProxyHelper();
-                
-                for (String name: attributeNames) {
-                    
-                    GomAttribute attr = helper.getAttribute(path+":"+name);
-                    mEntries.put(name, attr);
-                }
-                
-                for (String name: subNodeNames) {
-                    
-                    GomNode node = helper.getNode(path+"/"+name);
-                    mEntries.put(name, node);
-                }
-                
-            } catch (RemoteException rex) {
-         
-                Log.e(LOG_TAG, "failed to retrieve node data", rex);
-                throw new RuntimeException(rex);
-            }
+            loadData();
         }
     }
+
+
+
+	private void loadData() {
+		try {
+		    mEntries = new HashMap<String, GomEntry>();
+		    
+		    List<String> subNodeNames   = new LinkedList<String>();
+		    List<String> attributeNames = new LinkedList<String>();
+		    String       path           = getPath();
+		    
+		    getProxy().getNodeData(path, subNodeNames, attributeNames);
+		    
+		    GomProxyHelper helper = getGomProxyHelper();
+		    
+		    for (String name: attributeNames) {
+		        
+		        GomAttribute attr = helper.getAttribute(path+":"+name);
+		        mEntries.put(name, attr);
+		    }
+		    
+		    for (String name: subNodeNames) {
+		        
+		        GomNode node = helper.getNode(path+"/"+name);
+		        mEntries.put(name, node);
+		    }
+		    
+		} catch (RemoteException rex) {
+       
+		    Log.e(LOG_TAG, "failed to retrieve node data", rex);
+		    throw new RuntimeException(rex);
+		}
+	}
 }
