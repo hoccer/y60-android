@@ -15,9 +15,15 @@
 
 package com.artcom.y60.infrastructure.dc;
 
+import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
+import java.util.NoSuchElementException;
 
 import org.mortbay.jetty.Connector;
 import org.mortbay.jetty.Handler;
@@ -42,7 +48,9 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.artcom.y60.conf.DeviceConfiguration;
+import com.artcom.y60.infrastructure.BindingListener;
 import com.artcom.y60.infrastructure.PreferencesActivity;
+import com.artcom.y60.infrastructure.gom.GomAttribute;
 import com.artcom.y60.infrastructure.gom.GomNode;
 import com.artcom.y60.infrastructure.gom.GomProxyHelper;
 
@@ -61,10 +69,11 @@ public class DeviceControllerService extends Service {
 
 	private static final String LOG_TAG = "DeviceControllerService";
 	private static final int GOM_NOT_ACCESSIBLE_NOTIFICATION_ID = 42;
-	
+
 	private IBinder binder = new DeviceControllerBinder();
 	private NotificationManager mNotificationManager;
-	
+	GomProxyHelper mGom = null;
+
 	public void onCreate() {
 		Log.i(LOG_TAG, "onCreate called");
 		__resources = getResources();
@@ -72,19 +81,34 @@ public class DeviceControllerService extends Service {
 		// Get the notification manager serivce.
 		mNotificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
 
-		Thread thread = new Thread(null, mDeviceHistoryWatcherLoop,
-				"watch net connection");
-		mIsDeviceHistoryWatcherRunning = true;
-		thread.start();
+		// Get the gom proxy helper and run watcher thread if gom is available.
+		mGom = new GomProxyHelper(this, new BindingListener<GomProxyHelper>() {
+
+			public void bound(GomProxyHelper helper) {
+
+				mGom = helper;
+				Thread thread = new Thread(null, mDeviceHistoryWatcherLoop,
+						"watch net connection");
+				mIsDeviceHistoryWatcherRunning = true;
+				thread.start();
+			}
+
+			public void unbound(GomProxyHelper helper) {
+
+				mIsDeviceHistoryWatcherRunning = false;
+				mGom = null;
+			}
+		});
+
 	}
 
 	private boolean mIsDeviceHistoryWatcherRunning = true;
 	private Runnable mDeviceHistoryWatcherLoop = new Runnable() {
 
+		// TODO Refactor this very long method into an "Watchdog" class
 		@Override
 		public void run() {
 			DeviceConfiguration dc = DeviceConfiguration.load();
-			GomProxyHelper repo = new GomProxyHelper( DeviceControllerService.this, null );
 
 			Intent configureDC = new Intent(
 					"y60.intent.CONFIGURE_DEVICE_CONTROLLER");
@@ -92,37 +116,81 @@ public class DeviceControllerService extends Service {
 
 			Notification notification = new Notification(
 					R.drawable.network_down_status_icon,
-					"gom not accessible, network might be down", System
-							.currentTimeMillis());
-			
+					"Y60's GOM not accessible.", System.currentTimeMillis());
+
 			String historyLog = "";
 			while (mIsDeviceHistoryWatcherRunning) {
 
-				try {
-					Thread.sleep(2 * 1000);
+				String timestamp = (new SimpleDateFormat(
+						"MM/dd/yyyy HH:mm:ss.SS")).format(new Date());
 
-					Log.v(LOG_TAG, "checking gom");
-					GomNode device = repo.getNode(dc.getDevicePath());
-					String timestamp = (new SimpleDateFormat(
-							"MM/dd/yyyy HH:mm:ss.SS")).format(new Date());
+				// this will take some time so we do not need a "Thread.sleep"
+				String pingStatistic = getPingStatistics(dc);
+
+				try {
+					// Log.v(LOG_TAG, "checking gom: " + pingStatistic);
+					GomNode device = mGom.getNode(dc.getDevicePath());
 					device.getAttribute("last_alive_update")
 							.putValue(timestamp);
-					mNotificationManager.cancel(GOM_NOT_ACCESSIBLE_NOTIFICATION_ID);
-					
-					
-					
+					mNotificationManager
+							.cancel(GOM_NOT_ACCESSIBLE_NOTIFICATION_ID);
+
+					GomAttribute historyAttribute = device
+							.getAttribute("history_log");
+					historyAttribute.refresh();
+					historyAttribute.putValue(historyAttribute.getValue()
+							+ historyLog + "\n" + timestamp + ": "
+							+ pingStatistic);
+					historyLog = "";
+
+				} catch (NoSuchElementException e) {
+					throw new RuntimeException("Missing GOM entry!", e);
 				} catch (Exception e) {
 					Log.w(LOG_TAG, "no network avialable", e);
 					PendingIntent pint = PendingIntent.getActivity(
 							DeviceControllerService.this, 0, configureDC,
 							PendingIntent.FLAG_ONE_SHOT);
-					
-					notification.setLatestEventInfo(DeviceControllerService.this,
-							"GOM not accessible", "network might be down", pint);
-					mNotificationManager.notify(GOM_NOT_ACCESSIBLE_NOTIFICATION_ID, notification);
+
+					notification.setLatestEventInfo(
+							DeviceControllerService.this, "GOM not accessible",
+							"network might be down", pint);
+					mNotificationManager.notify(
+							GOM_NOT_ACCESSIBLE_NOTIFICATION_ID, notification);
 					// startActivity(configureDC);
+
+					historyLog += "\n" + timestamp + ": network failure";
+					historyLog += "\n" + timestamp + ": " + pingStatistic;
 				}
 			}
+
+			Log.w(LOG_TAG, "watcher thread stopped...");
+		}
+
+		private String getPingStatistics(DeviceConfiguration dc) {
+			Runtime runtime = Runtime.getRuntime();
+			Process process;
+			try {
+				process = runtime.exec("ping -q -c 20 -i 0.1 "
+						+ Uri.parse(dc.getGomUrl()).getHost());
+			} catch (IOException e) {
+				throw new RuntimeException("Could not execute ping command.", e);
+			}
+			InputStreamReader reader = new InputStreamReader(process
+					.getInputStream());
+			BufferedReader bufferedReader = new BufferedReader(reader);
+
+			String line = "";
+			List<String> pingStatistic = new ArrayList<String>();
+			try {
+				while ((line = bufferedReader.readLine()) != null) {
+					pingStatistic.add(line.toString());
+				}
+			} catch (IOException e) {
+				throw new RuntimeException(
+						"Could not read result of ping command.", e);
+			}
+
+			return pingStatistic.get(pingStatistic.size() - 2);
 		}
 
 	};
@@ -140,7 +208,7 @@ public class DeviceControllerService extends Service {
 			preferences = PreferenceManager.getDefaultSharedPreferences(this);
 
 			String portDefault = getText(R.string.pref_port_value).toString();
-			Log.v(LOG_TAG, "Default port is " + portDefault);
+			// Log.v(LOG_TAG, "Default port is " + portDefault);
 			String nioDefault = getText(R.string.pref_nio_value).toString();
 
 			String portKey = getText(R.string.pref_port_key).toString();
