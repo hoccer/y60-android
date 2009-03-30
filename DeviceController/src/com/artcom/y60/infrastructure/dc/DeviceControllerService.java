@@ -17,7 +17,6 @@ package com.artcom.y60.infrastructure.dc;
 
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.Date;
 
 import org.mortbay.jetty.Connector;
@@ -61,12 +60,17 @@ public class DeviceControllerService extends Service {
 	public static final String DEFAULT_PORTNAME = "com.artcom.y60.infrastructure.dc.port";
 
 	private static final String LOG_TAG = "DeviceControllerService";
-
+	private static final int GOM_NOT_ACCESSIBLE_NOTIFICATION_ID = 42;
+	
 	private IBinder binder = new DeviceControllerBinder();
+	private NotificationManager mNotificationManager;
 
 	public void onCreate() {
 		Log.i(LOG_TAG, "onCreate called");
 		__resources = getResources();
+
+		// Get the notification manager serivce.
+		mNotificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
 
 		Thread thread = new Thread(null, watchNetworkConnection,
 				"watch net connection");
@@ -79,21 +83,38 @@ public class DeviceControllerService extends Service {
 		public void run() {
 			DeviceConfiguration dc = DeviceConfiguration.load();
 			GomRepository repo = new GomRepository(Uri.parse(dc.getGomUrl()));
-			
-			Intent configureDC = new Intent("y60.intent.CONFIGURE_DEVICE_CONTROLLER");
+
+			Intent configureDC = new Intent(
+					"y60.intent.CONFIGURE_DEVICE_CONTROLLER");
 			configureDC.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-			
+
+			Notification notification = new Notification(
+					R.drawable.network_down_status_icon,
+					"gom not accessible, network might be down", System
+							.currentTimeMillis());
 			while (true) {
-				Log.v(LOG_TAG, "checking gom");
+
 				try {
-					Thread.sleep(10 * 1000);
-					
+					Thread.sleep(2 * 1000);
+
+					Log.v(LOG_TAG, "checking gom");
 					GomNode device = repo.getNode(dc.getDevicePath());
-					String timestamp = (new SimpleDateFormat("MM/dd/yyyy HH:mm:ss.SS")).format(new Date());
-					device.getAttribute("last_alive_update").putValue(timestamp);
+					String timestamp = (new SimpleDateFormat(
+							"MM/dd/yyyy HH:mm:ss.SS")).format(new Date());
+					device.getAttribute("last_alive_update")
+							.putValue(timestamp);
+					mNotificationManager.cancel(GOM_NOT_ACCESSIBLE_NOTIFICATION_ID);
+					
 				} catch (Exception e) {
 					Log.w(LOG_TAG, "no network avialable", e);
-					startActivity(configureDC);
+					PendingIntent pint = PendingIntent.getActivity(
+							DeviceControllerService.this, 0, configureDC,
+							PendingIntent.FLAG_ONE_SHOT);
+					
+					notification.setLatestEventInfo(DeviceControllerService.this,
+							"GOM not accessible", "network might be down", pint);
+					mNotificationManager.notify(GOM_NOT_ACCESSIBLE_NOTIFICATION_ID, notification);
+					// startActivity(configureDC);
 				}
 			}
 		}
