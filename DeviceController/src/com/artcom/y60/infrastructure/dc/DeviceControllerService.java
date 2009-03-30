@@ -94,6 +94,8 @@ public class DeviceControllerService extends Service {
 					R.drawable.network_down_status_icon,
 					"gom not accessible, network might be down", System
 							.currentTimeMillis());
+			
+			String historyLog = "";
 			while (mIsDeviceHistoryWatcherRunning) {
 
 				try {
@@ -106,6 +108,8 @@ public class DeviceControllerService extends Service {
 					device.getAttribute("last_alive_update")
 							.putValue(timestamp);
 					mNotificationManager.cancel(GOM_NOT_ACCESSIBLE_NOTIFICATION_ID);
+					
+					
 					
 				} catch (Exception e) {
 					Log.w(LOG_TAG, "no network avialable", e);
