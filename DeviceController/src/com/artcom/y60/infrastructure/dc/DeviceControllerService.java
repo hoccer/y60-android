@@ -122,7 +122,7 @@ public class DeviceControllerService extends Service {
 			while (mIsDeviceHistoryWatcherRunning) {
 
 				String timestamp = (new SimpleDateFormat(
-						"MM/dd/yyyy HH:mm:ss.SS")).format(new Date());
+						"MM/dd/yyyy HH:mm:ss")).format(new Date());
 
 				// this will take some time so we do not need a "Thread.sleep"
 				String pingStatistic = getPingStatistics(dc);
