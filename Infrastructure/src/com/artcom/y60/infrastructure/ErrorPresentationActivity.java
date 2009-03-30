@@ -1,10 +1,9 @@
 package com.artcom.y60.infrastructure;
 
-import java.io.Serializable;
-
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.Button;
 import android.widget.TableLayout;
 import android.widget.TextView;
@@ -24,6 +23,11 @@ public class ErrorPresentationActivity extends Activity {
 		mOkButton = new Button( this );
 		
 		mOkButton.setText( "OK" );
+		mOkButton.setOnClickListener(new View.OnClickListener() {
+			public void onClick(View view) {
+				finish();
+			}
+		});
 		
 		mTableLayout.addView( mTextView );
 		mTableLayout.addView( mOkButton );
