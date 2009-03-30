@@ -64,7 +64,7 @@ public class DeviceControllerService extends Service {
 	
 	private IBinder binder = new DeviceControllerBinder();
 	private NotificationManager mNotificationManager;
-
+	
 	public void onCreate() {
 		Log.i(LOG_TAG, "onCreate called");
 		__resources = getResources();
@@ -72,12 +72,14 @@ public class DeviceControllerService extends Service {
 		// Get the notification manager serivce.
 		mNotificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
 
-		Thread thread = new Thread(null, watchNetworkConnection,
+		Thread thread = new Thread(null, mDeviceHistoryWatcherLoop,
 				"watch net connection");
+		mIsDeviceHistoryWatcherRunning = true;
 		thread.start();
 	}
 
-	private Runnable watchNetworkConnection = new Runnable() {
+	private boolean mIsDeviceHistoryWatcherRunning = true;
+	private Runnable mDeviceHistoryWatcherLoop = new Runnable() {
 
 		@Override
 		public void run() {
@@ -92,7 +94,7 @@ public class DeviceControllerService extends Service {
 					R.drawable.network_down_status_icon,
 					"gom not accessible, network might be down", System
 							.currentTimeMillis());
-			while (true) {
+			while (mIsDeviceHistoryWatcherRunning) {
 
 				try {
 					Thread.sleep(2 * 1000);
@@ -190,6 +192,7 @@ public class DeviceControllerService extends Service {
 	}
 
 	public void onDestroy() {
+		mIsDeviceHistoryWatcherRunning = true;
 		try {
 			if (server != null) {
 				stopJetty();
@@ -213,7 +216,7 @@ public class DeviceControllerService extends Service {
 	}
 
 	public void onLowMemory() {
-		Log.i(LOG_TAG, "Low on memory");
+		Log.w(LOG_TAG, "Low on memory");
 		super.onLowMemory();
 	}
 
