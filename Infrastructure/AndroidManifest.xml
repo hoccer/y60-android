@@ -3,9 +3,22 @@
       package="com.artcom.y60.infrastructure"
       android:versionCode="1"
       android:versionName="1.0.0">
+      
+    <uses-library android:name="android.test.runner" />
     <application  android:icon="@drawable/icon" android:label="@string/app_name">
+        <activity android:name=".ErrorPresentationActivity"  android:exported="true">
+            <intent-filter>
+                <action android:name="y60.intent.ERROR_PRESENTATION" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
 	</application>
 
     <uses-permission android:name="android.permission.INTERNET" />
-
+    <uses-permission android:name="android.permission.RUN_INSTRUMENTATION" />
+    
+    <instrumentation android:name="android.test.InstrumentationTestRunner" 
+      android:targetPackage="com.artcom.y60.infrastructure" 
+      android:label="Error Handling Tests">
+    </instrumentation>
 </manifest> 
