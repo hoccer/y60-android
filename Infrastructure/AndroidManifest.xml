@@ -6,11 +6,7 @@
       
     <uses-library android:name="android.test.runner" />
     <application  android:icon="@drawable/icon" android:label="@string/app_name">
-            <activity android:name=".ErrorPresentationActivity">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
+        <activity android:name=".ErrorPresentationActivity"  android:exported="true">
             <intent-filter>
                 <action android:name="y60.intent.ERROR_PRESENTATION" />
                 <category android:name="android.intent.category.DEFAULT" />
