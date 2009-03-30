@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Y60 Infrastructure</string>
+<string name="err_user_general">An internal error occurred. Sorry.</string>
+<string name="err_dev_file_not_found">Could not find file</string>
 </resources>
