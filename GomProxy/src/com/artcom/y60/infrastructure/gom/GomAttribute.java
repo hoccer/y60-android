@@ -64,7 +64,7 @@ public class GomAttribute extends GomEntry {
     
     // Public Instance Methods -------------------------------------------
 
-    public void refresh() throws RemoteException {
+    public void refresh() throws RemoteException{
     	getProxy().refreshEntry(getPath());
     	mValue    = getProxy().getAttributeValue(getPath());
     }
@@ -83,14 +83,11 @@ public class GomAttribute extends GomEntry {
     
     public void putValue(String pValue)  {
         
-        String oldValue = mValue;
         try {
-            
-            mValue = pValue;
             String uri = getUri().toString();
 
             Map<String, String> formData = new HashMap<String, String>();
-            formData.put(GomKeywords.ATTRIBUTE, getValue());
+            formData.put(GomKeywords.ATTRIBUTE, pValue);
             
             StatusLine sline  = HTTPHelper.putUrlEncoded(uri, formData);
             
@@ -102,10 +99,9 @@ public class GomAttribute extends GomEntry {
                 throw new RuntimeException("HTTP server returned status code "+sline.getStatusCode()+"!");
             }
             
+            // update my data
+            refresh();
         } catch (Exception e) {
-            
-            // roll back
-            mValue = oldValue;
             
             throw new RuntimeException(e);
         }

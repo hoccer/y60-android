@@ -105,7 +105,7 @@ public class GomProxyService extends Service {
 
     void getNodeData(String pPath, List<String> pSubNodeNames, List<String> pAttributeNames) {
         
-        Log.v(tag(), "getNodeData("+pPath+")");
+        //Log.v(tag(), "getNodeData("+pPath+")");
         
         NodeData node = null;
         synchronized (mNodes) {
@@ -151,7 +151,7 @@ public class GomProxyService extends Service {
             }
             
             String value = mAttributes.get(pPath);
-            Log.v(tag(), "attribute value: "+value);
+            //Log.v(tag(), "attribute value: "+value);
             return value;
         }
     }
