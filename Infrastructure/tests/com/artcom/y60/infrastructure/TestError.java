@@ -1,10 +1,6 @@
 package com.artcom.y60.infrastructure;
 
-import com.artcom.y60.infrastructure.ErrorHandling;
-import com.artcom.y60.infrastructure.ErrorPresentationActivity;
-
 import android.app.Instrumentation.ActivityMonitor;
-import android.app.Instrumentation.ActivityResult;
 import android.content.IntentFilter;
 import android.test.ActivityUnitTestCase;
 

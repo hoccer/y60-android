@@ -8,9 +8,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.os.RemoteException;
-import android.util.Log;
 
 import com.artcom.y60.infrastructure.HTTPHelper;
+import com.artcom.y60.logging.Logger;
 
 /**
  * Represents the state of an attribute resource in the GOM. Some attributes contain references
@@ -91,7 +91,7 @@ public class GomAttribute extends GomEntry {
             
             StatusLine sline  = HTTPHelper.putUrlEncoded(uri, formData);
             
-            Log.v(TAG, "result code: "+sline.getStatusCode());
+            Logger.v(TAG, "result code: ", sline.getStatusCode());
             
             if (sline.getStatusCode() >= 300) {
                 
@@ -149,7 +149,7 @@ public class GomAttribute extends GomEntry {
         
         GomEntry entry = getGomProxyHelper().getEntry(mValue);
         
-        Log.v(TAG, "resolved "+mValue+" to "+entry.toString());
+        Logger.v(TAG, "resolved ", mValue, " to ", entry);
         
         return entry;
     }

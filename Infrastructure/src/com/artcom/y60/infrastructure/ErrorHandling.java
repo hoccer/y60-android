@@ -2,6 +2,7 @@ package com.artcom.y60.infrastructure;
 
 import android.content.Context;
 import android.content.Intent;
+import android.util.Log;
 
 public class ErrorHandling {
 
@@ -9,6 +10,7 @@ public class ErrorHandling {
 	
 	public static void signal_user_error( Context context, Throwable error )
 	{
+	    Log.v("ErrorHandling", "got user error", error);
 		Intent intent = new Intent( "y60.intent.ERROR_PRESENTATION" );
 		intent.putExtra( ERROR, error);
 		context.startActivity( intent );
