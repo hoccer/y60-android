@@ -1,5 +1,7 @@
 package com.artcom.y60.infrastructure;
 
+import java.util.NoSuchElementException;
+
 import android.content.Context;
 import android.content.Intent;
 
@@ -13,6 +15,7 @@ public class ErrorHandling {
 		UNSUPPORTED_ENCODING,
 		SAX_ERROR,
 		JSON_ERROR,
+		MISSING_GOM_ENTRY,
 		
 		COMPONENT_NOT_FOUND,
 		NETWORK_ERROR,
@@ -85,6 +88,11 @@ public class ErrorHandling {
     {
         signalError(logTag, error, context, Category.BACKEND_ERROR);
     }
+	
+	public static void signalMissingGomEntryError(String logTag, Throwable error, Context context)
+	{
+		signalError(logTag, error, context, Category.MISSING_GOM_ENTRY);
+	}
 	
 	public static void signalUnspecifiedError(String logTag, Throwable error, Context context)
     {
