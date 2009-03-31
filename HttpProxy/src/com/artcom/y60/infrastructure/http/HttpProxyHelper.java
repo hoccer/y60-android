@@ -100,6 +100,10 @@ public class HttpProxyHelper {
 
     // Public Instance Methods -------------------------------------------
 
+    public void unbind(){
+        mContext.unbindService(mConnection);
+    }
+    
     public void assertConnected() {
 
         if (mProxy == null) {
