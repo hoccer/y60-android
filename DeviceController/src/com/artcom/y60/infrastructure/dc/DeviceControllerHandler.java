@@ -45,9 +45,9 @@ public class DeviceControllerHandler extends DefaultHandler
 	    String device_id = prefs.getString( PreferencesActivity.KEY_DEVICE_ID, "" );
 	    String device_path = prefs.getString( PreferencesActivity.KEY_DEVICES_PATH, "" );
 
-		Log.v(LOG_TAG , "Target: " + target );
+		Log.v(LOG_TAG , "Target: " + target);
 		String method = request.getMethod();
-		Log.v(LOG_TAG, "Method: " + method );
+		Log.v(LOG_TAG, "Method: " + method);
 
 		String path = request.getPathInfo();
 		String location = "";
@@ -56,31 +56,36 @@ public class DeviceControllerHandler extends DefaultHandler
 
 		if (path.startsWith( "/proc" )) {
 			// Requests directed at the DC's own resources.
-			Log.v( LOG_TAG, "Handling /proc request" );
+			Log.v(LOG_TAG, "Handling /proc request");
 			ProcHandler procHandler = new ProcHandler();
-			procHandler.handle( target, request, response, dispatch );
+			procHandler.handle(target, request, response, dispatch);
 			return;
 		}
 		
 		// All other GET requests are redirected to the GOM
-		if (method.equals( "GET" ) || method.equals( "HEAD" )) {
+		if (method.equals("GET") || method.equals("HEAD")) {
 			
 			if (path == null) {
 				path = "";
 			}
         
-			if (path.startsWith( "/self" )) {
-				location = gom_location + self + path.replaceFirst( "/self", "" ); 
+			if (path.startsWith("/self")) {
+				location = gom_location + self + path.replaceFirst("/self", ""); 
 			} else {
 				location = gom_location + path;
 			}	
 
-			response.setStatus( HttpServletResponse.SC_SEE_OTHER );
-			response.addHeader( "Location", location );
+			response.setStatus(HttpServletResponse.SC_SEE_OTHER);
+			response.addHeader("Location", location);
             response.setContentType("text/plain");
             response.setContentLength(0);
+		} else if (method.equals("POST")) {
+			String queryString = request.getQueryString();
+			String requestString = request.getRequestURL().toString();
+			Log.v(LOG_TAG, "query: " + queryString);
+			Log.v(LOG_TAG, "Request: " + requestString);
 		} else {
-			respond_not_supported( request, response );
+			respond_not_supported(request, response);
 		}
 		
 		Request base_request = (request instanceof Request) ? (Request)request:HttpConnection.getCurrentConnection().getRequest();

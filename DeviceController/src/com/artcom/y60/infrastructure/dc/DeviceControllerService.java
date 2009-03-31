@@ -49,6 +49,7 @@ import android.widget.Toast;
 
 import com.artcom.y60.conf.DeviceConfiguration;
 import com.artcom.y60.infrastructure.BindingListener;
+import com.artcom.y60.infrastructure.ErrorHandling;
 import com.artcom.y60.infrastructure.PreferencesActivity;
 import com.artcom.y60.infrastructure.gom.GomAttribute;
 import com.artcom.y60.infrastructure.gom.GomNode;
@@ -145,7 +146,7 @@ public class DeviceControllerService extends Service {
 					historyLog = "";
 				
 				} catch (NoSuchElementException e) {
-					throw new RuntimeException("Missing GOM entry!", e);
+					ErrorHandling.signalMissingGomEntryError(LOG_TAG, e, DeviceControllerService.this);
 				} catch (Exception e) {
 					Log.w(LOG_TAG, "no network avialable", e);
 					PendingIntent pint = PendingIntent.getActivity(
