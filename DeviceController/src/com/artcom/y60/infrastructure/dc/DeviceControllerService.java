@@ -367,5 +367,5 @@ public class DeviceControllerService extends Service {
 
 			return DeviceControllerService.this;
 		}
-	}
+    }
 }

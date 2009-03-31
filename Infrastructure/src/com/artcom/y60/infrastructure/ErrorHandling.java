@@ -5,22 +5,19 @@ import android.content.Intent;
 
 public class ErrorHandling {
 
-	public static final String ERROR = "...";
-	
-	public static void signal_user_error( Context context, Throwable error )
-	{
-		Intent intent = new Intent( "y60.intent.ERROR_PRESENTATION" );
-		intent.putExtra( ERROR, error);
-		context.startActivity( intent );
-	}
-	
-	public static void signal_dev_error()
-	{
-		
-	}
-	
-	public static void signal_admin_error()
-	{
-		
-	}
+    public static final String ERROR = "...";
+
+    public static void signal_user_error(Context context, Throwable error) {
+        Intent intent = new Intent("y60.intent.ERROR_PRESENTATION");
+        intent.putExtra(ERROR, error);
+        context.startActivity(intent);
+    }
+
+    public static void signal_dev_error() {
+
+    }
+
+    public static void signal_admin_error() {
+
+    }
 }
