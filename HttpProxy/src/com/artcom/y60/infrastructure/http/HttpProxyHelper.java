@@ -26,6 +26,7 @@ import android.os.RemoteException;
 import android.util.Log;
 
 import com.artcom.y60.infrastructure.BindingListener;
+import com.artcom.y60.infrastructure.ErrorHandling;
 
 /**
  * Helper class for activities which encapsulates the interaction with the
@@ -99,6 +100,10 @@ public class HttpProxyHelper {
 
     // Public Instance Methods -------------------------------------------
 
+    public void unbind(){
+        mContext.unbindService(mConnection);
+    }
+    
     public void assertConnected() {
 
         if (mProxy == null) {
@@ -125,7 +130,8 @@ public class HttpProxyHelper {
         try {
             return get(new URI(uri.toString()), defaultDrawable);
         } catch (URISyntaxException e) {
-            throw new RuntimeException("Uri is not wellformed: " + e);
+            ErrorHandling.signalMalformedUriError(logTag(), e, mContext);
+            return defaultDrawable;
         }
     }
 

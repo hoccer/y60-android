@@ -33,6 +33,7 @@ public class GomProxyHelper {
     
     private BindingListener<GomProxyHelper> mBindingListener;
     
+    private Context mContext;
     
     
     // Constructors ------------------------------------------------------
@@ -40,6 +41,7 @@ public class GomProxyHelper {
     public GomProxyHelper(Context pContext, BindingListener<GomProxyHelper> pBindingListener) {
         
         mBindingListener = pBindingListener;
+        mContext = pContext;
         
         Intent proxyIntent = new Intent(IGomProxyService.class.getName());
         mConnection = new GomProxyServiceConnection();
@@ -53,6 +55,11 @@ public class GomProxyHelper {
     
     
     // Public Instance Methods -------------------------------------------
+    
+    public void unbind(){
+        mContext.unbindService(mConnection);
+    }
+    
 
     public GomEntry getEntry(String pPath) {
     
