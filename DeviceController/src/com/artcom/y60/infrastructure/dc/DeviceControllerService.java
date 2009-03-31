@@ -147,8 +147,10 @@ public class DeviceControllerService extends Service {
 				
 				} catch (NoSuchElementException e) {
 					ErrorHandling.signalMissingGomEntryError(LOG_TAG, e, DeviceControllerService.this);
+//					throw new RuntimeException("Missing GOM entry");
+					return;
 				} catch (Exception e) {
-					Log.w(LOG_TAG, "no network avialable", e);
+					Log.w(LOG_TAG, "no network available", e);
 					PendingIntent pint = PendingIntent.getActivity(
 							DeviceControllerService.this, 0, configureDC,
 							PendingIntent.FLAG_ONE_SHOT);
@@ -192,6 +194,10 @@ public class DeviceControllerService extends Service {
 						"Could not read result of ping command.", e);
 			}
 
+			if (pingStatistic.size() < 3) {
+				return pingStatistic.toString();
+			}
+			
 			return pingStatistic.get(pingStatistic.size() - 2);
 		}
 

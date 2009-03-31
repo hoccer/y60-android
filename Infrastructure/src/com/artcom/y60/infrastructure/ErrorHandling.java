@@ -33,7 +33,8 @@ public class ErrorHandling {
 		Intent intent = new Intent("y60.intent.ERROR_PRESENTATION");
 		intent.putExtra(ID_ERROR, error);
 		intent.putExtra(ID_LOGTAG, logTag);
-		intent.putExtra(ID_CATEGORY, category);
+//		intent.putExtra(ID_CATEGORY, category);
+		intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 		context.startActivity(intent);
 	}
 

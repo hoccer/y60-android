@@ -1,6 +1,8 @@
 package com.artcom.y60.infrastructure.dc;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -17,6 +19,7 @@ import android.app.Service;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
+import android.net.Uri;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
@@ -82,8 +85,18 @@ public class DeviceControllerHandler extends DefaultHandler
 		} else if (method.equals("POST")) {
 			String queryString = request.getQueryString();
 			String requestString = request.getRequestURL().toString();
-			Log.v(LOG_TAG, "query: " + queryString);
-			Log.v(LOG_TAG, "Request: " + requestString);
+			Uri uri = Uri.parse(requestString + "?" + queryString);
+			String query = uri.getQuery();
+			String[] keysnvalues = query.split("[=&]");
+			Map<String,String> kvMap = new HashMap<String,String>();
+			Log.v(LOG_TAG, keysnvalues.length + " elements");
+			for (int i = 0; i*2+1 < keysnvalues.length; i++) {
+				kvMap.put(keysnvalues[i*2], keysnvalues[i*2+1]);
+				Log.v(LOG_TAG, "\t" + keysnvalues[i*2] + " = " + keysnvalues[i*2+1]);
+			}
+			if (keysnvalues.length % 2 != 0 && keysnvalues.length > 0) {
+				Log.v(LOG_TAG, "\tLonely key: " + keysnvalues[keysnvalues.length-1]);
+			}
 		} else {
 			respond_not_supported(request, response);
 		}
