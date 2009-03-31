@@ -1,0 +1,137 @@
+package com.artcom.y60.logging;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import android.util.Log;
+
+
+public class Logger  {
+
+    public enum Level {
+        
+        VERBOSE (0, Log.VERBOSE, "verbose"),
+        DEBUG   (1, Log.DEBUG,   "debug"),
+        INFO    (2, Log.INFO,    "info"),
+        WARN    (3, Log.WARN,    "warn"),
+        ERROR   (4, Log.ERROR,   "error");
+        
+        private final static Map<String, Level> BY_NAME;
+        
+        static {
+            
+            BY_NAME = new HashMap<String, Level>();
+            BY_NAME.put(VERBOSE.toString(), VERBOSE); 
+            BY_NAME.put(DEBUG.toString(),   DEBUG); 
+            BY_NAME.put(INFO.toString(),    INFO); 
+            BY_NAME.put(WARN.toString(),    WARN); 
+            BY_NAME.put(ERROR.toString(),   ERROR); 
+        }
+        
+        public static Level fromString(String pName) {
+            
+            return BY_NAME.get(pName.toLowerCase());
+        }
+        
+        private int mAsInt;
+        private int mPriority;
+        private String mName;
+        
+        
+        Level(int pAsInt, int pPriority, String pName) {
+            
+            mAsInt = pAsInt;
+            mPriority = pPriority;
+            mName = pName;
+        }
+        
+        public String toString() {
+            
+            return mName;
+        }
+        
+        public void log(String pTag, Object[] pToLog) {
+            
+            if (sLevel.shows(this)) {
+                
+                StringBuilder builder = new StringBuilder();
+                builder.append(":Y60 Logger: ");
+                for (Object obj: pToLog) {
+                    
+                    builder.append(toString(obj));
+                }
+                
+                Log.println(mPriority, pTag, builder.toString());
+            }
+        }
+        
+        public boolean shows(Level pLevel) {
+            
+            return pLevel.asInt() >= mAsInt;
+        }
+        
+        public int asInt() {
+            
+            return mAsInt;
+        }
+        
+        private String toString(Object obj) {
+            
+            if (obj instanceof Throwable) {
+                
+                Throwable t = (Throwable)obj;
+                String msg   = t.getMessage();
+                String stack = Log.getStackTraceString(t);
+                StringBuilder builder = new StringBuilder(msg.length()+stack.length()+1);
+                builder.append(msg);
+                builder.append(" ");
+                builder.append(stack);
+                return builder.toString();
+                
+            } else {
+                
+                return String.valueOf(obj);
+            }
+        }
+    };
+    
+    
+    // Static Variables ----------------------------------------------------
+    
+    private static Level sLevel = Level.VERBOSE;
+
+
+    
+    // Static Methods ----------------------------------------------------
+
+    public static void setFilterLevel(Level pLevel) {
+        
+        sLevel = pLevel;
+    }
+    
+    
+    public static void v(String pTag, Object... pToLog) {
+        
+        Level.VERBOSE.log(pTag, pToLog);
+    }
+    
+    public static void d(String pTag, Object... pToLog) {
+        
+        Level.DEBUG.log(pTag, pToLog);
+    }
+    
+    public static void i(String pTag, Object... pToLog) {
+        
+        Level.INFO.log(pTag, pToLog);
+    }
+    
+    public static void w(String pTag, Object... pToLog) {
+        
+        Level.WARN.log(pTag, pToLog);
+    }
+    
+    public static void e(String pTag, Object... pToLog) {
+        
+        Level.ERROR.log(pTag, pToLog);
+    }
+}

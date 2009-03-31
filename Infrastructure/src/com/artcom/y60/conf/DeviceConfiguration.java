@@ -8,8 +8,7 @@ import java.io.UnsupportedEncodingException;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.net.Uri;
-import android.util.Log;
+import com.artcom.y60.logging.Logger;
 
 public class DeviceConfiguration {
 
@@ -22,6 +21,7 @@ public class DeviceConfiguration {
 
 	private String mGomUrl;
 	private String mDevicePath;
+	private Logger.Level mLogLevel;
 	
 	public String getGomUrl() {
 		return mGomUrl;
@@ -29,6 +29,10 @@ public class DeviceConfiguration {
 
 	public String getDevicePath() {
 		return mDevicePath;
+	}
+	
+	public Logger.Level getLogLevel() {
+	    return mLogLevel;
 	}
 
 	private DeviceConfiguration(){
@@ -41,18 +45,19 @@ public class DeviceConfiguration {
 			configuration = new JSONObject(new String(inputBuffer));
 			mGomUrl = configuration.getString("gom-url");
 			mDevicePath = configuration.getString("device-path");
+			mLogLevel = Logger.Level.fromString(configuration.getString("log-level"));
 
 		} catch (FileNotFoundException e) {
-			Log.e( LOG_TAG, "Could not find configuration file " + CONFIG_FILE );
+			Logger.e( LOG_TAG, "Could not find configuration file " + CONFIG_FILE );
 			throw new RuntimeException(e);
 		} catch (UnsupportedEncodingException e) {
-			Log.e( LOG_TAG, "Configuration file " + CONFIG_FILE + " uses unsupported encoding" );
+			Logger.e( LOG_TAG, "Configuration file " + CONFIG_FILE + " uses unsupported encoding" );
 			throw new RuntimeException(e);
 		} catch (IOException e) {
-			Log.e( LOG_TAG, "Error while reading configuration file " + CONFIG_FILE );
+			Logger.e( LOG_TAG, "Error while reading configuration file " + CONFIG_FILE );
 			throw new RuntimeException(e);
 		} catch (JSONException e) {
-			Log.e( LOG_TAG, "Error while parsing configuration file " + CONFIG_FILE );
+			Logger.e( LOG_TAG, "Error while parsing configuration file " + CONFIG_FILE );
 			throw new RuntimeException(e);
 		}
 
