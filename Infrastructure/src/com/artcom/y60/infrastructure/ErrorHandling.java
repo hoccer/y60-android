@@ -17,6 +17,8 @@ public class ErrorHandling {
 		COMPONENT_NOT_FOUND,
 		NETWORK_ERROR,
 		ILLEGAL_ARGUMENT,
+		GOM_ERROR,
+		BACKEND_ERROR,
 		
 		UNSPECIFIED,
 	}
@@ -73,10 +75,21 @@ public class ErrorHandling {
 	{
 		signalError(logTag, error, context, Category.ILLEGAL_ARGUMENT);
 	}
+		
+	public static void signalGomError(String logTag, Throwable error, Context context)
+    {
+        signalError(logTag, error, context, Category.GOM_ERROR);
+    }
+
+	public static void signalBackendError(String logTag, Throwable error, Context context)
+    {
+        signalError(logTag, error, context, Category.BACKEND_ERROR);
+    }
 	
 	public static void signalUnspecifiedError(String logTag, Throwable error, Context context)
-	{
-		// TODO this method should not be used eventually
-		signalError(logTag, error, context, Category.UNSPECIFIED);
-	}
+    {
+        // TODO this method should not be used eventually
+        signalError(logTag, error, context, Category.UNSPECIFIED);
+    }
+    
 }
