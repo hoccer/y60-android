@@ -11,6 +11,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.xml.sax.ErrorHandler;
+
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
@@ -18,6 +20,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.util.Log;
@@ -124,6 +127,13 @@ public class HttpProxyHelper {
         }
     }
     
+    public Drawable get(Uri uri, Drawable defaultDrawable) {
+    	try {
+			return get(new URI(uri.toString()), defaultDrawable);
+		} catch (URISyntaxException e) {
+			throw new RuntimeException("Uri is not wellformed: " + e);
+		}
+    }
     
     public Drawable get(URI pUri, Drawable pDefault) {
         
@@ -200,7 +210,7 @@ public class HttpProxyHelper {
             addResourceChangeListener(uri, pLsner);
         }
     }
-    
+
     
     public void addResourceChangeListener(URI pUri, ResourceChangeListener pLsner) {
         
@@ -211,6 +221,15 @@ public class HttpProxyHelper {
         }
     }
     
+	public void addResourceChangeListener(Uri uri, 
+			ResourceChangeListener lsner) {
+		
+		try {
+			addResourceChangeListener(new URI(uri.toString()), lsner);
+		} catch (URISyntaxException e) {
+			throw new RuntimeException("uri is not wellformed:" + e);
+		}
+	}
     
     public void shutdown() {
         

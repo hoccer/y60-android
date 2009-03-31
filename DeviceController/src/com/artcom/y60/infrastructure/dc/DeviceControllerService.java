@@ -127,14 +127,15 @@ public class DeviceControllerService extends Service {
 				// this will take some time so we do not need a "Thread.sleep"
 				String pingStatistic = getPingStatistics(dc);
 
+				mNotificationManager
+				.cancel(GOM_NOT_ACCESSIBLE_NOTIFICATION_ID);
+
 				try {
 					// Log.v(LOG_TAG, "checking gom: " + pingStatistic);
 					GomNode device = mGom.getNode(dc.getDevicePath());
 					device.getAttribute("last_alive_update")
 							.putValue(timestamp);
-					mNotificationManager
-							.cancel(GOM_NOT_ACCESSIBLE_NOTIFICATION_ID);
-
+					
 					GomAttribute historyAttribute = device
 							.getAttribute("history_log");
 					historyAttribute.refresh();
@@ -142,7 +143,7 @@ public class DeviceControllerService extends Service {
 							+ historyLog + "\n" + timestamp + ": "
 							+ pingStatistic);
 					historyLog = "";
-
+				
 				} catch (NoSuchElementException e) {
 					throw new RuntimeException("Missing GOM entry!", e);
 				} catch (Exception e) {
