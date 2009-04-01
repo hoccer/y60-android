@@ -9,7 +9,7 @@ import android.content.IntentFilter;
 import android.test.ActivityUnitTestCase;
 
 public class TestError extends ActivityUnitTestCase<ErrorPresentationActivity> {
-
+	
 	public TestError() {
 		super(ErrorPresentationActivity.class);
 		
@@ -18,10 +18,10 @@ public class TestError extends ActivityUnitTestCase<ErrorPresentationActivity> {
 	public void testUserError()
 	{
 		IntentFilter filter = new IntentFilter("y60.intent.ERROR_PRESENTATION");
-		
-		ActivityMonitor monitor = new ActivityMonitor( filter, null, false );
+		ActivityMonitor monitor = new ActivityMonitor( filter, null, true );
 		Exception e = new Exception( "Don't panic" );
-		ErrorHandling.signal_user_error( getActivity(), e );
+		ErrorHandling.signalError( this.getClass().getSimpleName(),
+				e, getActivity(), ErrorHandling.Category.UNSPECIFIED );
 		
 	}
 	

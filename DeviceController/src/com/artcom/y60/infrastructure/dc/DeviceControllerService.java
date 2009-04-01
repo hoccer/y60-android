@@ -49,6 +49,7 @@ import android.widget.Toast;
 
 import com.artcom.y60.conf.DeviceConfiguration;
 import com.artcom.y60.infrastructure.BindingListener;
+import com.artcom.y60.infrastructure.ErrorHandling;
 import com.artcom.y60.infrastructure.PreferencesActivity;
 import com.artcom.y60.infrastructure.gom.GomAttribute;
 import com.artcom.y60.infrastructure.gom.GomNode;
@@ -127,14 +128,15 @@ public class DeviceControllerService extends Service {
 				// this will take some time so we do not need a "Thread.sleep"
 				String pingStatistic = getPingStatistics(dc);
 
+				mNotificationManager
+				.cancel(GOM_NOT_ACCESSIBLE_NOTIFICATION_ID);
+
 				try {
 					// Log.v(LOG_TAG, "checking gom: " + pingStatistic);
 					GomNode device = mGom.getNode(dc.getDevicePath());
 					device.getAttribute("last_alive_update")
 							.putValue(timestamp);
-					mNotificationManager
-							.cancel(GOM_NOT_ACCESSIBLE_NOTIFICATION_ID);
-
+					
 					GomAttribute historyAttribute = device
 							.getAttribute("history_log");
 					historyAttribute.refresh();
@@ -142,11 +144,13 @@ public class DeviceControllerService extends Service {
 							+ historyLog + "\n" + timestamp + ": "
 							+ pingStatistic);
 					historyLog = "";
-
+				
 				} catch (NoSuchElementException e) {
-					throw new RuntimeException("Missing GOM entry!", e);
+					ErrorHandling.signalMissingGomEntryError(LOG_TAG, e, DeviceControllerService.this);
+//					throw new RuntimeException("Missing GOM entry");
+					return;
 				} catch (Exception e) {
-					Log.w(LOG_TAG, "no network avialable", e);
+					Log.w(LOG_TAG, "no network available", e);
 					PendingIntent pint = PendingIntent.getActivity(
 							DeviceControllerService.this, 0, configureDC,
 							PendingIntent.FLAG_ONE_SHOT);
@@ -190,6 +194,10 @@ public class DeviceControllerService extends Service {
 						"Could not read result of ping command.", e);
 			}
 
+			if (pingStatistic.size() < 3) {
+				return pingStatistic.toString();
+			}
+			
 			return pingStatistic.get(pingStatistic.size() - 2);
 		}
 
@@ -366,5 +374,5 @@ public class DeviceControllerService extends Service {
 
 			return DeviceControllerService.this;
 		}
-	}
+    }
 }

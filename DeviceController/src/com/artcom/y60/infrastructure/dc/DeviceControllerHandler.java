@@ -1,6 +1,8 @@
 package com.artcom.y60.infrastructure.dc;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -17,6 +19,7 @@ import android.app.Service;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
+import android.net.Uri;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
@@ -45,9 +48,9 @@ public class DeviceControllerHandler extends DefaultHandler
 	    String device_id = prefs.getString( PreferencesActivity.KEY_DEVICE_ID, "" );
 	    String device_path = prefs.getString( PreferencesActivity.KEY_DEVICES_PATH, "" );
 
-		Log.v(LOG_TAG , "Target: " + target );
+		Log.v(LOG_TAG , "Target: " + target);
 		String method = request.getMethod();
-		Log.v(LOG_TAG, "Method: " + method );
+		Log.v(LOG_TAG, "Method: " + method);
 
 		String path = request.getPathInfo();
 		String location = "";
@@ -56,31 +59,46 @@ public class DeviceControllerHandler extends DefaultHandler
 
 		if (path.startsWith( "/proc" )) {
 			// Requests directed at the DC's own resources.
-			Log.v( LOG_TAG, "Handling /proc request" );
+			Log.v(LOG_TAG, "Handling /proc request");
 			ProcHandler procHandler = new ProcHandler();
-			procHandler.handle( target, request, response, dispatch );
+			procHandler.handle(target, request, response, dispatch);
 			return;
 		}
 		
 		// All other GET requests are redirected to the GOM
-		if (method.equals( "GET" ) || method.equals( "HEAD" )) {
+		if (method.equals("GET") || method.equals("HEAD")) {
 			
 			if (path == null) {
 				path = "";
 			}
         
-			if (path.startsWith( "/self" )) {
-				location = gom_location + self + path.replaceFirst( "/self", "" ); 
+			if (path.startsWith("/self")) {
+				location = gom_location + self + path.replaceFirst("/self", ""); 
 			} else {
 				location = gom_location + path;
 			}	
 
-			response.setStatus( HttpServletResponse.SC_SEE_OTHER );
-			response.addHeader( "Location", location );
+			response.setStatus(HttpServletResponse.SC_SEE_OTHER);
+			response.addHeader("Location", location);
             response.setContentType("text/plain");
             response.setContentLength(0);
+		} else if (method.equals("POST")) {
+			String queryString = request.getQueryString();
+			String requestString = request.getRequestURL().toString();
+			Uri uri = Uri.parse(requestString + "?" + queryString);
+			String query = uri.getQuery();
+			String[] keysnvalues = query.split("[=&]");
+			Map<String,String> kvMap = new HashMap<String,String>();
+			Log.v(LOG_TAG, keysnvalues.length + " elements");
+			for (int i = 0; i*2+1 < keysnvalues.length; i++) {
+				kvMap.put(keysnvalues[i*2], keysnvalues[i*2+1]);
+				Log.v(LOG_TAG, "\t" + keysnvalues[i*2] + " = " + keysnvalues[i*2+1]);
+			}
+			if (keysnvalues.length % 2 != 0 && keysnvalues.length > 0) {
+				Log.v(LOG_TAG, "\tLonely key: " + keysnvalues[keysnvalues.length-1]);
+			}
 		} else {
-			respond_not_supported( request, response );
+			respond_not_supported(request, response);
 		}
 		
 		Request base_request = (request instanceof Request) ? (Request)request:HttpConnection.getCurrentConnection().getRequest();

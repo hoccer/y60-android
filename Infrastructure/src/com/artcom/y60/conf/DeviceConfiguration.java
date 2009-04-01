@@ -48,16 +48,16 @@ public class DeviceConfiguration {
 			mLogLevel = Logger.Level.fromString(configuration.getString("log-level"));
 
 		} catch (FileNotFoundException e) {
-			Logger.e( LOG_TAG, "Could not find configuration file " + CONFIG_FILE );
+			Logger.e( LOG_TAG, "Could not find configuration file ", CONFIG_FILE );
 			throw new RuntimeException(e);
 		} catch (UnsupportedEncodingException e) {
-			Logger.e( LOG_TAG, "Configuration file " + CONFIG_FILE + " uses unsupported encoding" );
+			Logger.e( LOG_TAG, "Configuration file ", CONFIG_FILE, " uses unsupported encoding" );
 			throw new RuntimeException(e);
 		} catch (IOException e) {
-			Logger.e( LOG_TAG, "Error while reading configuration file " + CONFIG_FILE );
+			Logger.e( LOG_TAG, "Error while reading configuration file ", CONFIG_FILE );
 			throw new RuntimeException(e);
 		} catch (JSONException e) {
-			Logger.e( LOG_TAG, "Error while parsing configuration file " + CONFIG_FILE );
+			Logger.e( LOG_TAG, "Error while parsing configuration file ", CONFIG_FILE );
 			throw new RuntimeException(e);
 		}
 
