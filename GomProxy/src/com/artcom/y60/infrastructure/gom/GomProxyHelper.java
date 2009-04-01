@@ -7,10 +7,10 @@ import android.content.ServiceConnection;
 import android.net.Uri;
 import android.os.IBinder;
 import android.os.RemoteException;
-import android.util.Log;
 
 import com.artcom.y60.infrastructure.BindingException;
 import com.artcom.y60.infrastructure.BindingListener;
+import com.artcom.y60.logging.Logger;
 
 public class GomProxyHelper {
 
@@ -45,7 +45,7 @@ public class GomProxyHelper {
         
         Intent proxyIntent = new Intent(IGomProxyService.class.getName());
         mConnection = new GomProxyServiceConnection();
-        Log.v(logTag(), "binding to GomProxy");
+        Logger.v(logTag(), "binding to GomProxy");
         if (!pContext.bindService(proxyIntent, mConnection, Context.BIND_AUTO_CREATE)) {
             
             throw new BindingException("bindService failed for GomProxyService");
@@ -100,7 +100,7 @@ public class GomProxyHelper {
             
         } catch (RemoteException rex) {
             
-            Log.e(LOG_TAG, "failed to retrieve attribute data", rex);
+            Logger.e(LOG_TAG, "failed to retrieve attribute data", rex);
             throw new RuntimeException(rex);
         }
     }
@@ -116,7 +116,7 @@ public class GomProxyHelper {
             
         } catch (Exception x) {
             
-            Log.e(LOG_TAG, "getBaseUri failed", x);
+            Logger.e(LOG_TAG, "getBaseUri failed", x);
             throw new RuntimeException(x);
         }
     }
@@ -155,7 +155,7 @@ public class GomProxyHelper {
 
         public void onServiceConnected(ComponentName pName, IBinder pBinder) {
             
-            Log.v("GomProxyServiceConnection", "onServiceConnected("+pName+")");
+            Logger.v("GomProxyServiceConnection", "onServiceConnected(", pName, ")");
             mProxy = IGomProxyService.Stub.asInterface(pBinder);
             
             if (mBindingListener != null) {
@@ -165,7 +165,7 @@ public class GomProxyHelper {
 
         public void onServiceDisconnected(ComponentName pName) {
 
-            Log.v("GomProxyServiceConnection", "onServiceDisconnected("+pName+")");
+            Logger.v("GomProxyServiceConnection", "onServiceDisconnected(", pName, ")");
             mProxy = null;
             
             if (mBindingListener != null) {

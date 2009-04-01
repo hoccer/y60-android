@@ -2,3 +2,4 @@ bin
 *.log
 .*~
 R.java
+GomProxy/src/com/artcom/y60/infrastructure/gom/IGomProxyService.java

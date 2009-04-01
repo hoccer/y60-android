@@ -13,7 +13,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.os.RemoteException;
-import android.util.Log;
+
+import com.artcom.y60.logging.Logger;
 /**
  * Representation of the state of a node resource in the GOM. Instances may (and will) load data
  * lazily, i.e. fetching nodes/attributes may trigger reading new data from the GOM repository.
@@ -260,7 +261,7 @@ public class GomNode extends GomEntry {
 		    
 		} catch (RemoteException rex) {
        
-		    Log.e(LOG_TAG, "failed to retrieve node data", rex);
+		    Logger.e(LOG_TAG, "failed to retrieve node data", rex);
 		    throw new RuntimeException(rex);
 		}
 	}

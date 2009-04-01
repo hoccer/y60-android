@@ -6,7 +6,9 @@ import java.util.Set;
 import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
-import android.util.Log;
+
+import com.artcom.y60.conf.DeviceConfiguration;
+import com.artcom.y60.logging.Logger;
 
 /**
  * Implementation of client-side caching for HTTP resources.
@@ -50,13 +52,13 @@ public class HttpProxyService extends Service {
             if (sInstances.size() == 0) {
                 
                 // this must never happen!
-                Log.e(LOG_TAG, "Can't send broadcast since all services have died!");
+                Logger.e(LOG_TAG, "Can't send broadcast since all services have died!");
                 
             } else {
                 HttpProxyService service = sInstances.iterator().next();
                 Intent intent = new Intent(HttpProxyConstants.RESOURCE_UPDATE_ACTION);
                 intent.putExtra(HttpProxyConstants.URI_EXTRA, pUri);
-                Log.v(LOG_TAG, "Broadcasting update for resource "+pUri);
+                Logger.v(LOG_TAG, "Broadcasting update for resource "+pUri);
                 service.sendBroadcast(intent);
             }
         }
@@ -85,7 +87,7 @@ public class HttpProxyService extends Service {
     public HttpProxyService() {
         
         mId = String.valueOf(System.currentTimeMillis());
-        Log.v(tag(), "HttpProxyService instantiated");
+        Logger.v(tag(), "HttpProxyService instantiated");
     }
     
     
@@ -94,7 +96,10 @@ public class HttpProxyService extends Service {
     
     public void onCreate() {
         
-        Log.v(tag(), "HttpProxyService.onCreate");
+        DeviceConfiguration conf = DeviceConfiguration.load();
+        Logger.setFilterLevel(conf.getLogLevel());
+        
+        Logger.i(tag(), "HttpProxyService.onCreate");
         
         super.onCreate();
         
@@ -103,24 +108,27 @@ public class HttpProxyService extends Service {
         synchronized (sInstances) {
             sInstances.add(this);
             CACHE.resume();
-            Log.v(tag(), "instances: "+countInstances());
+            Logger.v(tag(), "instances: ", countInstances());
         }
     }
 
 
     public void onStart(Intent intent, int startId) {
 
-        Log.v(tag(), "HttpProxyService.onStart");
+        DeviceConfiguration conf = DeviceConfiguration.load();
+        Logger.setFilterLevel(conf.getLogLevel());
+        
+        Logger.i(tag(), "HttpProxyService.onStart");
         
         super.onStart(intent, startId);
         
-        Log.v(tag(), "instances: "+countInstances());
+        Logger.d(tag(), "instances: "+countInstances());
     }
 
 
     public void onDestroy() {
         
-        Log.v(tag(), "HttpProxyService.onDestroy");
+        Logger.i(tag(), "HttpProxyService.onDestroy");
         
         super.onDestroy();
         
@@ -130,7 +138,7 @@ public class HttpProxyService extends Service {
             if (sInstances.size() < 1) {
                 CACHE.stop();
             }
-            Log.v(tag(), "instances: "+countInstances());
+            Logger.d(tag(), "instances: "+countInstances());
         }
     }
 
