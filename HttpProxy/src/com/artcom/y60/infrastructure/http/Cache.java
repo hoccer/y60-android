@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Map;
 
 import android.net.Uri;
-import android.util.Log;
 
 import com.artcom.y60.infrastructure.HTTPHelper;
 import com.artcom.y60.logging.Logger;
@@ -47,14 +46,14 @@ public class Cache {
 
     public byte[] get(String pUri) {
         
-        Log.v(LOG_TAG, "HttpProxyService.get("+pUri+")");
+        Logger.v(LOG_TAG, "HttpProxyService.get(", pUri, ")");
         synchronized (mPendingResources) {
             
             if (!mPendingResources.contains(pUri)) {
                 
                 mPendingResources.add(pUri);
             }
-            Log.v(LOG_TAG, "pending resources: "+mPendingResources.size());
+            Logger.v(LOG_TAG, "pending resources: ", mPendingResources.size());
         }
         
         synchronized (mCachedContent) {

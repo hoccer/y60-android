@@ -15,12 +15,6 @@ import android.widget.Button;
  */
 public class HttpProxyActivity extends Activity {
     
-    // Constants ---------------------------------------------------------
-    
-    private static final String LOG_TAG = "HttpProxyActivity";
-    
-    
-
     // Public Instance Methods -------------------------------------------
 
     public void onCreate(Bundle savedInstanceState) {

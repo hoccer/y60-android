@@ -70,7 +70,10 @@ public class GomProxyService extends Service {
 
     public void onCreate() {
         
-        Logger.v(tag(), "GomProxyService.onCreate");
+        DeviceConfiguration conf = DeviceConfiguration.load();
+        Logger.setFilterLevel(conf.getLogLevel());
+        
+        Logger.i(tag(), "GomProxyService.onCreate");
         
         super.onCreate();
         
@@ -80,7 +83,10 @@ public class GomProxyService extends Service {
 
     public void onStart(Intent intent, int startId) {
 
-        Logger.v(tag(), "GomProxyService.onStart");
+        DeviceConfiguration conf = DeviceConfiguration.load();
+        Logger.setFilterLevel(conf.getLogLevel());
+        
+        Logger.i(tag(), "GomProxyService.onStart");
         
         super.onStart(intent, startId);
     }
@@ -88,7 +94,7 @@ public class GomProxyService extends Service {
 
     public void onDestroy() {
         
-        Logger.v(tag(), "HttpProxyService.onDestroy");
+        Logger.i(tag(), "HttpProxyService.onDestroy");
         
         super.onDestroy();
     }
