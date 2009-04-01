@@ -1,7 +1,5 @@
 package com.artcom.y60.infrastructure;
 
-import java.util.NoSuchElementException;
-
 import android.content.Context;
 import android.content.Intent;
 

@@ -11,8 +11,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.xml.sax.ErrorHandler;
-
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
@@ -23,10 +21,10 @@ import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.IBinder;
 import android.os.RemoteException;
-import android.util.Log;
 
 import com.artcom.y60.infrastructure.BindingListener;
 import com.artcom.y60.infrastructure.ErrorHandling;
+import com.artcom.y60.logging.Logger;
 
 /**
  * Helper class for activities which encapsulates the interaction with the
@@ -88,7 +86,7 @@ public class HttpProxyHelper {
 
         Intent proxyIntent = new Intent(IHttpProxyService.class.getName());
         mConnection = new HttpProxyServiceConnection();
-        Log.v(logTag(), "binding to HttpProxy");
+        Logger.v(logTag(), "binding to HttpProxy");
         if (!mContext.bindService(proxyIntent, mConnection, Context.BIND_AUTO_CREATE)) {
 
             throw new RuntimeException("bindService failed for HttpProxyService");
@@ -120,8 +118,8 @@ public class HttpProxyHelper {
             return mProxy.get(uri);
 
         } catch (RemoteException rex) {
-
-            Log.e(logTag(), "get(" + pUri + ") failed", rex);
+            
+            Logger.e(logTag(), "get(", pUri, ") failed", rex);
             throw new RuntimeException(rex);
         }
     }
@@ -139,15 +137,15 @@ public class HttpProxyHelper {
 
         if (mProxy == null) {
 
-            Log.v(logTag(), "get called, but proxy is still null - returning fallback");
+            Logger.v(logTag(), "get called, but proxy is still null - returning fallback");
             return pDefault;
         }
 
         byte[] bytes = get(pUri);
 
         if (bytes == null) {
-
-            Log.v(logTag(), "get called, but result is empty - returning fallback");
+            
+            Logger.v(logTag(), "get called, but result is empty - returning fallback");
             return pDefault;
         }
 
@@ -179,8 +177,8 @@ public class HttpProxyHelper {
             return mProxy.fetchFromCache(pUri.toString());
 
         } catch (RemoteException rex) {
-
-            Log.e(logTag(), "fetchFromCache(" + pUri + ") failed", rex);
+            
+            Logger.e(logTag(), "fetchFromCache(", pUri, ") failed", rex);
             throw new RuntimeException(rex);
         }
     }
@@ -270,14 +268,14 @@ public class HttpProxyHelper {
             synchronized (mNotificationQueue) {
 
                 String uri = pIntent.getStringExtra(HttpProxyConstants.URI_EXTRA);
-                Log.v(logTag(), "received broadcast for uri " + uri);
+                Logger.v(logTag(), "received broadcast for uri ", uri);
                 try {
 
                     mNotificationQueue.add(new URI(uri));
 
                 } catch (URISyntaxException ux) {
-
-                    Log.e(logTag(), "couldn't parse URI extra", ux);
+                    
+                    Logger.e(logTag(), "couldn't parse URI extra", ux);
                 }
             }
         }
@@ -302,9 +300,9 @@ public class HttpProxyHelper {
                 // that the broadcast receiver gets blocked when
                 // adding new URIs
                 if (uri != null) {
-
-                    Log.v(logTag(), "registered listeners: " + mListeners.keySet());
-                    Log.v(logTag(), "updating listeners for uri " + uri);
+                    
+                    Logger.v(logTag(), "registered listeners: ", mListeners.keySet());
+                    Logger.v(logTag(), "updating listeners for uri ", uri);
                     Set<ResourceChangeListener> listeners = getListenersFor(uri);
                     if (listeners != null) {
                         synchronized (listeners) {

@@ -7,9 +7,9 @@ import java.util.List;
 import java.util.Map;
 
 import android.net.Uri;
-import android.util.Log;
 
 import com.artcom.y60.infrastructure.HTTPHelper;
+import com.artcom.y60.logging.Logger;
 
 public class Cache {
 
@@ -46,14 +46,14 @@ public class Cache {
 
     public byte[] get(String pUri) {
         
-        Log.v(LOG_TAG, "HttpProxyService.get("+pUri+")");
+        Logger.v(LOG_TAG, "HttpProxyService.get(", pUri, ")");
         synchronized (mPendingResources) {
             
             if (!mPendingResources.contains(pUri)) {
                 
                 mPendingResources.add(pUri);
             }
-            Log.v(LOG_TAG, "pending resources: "+mPendingResources.size());
+            Logger.v(LOG_TAG, "pending resources: ", mPendingResources.size());
         }
         
         synchronized (mCachedContent) {
@@ -65,7 +65,7 @@ public class Cache {
 
     public byte[] fetchFromCache(String pUri) {
         
-        Log.v(LOG_TAG, "fetchFromCache("+pUri+")");
+        Logger.v(LOG_TAG, "fetchFromCache(", pUri, ")");
         synchronized (mCachedContent) {
             
             return mCachedContent.get(pUri);
@@ -112,7 +112,7 @@ public class Cache {
     
     void logCache() {
         
-        Log.v(LOG_TAG, "cached content: "+mCachedContent);
+        Logger.v(LOG_TAG, "cached content: ", mCachedContent);
     }
 
     
@@ -122,7 +122,7 @@ public class Cache {
 
     private void refresh(String pUri) {
         
-        Log.v(LOG_TAG, "refresh("+pUri+")");
+        Logger.v(LOG_TAG, "refresh(", pUri, ")");
         try {
             
             synchronized (mCachedContent) {
@@ -131,17 +131,17 @@ public class Cache {
                 
                 if (!Arrays.equals(oldContent, newContent)) {
                     
-                    Log.v(LOG_TAG, "storing new content for '"+pUri+"'");
+                    Logger.v(LOG_TAG, "storing new content for '", pUri, "'");
                     mCachedContent.put(pUri, newContent);
                     
-                    Log.v(LOG_TAG, "broadcast update for resource '"+pUri+"'");
+                    Logger.v(LOG_TAG, "broadcast update for resource '", pUri, "'");
                     HttpProxyService.resourceUpdated(pUri);
                 }
             }
             
         } catch (Exception e) {
             
-            Log.e(LOG_TAG, "refreshing "+pUri+" failed!", e);
+            Logger.e(LOG_TAG, "refreshing ", pUri, " failed!", e);
         }
     }
     
@@ -151,10 +151,10 @@ public class Cache {
 
         public void run() {
             
-            Log.v("ResourceRefresher", "refresher thread for HttpServiceProxy starts");
+            Logger.v("ResourceRefresher", "refresher thread for HttpServiceProxy starts");
             while (!mShutdown) {
                 
-//                Log.v("ResourceRefresher", "refresher thread is waking up");
+//                Logger.v("ResourceRefresher", "refresher thread is waking up");
                 
                 String uri = null;
                 synchronized (mPendingResources) {
@@ -162,11 +162,11 @@ public class Cache {
                     if (mPendingResources.size() > 0) {
                         
                         uri = mPendingResources.remove(0);
-                        Log.v("ResourceRefresher", "found uri: "+uri);
+                        Logger.v("ResourceRefresher", "found uri: ", uri);
                         
                     } else {
                         
-//                        Log.v("ResourceRefresher", "nothing to do");
+//                        Logger.v("ResourceRefresher", "nothing to do");
                     }
                 }
                 
@@ -186,7 +186,7 @@ public class Cache {
                     // not interested
                 }
             }
-            Log.v("ResourceRefresher", "refresher thread STOPS ------------ ");
+            Logger.v("ResourceRefresher", "refresher thread STOPS ------------ ");
         }
     }
 

@@ -14,11 +14,11 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.IBinder;
 import android.os.RemoteException;
-import android.util.Log;
 
 import com.artcom.y60.conf.DeviceConfiguration;
 import com.artcom.y60.infrastructure.HTTPHelper;
 import com.artcom.y60.infrastructure.JsonHelper;
+import com.artcom.y60.logging.Logger;
 
 public class GomProxyService extends Service {
 
@@ -58,7 +58,7 @@ public class GomProxyService extends Service {
         mId = String.valueOf(System.currentTimeMillis());
         mNodes      = new HashMap<String, NodeData>();
         mAttributes = new HashMap<String, String>();
-        Log.v(tag(), "HttpProxyService instantiated");
+        Logger.v(tag(), "HttpProxyService instantiated");
         
         DeviceConfiguration conf = DeviceConfiguration.load();
         mBaseUri = Uri.parse(conf.getGomUrl());
@@ -70,7 +70,10 @@ public class GomProxyService extends Service {
 
     public void onCreate() {
         
-        Log.v(tag(), "GomProxyService.onCreate");
+        DeviceConfiguration conf = DeviceConfiguration.load();
+        Logger.setFilterLevel(conf.getLogLevel());
+        
+        Logger.i(tag(), "GomProxyService.onCreate");
         
         super.onCreate();
         
@@ -80,7 +83,10 @@ public class GomProxyService extends Service {
 
     public void onStart(Intent intent, int startId) {
 
-        Log.v(tag(), "GomProxyService.onStart");
+        DeviceConfiguration conf = DeviceConfiguration.load();
+        Logger.setFilterLevel(conf.getLogLevel());
+        
+        Logger.i(tag(), "GomProxyService.onStart");
         
         super.onStart(intent, startId);
     }
@@ -88,7 +94,7 @@ public class GomProxyService extends Service {
 
     public void onDestroy() {
         
-        Log.v(tag(), "HttpProxyService.onDestroy");
+        Logger.i(tag(), "HttpProxyService.onDestroy");
         
         super.onDestroy();
     }
@@ -105,19 +111,19 @@ public class GomProxyService extends Service {
 
     void getNodeData(String pPath, List<String> pSubNodeNames, List<String> pAttributeNames) {
         
-        //Log.v(tag(), "getNodeData("+pPath+")");
+        //Logger.v(tag(), "getNodeData("+pPath+")");
         
         NodeData node = null;
         synchronized (mNodes) {
             
             if (!hasNodeInCache(pPath)) {
                 
-                Log.v(tag(), "node not in cache, load from gom");
+                Logger.v(tag(), "node not in cache, load from gom");
                 loadNode(pPath);
                 
             } else {
                 
-                Log.v(tag(), "ok, node's in cache");
+                Logger.v(tag(), "ok, node's in cache");
             }
             
             node = mNodes.get(pPath);
@@ -136,22 +142,22 @@ public class GomProxyService extends Service {
     
     String getAttributeValue(String pPath) {
         
-        Log.v(tag(), "getAttributeValue("+pPath+")");
+        Logger.v(tag(), "getAttributeValue(", pPath, ")");
         
         synchronized (mAttributes) {
             
             if (!hasAttributeInCache(pPath)) {
                 
-                Log.v(tag(), "attribute not in cache, load from gom");
+                Logger.v(tag(), "attribute not in cache, load from gom");
                 loadAttribute(pPath);
                 
             } else {
                 
-                Log.v(tag(), "ok, attribute's in cache");
+                Logger.v(tag(), "ok, attribute's in cache");
             }
             
             String value = mAttributes.get(pPath);
-            //Log.v(tag(), "attribute value: "+value);
+            //Logger.v(tag(), "attribute value: "+value);
             return value;
         }
     }
@@ -159,7 +165,7 @@ public class GomProxyService extends Service {
     
     void refreshEntry(String pPath) {
         
-        Log.v(tag(), "refreshEntry("+pPath+")");
+        Logger.v(tag(), "refreshEntry(", pPath, ")");
         String lastSegment = pPath.substring(pPath.lastIndexOf("/")+1);
         if (lastSegment.contains(":")) {
             
@@ -195,7 +201,7 @@ public class GomProxyService extends Service {
     
     private void loadNode(String pPath) {
         
-        Log.v(tag(), "loadNode("+pPath+")");
+        Logger.v(tag(), "loadNode(", pPath, ")");
         
         NodeData node = new NodeData(new LinkedList<String>(), new LinkedList<String>());
             
@@ -229,7 +235,7 @@ public class GomProxyService extends Service {
                 }
                 
                 // huh?!
-                Log.w(tag(), "got entry as child of a GOM node which I can't decode: "+jsChild.toString());
+                Logger.w(tag(), "got entry as child of a GOM node which I can't decode: ", jsChild);
             }
             
             synchronized (mNodes) {
@@ -239,7 +245,7 @@ public class GomProxyService extends Service {
             
         } catch (JSONException x) {
             
-            Log.e(tag(), "loading node for path "+pPath+" failed", x);
+            Logger.e(tag(), "loading node for path ", pPath, " failed", x);
             
             synchronized (mNodes) {
              
@@ -249,7 +255,7 @@ public class GomProxyService extends Service {
                     
                 } else {
                     
-                    Log.v(tag(), "previous value is in cache, so I don't throw an exception");
+                    Logger.v(tag(), "previous value is in cache, so I don't throw an exception");
                 }
             }
         }
@@ -258,7 +264,7 @@ public class GomProxyService extends Service {
     
     private void loadAttribute(String pPath) {
         
-        Log.v(tag(), "loadAttribute("+pPath+")");
+        Logger.v(tag(), "loadAttribute(", pPath, ")");
         
         try {
             
@@ -274,7 +280,7 @@ public class GomProxyService extends Service {
             
         } catch (JSONException x) {
             
-            Log.e(tag(), "loading attribute for path "+pPath+" failed", x);
+            Logger.e(tag(), "loading attribute for path ", pPath, " failed", x);
             
             synchronized (mAttributes) {
              
@@ -284,7 +290,7 @@ public class GomProxyService extends Service {
                     
                 } else {
                     
-                    Log.v(tag(), "previous value is in cache, so I don't throw an exception");
+                    Logger.v(tag(), "previous value is in cache, so I don't throw an exception");
                 }
             }
         }

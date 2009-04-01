@@ -55,7 +55,6 @@ public class Logger  {
             if (sLevel.shows(this)) {
                 
                 StringBuilder builder = new StringBuilder();
-                builder.append(":Y60 Logger: ");
                 for (Object obj: pToLog) {
                     
                     builder.append(toString(obj));
@@ -67,7 +66,9 @@ public class Logger  {
         
         public boolean shows(Level pLevel) {
             
-            return pLevel.asInt() >= mAsInt;
+            boolean shows = pLevel.asInt() >= mAsInt; 
+//            Log.v("Logger", toString()+".shows("+pLevel.toString()+"): "+ shows);
+            return shows;
         }
         
         public int asInt() {
@@ -106,6 +107,7 @@ public class Logger  {
 
     public static void setFilterLevel(Level pLevel) {
         
+        Log.i("Logger", "setting filter level to '"+pLevel.toString()+"'");
         sLevel = pLevel;
     }
     
