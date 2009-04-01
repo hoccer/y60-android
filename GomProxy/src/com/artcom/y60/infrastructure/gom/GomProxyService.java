@@ -17,6 +17,7 @@ import android.os.RemoteException;
 import android.util.Log;
 
 import com.artcom.y60.conf.DeviceConfiguration;
+import com.artcom.y60.infrastructure.ErrorHandling;
 import com.artcom.y60.infrastructure.HTTPHelper;
 import com.artcom.y60.infrastructure.JsonHelper;
 
@@ -263,7 +264,13 @@ public class GomProxyService extends Service {
         try {
             
             String     uri   = Uri.withAppendedPath(mBaseUri, pPath).toString();
-            JSONObject jsob  = HTTPHelper.getJson(uri);
+            JSONObject jsob;
+            try {
+                 jsob = HTTPHelper.getJson(uri);
+            } catch (RuntimeException e){
+              ErrorHandling.signalNetworkError(LOG_TAG, e, this);
+              return;
+            }
             JSONObject attr  = jsob.getJSONObject(GomKeywords.ATTRIBUTE);
             String     value = attr.getString(GomKeywords.VALUE);
             
