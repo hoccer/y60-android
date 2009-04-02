@@ -10,7 +10,6 @@ import org.json.JSONObject;
 
 import android.app.Activity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TableLayout;
@@ -19,6 +18,7 @@ import android.widget.TextView;
 import com.artcom.y60.infrastructure.HTTPHelper;
 import com.artcom.y60.infrastructure.gom.GomNode;
 import com.artcom.y60.infrastructure.gom.GomProxyHelper;
+import com.artcom.y60.logging.Logger;
 
 public class NetworkChecker extends Activity {
 
@@ -70,16 +70,16 @@ public class NetworkChecker extends Activity {
 			m_SelfPath     = configuration.getString("device-path");
 
 		} catch (FileNotFoundException e) {
-			Log.e( LOG_TAG, "Could not find configuration file " + CONFIG_FILE );
+			Logger.e( LOG_TAG, "Could not find configuration file ", CONFIG_FILE );
 			throw new RuntimeException(e);
 		} catch (UnsupportedEncodingException e) {
-			Log.e( LOG_TAG, "Configuration file " + CONFIG_FILE + " uses unsupported encoding" );
+			Logger.e( LOG_TAG, "Configuration file ", CONFIG_FILE, " uses unsupported encoding" );
 			throw new RuntimeException(e);
 		} catch (IOException e) {
-			Log.e( LOG_TAG, "Error while reading configuration file " + CONFIG_FILE );
+			Logger.e( LOG_TAG, "Error while reading configuration file ", CONFIG_FILE );
 			throw new RuntimeException(e);
 		} catch (JSONException e) {
-			Log.e( LOG_TAG, "Error while parsing configuration file " + CONFIG_FILE );
+			Logger.e( LOG_TAG, "Error while parsing configuration file ", CONFIG_FILE );
 			throw new RuntimeException(e);
 		}
     }
@@ -92,7 +92,7 @@ public class NetworkChecker extends Activity {
     private void executeStep( int step ) {
     
     	if (step < 0 || step >= NUM_STEPS) {
-    		Log.e( LOG_TAG, "You are trying to execute step " + step + ", which doesn't exist. Resetting to 0." );
+    		Logger.e( LOG_TAG, "You are trying to execute step ", step, ", which doesn't exist. Resetting to 0." );
     		return;
     	}
     	
@@ -195,7 +195,7 @@ public class NetworkChecker extends Activity {
     private void say( String msg ) {
     	m_View.append( msg + "\n" );
         m_View.refreshDrawableState();
-    	Log.d( LOG_TAG, msg );
+    	Logger.d( LOG_TAG, msg );
     }
     
     private void rest( int ms ) {
