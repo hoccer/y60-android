@@ -9,7 +9,7 @@ import android.view.animation.Animation;
 import android.view.animation.TranslateAnimation;
 import android.widget.TableLayout;
 
-import com.artcom.y60.infrastructure.HorizontalDirection;
+import com.artcom.y60.HorizontalDirection;
 
 
 public class WorkSpace {

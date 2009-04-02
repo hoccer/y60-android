@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.artcom.y60.infrastructure.dc">
+    package="com.artcom.y60.dc">
     <application android:label="@string/manage_jetty" android:icon="@drawable/smooth">
     
     <uses-library android:name="android.test.runner" />
@@ -30,7 +30,7 @@
     <uses-permission android:name="android.permission.RUN_INSTRUMENTATION" />
     
     <instrumentation android:name="android.test.InstrumentationTestRunner" 
-      android:targetPackage="com.artcom.y60.infrastructure.dc" 
+      android:targetPackage="com.artcom.y60.dc" 
       android:label="DeviceControllerService">
     </instrumentation>
 </manifest> 
