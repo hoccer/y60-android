@@ -81,7 +81,7 @@ public class Logger  {
             if (obj instanceof Throwable) {
                 
                 Throwable t = (Throwable)obj;
-                String msg   = t.getMessage();
+                String msg   = String.valueOf(t.getMessage());
                 String stack = Log.getStackTraceString(t);
                 StringBuilder builder = new StringBuilder(msg.length()+stack.length()+1);
                 builder.append(msg);
