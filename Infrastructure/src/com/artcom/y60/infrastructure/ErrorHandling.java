@@ -2,7 +2,8 @@ package com.artcom.y60.infrastructure;
 
 import android.content.Context;
 import android.content.Intent;
-import android.util.Log;
+
+import com.artcom.y60.logging.Logger;
 
 public class ErrorHandling {
 
@@ -101,7 +102,7 @@ public class ErrorHandling {
     }
 
    public static void signalMissingMandentoryObjectError(String logTag, Throwable error){
-       Log.e(logTag, "MISSING_MANDENTORY_OBJECT", error);
+       Logger.e(logTag, "MISSING_MANDENTORY_OBJECT", error);
    }
 
 	public static void signalUnspecifiedError(String logTag, Throwable error, Context context)
