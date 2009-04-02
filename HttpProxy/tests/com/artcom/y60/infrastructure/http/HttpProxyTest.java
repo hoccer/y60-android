@@ -6,9 +6,12 @@ import android.content.Intent;
 import android.net.Uri;
 import android.test.ActivityUnitTestCase;
 
-import com.artcom.y60.infrastructure.BindingListener;
-import com.artcom.y60.infrastructure.HTTPHelper;
-import com.artcom.y60.logging.Logger;
+import com.artcom.y60.BindingListener;
+import com.artcom.y60.HTTPHelper;
+import com.artcom.y60.Logger;
+import com.artcom.y60.http.HttpProxyActivity;
+import com.artcom.y60.http.HttpProxyHelper;
+import com.artcom.y60.http.ResourceChangeListener;
 
 
 public class HttpProxyTest extends ActivityUnitTestCase<HttpProxyActivity> {

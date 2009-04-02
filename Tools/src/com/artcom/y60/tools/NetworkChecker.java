@@ -15,10 +15,10 @@ import android.widget.Button;
 import android.widget.TableLayout;
 import android.widget.TextView;
 
-import com.artcom.y60.infrastructure.HTTPHelper;
-import com.artcom.y60.infrastructure.gom.GomNode;
-import com.artcom.y60.infrastructure.gom.GomProxyHelper;
-import com.artcom.y60.logging.Logger;
+import com.artcom.y60.HTTPHelper;
+import com.artcom.y60.Logger;
+import com.artcom.y60.gom.GomNode;
+import com.artcom.y60.gom.GomProxyHelper;
 
 public class NetworkChecker extends Activity {
 

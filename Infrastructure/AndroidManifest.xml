@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-      package="com.artcom.y60.infrastructure"
+      package="com.artcom.y60"
       android:versionCode="1"
       android:versionName="1.0.0">
       
@@ -18,7 +18,7 @@
     <uses-permission android:name="android.permission.RUN_INSTRUMENTATION" />
     
     <instrumentation android:name="android.test.InstrumentationTestRunner" 
-      android:targetPackage="com.artcom.y60.infrastructure" 
+      android:targetPackage="com.artcom.y60" 
       android:label="Error Handling Tests">
     </instrumentation>
 </manifest> 

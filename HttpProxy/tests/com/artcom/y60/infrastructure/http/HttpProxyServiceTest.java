@@ -7,7 +7,8 @@ import android.content.Intent;
 import android.net.Uri;
 import android.test.ServiceTestCase;
 
-import com.artcom.y60.infrastructure.HTTPHelper;
+import com.artcom.y60.HTTPHelper;
+import com.artcom.y60.http.HttpProxyService;
 
 public class HttpProxyServiceTest extends ServiceTestCase<HttpProxyService> {
 
