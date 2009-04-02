@@ -44,7 +44,6 @@ import android.os.Binder;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
-import android.util.Log;
 import android.widget.Toast;
 
 import com.artcom.y60.conf.DeviceConfiguration;
@@ -54,6 +53,7 @@ import com.artcom.y60.infrastructure.PreferencesActivity;
 import com.artcom.y60.infrastructure.gom.GomAttribute;
 import com.artcom.y60.infrastructure.gom.GomNode;
 import com.artcom.y60.infrastructure.gom.GomProxyHelper;
+import com.artcom.y60.logging.Logger;
 
 public class DeviceControllerService extends Service {
 	private NotificationManager mNM;
@@ -76,7 +76,7 @@ public class DeviceControllerService extends Service {
 	GomProxyHelper mGom = null;
 
 	public void onCreate() {
-		Log.i(LOG_TAG, "onCreate called");
+		Logger.i(LOG_TAG, "onCreate called");
 		__resources = getResources();
 
 		// Get the notification manager serivce.
@@ -150,7 +150,7 @@ public class DeviceControllerService extends Service {
 //					throw new RuntimeException("Missing GOM entry");
 					return;
 				} catch (Exception e) {
-					Log.w(LOG_TAG, "no network available", e);
+					Logger.w(LOG_TAG, "no network available", e);
 					PendingIntent pint = PendingIntent.getActivity(
 							DeviceControllerService.this, 0, configureDC,
 							PendingIntent.FLAG_ONE_SHOT);
@@ -167,7 +167,7 @@ public class DeviceControllerService extends Service {
 				}
 			}
 
-			Log.w(LOG_TAG, "watcher thread stopped...");
+			Logger.w(LOG_TAG, "watcher thread stopped...");
 		}
 
 		private String getPingStatistics(DeviceConfiguration dc) {
@@ -204,11 +204,11 @@ public class DeviceControllerService extends Service {
 	};
 
 	public void onStart(Intent intent, int startId) {
-		Log.i(LOG_TAG, "onStart called");
+		Logger.i(LOG_TAG, "onStart called");
 		if (server != null) {
 			Toast.makeText(DeviceControllerService.this,
 					R.string.jetty_already_started, Toast.LENGTH_SHORT).show();
-			Log.i("Jetty", "already running");
+			Logger.i("Jetty", "already running");
 			return;
 		}
 
@@ -233,10 +233,10 @@ public class DeviceControllerService extends Service {
 						portDefault));
 			}
 
-			Log.i("Jetty", "pref port = "
-					+ preferences.getString(portKey, portDefault));
-			Log.i("Jetty", "pref nio = "
-					+ preferences.getBoolean(nioKey, Boolean
+			Logger.i("Jetty", "pref port = ",
+					preferences.getString(portKey, portDefault));
+			Logger.i("Jetty", "pref nio = ",
+					preferences.getBoolean(nioKey, Boolean
 							.valueOf(nioDefault)));
 			// Log.i("Jetty", "pref pwd = "+preferences.getString(pwdKey,
 			// pwdDefault));
@@ -262,10 +262,10 @@ public class DeviceControllerService extends Service {
 					text, contentIntent);
 
 			mNM.notify(R.string.jetty_started, notification);
-			Log.i(LOG_TAG, "DeviceControllerService started");
+			Logger.i(LOG_TAG, "DeviceControllerService started");
 			super.onStart(intent, startId);
 		} catch (Exception e) {
-			Log.e(LOG_TAG, "Error starting DeviceControllerService", e);
+			Logger.e(LOG_TAG, "Error starting DeviceControllerService", e);
 			Toast.makeText(this, getText(R.string.jetty_not_started),
 					Toast.LENGTH_SHORT).show();
 		}
@@ -281,22 +281,22 @@ public class DeviceControllerService extends Service {
 				// Tell the user we stopped.
 				Toast.makeText(this, getText(R.string.jetty_stopped),
 						Toast.LENGTH_SHORT).show();
-				Log.i(LOG_TAG, "DeviceControllerService stopped");
+				Logger.i(LOG_TAG, "DeviceControllerService stopped");
 				__resources = null;
 			} else {
-				Log.i(LOG_TAG, "DeviceControllerService not running");
+				Logger.i(LOG_TAG, "DeviceControllerService not running");
 				Toast.makeText(DeviceControllerService.this,
 						R.string.jetty_not_running, Toast.LENGTH_SHORT).show();
 			}
 		} catch (Exception e) {
-			Log.e(LOG_TAG, "Error stopping DeviceControllerService", e);
+			Logger.e(LOG_TAG, "Error stopping DeviceControllerService", e);
 			Toast.makeText(this, getText(R.string.jetty_not_stopped),
 					Toast.LENGTH_SHORT).show();
 		}
 	}
 
 	public void onLowMemory() {
-		Log.w(LOG_TAG, "Low on memory");
+		Logger.w(LOG_TAG, "Low on memory");
 		super.onLowMemory();
 	}
 
@@ -327,7 +327,7 @@ public class DeviceControllerService extends Service {
 
 	@Override
 	public IBinder onBind(Intent intent) {
-		Log.d(LOG_TAG, "onBind called");
+		Logger.d(LOG_TAG, "onBind called");
 
 		return binder;
 	}
@@ -362,7 +362,7 @@ public class DeviceControllerService extends Service {
 	}
 
 	private void stopJetty() throws Exception {
-		Log.i(LOG_TAG, "DeviceControllerService stopping");
+		Logger.i(LOG_TAG, "DeviceControllerService stopping");
 		server.stop();
 		server.join();
 		server = null;
