@@ -2,7 +2,8 @@ package com.artcom.y60.infrastructure;
 
 import android.content.Context;
 import android.content.Intent;
-import android.util.Log;
+
+import com.artcom.y60.logging.Logger;
 
 public class ErrorHandling {
 
@@ -70,6 +71,10 @@ public class ErrorHandling {
         signalError(logTag, error, context, Category.BACKEND_ERROR);
     }
 
+    public static void signalServiceError(String logTag, Throwable error, Context context) {
+        signalError(logTag, error, context, Category.SERVICE_ERROR);
+    }
+
     public static void signalMissingGomEntryError(String logTag, Throwable error, Context context) {
         signalError(logTag, error, context, Category.MISSING_GOM_ENTRY);
     }
@@ -80,11 +85,7 @@ public class ErrorHandling {
     }
 
     public static void signalMissingMandentoryObjectError(String logTag, Throwable error) {
-        Log.e(logTag, "MISSING_MANDENTORY_OBJECT", error);
-    }
-
-    public static void signalServiceError(String logTag, Throwable error, Context context) {
-        signalError(logTag, error, context, Category.SERVICE_ERROR);
+        Logger.e(logTag, "MISSING_MANDENTORY_OBJECT", error);
     }
 
     public static void signalUnspecifiedError(String logTag, Throwable error, Context context) {

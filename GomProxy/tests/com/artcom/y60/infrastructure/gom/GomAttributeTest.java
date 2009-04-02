@@ -1,7 +1,8 @@
 package com.artcom.y60.infrastructure.gom;
 
 import android.test.AndroidTestCase;
-import android.util.Log;
+
+import com.artcom.y60.logging.Logger;
 
 public class GomAttributeTest extends AndroidTestCase {
 
@@ -63,7 +64,7 @@ public class GomAttributeTest extends AndroidTestCase {
         
         assertNotNull(entry);
         
-        Log.v("GomAttributeTest", "resolveReference got entry with path "+entry.getPath());
+        Logger.v("GomAttributeTest", "resolveReference got entry with path ", entry.getPath());
         
         assertEquals(VALUE, entry.getPath());
         assertTrue(entry instanceof GomAttribute);

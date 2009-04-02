@@ -26,7 +26,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.View.OnClickListener;
@@ -34,6 +33,8 @@ import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
+
+import com.artcom.y60.logging.Logger;
 
 public class DeviceControllerActivity extends Activity 
 {
@@ -80,7 +81,7 @@ public class DeviceControllerActivity extends Activity
             }
             catch (Exception e)
             {
-                Log.e(LOG_TAG, "Problem retrieving ip addresses", e);
+                Logger.e(LOG_TAG, "Problem retrieving ip addresses", e);
             }
         }
     }

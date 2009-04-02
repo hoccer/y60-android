@@ -11,9 +11,8 @@ import org.mortbay.jetty.HttpConnection;
 import org.mortbay.jetty.Request;
 import org.mortbay.jetty.handler.ContextHandler;
 
-import android.util.Log;
-
 import com.artcom.y60.infrastructure.dc.StatusCollector.ScreenState;
+import com.artcom.y60.logging.Logger;
 
 // TODO The functionality in this class is currently buggy. Fix and write tests.
 
@@ -28,7 +27,7 @@ public class ProcHandler extends ContextHandler {
 			HttpServletResponse response, int dispatch) throws IOException,
 			ServletException {
 		
-		Log.v( LOG_TAG, "Handling incoming request for target " + target );
+		Logger.v( LOG_TAG, "Handling incoming request for target ", target );
 		
 		if (target.equals( REQ_SCREEN )) {
 			handleScreenRequest( target, request, response, dispatch );

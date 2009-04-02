@@ -3,7 +3,8 @@ package com.artcom.y60.infrastructure.dc;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.util.Log;
+
+import com.artcom.y60.logging.Logger;
 
 public class StatusCollector extends BroadcastReceiver
 {
@@ -20,11 +21,11 @@ public class StatusCollector extends BroadcastReceiver
 	
 	@Override
 	public void onReceive( Context context, Intent intent ) {
-		Log.v( LOG_TAG, "Received broadcast" );
+		Logger.v( LOG_TAG, "Received broadcast" );
 		
 		String action = intent.getAction();
-		Log.v( LOG_TAG, "Received action " + action );
-		Log.v(LOG_TAG, "(" + Intent.ACTION_SCREEN_OFF + ")" );
+		Logger.v( LOG_TAG, "Received action " + action );
+		Logger.v(LOG_TAG, "(" + Intent.ACTION_SCREEN_OFF + ")" );
 
 		if (action.equals( Intent.ACTION_SCREEN_ON )) {
 			m_screenState = ScreenState.ON;

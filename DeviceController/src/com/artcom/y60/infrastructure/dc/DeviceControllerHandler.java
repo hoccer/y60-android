@@ -12,16 +12,13 @@ import org.mortbay.jetty.HttpConnection;
 import org.mortbay.jetty.Request;
 import org.mortbay.jetty.handler.DefaultHandler;
 
-import com.artcom.y60.infrastructure.PreferencesActivity;
-
-import android.app.Activity;
 import android.app.Service;
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.content.SharedPreferences.Editor;
 import android.net.Uri;
-import android.preference.PreferenceManager;
-import android.util.Log;
+
+import com.artcom.y60.infrastructure.PreferencesActivity;
+import com.artcom.y60.logging.Logger;
 
 
 public class DeviceControllerHandler extends DefaultHandler
@@ -48,9 +45,9 @@ public class DeviceControllerHandler extends DefaultHandler
 	    String device_id = prefs.getString( PreferencesActivity.KEY_DEVICE_ID, "" );
 	    String device_path = prefs.getString( PreferencesActivity.KEY_DEVICES_PATH, "" );
 
-		Log.v(LOG_TAG , "Target: " + target);
+		Logger.v(LOG_TAG , "Target: ", target);
 		String method = request.getMethod();
-		Log.v(LOG_TAG, "Method: " + method);
+		Logger.v(LOG_TAG, "Method: ", method);
 
 		String path = request.getPathInfo();
 		String location = "";
@@ -59,7 +56,7 @@ public class DeviceControllerHandler extends DefaultHandler
 
 		if (path.startsWith( "/proc" )) {
 			// Requests directed at the DC's own resources.
-			Log.v(LOG_TAG, "Handling /proc request");
+		    Logger.v(LOG_TAG, "Handling /proc request");
 			ProcHandler procHandler = new ProcHandler();
 			procHandler.handle(target, request, response, dispatch);
 			return;
@@ -89,13 +86,13 @@ public class DeviceControllerHandler extends DefaultHandler
 			String query = uri.getQuery();
 			String[] keysnvalues = query.split("[=&]");
 			Map<String,String> kvMap = new HashMap<String,String>();
-			Log.v(LOG_TAG, keysnvalues.length + " elements");
+			Logger.v(LOG_TAG, keysnvalues.length, " elements");
 			for (int i = 0; i*2+1 < keysnvalues.length; i++) {
 				kvMap.put(keysnvalues[i*2], keysnvalues[i*2+1]);
-				Log.v(LOG_TAG, "\t" + keysnvalues[i*2] + " = " + keysnvalues[i*2+1]);
+				Logger.v(LOG_TAG, "\t", keysnvalues[i*2], " = ", keysnvalues[i*2+1]);
 			}
 			if (keysnvalues.length % 2 != 0 && keysnvalues.length > 0) {
-				Log.v(LOG_TAG, "\tLonely key: " + keysnvalues[keysnvalues.length-1]);
+				Logger.v(LOG_TAG, "\tLonely key: ", keysnvalues[keysnvalues.length-1]);
 			}
 		} else {
 			respond_not_supported(request, response);

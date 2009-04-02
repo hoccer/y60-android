@@ -3,9 +3,8 @@ package com.artcom.y60.infrastructure.gom;
 import android.content.Intent;
 import android.net.Uri;
 import android.test.ActivityUnitTestCase;
-import android.util.Log;
 
-import com.artcom.y60.infrastructure.BindingListener;
+import com.artcom.y60.logging.Logger;
 
 public class GomProxyTest extends ActivityUnitTestCase<GomProxyActivity> {
 
@@ -79,7 +78,7 @@ public class GomProxyTest extends ActivityUnitTestCase<GomProxyActivity> {
             try {
                 Thread.sleep(10);
             } catch (InterruptedException ix) {
-                Log.v(LOG_TAG, "INTERRUPT!!1!");
+                Logger.v(LOG_TAG, "INTERRUPT!!1!");
             }
         }
         

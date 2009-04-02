@@ -5,10 +5,10 @@ import java.util.Arrays;
 import android.content.Intent;
 import android.net.Uri;
 import android.test.ActivityUnitTestCase;
-import android.util.Log;
 
 import com.artcom.y60.infrastructure.BindingListener;
 import com.artcom.y60.infrastructure.HTTPHelper;
+import com.artcom.y60.logging.Logger;
 
 
 public class HttpProxyTest extends ActivityUnitTestCase<HttpProxyActivity> {
@@ -51,7 +51,7 @@ public class HttpProxyTest extends ActivityUnitTestCase<HttpProxyActivity> {
         initializeActivity();
         HttpProxyHelper helper = createHelper();
         
-        Log.v(LOG_TAG, "enough waiting, let's get to work");
+        Logger.v(LOG_TAG, "enough waiting, let's get to work");
         
         TestListener listener = new TestListener();
         URI uri = TestUriHelper.createUri();
@@ -68,7 +68,7 @@ public class HttpProxyTest extends ActivityUnitTestCase<HttpProxyActivity> {
             }
         }
         
-        Log.v(LOG_TAG, "now let's check results");
+        Logger.v(LOG_TAG, "now let's check results");
         
         assertTrue("update wasn't called", listener.wasCalled());
 //        HttpProxyService.logCache();
@@ -110,7 +110,7 @@ public class HttpProxyTest extends ActivityUnitTestCase<HttpProxyActivity> {
             try {
                 Thread.sleep(10);
             } catch (InterruptedException ix) {
-                Log.v(LOG_TAG, "INTERRUPT!!1!");
+                Logger.v(LOG_TAG, "INTERRUPT!!1!");
             }
         }
         
