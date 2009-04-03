@@ -167,7 +167,9 @@ public class DeviceControllerService extends Service {
 				}
 			}
 
-			Logger.w(LOG_TAG, "watcher thread stopped...");
+			ErrorHandling.signalServiceError(LOG_TAG, new Exception(
+                    "Watchdog has stopped unexpetedly"), DeviceControllerService.this);
+            Logger.w(LOG_TAG, "watcher thread stopped...");
 		}
 
 		private String getPingStatistics(DeviceConfiguration dc) {
