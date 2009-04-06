@@ -41,6 +41,14 @@ public class GomAttributeTest extends AndroidTestCase {
 
         assertEquals(VALUE, mTestAttr.getValue());
     }
+    
+    public void testPutValue() {
+
+        mTestAttr.putValue("changed value");
+        assertEquals("changed value", mTestAttr.getValue());
+        mTestAttr.putValue(VALUE);
+        assertEquals(VALUE, mTestAttr.getValue());
+    }
 
     public void testGetPath() {
 
