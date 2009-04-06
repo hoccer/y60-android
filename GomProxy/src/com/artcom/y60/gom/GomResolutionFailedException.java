@@ -7,8 +7,7 @@ public class GomResolutionFailedException extends RuntimeException {
         // TODO Auto-generated constructor stub
     }
 
-    public GomResolutionFailedException(String detailMessage,
-            Throwable throwable) {
+    public GomResolutionFailedException(String detailMessage, Throwable throwable) {
         super(detailMessage, throwable);
         // TODO Auto-generated constructor stub
     }
@@ -23,5 +22,4 @@ public class GomResolutionFailedException extends RuntimeException {
         // TODO Auto-generated constructor stub
     }
 
-    
 }
