@@ -45,6 +45,7 @@ public class DeviceConfiguration {
 			mGomUrl = configuration.getString("gom-url");
 			mDevicePath = configuration.getString("device-path");
 			mLogLevel = Logger.Level.fromString(configuration.getString("log-level"));
+			fr.close();
 
 		} catch (FileNotFoundException e) {
 			Logger.e( LOG_TAG, "Could not find configuration file ", CONFIG_FILE );
