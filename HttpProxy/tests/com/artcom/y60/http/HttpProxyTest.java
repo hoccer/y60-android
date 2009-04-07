@@ -1,4 +1,4 @@
-package com.artcom.y60.infrastructure.http;
+package com.artcom.y60.http;
 import java.net.URI;
 import java.util.Arrays;
 
