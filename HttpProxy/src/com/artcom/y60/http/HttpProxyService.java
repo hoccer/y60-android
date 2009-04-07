@@ -45,6 +45,9 @@ public class HttpProxyService extends Service {
     
     // Static Methods ----------------------------------------------------
 
+    /**
+     * Helper to notify about resource changes via intent broadcast.
+     */
     static void resourceUpdated(String pUri) {
         
         synchronized (sInstances) {
@@ -89,7 +92,6 @@ public class HttpProxyService extends Service {
         mId = String.valueOf(System.currentTimeMillis());
         Logger.v(tag(), "HttpProxyService instantiated");
     }
-    
     
     
     // Public Instance Methods -------------------------------------------

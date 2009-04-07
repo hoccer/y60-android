@@ -14,6 +14,9 @@ import com.artcom.y60.http.HttpProxyHelper;
 import com.artcom.y60.http.ResourceChangeListener;
 
 
+/**
+ * Blackbox service testing through HttpProxyHelper (aidl and inter-vm-communication).
+ */
 public class HttpProxyTest extends ActivityUnitTestCase<HttpProxyActivity> {
 
     // Constants ---------------------------------------------------------
