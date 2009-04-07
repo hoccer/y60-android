@@ -8,8 +8,10 @@ public class ErrorHandling {
 
     enum Category {
 
+        // system or software errors
         FILE_NOT_FOUND, MALFORMED_URI, UNSUPPORTED_ENCODING, SAX_ERROR, JSON_ERROR, MISSING_GOM_ENTRY, MISSING_MANDENTORY_OBJECT,
 
+        // deploment and environmenal errors
         COMPONENT_NOT_FOUND, NETWORK_ERROR, ILLEGAL_ARGUMENT, GOM_ERROR, BACKEND_ERROR, SERVICE_ERROR,
 
         UNSPECIFIED,
