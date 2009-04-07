@@ -70,6 +70,8 @@ public class HttpProxyHelper {
     private HttpProxyServiceConnection mConnection;
 
     private BindingListener<HttpProxyHelper> mBindingListener;
+    
+    private HttpResourceUpdateReceiver mReceiver;
 
     // Constructors ------------------------------------------------------
 
@@ -81,7 +83,8 @@ public class HttpProxyHelper {
         mListeners = new HashMap<URI, Set<ResourceChangeListener>>();
         mBindingListener = pBindingListener;
 
-        mContext.registerReceiver(new HttpResourceUpdateReceiver(), new IntentFilter(
+        mReceiver = new HttpResourceUpdateReceiver();
+        mContext.registerReceiver(mReceiver, new IntentFilter(
                 HttpProxyConstants.RESOURCE_UPDATE_ACTION));
 
         Intent proxyIntent = new Intent(IHttpProxyService.class.getName());
@@ -100,6 +103,7 @@ public class HttpProxyHelper {
 
     public void unbind(){
         mContext.unbindService(mConnection);
+        mContext.unregisterReceiver(mReceiver);
     }
     
     public void assertConnected() {

@@ -13,8 +13,7 @@ public class GomEntryTypeMismatchException extends RuntimeException {
         // TODO Auto-generated constructor stub
     }
 
-    public GomEntryTypeMismatchException(String detailMessage,
-            Throwable throwable) {
+    public GomEntryTypeMismatchException(String detailMessage, Throwable throwable) {
         super(detailMessage, throwable);
         // TODO Auto-generated constructor stub
     }
