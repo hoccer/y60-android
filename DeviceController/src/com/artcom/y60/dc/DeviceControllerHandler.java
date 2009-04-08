@@ -1,5 +1,6 @@
 package com.artcom.y60.dc;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -11,6 +12,8 @@ import javax.servlet.http.HttpServletResponse;
 import org.mortbay.jetty.HttpConnection;
 import org.mortbay.jetty.Request;
 import org.mortbay.jetty.handler.DefaultHandler;
+import org.mortbay.util.MultiMap;
+import org.mortbay.util.UrlEncoded;
 
 import android.app.Service;
 import android.content.Context;
@@ -82,28 +85,43 @@ public class DeviceControllerHandler extends DefaultHandler
 			response.addHeader("Location", location);
             response.setContentType("text/plain");
             response.setContentLength(0);
+		
 		} else if (method.equals("POST")) {
-			String queryString = request.getQueryString();
-			String requestString = request.getRequestURL().toString();
-			Uri uri = Uri.parse(requestString + "?" + queryString);
-			String query = uri.getQuery();
-			String[] keysnvalues = query.split("[=&]");
-			Map<String,String> kvMap = new HashMap<String,String>();
-			Logger.v(LOG_TAG, keysnvalues.length, " elements");
-			for (int i = 0; i*2+1 < keysnvalues.length; i++) {
-				kvMap.put(keysnvalues[i*2], keysnvalues[i*2+1]);
-				Logger.v(LOG_TAG, "\t", keysnvalues[i*2], " = ", keysnvalues[i*2+1]);
+
+			String parameters = "";
+			if (request.getContentLength() > 0) { // arguments are supplied in request body
+				BufferedReader reader = request.getReader();
+				parameters = reader.readLine();
+			} else { // arguments are supplied in request string
+				parameters = request.getQueryString();
 			}
-			if (keysnvalues.length % 2 != 0 && keysnvalues.length > 0) {
-				Logger.v(LOG_TAG, "\tLonely key: ", keysnvalues[keysnvalues.length-1]);
-			}
+		
+			MultiMap kvMap = new MultiMap();
+			UrlEncoded.decodeUtf8To(parameters.getBytes(), 0, parameters.length(), kvMap);
+			
+//			String[] keysnvalues = parameters.split("[=&]");
+//			Map<String,String> kvMap = new HashMap<String,String>();
+//			Logger.v(LOG_TAG, keysnvalues.length, " elements");
+//			for (int i = 0; i*2+1 < keysnvalues.length; i++) {
+//				UrlEncoded encodedKey = new UrlEncoded(keysnvalues[i*2]).de;
+//				kvMap.put(keysnvalues[i*2], keysnvalues[i*2+1]);
+//				Logger.v(LOG_TAG, "\t", keysnvalues[i*2], " = ", keysnvalues[i*2+1]);
+//			}
+//			if (keysnvalues.length % 2 != 0 && keysnvalues.length > 0) {
+//				Logger.v(LOG_TAG, "\tLonely key: ", keysnvalues[keysnvalues.length-1]);
+//			}
+			
+			Logger.v(LOG_TAG, "sender = " + (String)kvMap.get("sender") +
+					", receiver = " + (String)kvMap.get("receiver") +
+					", arguments = " + (String)kvMap.get("arguments"));
 			
 			Intent intent = new Intent(Actions.SEARCH);
-			intent.putExtra(IntentExtraKeys.KEY_SEARCH_SENDER, kvMap.get("sender"));
-			intent.putExtra(IntentExtraKeys.KEY_SEARCH_RECEIVER, kvMap.get("receiver"));
-			intent.putExtra(IntentExtraKeys.KEY_SEARCH_ARGUMENTS, kvMap.get("arguments"));
+			intent.putExtra(IntentExtraKeys.KEY_SEARCH_SENDER, (String)kvMap.get("sender"));
+			intent.putExtra(IntentExtraKeys.KEY_SEARCH_RECEIVER, (String)kvMap.get("receiver"));
+			intent.putExtra(IntentExtraKeys.KEY_SEARCH_ARGUMENTS, (String)kvMap.get("arguments"));
 			intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 			mService.startActivity(intent);
+			
 		} else {
 			respond_not_supported(request, response);
 		}

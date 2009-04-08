@@ -341,10 +341,12 @@ public class DeviceControllerService extends Service {
 			SelectChannelConnector nioConnector = new SelectChannelConnector();
 			nioConnector.setUseDirectBuffers(false);
 			nioConnector.setPort(_port);
+			nioConnector.setHost("0.0.0.0"); // listen on any ip address
 			connector = nioConnector;
 		} else {
 			SocketConnector bioConnector = new SocketConnector();
 			bioConnector.setPort(_port);
+			bioConnector.setHost("0.0.0.0"); // listen on any ip address
 			connector = bioConnector;
 		}
 		server.setConnectors(new Connector[] { connector });
