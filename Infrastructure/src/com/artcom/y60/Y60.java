@@ -34,6 +34,8 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -41,63 +43,113 @@ import org.json.JSONObject;
 import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.pm.ActivityInfo;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.os.Bundle;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.view.View.OnClickListener;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.TableLayout;
+import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.AdapterView.OnItemSelectedListener;
 
 public class Y60 extends Activity {
 	
 	private static final String LOG_TAG= "Y60 Stargate 108";
 	
-	
-    private TableLayout mTableLayout;
 	private EditText mEditText;
 	private Button mSetNameButton;
 	private Button mStartY60Button;
 	private Button mStopY60Button;
+	private TextView mHomeTargetTextView; 
+	private Spinner mChooseHomeButtonTarget;
+	private ArrayAdapter<String> mArrayAdapter;
 
 	/** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
     	super.onCreate(savedInstanceState);
-        
-    	mTableLayout = new TableLayout(this);
-    	mEditText = new EditText(this);    	
-    	mSetNameButton = new Button(this);
-    	mStartY60Button = new Button(this);
-    	mStopY60Button = new Button(this);  
     	
-    	mSetNameButton.setText("Set device name");
-    	mStartY60Button.setText(R.string.start_Y60_label);
-    	mStopY60Button.setText("Stop Y60");
-    	
-    	mTableLayout.addView(mEditText);
-    	mTableLayout.addView(mSetNameButton);
-    	mTableLayout.addView(mStartY60Button);
-    	mTableLayout.addView(mStopY60Button);
-    	
+       	setContentView(R.layout.y60_layout);
+    	    	
+       	mEditText = (EditText) findViewById(R.id.mEditText);
+    	//get device id and display in EditText
+    	JSONObject configuration = null;
+    	String configFile= getResources().getString(R.string.configFile);
+    	String labelDeviceId= "device ID not found";
+    	try {	
+			FileReader fr = new FileReader(configFile);
+			char[] inputBuffer = new char[255];
+			fr.read(inputBuffer);
+			configuration = new JSONObject(new String(inputBuffer));
+			fr.close();
+			
+			labelDeviceId = configuration.getString("device-path");
+			labelDeviceId = labelDeviceId.replaceFirst("devices/mobile/", "");
+			
+		} catch (FileNotFoundException e) {
+			Logger.e( LOG_TAG, "Could not find configuration file ", configFile );
+			throw new RuntimeException(e);
+		} catch (UnsupportedEncodingException e) {
+			Logger.e( LOG_TAG, "Configuration file ", configFile, " uses unsupported encoding" );
+			throw new RuntimeException(e);
+		} catch (IOException e) {
+			Logger.e( LOG_TAG, "Error while reading configuration file ", configFile );
+			throw new RuntimeException(e);
+		} catch (JSONException e) {
+			Logger.e( LOG_TAG, "Error while parsing configuration file ", configFile );
+			throw new RuntimeException(e);
+		}
+    	mEditText.setText(labelDeviceId);
+    	 	
+    	mSetNameButton = (Button) findViewById(R.id.mSetNameButton);
     	mSetNameButton.setOnClickListener(new RenameClickListener());
-    	mStartY60Button.setOnClickListener(new OnClickListener(){
-    		public void onClick(View view){
-    			//hide status bar
-    			Window win = getWindow();
-    			win.setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
-    					WindowManager.LayoutParams.FLAG_FULLSCREEN);
-    			launchEntryPoint();
-    		} 
+    	
+    	mStartY60Button = (Button) findViewById(R.id.mStartY60Button);
+    	mStartY60Button.setOnClickListener(new OnClickListener() {
+    	  @Override
+    	  public void onClick(View v) {
+    		//hide status bar
+  			Window win = getWindow();
+  			win.setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+  					WindowManager.LayoutParams.FLAG_FULLSCREEN);
+  			launchEntryPoint();
+    	  }
     	});
     	
-    	setContentView(mTableLayout);
+    	mStopY60Button = (Button) findViewById(R.id.mStopY60Button);
+    	mStopY60Button.setOnClickListener(new OnClickListener() {
+    	  @Override
+    	  public void onClick(View v) {
+    	    finish();
+    	  }
+    	});
     	
+    	mHomeTargetTextView = (TextView) findViewById(R.id.mHomeTargetTextView);
+    	mChooseHomeButtonTarget = (Spinner) findViewById(R.id.mChooseHomeButtonTarget);
+    	
+    	String[] labels = new String[2];
+    	labels[0]= "mango";
+    	labels[1]= "mango2";
+    	
+    	mArrayAdapter= new ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item, labels);
+    	mChooseHomeButtonTarget.setAdapter(mArrayAdapter);
+    	
+    	mChooseHomeButtonTarget.setOnItemSelectedListener(new ActivitySelectionListener());
+    	
+    	// choose t as default home activity - suppress chooser dialog
+    	//registerAsPreferredActivity(Intent.ACTION_MAIN, Intent.CATEGORY_HOME, Intent.CATEGORY_DEFAULT);
 
-	
     }
     
     public void onResume() {
@@ -111,15 +163,66 @@ public class Y60 extends Activity {
     
     private void launchEntryPoint(){
     	
-    	Intent intent = new Intent("android.intent.category.HOME");
-//    	ComponentName component = new ComponentName(
-//				"com.artcom.tgallery.homescreen",
-//				"com.artcom.tgallery.homescreen.HomeScreen");
-//		intent.setComponent(component);
+    	Intent intent = new Intent("y60.intent.SHOW_LAUNCHERS");
 		startActivity(intent);
 	
     }
     
+	private void connectIntentWithPreferredActivity(String pAction, String... pCategories) {
+	    
+        Logger.v(LOG_TAG, "register as preferred activity for action ", pAction);
+        
+        PackageManager pm = getPackageManager();
+        
+        //create Intent from params
+        Intent homeIntent = new Intent(pAction);
+        for (String cat: pCategories) {
+            
+            homeIntent.addCategory(cat);
+        }
+
+        //ResolveInfo: Information that is returned from resolving an intent against an IntentFilter
+        List<ResolveInfo>   homeResolveInfos   = pm.queryIntentActivities(homeIntent, 0); 
+        
+        //Possible Activities 
+        List<ComponentName> activityNames = new ArrayList<ComponentName>(homeResolveInfos.size()); 
+        int                 bestScore   = 0;
+        
+        //Fills ComponentNames (=activites) for homeResolveInfos and determines bestScore
+        for (ResolveInfo currentResolveInfo: homeResolveInfos) {
+            
+            if (currentResolveInfo.match > bestScore) {
+                bestScore = currentResolveInfo.match;
+            }
+            
+            ActivityInfo activityInfo = currentResolveInfo.activityInfo;
+            //create ComponentName from current activity.
+            ComponentName name = new ComponentName(activityInfo.applicationInfo.packageName, activityInfo.name);
+            activityNames.add(name);
+            Logger.v(LOG_TAG, "rival activity: ", name + "for (intent-)action: ", pAction);
+        }
+        
+        //possible activities to array
+        ComponentName[] activityNamesArray = activityNames.toArray(new ComponentName[activityNames.size()]);
+        //TODO: link to HomeScreen
+        //define our preferred activity
+        ComponentName   preferredActivity     = new ComponentName(this, Y60.class);
+        
+        IntentFilter filter = new IntentFilter(pAction);
+        for (String cat: pCategories) {
+            
+            filter.addCategory(cat);
+            //Logger.v(LOG_TAG, "including category: ", cat);
+        }
+
+        Logger.v(LOG_TAG, "registering as preferred activity:", filter);
+        
+        pm.addPreferredActivity(filter, bestScore, activityNamesArray, preferredActivity);       
+        
+	}
+    
+	
+	
     class RenameClickListener implements OnClickListener {
 
 		@Override
@@ -160,6 +263,20 @@ public class Y60 extends Activity {
 		}
 
     	
+    }
+    
+    class ActivitySelectionListener implements OnItemSelectedListener {
+
+        public void onItemSelected(AdapterView<?> arg0, View arg1, int pPos, long arg3) {
+
+        	Toast.makeText(Y60.this, "selected item is: " + pPos, 
+					Toast.LENGTH_SHORT).show();
+        }
+
+        public void onNothingSelected(AdapterView<?> arg0) {
+
+            // don't care
+        }
     }
     
 }
