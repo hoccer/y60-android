@@ -202,7 +202,8 @@ public class HttpProxyHelper {
         try {
             mProxy.fetchFromCache(pUri.toString());
 
-            return null;
+            Bundle resourceDescription = mProxy.fetchFromCache(pUri.toString());
+            return HttpProxyHelper.convertResourceBundleToByteArray(resourceDescription);
 
         } catch (RemoteException rex) {
 
