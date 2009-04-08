@@ -2,9 +2,13 @@ package com.artcom.y60.http;
 
 import java.net.URI;
 import java.util.Arrays;
+import java.util.logging.FileHandler;
+
+import org.apache.http.client.methods.HttpHead;
 
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Bundle;
 import android.test.AssertionFailedError;
 import android.test.ServiceTestCase;
 
@@ -38,11 +42,17 @@ public class HttpProxyServiceTest extends ServiceTestCase<HttpProxyService> {
 
         URI uri = TestUriHelper.createUri();
 
-        byte[] initial = service.get(uri.toString());
+        Bundle initial = service.get(uri.toString());
         assertNull("content should be null initially", initial);
 
         // wait some time to let the service load the data
-        for (int i = 0; i < 100; i++) {
+        long requestStartTime = System.currentTimeMillis();
+        Bundle cached = null;
+        while (cached == null) {
+            cached = service.get(uri.toString());
+            if (System.currentTimeMillis() > requestStartTime + 2000) {
+                throw new AssertionFailedError("could not retrive data from uri " + uri);
+            }
             try {
                 Thread.sleep(10);
             } catch (InterruptedException ix) {
@@ -50,11 +60,13 @@ public class HttpProxyServiceTest extends ServiceTestCase<HttpProxyService> {
             }
         }
 
-        byte[] cached = service.get(uri.toString());
-        assertNotNull("content from cache was null", cached);
+        assertNotNull("resource path from cache was null", cached.getString(Cache.LOCAL_RESOURCE_PATH_TAG));
 
         byte[] fromHttp = HTTPHelper.getAsByteArray(Uri.parse(uri.toString()));
-        assertTrue("content doesn't match", Arrays.equals(cached, fromHttp));
+        byte[] cachedArray = HttpProxyHelper.convertResourceBundleToByteArray(cached);
+        assertNotNull("conversion to array returned null", cachedArray);
+        assertTrue("cached data is to small", cachedArray.length > 1000);
+        assertTrue("content doesn't match", Arrays.equals(cachedArray, fromHttp));
     }
 
     public void testGettingBigData() {
@@ -62,15 +74,22 @@ public class HttpProxyServiceTest extends ServiceTestCase<HttpProxyService> {
         HttpProxyService service = getService();
         long requestStartTime = System.currentTimeMillis();
         String resourceUri = "http://www.artcom.de/images/stories/2_pro_bmwmuseum_kinetik/bmwmuseum_kinetik_d.pdf";
-        byte[] data = null;
-        while (data == null) {
-            data = service.get(resourceUri);
+        Bundle resourceDescription = null;
+        while (resourceDescription == null) {
+            resourceDescription = service.get(resourceUri);
             if (System.currentTimeMillis() > requestStartTime + 4000) {
                 throw new AssertionFailedError("could not retrive data from uri " + resourceUri);
             }
+            try {
+                Thread.sleep(10);
+            } catch (InterruptedException ix) {
+                // kthxbye
+            }
         }
-        assertEquals(data.length, 3153527);
-    }
+        //assertEquals(resourceDescription.get(Cache.LOCAL_RESOURCE_PATH_TAG).hashCode(), 3153527);
+        assertEquals("/sdcard/HttpProxyCache/" + resourceUri.hashCode(),
+                resourceDescription.get(Cache.LOCAL_RESOURCE_PATH_TAG));
+        }
 
     // Protected Instance Methods ----------------------------------------
 

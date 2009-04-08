@@ -104,13 +104,9 @@ public class HTTPHelper {
             FileOutputStream fstream = new FileOutputStream(filename);
             entity.writeTo(fstream);
         } catch (IllegalStateException e) {
-            Logger.e(LOG_TAG, "illegal state: " + e.getMessage());
-            e.printStackTrace();
-            return;
+            throw new RuntimeException("illegal state: " + e.getMessage());
         } catch (IOException e) {
-            Logger.e(LOG_TAG, "io: " + e.getMessage());
-            e.printStackTrace();
-            return;
+            throw new RuntimeException( "io error: " + e.getMessage());
         }
     }
 

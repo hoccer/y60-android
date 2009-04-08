@@ -5,6 +5,7 @@ import java.util.Set;
 
 import android.app.Service;
 import android.content.Intent;
+import android.os.Bundle;
 import android.os.IBinder;
 
 import com.artcom.y60.DeviceConfiguration;
@@ -151,13 +152,13 @@ public class HttpProxyService extends Service {
     }
     
     
-    public byte[] get(String pUri) {
+    public Bundle get(String pUri) {
         
         return CACHE.get(pUri);
     }
     
 
-    public byte[] fetchFromCache(String pUri) {
+    public Bundle fetchFromCache(String pUri) {
         
         return CACHE.fetchFromCache(pUri);
     }
@@ -177,12 +178,12 @@ public class HttpProxyService extends Service {
 
     class HttpProxyRemote extends IHttpProxyService.Stub {
         
-        public byte[] get(String pUri) {
+        public Bundle get(String pUri) {
             
             return HttpProxyService.this.get(pUri);
         }
         
-        public byte[] fetchFromCache(String pUri) {
+        public Bundle fetchFromCache(String pUri) {
             
             return HttpProxyService.this.fetchFromCache(pUri);
         }

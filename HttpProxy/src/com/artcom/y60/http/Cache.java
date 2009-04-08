@@ -1,12 +1,11 @@
 package com.artcom.y60.http;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import android.net.Uri;
+import android.os.Bundle;
 
 import com.artcom.y60.HTTPHelper;
 import com.artcom.y60.Logger;
@@ -16,13 +15,12 @@ public class Cache {
     // Constants ---------------------------------------------------------
 
     public static final String LOG_TAG = Cache.class.getName();
-    
-    
+    public static final String LOCAL_RESOURCE_PATH_TAG = "localResourcePath";
     
 
     // Instance Variables ------------------------------------------------
 
-    private Map<String, byte[]> mCachedContent;
+    private Map<String, Bundle> mCachedContent;
     
     private List<String> mPendingResources;
     
@@ -36,7 +34,7 @@ public class Cache {
 
     public Cache() {
         
-        mCachedContent    = new HashMap<String, byte[]>();
+        mCachedContent    = new HashMap<String, Bundle>();
         mPendingResources = new LinkedList<String>();
     }
     
@@ -44,7 +42,10 @@ public class Cache {
     
     // Public Instance Methods -------------------------------------------
 
-    public byte[] get(String pUri) {
+    /**
+     * @return parcelable key/value list describing the resource
+     */
+    public Bundle get(String pUri) {
         
         Logger.v(LOG_TAG, "HttpProxyService.get(", pUri, ")");
         synchronized (mPendingResources) {
@@ -62,8 +63,11 @@ public class Cache {
         }
     }
     
-
-    public byte[] fetchFromCache(String pUri) {
+    
+    /**
+     * @return parcelable key/value list describing the resource
+     */
+    public Bundle fetchFromCache(String pUri) {
         
         Logger.v(LOG_TAG, "fetchFromCache(", pUri, ")");
         synchronized (mCachedContent) {
@@ -126,10 +130,15 @@ public class Cache {
         try {
             
             synchronized (mCachedContent) {
-                byte[] oldContent = mCachedContent.get(pUri);
-                byte[] newContent = HTTPHelper.getAsByteArray(Uri.parse(pUri));
+                Bundle oldContent = mCachedContent.get(pUri);
                 
-                if (!Arrays.equals(oldContent, newContent)) {
+                String localResourcePath = "/sdcard/HttpProxyCache/" + pUri.hashCode();
+                HTTPHelper.fetchUriToFile(pUri, localResourcePath);
+                Bundle newContent = new Bundle(1);
+                newContent.putString(LOCAL_RESOURCE_PATH_TAG, localResourcePath);
+                
+                if (oldContent == null || oldContent.getString(LOCAL_RESOURCE_PATH_TAG) != 
+                    newContent.getString(LOCAL_RESOURCE_PATH_TAG)) {
                     
                     Logger.v(LOG_TAG, "storing new content for '", pUri, "'");
                     mCachedContent.put(pUri, newContent);

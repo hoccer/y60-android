@@ -56,7 +56,6 @@ public class Logger  {
                 
                 StringBuilder builder = new StringBuilder();
                 for (Object obj: pToLog) {
-                    
                     builder.append(toString(obj));
                 }
                 
