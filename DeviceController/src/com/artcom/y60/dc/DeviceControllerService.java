@@ -291,7 +291,7 @@ public class DeviceControllerService extends Service {
 		Logger.v(LOG_TAG, "command_uri of local device controller is " + command_uri);
 		
 		GomNode device = mGom.getNode(dc.getDevicePath());
-		device.getAttribute("rci_uri").putValue(command_uri);
+		device.getOrCreateAttribute("rci_uri").putValue(command_uri);
 	}
 
 	public void onDestroy() {

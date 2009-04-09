@@ -7,6 +7,7 @@ import org.apache.http.StatusLine;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.net.Uri;
 import android.os.RemoteException;
 
 import com.artcom.y60.HTTPHelper;
@@ -23,7 +24,7 @@ public class GomAttribute extends GomEntry {
 
     // Constants ---------------------------------------------------------
 
-    private final static String TAG = "GomAttribute";
+    private final static String LOG_TAG = "GomAttribute";
 
     // Static Methods ----------------------------------------------------
 
@@ -72,25 +73,31 @@ public class GomAttribute extends GomEntry {
 
     public void putValue(String pValue) {
 
+        putOrCreateValue(getUri(), pValue);
+        // update my data
         try {
-            String uri = getUri().toString();
+            refresh();
+        } catch (RemoteException e) {
+            throw new RuntimeException("could not refresh gom attribute " + this.toString());
+        }
+    }
+
+    public static void putOrCreateValue(Uri pUri, String pValue) {
+        try {
 
             Map<String, String> formData = new HashMap<String, String>();
             formData.put(GomKeywords.ATTRIBUTE, pValue);
 
-            StatusLine sline = HTTPHelper.putUrlEncoded(uri, formData);
+            StatusLine statusLine = HTTPHelper.putUrlEncoded(pUri.toString(), formData);
 
-            Logger.v(TAG, "result code: ", sline.getStatusCode());
+            Logger.v(LOG_TAG, "PUT ", pUri, " with ", formData,"result code: ", statusLine.getStatusCode());
 
-            if (sline.getStatusCode() >= 300) {
+            if (statusLine.getStatusCode() >= 300) {
 
                 // not want!
                 throw new RuntimeException("HTTP server returned status code "
-                        + sline.getStatusCode() + "!");
+                        + statusLine.getStatusCode() + "!");
             }
-
-            // update my data
-            refresh();
         } catch (Exception e) {
 
             throw new RuntimeException(e);
@@ -138,7 +145,7 @@ public class GomAttribute extends GomEntry {
 
         GomEntry entry = getGomProxyHelper().getEntry(mValue);
 
-        Logger.v(TAG, "resolved ", mValue, " to ", entry);
+        Logger.v(LOG_TAG, "resolved ", mValue, " to ", entry);
 
         return entry;
     }

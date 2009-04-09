@@ -1,5 +1,9 @@
 package com.artcom.y60.gom;
 
+import java.text.AttributedCharacterIterator.Attribute;
+
+import android.net.Uri;
+import android.os.RemoteException;
 import android.test.AndroidTestCase;
 
 import com.artcom.y60.Logger;
@@ -48,6 +52,26 @@ public class GomAttributeTest extends AndroidTestCase {
         assertEquals("changed value", mTestAttr.getValue());
         mTestAttr.putValue(VALUE);
         assertEquals(VALUE, mTestAttr.getValue());
+    }
+    
+    public void testPutOrCreateValue() throws RemoteException {
+
+        String attrName = "not_existing_attribute";
+        GomNode parent = mTestAttr.getNode();
+        
+        parent.deleteAttribute(attrName);
+        parent.refresh();
+        assertTrue("attribute should not exist", !parent.hasAttribute(attrName));
+        
+        Uri attrUri = Uri.parse(parent.getUri() + ":" + attrName);
+        GomAttribute.putOrCreateValue(attrUri, "the putted value");
+        parent.refresh();
+        assertTrue("attribute should exist", parent.hasAttribute(attrName));        
+        assertEquals("the putted value", parent.getAttribute(attrName).getValue());
+
+        parent.deleteAttribute(attrName);
+        parent.refresh();
+        assertTrue("attribute should again not exist", !parent.hasAttribute(attrName));        
     }
 
     public void testGetPath() {
