@@ -36,6 +36,7 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -70,9 +71,14 @@ public class Y60 extends Activity {
     private Button mSetNameButton;
     private Button mStartY60Button;
     private Button mStopY60Button;
+
     private TextView mHomeTargetTextView;
     private Spinner mChooseHomeButtonTarget;
-    private ArrayAdapter<ComponentInformation> mArrayAdapter;
+    private ArrayAdapter<ComponentInformation> mCompInfoArrayAdapter;
+
+    private TextView mLogLevelTextView;
+    private Spinner mChooseLogLevel;
+    private ArrayAdapter<String> mLogLevelArrayAdapter;
 
     /** Called when the activity is first created. */
     @Override
@@ -122,10 +128,10 @@ public class Y60 extends Activity {
                 Window win = getWindow();
                 win.setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                         WindowManager.LayoutParams.FLAG_FULLSCREEN);
-                //launchEntryPoint();
-                
+                // launchEntryPoint();
+
                 Intent intent = new Intent("y60.intent.START_DEVICE_CONTROLLER");
-                startService(intent);                    
+                startService(intent);
             }
         });
 
@@ -141,20 +147,24 @@ public class Y60 extends Activity {
         mHomeTargetTextView = (TextView) findViewById(R.id.mHomeTargetTextView);
 
         mChooseHomeButtonTarget = (Spinner) findViewById(R.id.mChooseHomeButtonTarget);
-
+        // display possible components:
         ComponentInformation[] componentNames = getPossibleComponents(Intent.ACTION_MAIN,
                 Intent.CATEGORY_HOME, Intent.CATEGORY_DEFAULT);
-
-        mArrayAdapter = new ArrayAdapter<ComponentInformation>(this,
+        mCompInfoArrayAdapter = new ArrayAdapter<ComponentInformation>(this,
                 android.R.layout.simple_spinner_dropdown_item, componentNames);
-        mChooseHomeButtonTarget.setAdapter(mArrayAdapter);
-
+        mChooseHomeButtonTarget.setAdapter(mCompInfoArrayAdapter);
         mChooseHomeButtonTarget.setOnItemSelectedListener(new ActivitySelectionListener());
 
-        // choose t as default home activity - suppress chooser dialog
-        // registerAsPreferredActivity(Intent.ACTION_MAIN, Intent.CATEGORY_HOME,
-        // Intent.CATEGORY_DEFAULT);
+        mLogLevelTextView = (TextView) findViewById(R.id.mLogLevelTextView);
 
+        mChooseLogLevel = (Spinner) findViewById(R.id.mChooseLogLevel);
+        Set<String> logLevelsSet = Logger.Level.getLogLevels();
+        String[] logLevels = new String[logLevelsSet.size()];
+        logLevelsSet.toArray(logLevels);
+        mLogLevelArrayAdapter = new ArrayAdapter<String>(this,
+                android.R.layout.simple_spinner_dropdown_item, logLevels);
+        mChooseLogLevel.setAdapter(mLogLevelArrayAdapter);
+        mChooseLogLevel.setOnItemSelectedListener(new LogLevelSelsctionListener());
     }
 
     public void onResume() {
@@ -273,40 +283,41 @@ public class Y60 extends Activity {
         }
 
     }
-
+    
     class ActivitySelectionListener implements OnItemSelectedListener {
 
         public void onItemSelected(AdapterView<?> arg0, View arg1, int pPos, long arg3) {
 
             ComponentInformation[] componentNames = getPossibleComponents(Intent.ACTION_MAIN,
                     Intent.CATEGORY_HOME, Intent.CATEGORY_DEFAULT);
-           
+
             IntentFilter filter = new IntentFilter(Intent.ACTION_MAIN);
             filter.addCategory(Intent.CATEGORY_HOME);
             filter.addCategory(Intent.CATEGORY_DEFAULT);
-            
-            ComponentName[] componentNameArray= new ComponentName[componentNames.length];
-            
-            PackageManager pm= getPackageManager();
-            int bestScore= 0;
-            int i=0;
+
+            ComponentName[] componentNameArray = new ComponentName[componentNames.length];
+
+            PackageManager pm = getPackageManager();
+            int bestScore = 0;
+            int i = 0;
 
             for (ComponentInformation currentComponentInformation : componentNames) {
                 if (currentComponentInformation.match > bestScore) {
                     bestScore = currentComponentInformation.match;
                 }
-                componentNameArray[i++]= currentComponentInformation.componentName;
+                componentNameArray[i++] = currentComponentInformation.componentName;
 
-                pm.clearPackagePreferredActivities( currentComponentInformation.componentName.getPackageName());
+                pm.clearPackagePreferredActivities(currentComponentInformation.componentName
+                        .getPackageName());
             }
-                        
-            ComponentInformation preferredComponent= mArrayAdapter.getItem(pPos);
-            Toast.makeText(Y60.this, "selected item is: " + preferredComponent, Toast.LENGTH_SHORT).show();
-                                  
-            pm.addPreferredActivity(filter, preferredComponent.match, componentNameArray, preferredComponent.componentName);
 
-            
-                      
+            ComponentInformation preferredComponent = mCompInfoArrayAdapter.getItem(pPos);
+            Toast.makeText(Y60.this, "selected item is: " + preferredComponent, Toast.LENGTH_SHORT)
+                    .show();
+
+            pm.addPreferredActivity(filter, preferredComponent.match, componentNameArray,
+                    preferredComponent.componentName);
+
         }
 
         public void onNothingSelected(AdapterView<?> arg0) {
@@ -315,4 +326,51 @@ public class Y60 extends Activity {
         }
     }
 
+    class LogLevelSelsctionListener implements OnItemSelectedListener {
+
+        public void onItemSelected(AdapterView<?> arg0, View arg1, int pPos, long arg3) {
+
+            String selectedLogLevel= "not defined";
+            selectedLogLevel= mLogLevelArrayAdapter.getItem(pPos).toString();
+            
+            String configFile = getResources().getString(R.string.configFile);
+            JSONObject configuration = null;
+            try {
+                
+                FileReader fr = new FileReader(configFile);
+                char[] inputBuffer = new char[255];
+                fr.read(inputBuffer);
+                configuration = new JSONObject(new String(inputBuffer));
+                fr.close();
+                
+                FileWriter fw = new FileWriter(configFile);
+                configuration.put("log-level", selectedLogLevel);
+                fw.write(configuration.toString());
+                fw.close();
+
+                Toast.makeText(Y60.this,
+                        "Log Level changed to " + selectedLogLevel,
+                        Toast.LENGTH_SHORT).show();
+
+            } catch (FileNotFoundException e) {
+                Logger.e(LOG_TAG, "Could not find configuration file ", configFile);
+                throw new RuntimeException(e);
+            } catch (UnsupportedEncodingException e) {
+                Logger.e(LOG_TAG, "Configuration file ", configFile, " uses unsupported encoding");
+                throw new RuntimeException(e);
+            } catch (IOException e) {
+                Logger.e(LOG_TAG, "Error while reading configuration file ", configFile);
+                throw new RuntimeException(e);
+            } catch (JSONException e) {
+                Logger.e(LOG_TAG, "Error while parsing configuration file ", configFile);
+                throw new RuntimeException(e);
+            }           
+        
+        }
+        
+        public void onNothingSelected(AdapterView<?> arg0) {
+
+            // don't care
+        }
+    }
 }

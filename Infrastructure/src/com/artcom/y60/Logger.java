@@ -2,6 +2,7 @@ package com.artcom.y60;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import android.util.Log;
 
@@ -18,6 +19,10 @@ public class Logger  {
         
         private final static Map<String, Level> BY_NAME;
         
+        public static Set<String> getLogLevels() {
+            return BY_NAME.keySet();
+        }
+
         static {
             
             BY_NAME = new HashMap<String, Level>();
