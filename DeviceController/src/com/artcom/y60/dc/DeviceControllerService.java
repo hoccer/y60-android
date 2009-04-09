@@ -54,6 +54,7 @@ import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.widget.Toast;
 
+import com.artcom.y60.BindingException;
 import com.artcom.y60.BindingListener;
 import com.artcom.y60.DeviceConfiguration;
 import com.artcom.y60.ErrorHandling;
@@ -277,8 +278,10 @@ public class DeviceControllerService extends Service {
 			mNM.notify(R.string.jetty_started, notification);
 			Logger.i(LOG_TAG, "DeviceControllerService started");
 			super.onStart(intent, startId);
+		} catch (BindingException e) {
+			ErrorHandling.signalServiceError(LOG_TAG, e, this);
 		} catch (Exception e) {
-			Logger.e(LOG_TAG, "Error starting DeviceControllerService", e);
+			Logger.e(LOG_TAG, "Error starting DeviceControllerService: ", e);
 			Toast.makeText(this, getText(R.string.jetty_not_started),
 					Toast.LENGTH_SHORT).show();
 		}
