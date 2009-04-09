@@ -24,21 +24,21 @@ android:text="Set device ID"
 android:id="@+id/mStartY60Button"
 android:layout_width="wrap_content"
 android:layout_height="wrap_content"
-android:text="Start"
+android:text="Start DeviceController"
 >
 </Button>
 <Button
 android:id="@+id/mStopY60Button"
 android:layout_width="wrap_content"
 android:layout_height="wrap_content"
-android:text="Stop"
+android:text="Stop DeviceController"
 >
 </Button>
 <TextView
     android:id="@+id/mHomeTargetTextView"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:layout_marginTop="30dip"
+    android:layout_marginTop="10dip"
     android:text="Please select a target for the home button:"
 />
 <Spinner 
@@ -47,5 +47,17 @@ android:text="Stop"
     android:layout_height="wrap_content"
     android:drawSelectorOnTop="true"
 />
-
+<TextView
+    android:id="@+id/mLogLevelTextView"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="10dip"
+    android:text="Please select a log level:"
+/>
+<Spinner 
+    android:id="@+id/mChooseLogLevel"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:drawSelectorOnTop="true"
+/>
 </TableLayout>
