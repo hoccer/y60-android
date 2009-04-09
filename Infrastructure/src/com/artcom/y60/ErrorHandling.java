@@ -1,5 +1,7 @@
 package com.artcom.y60;
 
+import java.io.IOException;
+
 import android.content.Context;
 import android.content.Intent;
 
@@ -9,10 +11,22 @@ public class ErrorHandling {
     enum Category {
 
         // system or software errors
-        FILE_NOT_FOUND, MALFORMED_URI, UNSUPPORTED_ENCODING, SAX_ERROR, JSON_ERROR, MISSING_GOM_ENTRY, MISSING_MANDENTORY_OBJECT,
+        FILE_NOT_FOUND,
+        MALFORMED_URI,
+        UNSUPPORTED_ENCODING,
+        SAX_ERROR,
+        JSON_ERROR,
+        MISSING_GOM_ENTRY,
+        MISSING_MANDATORY_OBJECT,
 
-        // deploment and environmenal errors
-        COMPONENT_NOT_FOUND, NETWORK_ERROR, ILLEGAL_ARGUMENT, GOM_ERROR, BACKEND_ERROR, SERVICE_ERROR,
+        // development and environmenal errors
+        COMPONENT_NOT_FOUND,
+        NETWORK_ERROR,
+        IO_ERROR,
+        ILLEGAL_ARGUMENT,
+        GOM_ERROR,
+        BACKEND_ERROR,
+        SERVICE_ERROR,
 
         UNSPECIFIED,
     }
@@ -80,18 +94,22 @@ public class ErrorHandling {
         signalError(logTag, error, context, Category.MISSING_GOM_ENTRY);
     }
 
-    public static void signalMissingMandentoryObjectError(String logTag, Throwable error,
+    public static void signalMissingMandatoryObjectError(String logTag, Throwable error,
             Context context) {
-        signalError(logTag, error, context, Category.MISSING_MANDENTORY_OBJECT);
+        signalError(logTag, error, context, Category.MISSING_MANDATORY_OBJECT);
     }
 
-    public static void signalMissingMandentoryObjectError(String logTag, Throwable error) {
-        Logger.e(logTag, "MISSING_MANDENTORY_OBJECT", error);
+    public static void signalMissingMandatoryObjectError(String logTag, Throwable error) {
+        Logger.e(logTag, "MISSING_MANDATORY_OBJECT", error);
     }
 
     public static void signalUnspecifiedError(String logTag, Throwable error, Context context) {
         // TODO this method should not be used eventually
         signalError(logTag, error, context, Category.UNSPECIFIED);
     }
+
+	public static void signalIOError(String logTag, Throwable error, Context context) {
+		signalError(logTag, error, context, Category.IO_ERROR);
+	}
 
 }

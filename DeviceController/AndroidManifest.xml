@@ -20,7 +20,12 @@
             </intent-filter>
         </activity>
 
-        <service android:name=".DeviceControllerService" android:process=":remote"/>
+        <service android:name=".DeviceControllerService" android:process=":remote">
+        	<intent-filter>
+        	    <action android:name="y60.intent.START_DEVICE_CONTROLLER" />
+                <category android:name="android.intent.category.DEFAULT" />	
+        	</intent-filter>
+        </service>
     </application>
     
     <uses-permission android:name="android.permission.READ_CONTACTS"/>

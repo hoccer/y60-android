@@ -24,7 +24,7 @@ public class StatusCollector extends BroadcastReceiver
 		Logger.v( LOG_TAG, "Received broadcast" );
 		
 		String action = intent.getAction();
-		Logger.v( LOG_TAG, "Received action " + action );
+		Logger.v(LOG_TAG, "Received action " + action);
 		Logger.v(LOG_TAG, "(" + Intent.ACTION_SCREEN_OFF + ")" );
 
 		if (action.equals( Intent.ACTION_SCREEN_ON )) {

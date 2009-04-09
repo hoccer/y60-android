@@ -12,7 +12,7 @@ import org.json.JSONObject;
 public class DeviceConfiguration {
 
 	private static final String LOG_TAG = "DeviceConfiguration";
-	private static final String CONFIG_FILE = "/sdcard/device_config.json";
+	private static final String CONFIG_FILE_PATH = "/sdcard/device_config.json";
 	
 	public static DeviceConfiguration load(){
 		return new DeviceConfiguration();
@@ -38,27 +38,27 @@ public class DeviceConfiguration {
 		JSONObject configuration = null;
 		try {
 			
-			FileReader fr = new FileReader( CONFIG_FILE );
+			FileReader fr = new FileReader( CONFIG_FILE_PATH );
 			char[] inputBuffer = new char[255];
 			fr.read(inputBuffer);
 			configuration = new JSONObject(new String(inputBuffer));
 			mGomUrl = configuration.getString("gom-url");
 			mDevicePath = configuration.getString("device-path");
 			mLogLevel = Logger.Level.fromString(configuration.getString("log-level"));
+			fr.close();
 
 		} catch (FileNotFoundException e) {
-			Logger.e( LOG_TAG, "Could not find configuration file ", CONFIG_FILE );
+			Logger.e( LOG_TAG, "Could not find configuration file ", CONFIG_FILE_PATH );
 			throw new RuntimeException(e);
 		} catch (UnsupportedEncodingException e) {
-			Logger.e( LOG_TAG, "Configuration file ", CONFIG_FILE, " uses unsupported encoding" );
+			Logger.e( LOG_TAG, "Configuration file ", CONFIG_FILE_PATH, " uses unsupported encoding" );
 			throw new RuntimeException(e);
 		} catch (IOException e) {
-			Logger.e( LOG_TAG, "Error while reading configuration file ", CONFIG_FILE );
+			Logger.e( LOG_TAG, "Error while reading configuration file ", CONFIG_FILE_PATH );
 			throw new RuntimeException(e);
 		} catch (JSONException e) {
-			Logger.e( LOG_TAG, "Error while parsing configuration file ", CONFIG_FILE );
+			Logger.e( LOG_TAG, "Error while parsing configuration file ", CONFIG_FILE_PATH );
 			throw new RuntimeException(e);
 		}
-
 	}
 }

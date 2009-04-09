@@ -3,7 +3,12 @@
       package="com.artcom.y60"
       android:versionCode="1"
       android:versionName="1.0.0">
-      
+    
+    <uses-permission android:name="android.permission.SET_PREFERRED_APPLICATIONS" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.RUN_INSTRUMENTATION" />
+   
+     
     <uses-library android:name="android.test.runner" />
     <application  android:icon="@drawable/icon" android:label="@string/app_name">
         <activity android:name=".ErrorPresentationActivity"  android:exported="true">
@@ -12,10 +17,15 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
+        <activity android:name=".Y60" android:label="@string/app_name">
+
+			<intent-filter>
+				<action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+			</intent-filter>
+		</activity>
 	</application>
 
-    <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.RUN_INSTRUMENTATION" />
     
     <instrumentation android:name="android.test.InstrumentationTestRunner" 
       android:targetPackage="com.artcom.y60" 

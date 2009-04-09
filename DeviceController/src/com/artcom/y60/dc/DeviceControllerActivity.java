@@ -147,8 +147,8 @@ public class DeviceControllerActivity extends Activity
 
         IntentFilter flt_screen_on = new IntentFilter(Intent.ACTION_SCREEN_ON);
         IntentFilter flt_screen_off = new IntentFilter(Intent.ACTION_SCREEN_OFF);
-        registerReceiver( StatusCollector.getInstance(), flt_screen_on );
-        registerReceiver( StatusCollector.getInstance(), flt_screen_off);
+//        registerReceiver( StatusCollector.getInstance(), flt_screen_on );
+//        registerReceiver( StatusCollector.getInstance(), flt_screen_off);
         
         // Watch for button clicks.
         final Button startButton = (Button)findViewById(R.id.start);
@@ -198,7 +198,7 @@ public class DeviceControllerActivity extends Activity
     
     protected void onStop()
     {
-    	unregisterReceiver( StatusCollector.getInstance() );
+//    	unregisterReceiver( StatusCollector.getInstance() );
     	super.onStop();
     } 
 }
