@@ -16,15 +16,23 @@
 package com.artcom.y60.dc;
 
 import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
+import java.net.InetAddress;
+import java.net.NetworkInterface;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Enumeration;
 import java.util.List;
 import java.util.NoSuchElementException;
 
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.mortbay.jetty.Connector;
 import org.mortbay.jetty.Handler;
 import org.mortbay.jetty.Server;
@@ -235,13 +243,6 @@ public class DeviceControllerService extends Service {
 						portDefault));
 			}
 
-			Logger.i("Jetty", "pref port = ",
-					preferences.getString(portKey, portDefault));
-			Logger.i("Jetty", "pref nio = ",
-					preferences.getBoolean(nioKey, Boolean
-							.valueOf(nioDefault)));
-			// Log.i("Jetty", "pref pwd = "+preferences.getString(pwdKey,
-			// pwdDefault));
 
 			startJetty();
 
@@ -250,6 +251,16 @@ public class DeviceControllerService extends Service {
 			Toast.makeText(DeviceControllerService.this,
 					R.string.jetty_started, Toast.LENGTH_SHORT).show();
 
+			// Update our rci_uri in the GOM
+			
+			DeviceConfiguration dc = DeviceConfiguration.load();
+			String ipAddress  = getIpAddress();
+			String command_uri = "http://" + ipAddress + ":" + _port + "/commands";
+			Logger.v(LOG_TAG, "command_uri of local device controller is " + command_uri);
+			
+			GomNode device = mGom.getNode(dc.getDevicePath());
+			device.getAttribute("rci_uri").putValue(command_uri);
+			
 			// The PendingIntent to launch DeviceControllerActivity activity if
 			// the user selects this notification
 			PendingIntent contentIntent = PendingIntent.getActivity(this, 0,
@@ -341,10 +352,12 @@ public class DeviceControllerService extends Service {
 			SelectChannelConnector nioConnector = new SelectChannelConnector();
 			nioConnector.setUseDirectBuffers(false);
 			nioConnector.setPort(_port);
+			nioConnector.setHost("0.0.0.0"); // listen on all interfaces
 			connector = nioConnector;
 		} else {
 			SocketConnector bioConnector = new SocketConnector();
 			bioConnector.setPort(_port);
+			bioConnector.setHost("0.0.0.0"); // listen on all interfaces
 			connector = bioConnector;
 		}
 		server.setConnectors(new Connector[] { connector });
@@ -368,6 +381,34 @@ public class DeviceControllerService extends Service {
 		server.stop();
 		server.join();
 		server = null;
+	}
+	
+	private String getIpAddress() {
+		
+		String address = null;
+		
+		try
+		{
+			Enumeration<NetworkInterface> nis = NetworkInterface.getNetworkInterfaces();
+			while (nis.hasMoreElements())
+			{
+				NetworkInterface ni = (NetworkInterface)nis.nextElement();
+				if (!ni.getName().equals("lo")) { // pick the first interface that is not the loopback
+					Enumeration<InetAddress> iis = ni.getInetAddresses();
+					if (!iis.hasMoreElements()) {
+						continue; // this interface does not have any ip addresses, try the next one
+					}
+					address = iis.nextElement().getHostAddress();
+					break;
+				}
+			}
+		}
+        catch (Exception e)
+        {
+            Logger.e(LOG_TAG, "Problem retrieving ip addresses", e);
+        }
+        
+        return address;
 	}
 
 	public class DeviceControllerBinder extends Binder {

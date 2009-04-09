@@ -1,4 +1,4 @@
-package com.artcom.y60.infrastructure.http;
+package com.artcom.y60.http;
 import java.net.URI;
 import java.util.Arrays;
 
@@ -14,6 +14,9 @@ import com.artcom.y60.http.HttpProxyHelper;
 import com.artcom.y60.http.ResourceChangeListener;
 
 
+/**
+ * Blackbox service testing through HttpProxyHelper (aidl and inter-vm-communication).
+ */
 public class HttpProxyTest extends ActivityUnitTestCase<HttpProxyActivity> {
 
     // Constants ---------------------------------------------------------
