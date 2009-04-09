@@ -77,7 +77,7 @@ public class HttpProxyServiceTest extends ServiceTestCase<HttpProxyService> {
         Bundle resourceDescription = null;
         while (resourceDescription == null) {
             resourceDescription = service.get(resourceUri);
-            if (System.currentTimeMillis() > requestStartTime + 4000) {
+            if (System.currentTimeMillis() > requestStartTime + 10 * 1000) {
                 throw new AssertionFailedError("could not retrive data from uri " + resourceUri);
             }
             try {
