@@ -58,7 +58,6 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
-import android.widget.TableLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.AdapterView.OnItemSelectedListener;
@@ -123,7 +122,10 @@ public class Y60 extends Activity {
                 Window win = getWindow();
                 win.setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                         WindowManager.LayoutParams.FLAG_FULLSCREEN);
-                launchEntryPoint();
+                //launchEntryPoint();
+                
+                Intent intent = new Intent("y60.intent.START_DEVICE_CONTROLLER");
+                startService(intent);                    
             }
         });
 
@@ -131,7 +133,8 @@ public class Y60 extends Activity {
         mStopY60Button.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                finish();
+                Intent intent = new Intent("y60.intent.START_DEVICE_CONTROLLER");
+                stopService(intent);
             }
         });
 
@@ -167,28 +170,6 @@ public class Y60 extends Activity {
 
         Intent intent = new Intent("y60.intent.SHOW_LAUNCHERS");
         startActivity(intent);
-
-    }
-
-    private void registerAsPreferredActivity(String pAction, String... pCategories) {
-
-        Logger.v(LOG_TAG, "register as preferred activity for action ", pAction);
-
-        // TODO: link to HomeScreen
-        // define our preferred activity
-        ComponentName preferredActivity = new ComponentName(this, Y60.class);
-
-        IntentFilter filter = new IntentFilter(pAction);
-        for (String cat : pCategories) {
-
-            filter.addCategory(cat);
-            // Logger.v(LOG_TAG, "including category: ", cat);
-        }
-
-        Logger.v(LOG_TAG, "registering as preferred activity:", filter);
-
-        // pm.addPreferredActivity(filter, bestScore,
-        // getPossibleComponents(pAction, pCategories), preferredActivity);
 
     }
 

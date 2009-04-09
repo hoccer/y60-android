@@ -24,14 +24,14 @@ android:text="Set device ID"
 android:id="@+id/mStartY60Button"
 android:layout_width="wrap_content"
 android:layout_height="wrap_content"
-android:text="Button"
+android:text="Start"
 >
 </Button>
 <Button
 android:id="@+id/mStopY60Button"
 android:layout_width="wrap_content"
 android:layout_height="wrap_content"
-android:text="Button"
+android:text="Stop"
 >
 </Button>
 <TextView
