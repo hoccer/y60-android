@@ -16,12 +16,9 @@
 package com.artcom.y60.dc;
 
 import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.text.SimpleDateFormat;
@@ -31,8 +28,6 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.NoSuchElementException;
 
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.mortbay.jetty.Connector;
 import org.mortbay.jetty.Handler;
 import org.mortbay.jetty.Server;
@@ -102,6 +97,8 @@ public class DeviceControllerService extends Service {
 						"watch net connection");
 				mIsDeviceHistoryWatcherRunning = true;
 				thread.start();
+
+				updateRciUri();
 			}
 
 			public void unbound(GomProxyHelper helper) {
@@ -254,16 +251,6 @@ public class DeviceControllerService extends Service {
 
 			Toast.makeText(DeviceControllerService.this,
 					R.string.jetty_started, Toast.LENGTH_SHORT).show();
-
-			// Update our rci_uri in the GOM
-			
-			DeviceConfiguration dc = DeviceConfiguration.load();
-			String ipAddress  = getIpAddress();
-			String command_uri = "http://" + ipAddress + ":" + _port + "/commands";
-			Logger.v(LOG_TAG, "command_uri of local device controller is " + command_uri);
-			
-			GomNode device = mGom.getNode(dc.getDevicePath());
-			device.getAttribute("rci_uri").putValue(command_uri);
 			
 			// The PendingIntent to launch DeviceControllerActivity activity if
 			// the user selects this notification
@@ -288,6 +275,18 @@ public class DeviceControllerService extends Service {
 			Toast.makeText(this, getText(R.string.jetty_not_started),
 					Toast.LENGTH_SHORT).show();
 		}
+	}
+
+	private void updateRciUri() {
+		// Update our rci_uri in the GOM
+		
+		DeviceConfiguration dc = DeviceConfiguration.load();
+		String ipAddress  = getIpAddress();
+		String command_uri = "http://" + ipAddress + ":" + _port + "/commands";
+		Logger.v(LOG_TAG, "command_uri of local device controller is " + command_uri);
+		
+		GomNode device = mGom.getNode(dc.getDevicePath());
+		device.getOrCreateAttribute("rci_uri").putValue(command_uri);
 	}
 
 	public void onDestroy() {

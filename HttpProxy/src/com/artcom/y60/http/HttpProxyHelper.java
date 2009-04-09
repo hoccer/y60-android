@@ -1,9 +1,14 @@
 package com.artcom.y60.http;
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.MappedByteBuffer;
+import java.nio.channels.FileChannel;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -19,6 +24,7 @@ import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
 
@@ -38,6 +44,8 @@ import com.artcom.y60.Logger;
 public class HttpProxyHelper {
 
     // Instance Variables ------------------------------------------------
+
+    private static final String LOG_TAG = "HttpProxyHelper";
 
     /**
      * The client for this HttpProxyHelper
@@ -70,7 +78,7 @@ public class HttpProxyHelper {
     private HttpProxyServiceConnection mConnection;
 
     private BindingListener<HttpProxyHelper> mBindingListener;
-    
+
     private HttpResourceUpdateReceiver mReceiver;
 
     // Constructors ------------------------------------------------------
@@ -101,11 +109,11 @@ public class HttpProxyHelper {
 
     // Public Instance Methods -------------------------------------------
 
-    public void unbind(){
+    public void unbind() {
         mContext.unbindService(mConnection);
         mContext.unregisterReceiver(mReceiver);
     }
-    
+
     public void assertConnected() {
 
         if (mProxy == null) {
@@ -116,16 +124,19 @@ public class HttpProxyHelper {
 
     public byte[] get(URI pUri) {
 
+        String uri = pUri.toString();
+
+        Bundle resourceDescription;
         try {
-
-            String uri = pUri.toString();
-            return mProxy.get(uri);
-
+            resourceDescription = mProxy.get(uri);
         } catch (RemoteException rex) {
-            
             Logger.e(logTag(), "get(", pUri, ") failed", rex);
             throw new RuntimeException(rex);
         }
+        if (resourceDescription == null) {
+            return null;
+        }
+        return convertResourceBundleToByteArray(resourceDescription);
     }
 
     public Drawable get(Uri uri, Drawable defaultDrawable) {
@@ -148,7 +159,7 @@ public class HttpProxyHelper {
         byte[] bytes = get(pUri);
 
         if (bytes == null) {
-            
+
             Logger.v(logTag(), "get called, but result is empty - returning fallback");
             return pDefault;
         }
@@ -177,11 +188,13 @@ public class HttpProxyHelper {
     public byte[] fetchFromCache(URI pUri) {
 
         try {
+            mProxy.fetchFromCache(pUri.toString());
 
-            return mProxy.fetchFromCache(pUri.toString());
+            Bundle resourceDescription = mProxy.fetchFromCache(pUri.toString());
+            return HttpProxyHelper.convertResourceBundleToByteArray(resourceDescription);
 
         } catch (RemoteException rex) {
-            
+
             Logger.e(logTag(), "fetchFromCache(", pUri, ") failed", rex);
             throw new RuntimeException(rex);
         }
@@ -232,6 +245,31 @@ public class HttpProxyHelper {
         mContext.unbindService(mConnection);
     }
 
+    public static byte[] convertResourceBundleToByteArray(Bundle resourceDescription) {
+
+        String resourcePath = resourceDescription.getString(Cache.LOCAL_RESOURCE_PATH_TAG);
+        if (resourcePath == null) {
+            return resourceDescription.getByteArray(Cache.BYTE_ARRY_TAG);
+        }
+
+        byte[] buffer;
+        try {
+            File file = new File(resourcePath);
+            FileInputStream stream = new FileInputStream(file);
+            if (file.length() > Integer.MAX_VALUE) {
+                throw new RuntimeException("file '" + file + "' is to big");
+            }
+            buffer = new byte[(int) file.length()];
+            stream.read(buffer);
+        } catch (IOException e) {
+            Logger.e(LOG_TAG, "io error: " + e.getMessage());
+            e.printStackTrace();
+            return null;
+        }
+
+        return buffer;
+    }
+
     // Private Instance Methods ------------------------------------------
 
     private Set<ResourceChangeListener> getOrCreateListenersFor(URI pUri) {
@@ -278,7 +316,7 @@ public class HttpProxyHelper {
                     mNotificationQueue.add(new URI(uri));
 
                 } catch (URISyntaxException ux) {
-                    
+
                     Logger.e(logTag(), "couldn't parse URI extra", ux);
                 }
             }
@@ -304,7 +342,7 @@ public class HttpProxyHelper {
                 // that the broadcast receiver gets blocked when
                 // adding new URIs
                 if (uri != null) {
-                    
+
                     Logger.v(logTag(), "registered listeners: ", mListeners.keySet());
                     Logger.v(logTag(), "updating listeners for uri ", uri);
                     Set<ResourceChangeListener> listeners = getListenersFor(uri);

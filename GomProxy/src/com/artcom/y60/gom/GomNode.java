@@ -12,8 +12,10 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.net.Uri;
 import android.os.RemoteException;
 
+import com.artcom.y60.HTTPHelper;
 import com.artcom.y60.Logger;
 
 /**
@@ -127,6 +129,15 @@ public class GomNode extends GomEntry {
         return entry;
     }
 
+    private boolean hasEntry(String pName) {
+        loadDataIfNecessary();
+        return mEntries.containsKey(pName);
+    }
+
+    public void deleteAttribute(String pAttrName) {
+        HTTPHelper.delete(Uri.parse(getUri() + ":" + pAttrName));
+    }
+
     public GomAttribute getAttribute(String pName) throws NoSuchElementException,
             GomEntryTypeMismatchException {
 
@@ -135,6 +146,29 @@ public class GomNode extends GomEntry {
         GomEntry entry = getEntry(pName); // throws no such element if nonexist
 
         return entry.forceAttributeOrException();
+    }
+
+    public boolean hasAttribute(String pName) {
+        return hasEntry(pName);
+    }
+
+    public GomAttribute getOrCreateAttribute(String pName) {
+        
+        GomAttribute attribute;
+        try {
+            attribute = getAttribute(pName);
+        } catch (NoSuchElementException e){
+            GomAttribute.putOrCreateValue(Uri.parse(getUri() + ":" + pName), "");
+            Logger.e(LOG_TAG, "creating nonexistend gom attribute");
+            try {
+                refresh();
+            } catch (RemoteException e1) {
+                Logger.e(LOG_TAG, "could not refresh gom node " + this);
+            }
+            attribute = getAttribute(pName);
+        }
+        
+        return attribute;
     }
 
     public GomNode getNode(String pName) throws NoSuchElementException,
@@ -250,4 +284,5 @@ public class GomNode extends GomEntry {
             throw new RuntimeException(rex);
         }
     }
+
 }

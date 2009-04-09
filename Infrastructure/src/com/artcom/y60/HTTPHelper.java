@@ -18,6 +18,7 @@ import org.apache.http.HttpStatus;
 import org.apache.http.HttpVersion;
 import org.apache.http.ProtocolException;
 import org.apache.http.StatusLine;
+import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpHead;
@@ -50,6 +51,45 @@ public class HTTPHelper {
         return statusLine.getStatusCode() + " " + statusLine.getReasonPhrase();
     }
 
+    public static StatusLine putUrlEncoded(String pUrl, Map<String, String> pData) {
+        
+        StringBuffer tmp = new StringBuffer();
+        Set<String> keys = pData.keySet();
+        int idx = 0;
+        for (String key : keys) {
+            
+            tmp.append(URLEncoder.encode(key));
+            tmp.append("=");
+            tmp.append(URLEncoder.encode(pData.get(key)));
+            
+            idx += 1;
+            
+            if (idx < keys.size()) {
+                
+                tmp.append("&");
+            }
+        }
+        
+        HttpPut put = new HttpPut(pUrl);
+        String body = tmp.toString();
+        
+        // Log.v(LOG_TAG, "PUT " + pUrl + " with body " + body);
+        
+        insertUrlEncoded(body, put);
+        return executeHTTPMethod(put).getStatusLine();
+    }
+    
+    public static String putText(String pUri, String pData) {
+        HttpPut put = new HttpPut(pUri);
+        insert(pData, "text/xml", "text/xml", put);
+        StatusLine statusLine = executeHTTPMethod(put).getStatusLine();
+        if (statusLine.getStatusCode() != 200) {
+            throw new RuntimeException("Execution of HTTP Method PUT '" + pUri + "' returend "
+                            + statusLine);
+        }
+        return statusLine.getStatusCode() + " " + statusLine.getReasonPhrase();
+    }
+
     public static String postXML(String uri, String body) {
         // Logger.v(LOG_TAG, "post('" + uri + "'): " + body);
         HttpPost post = new HttpPost(uri);
@@ -76,6 +116,17 @@ public class HTTPHelper {
         return istream;
     }
 
+    public static void delete(Uri uri) {
+
+        HttpDelete del = new HttpDelete(uri.toString());
+        HttpResponse result = executeHTTPMethod(del);
+        
+        if (result.getStatusLine().getStatusCode() != 200) {
+            throw new RuntimeException("Execution of HTTP Method DELETE '" + uri + "' returend "
+                            + result.getStatusLine());
+        }
+    }
+    
     public static String get(Uri uri) {
 
         HttpEntity result = getAsHttpEntity(uri);
@@ -104,13 +155,9 @@ public class HTTPHelper {
             FileOutputStream fstream = new FileOutputStream(filename);
             entity.writeTo(fstream);
         } catch (IllegalStateException e) {
-            Logger.e(LOG_TAG, "illegal state: " + e.getMessage());
-            e.printStackTrace();
-            return;
+            throw new RuntimeException("illegal state: " + e.getMessage());
         } catch (IOException e) {
-            Logger.e(LOG_TAG, "io: " + e.getMessage());
-            e.printStackTrace();
-            return;
+            throw new RuntimeException( "io error: " + e.getMessage());
         }
     }
 
@@ -138,32 +185,16 @@ public class HTTPHelper {
         throw new RuntimeException("Could not retrive location header.");
     }
 
-    public static StatusLine putUrlEncoded(String pUrl, Map<String, String> pData) {
+    public static long getSize(String url) {
 
-        StringBuffer tmp = new StringBuffer();
-        Set<String> keys = pData.keySet();
-        int idx = 0;
-        for (String key : keys) {
-
-            tmp.append(URLEncoder.encode(key));
-            tmp.append("=");
-            tmp.append(URLEncoder.encode(pData.get(key)));
-
-            idx += 1;
-
-            if (idx < keys.size()) {
-
-                tmp.append("&");
-            }
+        HttpHead head = new HttpHead(url);
+        HttpResponse response = executeHTTPMethod(head);
+        if (response.containsHeader("Content-Length")) {
+            return new Long(response.getFirstHeader("Content-Length").getValue());
+        } else {
+            Logger.e(LOG_TAG, "HTTP response does not contain a Content-Length header");
         }
-
-        HttpPut put = new HttpPut(pUrl);
-        String body = tmp.toString();
-
-        // Log.v(LOG_TAG, "PUT " + pUrl + " with body " + body);
-
-        insertUrlEncoded(body, put);
-        return executeHTTPMethod(put).getStatusLine();
+        throw new RuntimeException("Could not retrive content-length header.");
     }
 
     // Private Instance Methods ------------------------------------------
@@ -178,11 +209,11 @@ public class HTTPHelper {
         StatusLine status = response.getStatusLine();
         int statusCode = status.getStatusCode();
         if (statusCode == HttpStatus.SC_INTERNAL_SERVER_ERROR) {
-            Logger.w(LOG_TAG, "Request came back with 501 Internal Server Error");
-            throw new RuntimeException("Request came back with 501 Internal Server Error");
+            Logger.w(LOG_TAG, "Request '", uri, "' came back with 501 Internal Server Error");
+            throw new RuntimeException("Request '" + uri + "' came back with 501 Internal Server Error");
         } else if (statusCode == HttpStatus.SC_NOT_FOUND) {
-            Logger.w(LOG_TAG, "Request came back with 404 Not Found");
-            throw new RuntimeException("Request came back with 404 Not Found");
+            Logger.w(LOG_TAG, "Request '", uri, "'came back with 404 Not Found");
+            throw new RuntimeException("Request '" + uri + "' came back with 404 Not Found");
         }
 
         return response.getEntity();
@@ -330,5 +361,6 @@ public class HTTPHelper {
         insertUrlEncoded(body, post);
         return executeHTTPMethod(post).getStatusLine();
     }
+
 
 }
