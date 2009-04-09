@@ -101,6 +101,8 @@ public class DeviceControllerService extends Service {
 						"watch net connection");
 				mIsDeviceHistoryWatcherRunning = true;
 				thread.start();
+
+				updateRciUri();
 			}
 
 			public void unbound(GomProxyHelper helper) {
@@ -251,16 +253,6 @@ public class DeviceControllerService extends Service {
 
 			Toast.makeText(DeviceControllerService.this,
 					R.string.jetty_started, Toast.LENGTH_SHORT).show();
-
-			// Update our rci_uri in the GOM
-			
-			DeviceConfiguration dc = DeviceConfiguration.load();
-			String ipAddress  = getIpAddress();
-			String command_uri = "http://" + ipAddress + ":" + _port + "/commands";
-			Logger.v(LOG_TAG, "command_uri of local device controller is " + command_uri);
-			
-			GomNode device = mGom.getNode(dc.getDevicePath());
-			device.getAttribute("rci_uri").putValue(command_uri);
 			
 			// The PendingIntent to launch DeviceControllerActivity activity if
 			// the user selects this notification
@@ -285,6 +277,18 @@ public class DeviceControllerService extends Service {
 			Toast.makeText(this, getText(R.string.jetty_not_started),
 					Toast.LENGTH_SHORT).show();
 		}
+	}
+
+	private void updateRciUri() {
+		// Update our rci_uri in the GOM
+		
+		DeviceConfiguration dc = DeviceConfiguration.load();
+		String ipAddress  = getIpAddress();
+		String command_uri = "http://" + ipAddress + ":" + _port + "/commands";
+		Logger.v(LOG_TAG, "command_uri of local device controller is " + command_uri);
+		
+		GomNode device = mGom.getNode(dc.getDevicePath());
+		device.getAttribute("rci_uri").putValue(command_uri);
 	}
 
 	public void onDestroy() {
