@@ -45,7 +45,7 @@ public class GomAttributeTest extends AndroidTestCase {
 
         assertEquals(VALUE, mTestAttr.getValue());
     }
-    
+
     public void testPutValue() {
 
         mTestAttr.putValue("changed value");
@@ -53,25 +53,27 @@ public class GomAttributeTest extends AndroidTestCase {
         mTestAttr.putValue(VALUE);
         assertEquals(VALUE, mTestAttr.getValue());
     }
-    
+
     public void testPutOrCreateValue() throws RemoteException {
 
         String attrName = "not_existing_attribute";
         GomNode parent = mTestAttr.getNode();
-        
-        parent.deleteAttribute(attrName);
+
+        if (parent.hasAttribute(attrName)) {
+            parent.deleteAttribute(attrName);
+        }
         parent.refresh();
         assertTrue("attribute should not exist", !parent.hasAttribute(attrName));
-        
+
         Uri attrUri = Uri.parse(parent.getUri() + ":" + attrName);
         GomAttribute.putOrCreateValue(attrUri, "the putted value");
         parent.refresh();
-        assertTrue("attribute should exist", parent.hasAttribute(attrName));        
+        assertTrue("attribute should exist", parent.hasAttribute(attrName));
         assertEquals("the putted value", parent.getAttribute(attrName).getValue());
 
         parent.deleteAttribute(attrName);
         parent.refresh();
-        assertTrue("attribute should again not exist", !parent.hasAttribute(attrName));        
+        assertTrue("attribute should again not exist", !parent.hasAttribute(attrName));
     }
 
     public void testGetPath() {
