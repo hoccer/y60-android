@@ -12,7 +12,7 @@ import org.json.JSONObject;
 public class DeviceConfiguration {
 
 	private static final String LOG_TAG = "DeviceConfiguration";
-	public static final String CONFIG_FILE_PATH = "/sdcard/device_config.json";
+	private static final String CONFIG_FILE_PATH = "/sdcard/device_config.json";
 	
 	public static DeviceConfiguration load(){
 		return new DeviceConfiguration();
@@ -45,6 +45,8 @@ public class DeviceConfiguration {
 			mGomUrl = configuration.getString("gom-url");
 			mDevicePath = configuration.getString("device-path");
 			mLogLevel = Logger.Level.fromString(configuration.getString("log-level"));
+			fr.close();
+
 		} catch (FileNotFoundException e) {
 			Logger.e( LOG_TAG, "Could not find configuration file ", CONFIG_FILE_PATH );
 			throw new RuntimeException(e);

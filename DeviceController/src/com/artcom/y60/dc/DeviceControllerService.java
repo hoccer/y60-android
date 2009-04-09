@@ -76,6 +76,7 @@ public class DeviceControllerService extends Service {
 	private SharedPreferences preferences;
 	public static final String DEFAULT_NIONAME = "com.artcom.y60.dc.nio";
 	public static final String DEFAULT_PORTNAME = "com.artcom.y60.dc.port";
+	public static final int DEFAULT_PORT = 4042;
 
 	private static final String LOG_TAG = "DeviceControllerService";
 	private static final int GOM_NOT_ACCESSIBLE_NOTIFICATION_ID = 42;
@@ -239,11 +240,13 @@ public class DeviceControllerService extends Service {
 					.valueOf(nioDefault));
 
 			Bundle bundle = intent.getExtras();
-			if (bundle.containsKey(DEFAULT_PORTNAME)) {
+			if (bundle != null && bundle.containsKey(DEFAULT_PORTNAME)) {
 				_port = Integer.parseInt(bundle.getString(DEFAULT_PORTNAME));
-			} else {
+			} else if (preferences.contains(portKey)){
 				_port = Integer.parseInt(preferences.getString(portKey,
 						portDefault));
+			} else {
+			    _port = DEFAULT_PORT;
 			}
 
 
