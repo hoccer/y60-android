@@ -185,7 +185,17 @@ public class HTTPHelper {
         throw new RuntimeException("Could not retrive location header.");
     }
 
+    public static long getSize(String url) {
 
+        HttpHead head = new HttpHead(url);
+        HttpResponse response = executeHTTPMethod(head);
+        if (response.containsHeader("Content-Length")) {
+            return new Long(response.getFirstHeader("Content-Length").getValue());
+        } else {
+            Logger.e(LOG_TAG, "HTTP response does not contain a Content-Length header");
+        }
+        throw new RuntimeException("Could not retrive content-length header.");
+    }
 
     // Private Instance Methods ------------------------------------------
 

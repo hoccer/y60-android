@@ -60,7 +60,7 @@ public class HttpProxyServiceTest extends ServiceTestCase<HttpProxyService> {
             }
         }
 
-        assertNotNull("resource path from cache was null", cached.getString(Cache.LOCAL_RESOURCE_PATH_TAG));
+        assertNotNull("resource path from cache was null", cached.getByteArray(Cache.BYTE_ARRY_TAG));
 
         byte[] fromHttp = HTTPHelper.getAsByteArray(Uri.parse(uri.toString()));
         byte[] cachedArray = HttpProxyHelper.convertResourceBundleToByteArray(cached);

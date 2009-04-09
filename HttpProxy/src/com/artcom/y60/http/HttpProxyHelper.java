@@ -124,31 +124,19 @@ public class HttpProxyHelper {
 
     public byte[] get(URI pUri) {
 
-        byte[] buffer = null;
+        String uri = pUri.toString();
+
+        Bundle resourceDescription;
         try {
-            String uri = pUri.toString();
-            Bundle resourceDescription = mProxy.get(uri);
-            if (resourceDescription == null) {
-                return null;
-            }
-            String resourcePath = resourceDescription.getString(Cache.LOCAL_RESOURCE_PATH_TAG);
-            buffer = new byte[255];
-            try {
-                FileInputStream file = new FileInputStream(resourcePath);
-                file.read(buffer);
-            } catch (IOException e) {
-                Logger.e(LOG_TAG, "io error: " + e.getMessage());
-                e.printStackTrace();
-                return null;
-            }
-
+            resourceDescription = mProxy.get(uri);
         } catch (RemoteException rex) {
-
             Logger.e(logTag(), "get(", pUri, ") failed", rex);
             throw new RuntimeException(rex);
         }
-
-        return buffer;
+        if (resourceDescription == null) {
+            return null;
+        }
+        return convertResourceBundleToByteArray(resourceDescription);
     }
 
     public Drawable get(Uri uri, Drawable defaultDrawable) {
@@ -260,6 +248,10 @@ public class HttpProxyHelper {
     public static byte[] convertResourceBundleToByteArray(Bundle resourceDescription) {
 
         String resourcePath = resourceDescription.getString(Cache.LOCAL_RESOURCE_PATH_TAG);
+        if (resourcePath == null) {
+            return resourceDescription.getByteArray(Cache.BYTE_ARRY_TAG);
+        }
+
         byte[] buffer;
         try {
             File file = new File(resourcePath);
