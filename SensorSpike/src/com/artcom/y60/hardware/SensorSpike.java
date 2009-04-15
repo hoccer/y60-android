@@ -23,6 +23,7 @@ public class SensorSpike extends Activity {
 	private Button mCalibrateButton;
 	private float mCalibratedX = 0;
 	private float mCalibratedY = 0;
+	public float mCalibratedZ;
 	private boolean mCalibrating;
 	private Date mCalibrationStarted;
 	private Date mLastUpdated = null;
@@ -33,12 +34,15 @@ public class SensorSpike extends Activity {
 	private float mPrevYVel = 0;
 	private float mCurrentXAccel = 0;
 	private float mCurrentYAccel = 0;
+
 	
 	private LinearLayout mLayout;
 
 	public float mAccXDisplacement;
 
 	public float mAccYDisplacement;
+
+
 
 	public SensorSpike() {
 		mLastUpdated = new Date(System.currentTimeMillis());
@@ -80,17 +84,21 @@ public class SensorSpike extends Activity {
     private void calibrate() {
     	
     	mCalibratedX = 0;
-    	mCalibratedY = 0;
+    	mCalibratedZ = 0;
     	mCalibrationStarted = new Date(System.currentTimeMillis());
     	mCalibrating = true;	
     }
     
     class AccelerometerSensorListener implements SensorListener {
 
+    	private static final double SIGNIFICANCE_THRESHOLD = 3;
+
+		private float mPrevXAccel = 0;
+		private float mPrevZAccel = 0;
 
 		@Override
 		public void onAccuracyChanged(int sensor, int accuracy) {
-			Logger.v(LOG_TAG, "Accuracy of accelerometer changed");		
+//			Logger.v(LOG_TAG, "Accuracy of accelerometer changed");		
 		}
 
 		@Override
@@ -98,88 +106,61 @@ public class SensorSpike extends Activity {
 		
 			float xAccel = values[SensorManager.DATA_X];
 			float yAccel = values[SensorManager.DATA_Y];
-			float zAxis = values[SensorManager.DATA_Z];
+			float zAccel = values[SensorManager.DATA_Z];
 			float rawXAxis = values[SensorManager.RAW_DATA_X];
 			float rawYAxis = values[SensorManager.RAW_DATA_Y];
-			float rawZAxis = values[SensorManager.RAW_DATA_Z];
-	
-			// Smoothing?
+			float rawZAxis = values[SensorManager.RAW_DATA_Z];			
+
+			zAccel += SensorManager.STANDARD_GRAVITY;
+		
+//			Logger.v(LOG_TAG, "Got reading from accelerometer: data = (" +
+//					xAccel + "," + yAccel + "," + zAccel + "), raw = " +
+//					rawXAxis + "," + rawYAxis + "," + rawZAxis + ")");	
+
+			float diffX = ((xAccel) - (mPrevXAccel));
+			float diffZ = ((zAccel) - (mPrevZAccel));
 			
-			//xAccel = Math.round(xAccel - mCalibratedX);
-			//yAccel = Math.round(yAccel - mCalibratedY);
+//			Logger.d(LOG_TAG, xAccel + "," + zAccel + "," + mPrevXAccel + "," + mPrevZAccel);
+//			Logger.v(LOG_TAG, "diffX = " + diffX + ", diffZ = " + diffZ);
 			
-			Logger.v(LOG_TAG, "Got reading from accelerometer: data = (" +
-					xAccel + "," + yAccel + "," + zAxis + "), raw = " +
-					rawXAxis + "," + rawYAxis + "," + rawZAxis + ")");			
-			
-			Date now = new Date(System.currentTimeMillis());
-			long timeDelta = now.getTime() - mLastUpdated.getTime();
-			mLastUpdated.setTime(now.getTime());
-			
-			if (timeDelta < 500) {
-				mCurrentXAccel = (mCurrentXAccel + xAccel) / 2;
-				mCurrentYAccel = (mCurrentYAccel + yAccel) / 2;
+			mPrevXAccel = xAccel;
+			mPrevZAccel = zAccel;
+
+			if (isSignificant(diffX)) {
+				Logger.d(LOG_TAG, "horizontal movement detected");
+			} else if (isSignificant(diffZ)) {
+				Logger.d(LOG_TAG, "vertical movement detected");
+			} else {
+				Logger.d(LOG_TAG, "no movement detected");
 				return;
 			}
 			
-			if (mCalibrating) {
-				
-				if (now.getTime() - mCalibrationStarted.getTime() <= CALIBRATION_DURATION) {
-					mCalibratedX = (mCalibratedX + xAccel) / 2;
-					mCalibratedY = (mCalibratedY + yAccel) / 2;
+			float max = Math.max(diffX, diffZ);
+			
+			if (max == diffX) {
+				if (xAccel < mPrevXAccel) {
+					Logger.d(LOG_TAG, "left to right");
 				} else {
-					mCurrentXAccel = 0;
-					mCurrentYAccel = 0;
-					
-					mPrevXAccel = mCalibratedX;
-					mPrevYAccel = mCalibratedY;
-					
-					mPrevXVel = 0;
-					mPrevYVel = 0;
-					
-					mAccXDisplacement = 0;
-					mAccYDisplacement = 0;
-
-					Logger.v(LOG_TAG, "after calibration - baseline x/y accel: (" +
-							mPrevXAccel + "," + mPrevYAccel + "), baseline x/y vel: (" +
-							mPrevXVel + "," + mPrevYVel + ")");
-
-					mLastUpdated = new Date(System.currentTimeMillis());
-					mCalibrating = false;
-				} 
+					Logger.d(LOG_TAG, "right to left");					
+				}
 			} else {
-
-				float deltaXVel = mPrevXAccel * ((float)timeDelta/1000);
-				float deltaYVel = mPrevYAccel * ((float)timeDelta/1000);
-
-				float xDisplacement = mPrevXVel * ((float)timeDelta/1000);
-				float yDisplacement = mPrevYVel * ((float)timeDelta/1000);
-
-				Logger.v(LOG_TAG, "prev accel x/y: (" + mPrevXAccel + "," + mPrevYAccel + ")");
-				Logger.v(LOG_TAG, "delta vel x/y: (" + deltaXVel + "," + deltaYVel + ")");
-
-				mPrevXVel += deltaXVel;// mPrevXVel = Math.round(mPrevXVel);
-				mPrevYVel += deltaYVel;// mPrevYVel = Math.round(mPrevYVel);
-
-//				mPrevXAccel = xAccel;
-//				mPrevYAccel = yAccel;
-				
-				mPrevXAccel = mCurrentXAccel;
-				mPrevYAccel = mCurrentYAccel;
-				
-				//xDisplacement = Math.round(xDisplacement);
-				//yDisplacement = Math.round(yDisplacement);
-				
-				mAccXDisplacement += xDisplacement;
-				mAccYDisplacement += yDisplacement;
-
-				Logger.v(LOG_TAG, "x/y displacement: (" + xDisplacement + "," + yDisplacement + ")");
-				Logger.v(LOG_TAG, "x/y pos: (" + mAccXDisplacement + "," + mAccYDisplacement + ")");
-				
-				mCurrentXAccel = 0;
-				mCurrentYAccel = 0;
+				if (zAccel < mPrevZAccel) {
+					Logger.d(LOG_TAG, "downward");
+				} else {
+					Logger.d(LOG_TAG, "upward");
+				}
 			}
+			
+
 		}
+
+		private boolean isSignificant(float value) {
+			if (value > SIGNIFICANCE_THRESHOLD) {
+				return true;
+			}
+			return false;
+		}
+
     }
     
     class OrientationSensorListener implements SensorListener {
