@@ -46,8 +46,8 @@ public class TrackPad extends Activity {
         super.onCreate(savedInstanceState);
         
         try {
-            mAddress = InetAddress.getByName("localhost"); // TODO
-            mPort    = 4711; // TODO
+            mAddress = InetAddress.getByName("192.168.9.232"); // TODO
+            mPort    = 1999; // TODO
             
         } catch (UnknownHostException x) {
             
@@ -176,7 +176,7 @@ public class TrackPad extends Activity {
             return;
         }
         
-        mSocket = new DatagramSocket();
+//        mSocket = new DatagramSocket();
     }
     
     
@@ -187,24 +187,29 @@ public class TrackPad extends Activity {
             return;
         }
         
-        mSocket.disconnect();
-        mSocket = null;
+//        mSocket.disconnect();
+//        mSocket = null;
     }
     
     
     private void sendMoveEvent(float pX, float pY) throws IOException, SocketException {
         
-        if (!isConnected()) {
-            
-            connectToDisplay();
-        }
-            
+//        if (!isConnected()) {
+//            
+//            Logger.d(LOG_TAG, "connecting!");
+//            connectToDisplay();
+//        }
+//            
         byte[]         payload = new byte[]{ deltaToByte(pX), deltaToByte(pY) };
+        
+        payload = "Hello Android!".getBytes();
         DatagramPacket packet  = new DatagramPacket(payload, payload.length, mAddress, mPort);
         
         Logger.d(LOG_TAG, "sending bytes ", payload[0], ", ", payload[1], " as UDP datagram");
         
-        mSocket.send(packet);
+        DatagramSocket socket = new DatagramSocket();
+        socket.send(packet);
+        socket.disconnect();
     }
     
     
