@@ -1,13 +1,15 @@
 package com.artcom.y60.trackpad;
 
-import java.io.IOException;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
+import java.net.SocketAddress;
 
 import android.view.KeyEvent;
 
 import com.artcom.y60.Logger;
 import com.artcom.y60.Y60ActivityInstrumentationTest;
+
+import de.sciss.net.OSCListener;
+import de.sciss.net.OSCMessage;
+import de.sciss.net.OSCServer;
 
 public class TrackPadInstrumentationTest extends Y60ActivityInstrumentationTest<TrackPad> {
 
@@ -44,15 +46,17 @@ public class TrackPadInstrumentationTest extends Y60ActivityInstrumentationTest<
         testTrackballMove(KeyEvent.KEYCODE_DPAD_LEFT,  -1,  0);
         testTrackballMove(KeyEvent.KEYCODE_DPAD_RIGHT,  1,  0);
     }
-
     
+
     
     // Private Instance Methods ------------------------------------------
 
     private void testTrackballMove(int pKeyCode, int pX, int pY) throws Exception {
         
         Logger.v(tag(), "testTrackballMove");
-        MovementServerThread server = new MovementServerThread();
+        OSCServer server = OSCServer.newUsing( OSCServer.UDP, 4711);
+        TestOSCListener lsner = new TestOSCListener();
+        server.addOSCListener(lsner);
         server.start();
         pressKey(pKeyCode, 100);
         
@@ -65,58 +69,55 @@ public class TrackPadInstrumentationTest extends Y60ActivityInstrumentationTest<
             // kthxbye
         }
         
-        if (server.error != null) {
+        server.stop();
+        server.dispose();
+        
+        if (lsner.error != null) {
             
-            throw new RuntimeException(server.error);
+            throw new RuntimeException(lsner.error);
         }
         
-        if (server.x == null || server.y == null) {
+        if (lsner.x == null || lsner.y == null) {
             
-            fail("Didn't receive a datagram with movement information!");
+            fail("Didn't receive a packet with movement information!");
         }
         
-        assertEquals("x delta mismatch", pX, server.x.byteValue());
-        assertEquals("y delta mismatch", pY, server.y.byteValue());
+        assertEquals("x delta mismatch", pX, lsner.x.intValue());
+        assertEquals("y delta mismatch", pY, lsner.y.intValue());
     }
 
     
     
     // Inner Classes -----------------------------------------------------
 
-    class MovementServerThread extends Thread {
+    class TestOSCListener implements OSCListener {
 
-        private DatagramSocket mSocket = null;
+        Integer x;
         
-        Byte x = null;
+        Integer y;
         
-        Byte y = null;
-        
-        Throwable error;
+        String error;
 
-        public MovementServerThread() throws IOException {
+        @Override
+        public void messageReceived(OSCMessage pMsg, SocketAddress pAddr, long pLong) {
             
-            super("MovementServerThread");
-            mSocket = new DatagramSocket(4711);
-        }
-
-        public void run() {
-
-            try {
-                byte[] buffer = new byte[2];
-
-                // receive request
-                DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
-                mSocket.receive(packet);
-                
-                x = buffer[0];
-                y = buffer[1];
-
-            } catch (IOException e) {
-                
-                error = e;
+            Logger.v("TradPadInstrumentationTest", "message received: ", pMsg.getName());
+            
+            if ("x".equals(pMsg.getName())) {
+                if (x != null) {
+                    error = "x value sent twice!";
+                } else {
+                    x = (Integer)pMsg.getArg(0);
+                }
+            } else if ("y".equals(pMsg.getName())) {
+                if (y != null) {
+                    error = "y value sent twice!";
+                } else {
+                    y = (Integer)pMsg.getArg(0);
+                }
             }
-            mSocket.close();
         }
     }
+    
 
 }
