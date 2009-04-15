@@ -2,4 +2,5 @@ bin
 *.log
 .*~
 R.java
+.DS_Store
 GomProxy/src/com/artcom/y60/infrastructure/gom/IGomProxyService.java
