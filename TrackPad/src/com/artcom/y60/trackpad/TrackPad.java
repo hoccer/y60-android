@@ -5,6 +5,7 @@ import java.net.InetAddress;
 import java.net.SocketException;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
@@ -19,6 +20,10 @@ public class TrackPad extends Activity {
 
     public static final String LOG_TAG = "Trackpad";
     
+    public static final String ADDRESS_EXTRA = "com.artcom.y60.trackpad.ADDRESS";
+    
+    public static final String PORT_EXTRA = "com.artcom.y60.trackpad.PORT";
+    
     
     
     // Instance Variables ------------------------------------------------
@@ -26,6 +31,10 @@ public class TrackPad extends Activity {
     private float mOldX = -1;
     
     private float mOldY = -1;
+    
+    private InetAddress mAddress;
+    
+    private int mPort;
     
     private RemoteMousepointerClient mRemote = new RemoteMousepointerClient();
 
@@ -37,14 +46,6 @@ public class TrackPad extends Activity {
         
         super.onCreate(savedInstanceState);
         
-        try {
-        	// TODO the host/port should not be hardcoded
-        	mRemote.overrideTargetAndConnect(InetAddress.getByName("192.168.1.4"), 1999);
-            
-        } catch (IOException x) {
-            
-            ErrorHandling.signalNetworkError(LOG_TAG, x, this);
-        }
         setContentView(R.layout.trackpad);
         
         Logger.d(LOG_TAG, "TrackPad created");
@@ -91,9 +92,31 @@ public class TrackPad extends Activity {
     protected void onResume() {
 
         super.onResume();
+        
+        Logger.v(LOG_TAG, "onResume");
+        Intent i = getIntent();
+        
+        try {
+            InetAddress addr = InetAddress.getByName(i.getStringExtra(ADDRESS_EXTRA));
+            int         port = Integer.valueOf(i.getStringExtra(PORT_EXTRA));
+            
+            Logger.d(LOG_TAG, "Old target:", mAddress, ":", mPort);
+            Logger.d(LOG_TAG, "New target:", addr, ":", port);
+            
+            if (!addr.equals(mAddress) || port != mPort) {
+            
+                Logger.d(LOG_TAG, "reconnecting");
+                mAddress = addr;
+                mPort    = port;
+                mRemote.overrideTargetAndConnect(mAddress, mPort);
+            }
+            
+        } catch (IOException x) {
+            
+            ErrorHandling.signalNetworkError(LOG_TAG, x, this);
+        }
+        
     }
-    
-    
     
     // Package Protected Instance Methods --------------------------------
 

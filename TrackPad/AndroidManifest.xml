@@ -6,7 +6,10 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <application android:icon="@drawable/icon" android:label="@string/app_name">
         <uses-library android:name="android.test.runner" />
-        <activity android:name=".TrackPad"
+        <activity android:name="TrackPad"
+                  android:label="@string/app_name">
+        </activity>
+        <activity android:name=".TrackPadLauncher"
                   android:label="@string/app_name">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
