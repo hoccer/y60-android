@@ -18,11 +18,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 
-import com.artcom.y60.Actions;
 import com.artcom.y60.IntentExtraKeys;
 import com.artcom.y60.Logger;
 import com.artcom.y60.PreferencesActivity;
 import com.artcom.y60.ErrorHandling;
+import com.artcom.y60.Y60Action;
 
 public class DeviceControllerHandler extends DefaultHandler {
     private static final String LOG_TAG = "DeviceControllerHandler";
@@ -116,9 +116,9 @@ public class DeviceControllerHandler extends DefaultHandler {
 
             Intent intent;
             if ((kvMap.get("target")).equals("search")) {
-                intent = new Intent(Actions.SEARCH);
+                intent = new Intent(Y60Action.SEARCH);
             } else if ((kvMap.get("target")).equals("voice_control")) {
-                intent = new Intent(Actions.SEARCH);
+                intent = new Intent(Y60Action.VOICE_CONTROL);
             } else {
                 ErrorHandling.signalComponentNotFoundError(LOG_TAG, new Exception(
                         "illegal RCA target: " + (kvMap.get("target")) + "from: "

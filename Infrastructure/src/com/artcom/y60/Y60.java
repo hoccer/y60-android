@@ -164,7 +164,7 @@ public class Y60 extends Activity {
         mLogLevelArrayAdapter = new ArrayAdapter<String>(this,
                 android.R.layout.simple_spinner_dropdown_item, logLevels);
         mChooseLogLevel.setAdapter(mLogLevelArrayAdapter);
-        mChooseLogLevel.setOnItemSelectedListener(new LogLevelSelsctionListener());
+        mChooseLogLevel.setOnItemSelectedListener(new LogLevelSelectionListener());
     }
 
     public void onResume() {
@@ -326,7 +326,7 @@ public class Y60 extends Activity {
         }
     }
 
-    class LogLevelSelsctionListener implements OnItemSelectedListener {
+    class LogLevelSelectionListener implements OnItemSelectedListener {
 
         public void onItemSelected(AdapterView<?> arg0, View arg1, int pPos, long arg3) {
 
