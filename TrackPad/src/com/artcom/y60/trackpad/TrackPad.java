@@ -39,7 +39,7 @@ public class TrackPad extends Activity {
         
         try {
         	// TODO the host/port should not be hardcoded
-        	mRemote.overrideTargetAndConnect(InetAddress.getByName("192.168.9.229"), 1999);
+        	mRemote.overrideTargetAndConnect(InetAddress.getByName("192.168.1.4"), 1999);
             
         } catch (IOException x) {
             

@@ -75,7 +75,7 @@ public class TrackPadInstrumentationTest extends Y60ActivityInstrumentationTest<
             
         } catch (InterruptedException x) {
             
-            // kthxbye
+            // kthxbai
         }
         
         if (server.error != null) {
