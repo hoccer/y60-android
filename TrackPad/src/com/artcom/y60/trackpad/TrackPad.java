@@ -14,6 +14,7 @@ import android.view.MotionEvent;
 
 import com.artcom.y60.ErrorHandling;
 import com.artcom.y60.Logger;
+import com.artcom.y60.RemoteMousepointerClient;
 
 public class TrackPad extends Activity {
     
@@ -29,27 +30,21 @@ public class TrackPad extends Activity {
     
     private float mOldY = -1;
     
-    private InetAddress mAddress;
-    
-    private int mPort;
-    
-    private DatagramSocket mSocket;
+    private RemoteMousepointerClient mRemote = new RemoteMousepointerClient();
 
-    
-    
-    // Public Instance Methods -------------------------------------------
-    
-    /** Called when the activity is first created. */
+
+
+	/** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         
         super.onCreate(savedInstanceState);
         
         try {
-            mAddress = InetAddress.getByName("192.168.9.229"); // TODO
-            mPort    = 1999; // TODO
+        	// TODO the host/port should not be hardcoded
+        	mRemote.overrideTargetAndConnect(InetAddress.getByName("192.168.9.229"), 1999);
             
-        } catch (UnknownHostException x) {
+        } catch (IOException x) {
             
             ErrorHandling.signalNetworkError(LOG_TAG, x, this);
         }
@@ -90,7 +85,7 @@ public class TrackPad extends Activity {
     @Override
     protected void onPause() {
         
-        disconnectFromDisplay();
+        mRemote.disconnectFromDisplay();
         
         super.onPause();
     }
@@ -105,13 +100,6 @@ public class TrackPad extends Activity {
     
     // Package Protected Instance Methods --------------------------------
 
-    void overrideTargetAndConnect(InetAddress pAddr, int pPort) throws IOException {
-        
-        mAddress = pAddr;
-        mPort    = pPort;
-        disconnectFromDisplay();
-        connectToDisplay();
-    }
     
 
 
@@ -169,7 +157,7 @@ public class TrackPad extends Activity {
         }
         
         try {
-            sendMoveEvent(pX, pY);
+            mRemote.sendMoveEvent(pX, pY);
             
         } catch (SocketException x) {
             
@@ -181,47 +169,5 @@ public class TrackPad extends Activity {
         }
     }
     
-    
-    private void connectToDisplay() throws SocketException {
-        
-        mSocket = new DatagramSocket();
-    }
-    
-    
-    private void disconnectFromDisplay() {
-        
-        if (mSocket != null) {
-            mSocket.disconnect();
-            mSocket = null;
-        }
-    }
-    
-    
-    private void sendMoveEvent(float pX, float pY) throws IOException, SocketException {
-        
-        if (mSocket == null) {
-            
-            connectToDisplay();
-        }
-        
-        byte[]         payload = new byte[]{ deltaToByte(pX), deltaToByte(pY) };
-        DatagramPacket packet  = new DatagramPacket(payload, payload.length, mAddress, mPort);
-        
-        Logger.d(LOG_TAG, "sending bytes ", payload[0], ", ", payload[1], " as UDP datagram");
-        
-        mSocket.send(packet);
-    }
-    
-    
-    private byte deltaToByte(float pDelta) {
-        
-        // should suffice
-        return (byte)pDelta;
-    }
-    
-    
-    private boolean isConnected() {
-        
-        return (mSocket != null) && (mSocket.isConnected());
-    }
+
 }
