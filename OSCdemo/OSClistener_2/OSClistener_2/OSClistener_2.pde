@@ -103,8 +103,10 @@ void draw()
   
   
   // Add the new values to the end of the array
-  mx[num-1] = input1;
-  my[num-1] = input2;
+  mx[num-1] += input1;
+  input1 = 0;
+  my[num-1] += input2;
+  input2 = 0;
   
   for(int i=0; i<num; i++) {
     ellipse(mx[i], my[i], i/2, i/2);

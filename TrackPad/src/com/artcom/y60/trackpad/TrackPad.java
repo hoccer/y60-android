@@ -46,7 +46,7 @@ public class TrackPad extends Activity {
         super.onCreate(savedInstanceState);
         
         try {
-            mAddress = InetAddress.getByName("10.1.2.225"); // TODO
+            mAddress = InetAddress.getByName("10.0.2.2"); // TODO
             mPort    = 1999; // TODO
             
         } catch (UnknownHostException x) {
