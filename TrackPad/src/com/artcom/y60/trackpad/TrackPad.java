@@ -46,7 +46,7 @@ public class TrackPad extends Activity {
         super.onCreate(savedInstanceState);
         
         try {
-            mAddress = InetAddress.getByName("192.168.9.232"); // TODO
+            mAddress = InetAddress.getByName("10.1.2.225"); // TODO
             mPort    = 1999; // TODO
             
         } catch (UnknownHostException x) {
@@ -202,7 +202,7 @@ public class TrackPad extends Activity {
 //            
         byte[]         payload = new byte[]{ deltaToByte(pX), deltaToByte(pY) };
         
-        payload = "Hello Android!".getBytes();
+//        payload = "Hello Android!".getBytes();
         DatagramPacket packet  = new DatagramPacket(payload, payload.length, mAddress, mPort);
         
         Logger.d(LOG_TAG, "sending bytes ", payload[0], ", ", payload[1], " as UDP datagram");

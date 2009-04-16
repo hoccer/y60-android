@@ -7,7 +7,7 @@ import netP5.*;
 float input1;
 float input2;
   
-OscP5 oscP5;
+//OscP5 oscP5;
 NetAddress myRemoteLocation;
 
 
@@ -22,13 +22,51 @@ void setup()
   noStroke(); 
   fill(#ff00ae); 
   
-  /* start oscP5, listening for incoming messages at port 12000 */
+  /* start oscP5, listening for incoming messages at port 12000 
   oscP5 = new OscP5(this,12000);
   myRemoteLocation = new NetAddress("127.0.0.1",12000);
   oscP5.plug(this,"x","/x");
-  oscP5.plug(this, "y", "/y");
+  oscP5.plug(this, "y", "/y"); */
 
+  Thread receiver = new Thread() {
+    
+    private DatagramSocket mSocket = null;
+        
+    public void run() {
+
+        try {
+            mSocket = new DatagramSocket(1999);
+            
+            while (true) {
+              System.out.println("waiting for packets");
+              byte[] buffer = new byte[2];
   
+              // receive request
+              DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
+              mSocket.receive(packet);
+              System.out.println("got a packet!");
+              
+              x(buffer[0]);
+              y(buffer[1]);
+            }
+
+        } catch (IOException e) {
+            
+            System.out.println(e);
+        }
+    }
+  };
+  
+  receiver.start();
+  
+  try {
+    DatagramPacket packet  = new DatagramPacket(new byte[]{10,10}, 2, InetAddress.getByName("localhost"), 1999);
+    DatagramSocket socket = new DatagramSocket();
+    socket.send(packet);
+    socket.disconnect();
+  } catch (Exception x) {
+    throw new RuntimeException(x);
+  }
 }
 
 

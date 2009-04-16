@@ -96,7 +96,7 @@ public class TrackPadInstrumentationTest extends Y60ActivityInstrumentationTest<
         public MovementServerThread() throws IOException {
             
             super("MovementServerThread");
-            mSocket = new DatagramSocket(4711);
+            mSocket = new DatagramSocket(1999);
         }
 
         public void run() {
