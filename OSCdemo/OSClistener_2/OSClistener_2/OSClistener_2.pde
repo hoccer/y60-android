@@ -17,7 +17,7 @@ float my[] = new float[num];
 
 void setup() 
 {
-  size(200, 200);
+  size(800, 600);
   smooth();
   noStroke(); 
   fill(#ff00ae); 
@@ -30,12 +30,10 @@ void setup()
 
   Thread receiver = new Thread() {
     
-    private DatagramSocket mSocket = null;
         
     public void run() {
 
         try {
-            mSocket = new DatagramSocket(1999);
             
             while (true) {
               System.out.println("waiting for packets");
@@ -43,9 +41,10 @@ void setup()
   
               // receive request
               DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
-              mSocket.receive(packet);
+              DatagramSocket socket = new DatagramSocket(1999);
+              socket.receive(packet);
               System.out.println("got a packet!");
-              
+              socket.close();
               x(buffer[0]);
               y(buffer[1]);
             }
