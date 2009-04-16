@@ -21,7 +21,7 @@ android:textStyle="bold"
 android:id="@+id/address_input"
 android:layout_width="fill_parent"
 android:layout_height="wrap_content"
-android:text="localhost"
+android:text="10.0.2.2"
 android:textSize="18sp"
 >
 </EditText>
