@@ -1,14 +1,10 @@
 
 /* OSC LISTENER */
 
-import oscP5.*;
-import netP5.*;
-
 float input1;
 float input2;
   
 //OscP5 oscP5;
-NetAddress myRemoteLocation;
 
 
 int num = 60;
@@ -18,7 +14,7 @@ float my[] = new float[num];
 void setup() 
 {
   size(800, 600);
-  smooth();
+//  smooth();
   noStroke(); 
   fill(#ff00ae); 
   
