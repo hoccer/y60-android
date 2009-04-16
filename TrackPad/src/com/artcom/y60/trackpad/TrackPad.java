@@ -46,7 +46,7 @@ public class TrackPad extends Activity {
         super.onCreate(savedInstanceState);
         
         try {
-            mAddress = InetAddress.getByName("10.0.2.2"); // TODO
+            mAddress = InetAddress.getByName("192.168.9.229"); // TODO
             mPort    = 1999; // TODO
             
         } catch (UnknownHostException x) {
@@ -100,6 +100,19 @@ public class TrackPad extends Activity {
 
         super.onResume();
     }
+    
+    
+    
+    // Package Protected Instance Methods --------------------------------
+
+    void overrideTargetAndConnect(InetAddress pAddr, int pPort) throws IOException {
+        
+        mAddress = pAddr;
+        mPort    = pPort;
+        disconnectFromDisplay();
+        connectToDisplay();
+    }
+    
 
 
     // Private Instance Methods ------------------------------------------
@@ -171,45 +184,32 @@ public class TrackPad extends Activity {
     
     private void connectToDisplay() throws SocketException {
         
-        if (isConnected()) {
-            Logger.w(LOG_TAG, "already connected - ignoring");
-            return;
-        }
-        
-//        mSocket = new DatagramSocket();
+        mSocket = new DatagramSocket();
     }
     
     
     private void disconnectFromDisplay() {
         
-        if (!isConnected()) {
-            Logger.w(LOG_TAG, "not connected - ignoring");
-            return;
+        if (mSocket != null) {
+            mSocket.disconnect();
+            mSocket = null;
         }
-        
-//        mSocket.disconnect();
-//        mSocket = null;
     }
     
     
     private void sendMoveEvent(float pX, float pY) throws IOException, SocketException {
         
-//        if (!isConnected()) {
-//            
-//            Logger.d(LOG_TAG, "connecting!");
-//            connectToDisplay();
-//        }
-//            
-        byte[]         payload = new byte[]{ deltaToByte(pX), deltaToByte(pY) };
+        if (mSocket == null) {
+            
+            connectToDisplay();
+        }
         
-//        payload = "Hello Android!".getBytes();
+        byte[]         payload = new byte[]{ deltaToByte(pX), deltaToByte(pY) };
         DatagramPacket packet  = new DatagramPacket(payload, payload.length, mAddress, mPort);
         
         Logger.d(LOG_TAG, "sending bytes ", payload[0], ", ", payload[1], " as UDP datagram");
         
-        DatagramSocket socket = new DatagramSocket();
-        socket.send(packet);
-        socket.disconnect();
+        mSocket.send(packet);
     }
     
     

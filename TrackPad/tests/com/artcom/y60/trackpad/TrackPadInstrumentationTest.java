@@ -3,6 +3,7 @@ package com.artcom.y60.trackpad;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
+import java.net.InetAddress;
 
 import android.view.KeyEvent;
 
@@ -26,6 +27,8 @@ public class TrackPadInstrumentationTest extends Y60ActivityInstrumentationTest<
     public void setUp() throws Exception {
         
         super.setUp();
+        
+        getActivity().overrideTargetAndConnect(InetAddress.getByName("localhost"), 1999);
     }
     
     
@@ -43,6 +46,16 @@ public class TrackPadInstrumentationTest extends Y60ActivityInstrumentationTest<
         testTrackballMove(KeyEvent.KEYCODE_DPAD_DOWN,   0,  1);
         testTrackballMove(KeyEvent.KEYCODE_DPAD_LEFT,  -1,  0);
         testTrackballMove(KeyEvent.KEYCODE_DPAD_RIGHT,  1,  0);
+    }
+    
+    
+    public void testStability() throws Exception {
+        
+        long start = System.currentTimeMillis();
+        while (System.currentTimeMillis() - start < 30000) {
+            
+            testTrackballMove(KeyEvent.KEYCODE_DPAD_RIGHT,  1,  0);
+        }
     }
 
     
