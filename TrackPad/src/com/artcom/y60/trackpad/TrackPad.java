@@ -45,7 +45,7 @@ public class TrackPad extends Activity {
             
             ErrorHandling.signalNetworkError(LOG_TAG, x, this);
         }
-        setContentView(R.layout.main);
+        setContentView(R.layout.trackpad);
         
         Logger.d(LOG_TAG, "TrackPad created");
     }
