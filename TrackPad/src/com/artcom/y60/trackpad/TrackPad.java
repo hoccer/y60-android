@@ -1,7 +1,11 @@
 package com.artcom.y60.trackpad;
 
 import java.io.IOException;
-import java.net.InetSocketAddress;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
+import java.net.SocketException;
+import java.net.UnknownHostException;
 
 import android.app.Activity;
 import android.os.Bundle;
@@ -10,10 +14,6 @@ import android.view.MotionEvent;
 
 import com.artcom.y60.ErrorHandling;
 import com.artcom.y60.Logger;
-
-import de.sciss.net.OSCBundle;
-import de.sciss.net.OSCClient;
-import de.sciss.net.OSCMessage;
 
 public class TrackPad extends Activity {
     
@@ -29,7 +29,11 @@ public class TrackPad extends Activity {
     
     private float mOldY = -1;
     
-    private OSCClient mOscClient;
+    private InetAddress mAddress;
+    
+    private int mPort;
+    
+    private DatagramSocket mSocket;
 
     
     
@@ -42,14 +46,13 @@ public class TrackPad extends Activity {
         super.onCreate(savedInstanceState);
         
         try {
-            mOscClient = OSCClient.newUsing(OSCClient.UDP);
-            mOscClient.setTarget(new InetSocketAddress("127.0.0.1", 4711));
+            mAddress = InetAddress.getByName("192.168.9.229"); // TODO
+            mPort    = 1999; // TODO
             
-        } catch (IOException iox) {
-        
-            ErrorHandling.signalIOError(LOG_TAG, iox, this);
+        } catch (UnknownHostException x) {
+            
+            ErrorHandling.signalNetworkError(LOG_TAG, x, this);
         }
-        
         setContentView(R.layout.main);
         
         Logger.d(LOG_TAG, "TrackPad created");
@@ -87,13 +90,7 @@ public class TrackPad extends Activity {
     @Override
     protected void onPause() {
         
-        try {
-            disconnectFromDisplay();
-            
-        } catch (IOException iox) {
-            
-            ErrorHandling.signalIOError(LOG_TAG, iox, this);
-        }
+        disconnectFromDisplay();
         
         super.onPause();
     }
@@ -102,8 +99,20 @@ public class TrackPad extends Activity {
     protected void onResume() {
 
         super.onResume();
-        setContentView(R.layout.main);
     }
+    
+    
+    
+    // Package Protected Instance Methods --------------------------------
+
+    void overrideTargetAndConnect(InetAddress pAddr, int pPort) throws IOException {
+        
+        mAddress = pAddr;
+        mPort    = pPort;
+        disconnectFromDisplay();
+        connectToDisplay();
+    }
+    
 
 
     // Private Instance Methods ------------------------------------------
@@ -162,6 +171,10 @@ public class TrackPad extends Activity {
         try {
             sendMoveEvent(pX, pY);
             
+        } catch (SocketException x) {
+            
+            ErrorHandling.signalNetworkError(LOG_TAG, x, this);
+            
         } catch (IOException iox) {
             
             ErrorHandling.signalIOError(LOG_TAG, iox, this);
@@ -169,55 +182,46 @@ public class TrackPad extends Activity {
     }
     
     
-    private void connectToDisplay() throws IOException {
+    private void connectToDisplay() throws SocketException {
         
-        if (isConnected()) {
-            Logger.w(LOG_TAG, "already connected - ignoring");
-            return;
-        }
-        
-        mOscClient.start();
+        mSocket = new DatagramSocket();
     }
     
     
-    private void disconnectFromDisplay() throws IOException {
+    private void disconnectFromDisplay() {
         
-        if (!isConnected()) {
-            Logger.w(LOG_TAG, "not connected - ignoring");
-            return;
+        if (mSocket != null) {
+            mSocket.disconnect();
+            mSocket = null;
         }
-        
-        mOscClient.stop();
     }
     
     
-    private void sendMoveEvent(float pX, float pY) throws IOException {
+    private void sendMoveEvent(float pX, float pY) throws IOException, SocketException {
         
-        if (!isConnected()) {
+        if (mSocket == null) {
             
             connectToDisplay();
         }
-                 
-        OSCBundle bndl = new OSCBundle();
-        bndl.addPacket(new OSCMessage("x", new Object[]{ deltaToInt(pX) }));
-        bndl.addPacket(new OSCMessage("y", new Object[]{ deltaToInt(pY) }));
         
-        mOscClient.send(bndl);
+        byte[]         payload = new byte[]{ deltaToByte(pX), deltaToByte(pY) };
+        DatagramPacket packet  = new DatagramPacket(payload, payload.length, mAddress, mPort);
         
-//        OSCMessage msg = new OSCMessage("/move", new Object[]{ deltaToByte(pX), deltaToByte(pY)});
-//        mOscClient.send(msg);
+        Logger.d(LOG_TAG, "sending bytes ", payload[0], ", ", payload[1], " as UDP datagram");
+        
+        mSocket.send(packet);
     }
     
     
-    private int deltaToInt(float pDelta) {
+    private byte deltaToByte(float pDelta) {
         
         // should suffice
-        return Math.round(pDelta);
+        return (byte)pDelta;
     }
     
     
     private boolean isConnected() {
         
-        return (mOscClient != null) && (mOscClient.isConnected());
+        return (mSocket != null) && (mSocket.isConnected());
     }
 }

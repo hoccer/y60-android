@@ -148,16 +148,17 @@ public class GomNode extends GomEntry {
         return entry.forceAttributeOrException();
     }
 
+    
     public boolean hasAttribute(String pName) {
         return hasEntry(pName);
     }
 
     public GomAttribute getOrCreateAttribute(String pName) {
-        
+
         GomAttribute attribute;
         try {
             attribute = getAttribute(pName);
-        } catch (NoSuchElementException e){
+        } catch (NoSuchElementException e) {
             GomAttribute.putOrCreateValue(Uri.parse(getUri() + ":" + pName), "");
             Logger.e(LOG_TAG, "creating nonexistend gom attribute");
             try {
@@ -167,7 +168,7 @@ public class GomNode extends GomEntry {
             }
             attribute = getAttribute(pName);
         }
-        
+
         return attribute;
     }
 
