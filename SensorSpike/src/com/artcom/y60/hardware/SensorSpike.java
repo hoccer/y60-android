@@ -1,5 +1,9 @@
 package com.artcom.y60.hardware;
 
+import java.io.IOException;
+import java.net.InetAddress;
+import java.net.SocketException;
+import java.net.UnknownHostException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -16,7 +20,9 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
+import com.artcom.y60.ErrorHandling;
 import com.artcom.y60.Logger;
+import com.artcom.y60.RemoteMousepointerClient;
 
 public class SensorSpike extends Activity {
 	
@@ -45,6 +51,7 @@ public class SensorSpike extends Activity {
 	public float mAccXDisplacement;
 
 	public float mAccYDisplacement;
+	private RemoteMousepointerClient mRemote;
 
 
 
@@ -71,6 +78,14 @@ public class SensorSpike extends Activity {
         } );
 
         mLayout.addView(mCalibrateButton);
+        
+        mRemote = new RemoteMousepointerClient();
+    	try {
+    		// TODO the host/port should not be hardcoded here
+			mRemote.overrideTargetAndConnect(InetAddress.getByName("192.168.1.4"), 1999);
+		} catch (IOException e) {
+            ErrorHandling.signalNetworkError(LOG_TAG, e, this);
+		}
         
         SensorManager sensorManager = (SensorManager)getSystemService(Context.SENSOR_SERVICE);
         
@@ -150,19 +165,27 @@ public class SensorSpike extends Activity {
 			
 			if (now.getTime() - mLastStarted.getTime() > ACCUMULATION_PERIOD) {
 				
-				switch (mDominantDirection) {
-				case UP:
-					Logger.d(LOG_TAG, "Consensus movement: UP");
-					break;
-				case DOWN:
-					Logger.d(LOG_TAG, "Consensus movement: DOWN");
-					break;
-				case LEFT:
-					Logger.d(LOG_TAG, "Consensus movement: LEFT");
-					break;
-				case RIGHT:
-					Logger.d(LOG_TAG, "Consensus movement: RIGHT");
-					break;
+				try {
+					switch (mDominantDirection) {
+					case UP:
+						Logger.d(LOG_TAG, "Consensus movement: UP");
+						mRemote.sendMoveEvent(0, 25); // TODO pulled these values out of my a** to represent "up"
+						break;
+					case DOWN:
+						Logger.d(LOG_TAG, "Consensus movement: DOWN");
+						mRemote.sendMoveEvent(0, -25); // TODO pulled these values out of my a** to represent "down"
+						break;
+					case LEFT:
+						Logger.d(LOG_TAG, "Consensus movement: LEFT");
+						mRemote.sendMoveEvent(-25, 0); // TODO pulled these values out of my a** to represent "left"
+						break;
+					case RIGHT:
+						Logger.d(LOG_TAG, "Consensus movement: RIGHT");
+						mRemote.sendMoveEvent(25, 0); // TODO pulled these values out of my a** to represent "right"
+						break;
+					}
+				} catch (IOException e) {
+					ErrorHandling.signalNetworkError(LOG_TAG, e, SensorSpike.this);
 				}
 				
 				mDirectionCounters.put(Directions.UP, 0);
