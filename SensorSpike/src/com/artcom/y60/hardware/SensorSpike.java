@@ -1,6 +1,13 @@
 package com.artcom.y60.hardware;
 
+import java.io.IOException;
+import java.net.InetAddress;
+import java.net.SocketException;
+import java.net.UnknownHostException;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Vector;
 
 import android.app.Activity;
 import android.content.Context;
@@ -13,13 +20,16 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
+import com.artcom.y60.ErrorHandling;
 import com.artcom.y60.Logger;
+import com.artcom.y60.RemoteMousepointerClient;
 
 public class SensorSpike extends Activity {
+	
     public static final String LOG_TAG = "SensorSpike";
-    
-    private static final float CALIBRATION_DURATION = 2000; // in ms 
-    
+    	
+	public enum Directions { UP, DOWN, LEFT, RIGHT, UNDEFINED };
+
 	private Button mCalibrateButton;
 	private float mCalibratedX = 0;
 	private float mCalibratedY = 0;
@@ -41,6 +51,7 @@ public class SensorSpike extends Activity {
 	public float mAccXDisplacement;
 
 	public float mAccYDisplacement;
+	private RemoteMousepointerClient mRemote;
 
 
 
@@ -68,13 +79,21 @@ public class SensorSpike extends Activity {
 
         mLayout.addView(mCalibrateButton);
         
+        mRemote = new RemoteMousepointerClient();
+    	try {
+    		// TODO the host/port should not be hardcoded here
+			mRemote.overrideTargetAndConnect(InetAddress.getByName("192.168.1.4"), 1999);
+		} catch (IOException e) {
+            ErrorHandling.signalNetworkError(LOG_TAG, e, this);
+		}
+        
         SensorManager sensorManager = (SensorManager)getSystemService(Context.SENSOR_SERVICE);
         
         AccelerometerSensorListener accelListener = new AccelerometerSensorListener();
         OrientationSensorListener orientationListener = new OrientationSensorListener();
         CompassSensorListener compassListener = new CompassSensorListener();
         
-        sensorManager.registerListener(accelListener, SensorManager.SENSOR_ACCELEROMETER, SensorManager.SENSOR_DELAY_UI);
+        sensorManager.registerListener(accelListener, SensorManager.SENSOR_ACCELEROMETER, SensorManager.SENSOR_DELAY_NORMAL);
         sensorManager.registerListener(orientationListener, SensorManager.SENSOR_ORIENTATION, SensorManager.SENSOR_DELAY_UI);        
         sensorManager.registerListener(compassListener, SensorManager.SENSOR_MAGNETIC_FIELD, SensorManager.SENSOR_DELAY_UI);
         
@@ -91,10 +110,26 @@ public class SensorSpike extends Activity {
     
     class AccelerometerSensorListener implements SensorListener {
 
+    	private Date mLastStarted;
+    	private Map<Directions,Integer> mDirectionCounters;
+    	
     	private static final double SIGNIFICANCE_THRESHOLD = 3;
+		private static final long ACCUMULATION_PERIOD = 500;
 
 		private float mPrevXAccel = 0;
 		private float mPrevZAccel = 0;
+		private Directions mDominantDirection;
+		
+		public AccelerometerSensorListener() {
+			mLastStarted = new Date(System.currentTimeMillis());
+			mDirectionCounters = new HashMap<Directions,Integer>();
+			mDirectionCounters.put(Directions.UP, 0);
+			mDirectionCounters.put(Directions.DOWN, 0);
+			mDirectionCounters.put(Directions.LEFT, 0);
+			mDirectionCounters.put(Directions.RIGHT, 0);
+			mDirectionCounters.put(Directions.UNDEFINED, 0);
+			mDominantDirection = Directions.UNDEFINED;
+		}
 
 		@Override
 		public void onAccuracyChanged(int sensor, int accuracy) {
@@ -121,33 +156,92 @@ public class SensorSpike extends Activity {
 			float diffZ = ((zAccel) - (mPrevZAccel));
 			
 //			Logger.d(LOG_TAG, xAccel + "," + zAccel + "," + mPrevXAccel + "," + mPrevZAccel);
-//			Logger.v(LOG_TAG, "diffX = " + diffX + ", diffZ = " + diffZ);
+//			Logger.v(LOG_TAG, "\t\t\t\tdiffX = " + diffX + ", diffZ = " + diffZ);
 			
 			mPrevXAccel = xAccel;
 			mPrevZAccel = zAccel;
 
+			Date now = new Date(System.currentTimeMillis());
+			
+			if (now.getTime() - mLastStarted.getTime() > ACCUMULATION_PERIOD) {
+				
+				try {
+					switch (mDominantDirection) {
+					case UP:
+						Logger.d(LOG_TAG, "Consensus movement: UP");
+						mRemote.sendMoveEvent(0, 25); // TODO pulled these values out of my a** to represent "up"
+						break;
+					case DOWN:
+						Logger.d(LOG_TAG, "Consensus movement: DOWN");
+						mRemote.sendMoveEvent(0, -25); // TODO pulled these values out of my a** to represent "down"
+						break;
+					case LEFT:
+						Logger.d(LOG_TAG, "Consensus movement: LEFT");
+						mRemote.sendMoveEvent(-25, 0); // TODO pulled these values out of my a** to represent "left"
+						break;
+					case RIGHT:
+						Logger.d(LOG_TAG, "Consensus movement: RIGHT");
+						mRemote.sendMoveEvent(25, 0); // TODO pulled these values out of my a** to represent "right"
+						break;
+					}
+				} catch (IOException e) {
+					ErrorHandling.signalNetworkError(LOG_TAG, e, SensorSpike.this);
+				}
+				
+				mDirectionCounters.put(Directions.UP, 0);
+				mDirectionCounters.put(Directions.DOWN, 0);
+				mDirectionCounters.put(Directions.LEFT, 0);
+				mDirectionCounters.put(Directions.RIGHT, 0);
+				
+				mDominantDirection = Directions.UNDEFINED;
+				
+				mLastStarted.setTime(now.getTime());
+			}
+			
 			if (isSignificant(diffX)) {
-				Logger.d(LOG_TAG, "horizontal movement detected");
+//				Logger.d(LOG_TAG, "horizontal movement detected");
 			} else if (isSignificant(diffZ)) {
-				Logger.d(LOG_TAG, "vertical movement detected");
+//				Logger.d(LOG_TAG, "vertical movement detected");
 			} else {
-				Logger.d(LOG_TAG, "no movement detected");
+//				Logger.d(LOG_TAG, "no movement detected");
 				return;
 			}
 			
-			float max = Math.max(diffX, diffZ);
+			float max = Math.max(Math.abs(diffX), Math.abs(diffZ));
 			
-			if (max == diffX) {
-				if (xAccel < mPrevXAccel) {
-					Logger.d(LOG_TAG, "left to right");
+			if (max == Math.abs(diffX)) {
+				if (diffX < 0) {
+					Logger.d(LOG_TAG, "-->");
+					int updatedValue = mDirectionCounters.get(Directions.RIGHT) + 1;
+					mDirectionCounters.put(Directions.RIGHT, updatedValue);
+					if (updatedValue >= mDirectionCounters.get(mDominantDirection)) {
+						mDominantDirection = Directions.RIGHT;
+					}
 				} else {
-					Logger.d(LOG_TAG, "right to left");					
+					Logger.d(LOG_TAG, "<--");					
+					int updatedValue = mDirectionCounters.get(Directions.LEFT) + 1;
+					mDirectionCounters.put(Directions.LEFT, updatedValue);
+					if (updatedValue >= mDirectionCounters.get(mDominantDirection)) {
+						mDominantDirection = Directions.LEFT;
+					}
 				}
-			} else {
-				if (zAccel < mPrevZAccel) {
-					Logger.d(LOG_TAG, "downward");
-				} else {
-					Logger.d(LOG_TAG, "upward");
+			} else { // max == Math.abs(diffZ)
+				if (diffZ < 0) {
+					Logger.d(LOG_TAG, "v");
+					int updatedValue = mDirectionCounters.get(Directions.DOWN) + 1;
+					mDirectionCounters.put(Directions.DOWN, updatedValue);
+					if (updatedValue >= mDirectionCounters.get(mDominantDirection)) {
+						mDominantDirection = Directions.DOWN;
+					}
+
+				}
+				else {
+					Logger.d(LOG_TAG, "^");
+					int updatedValue = mDirectionCounters.get(Directions.UP) + 1;
+					mDirectionCounters.put(Directions.UP, updatedValue);
+					if (updatedValue >= mDirectionCounters.get(mDominantDirection)) {
+						mDominantDirection = Directions.UP;
+					}
 				}
 			}
 			
@@ -155,7 +249,7 @@ public class SensorSpike extends Activity {
 		}
 
 		private boolean isSignificant(float value) {
-			if (value > SIGNIFICANCE_THRESHOLD) {
+			if (Math.abs(value) > SIGNIFICANCE_THRESHOLD) {
 				return true;
 			}
 			return false;

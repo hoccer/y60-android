@@ -1,7 +1,8 @@
 package com.artcom.y60.trackpad;
 
 import java.io.IOException;
-import java.net.InetSocketAddress;
+import java.net.InetAddress;
+import java.net.SocketException;
 
 import android.app.Activity;
 import android.os.Bundle;
@@ -10,10 +11,7 @@ import android.view.MotionEvent;
 
 import com.artcom.y60.ErrorHandling;
 import com.artcom.y60.Logger;
-
-import de.sciss.net.OSCBundle;
-import de.sciss.net.OSCClient;
-import de.sciss.net.OSCMessage;
+import com.artcom.y60.RemoteMousepointerClient;
 
 public class TrackPad extends Activity {
     
@@ -29,27 +27,24 @@ public class TrackPad extends Activity {
     
     private float mOldY = -1;
     
-    private OSCClient mOscClient;
+    private RemoteMousepointerClient mRemote = new RemoteMousepointerClient();
 
-    
-    
-    // Public Instance Methods -------------------------------------------
-    
-    /** Called when the activity is first created. */
+
+
+	/** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         
         super.onCreate(savedInstanceState);
         
         try {
-            mOscClient = OSCClient.newUsing(OSCClient.UDP);
-            mOscClient.setTarget(new InetSocketAddress("127.0.0.1", 4711));
+        	// TODO the host/port should not be hardcoded
+        	mRemote.overrideTargetAndConnect(InetAddress.getByName("192.168.1.4"), 1999);
             
-        } catch (IOException iox) {
-        
-            ErrorHandling.signalIOError(LOG_TAG, iox, this);
+        } catch (IOException x) {
+            
+            ErrorHandling.signalNetworkError(LOG_TAG, x, this);
         }
-        
         setContentView(R.layout.main);
         
         Logger.d(LOG_TAG, "TrackPad created");
@@ -87,13 +82,7 @@ public class TrackPad extends Activity {
     @Override
     protected void onPause() {
         
-        try {
-            disconnectFromDisplay();
-            
-        } catch (IOException iox) {
-            
-            ErrorHandling.signalIOError(LOG_TAG, iox, this);
-        }
+        mRemote.disconnectFromDisplay();
         
         super.onPause();
     }
@@ -102,7 +91,15 @@ public class TrackPad extends Activity {
     protected void onResume() {
 
         super.onResume();
-        setContentView(R.layout.main);
+    }
+    
+    
+    
+    // Package Protected Instance Methods --------------------------------
+
+    RemoteMousepointerClient getRemote() {
+        
+        return mRemote;
     }
 
 
@@ -160,7 +157,11 @@ public class TrackPad extends Activity {
         }
         
         try {
-            sendMoveEvent(pX, pY);
+            mRemote.sendMoveEvent(pX, pY);
+            
+        } catch (SocketException x) {
+            
+            ErrorHandling.signalNetworkError(LOG_TAG, x, this);
             
         } catch (IOException iox) {
             
@@ -168,56 +169,5 @@ public class TrackPad extends Activity {
         }
     }
     
-    
-    private void connectToDisplay() throws IOException {
-        
-        if (isConnected()) {
-            Logger.w(LOG_TAG, "already connected - ignoring");
-            return;
-        }
-        
-        mOscClient.start();
-    }
-    
-    
-    private void disconnectFromDisplay() throws IOException {
-        
-        if (!isConnected()) {
-            Logger.w(LOG_TAG, "not connected - ignoring");
-            return;
-        }
-        
-        mOscClient.stop();
-    }
-    
-    
-    private void sendMoveEvent(float pX, float pY) throws IOException {
-        
-        if (!isConnected()) {
-            
-            connectToDisplay();
-        }
-                 
-        OSCBundle bndl = new OSCBundle();
-        bndl.addPacket(new OSCMessage("x", new Object[]{ deltaToInt(pX) }));
-        bndl.addPacket(new OSCMessage("y", new Object[]{ deltaToInt(pY) }));
-        
-        mOscClient.send(bndl);
-        
-//        OSCMessage msg = new OSCMessage("/move", new Object[]{ deltaToByte(pX), deltaToByte(pY)});
-//        mOscClient.send(msg);
-    }
-    
-    
-    private int deltaToInt(float pDelta) {
-        
-        // should suffice
-        return Math.round(pDelta);
-    }
-    
-    
-    private boolean isConnected() {
-        
-        return (mOscClient != null) && (mOscClient.isConnected());
-    }
+
 }
