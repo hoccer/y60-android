@@ -1,11 +1,8 @@
 package com.artcom.y60.trackpad;
 
 import java.io.IOException;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
-import java.net.UnknownHostException;
 
 import android.app.Activity;
 import android.os.Bundle;
@@ -100,7 +97,10 @@ public class TrackPad extends Activity {
     
     // Package Protected Instance Methods --------------------------------
 
-    
+    RemoteMousepointerClient getRemote() {
+        
+        return mRemote;
+    }
 
 
     // Private Instance Methods ------------------------------------------

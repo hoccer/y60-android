@@ -8,7 +8,6 @@ import java.net.InetAddress;
 import android.view.KeyEvent;
 
 import com.artcom.y60.Logger;
-import com.artcom.y60.RemoteMousepointerClient;
 import com.artcom.y60.Y60ActivityInstrumentationTest;
 
 public class TrackPadInstrumentationTest extends Y60ActivityInstrumentationTest<TrackPad> {
@@ -29,8 +28,7 @@ public class TrackPadInstrumentationTest extends Y60ActivityInstrumentationTest<
         
         super.setUp();
         
-        RemoteMousepointerClient remote = new RemoteMousepointerClient();
-        remote.overrideTargetAndConnect(InetAddress.getByName("localhost"), 1999);
+        getActivity().getRemote().overrideTargetAndConnect(InetAddress.getByName("localhost"), 1999);
     }
     
     
@@ -129,8 +127,9 @@ public class TrackPadInstrumentationTest extends Y60ActivityInstrumentationTest<
             } catch (IOException e) {
                 
                 error = e;
+            } finally {
+                mSocket.close();
             }
-            mSocket.close();
         }
     }
 
