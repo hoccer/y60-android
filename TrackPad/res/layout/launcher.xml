@@ -45,7 +45,19 @@ android:textSize="18sp"
 >
 </EditText>
 <Button
-android:id="@+id/launch_button"
+android:id="@+id/tilt_launch_button"
+android:layout_width="wrap_content"
+android:layout_height="wrap_content"
+android:layout_marginTop="24px"
+android:text="Launch TiltController"
+android:textSize="18sp"
+android:textStyle="bold"
+android:gravity="center"
+android:layout_gravity="center_horizontal"
+>
+</Button>
+<Button
+android:id="@+id/tp_launch_button"
 android:layout_width="wrap_content"
 android:layout_height="wrap_content"
 android:layout_marginTop="24px"

@@ -136,7 +136,7 @@ public class DeviceControllerService extends Service {
                 try {
                     // Log.v(LOG_TAG, "checking gom: " + pingStatistic);
                     GomNode device = mGom.getNode(dc.getDevicePath());
-                    device.getAttribute("last_alive_update").putValue(timestamp);
+                    device.getOrCreateAttribute("last_alive_update").putValue(timestamp);
 
                     // append current ping statistic to the history_log in gom
                     GomAttribute historyAttribute = device.getOrCreateAttribute("history_log");
