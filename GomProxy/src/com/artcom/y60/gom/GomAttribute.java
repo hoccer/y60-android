@@ -90,7 +90,7 @@ public class GomAttribute extends GomEntry {
 
             StatusLine statusLine = HTTPHelper.putUrlEncoded(pUri.toString(), formData);
 
-            Logger.v(LOG_TAG, "PUT ", pUri, " with ", formData,"result code: ", statusLine.getStatusCode());
+            //Logger.v(LOG_TAG, "PUT ", pUri, " with ", formData,"result code: ", statusLine.getStatusCode());
 
             if (statusLine.getStatusCode() >= 300) {
 
