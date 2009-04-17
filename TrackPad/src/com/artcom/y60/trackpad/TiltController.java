@@ -9,9 +9,11 @@ import com.artcom.y60.Logger;
 import com.artcom.y60.RemoteMousepointerClient;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
+import android.hardware.SensorListener;
+import android.hardware.SensorManager;
 import android.os.Bundle;
-import android.view.KeyEvent;
 import android.view.MotionEvent;
 
 public class TiltController extends Activity {
@@ -34,58 +36,18 @@ public class TiltController extends Activity {
     public void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
-
         setContentView(R.layout.trackpad);
 
-        Logger.d(LOG_TAG, "TrackPad created");
+        SensorManager sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+        AccelerometerSensorListener accelListener = new AccelerometerSensorListener();
+        sensorManager.registerListener(accelListener, SensorManager.SENSOR_ACCELEROMETER,
+                SensorManager.SENSOR_DELAY_FASTEST);
     }
-
-    @Override
-    public boolean onTouchEvent(MotionEvent pEvent) {
-
-        switch (pEvent.getAction()) {
-        case MotionEvent.ACTION_DOWN:
-            fingerDown(pEvent);
-            return true;
-        case MotionEvent.ACTION_UP:
-            fingerUp(pEvent);
-            return true;
-        case MotionEvent.ACTION_MOVE:
-            move(pEvent);
-            return true;
-        }
-
-        return super.onTouchEvent(pEvent);
-    }
-
-    @Override
-    public boolean onKeyDown(int pKeyCode, KeyEvent pEvent) {
-
-        switch (pKeyCode) {
-        case KeyEvent.KEYCODE_DPAD_UP:
-            move(0, -1);
-            return true;
-        case KeyEvent.KEYCODE_DPAD_DOWN:
-            move(0, 1);
-            return true;
-        case KeyEvent.KEYCODE_DPAD_LEFT:
-            move(-1, 0);
-            return true;
-        case KeyEvent.KEYCODE_DPAD_RIGHT:
-            move(1, 0);
-            return true;
-        }
-
-        return super.onKeyDown(pKeyCode, pEvent);
-    }
-
-    // Protected Instance Methods ----------------------------------------
 
     @Override
     protected void onPause() {
 
         mRemote.disconnectFromDisplay();
-
         super.onPause();
     }
 
@@ -94,7 +56,6 @@ public class TiltController extends Activity {
 
         super.onResume();
 
-        Logger.v(LOG_TAG, "onResume");
         Intent i = getIntent();
 
         try {
@@ -119,25 +80,9 @@ public class TiltController extends Activity {
 
     }
 
-    // Package Protected Instance Methods --------------------------------
-
     RemoteMousepointerClient getRemote() {
 
         return mRemote;
-    }
-
-    // Private Instance Methods ------------------------------------------
-
-    private void fingerDown(MotionEvent pEvent) {
-
-        mOldX = pEvent.getX();
-        mOldY = pEvent.getY();
-    }
-
-    private void fingerUp(MotionEvent pEvent) {
-
-        mOldX = -1;
-        mOldY = -1;
     }
 
     private void move(MotionEvent pEvent) {
@@ -189,6 +134,26 @@ public class TiltController extends Activity {
         } catch (IOException iox) {
 
             ErrorHandling.signalIOError(LOG_TAG, iox, this);
+        }
+    }
+
+    class AccelerometerSensorListener implements SensorListener {
+
+        @Override
+        public void onAccuracyChanged(int pSensor, int pAccuracy) {
+            // ignore these events for now
+        }
+
+        @Override
+        public void onSensorChanged(int pSensor, float[] pValues) {
+
+            float xAccel = pValues[SensorManager.DATA_X];
+            float yAccel = pValues[SensorManager.DATA_Y];
+            float zAccel = pValues[SensorManager.DATA_Z];      
+
+            zAccel += SensorManager.STANDARD_GRAVITY;
+
+            TiltController.this.move(xAccel, (-1) * yAccel);
         }
     }
 
