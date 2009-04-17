@@ -14,9 +14,10 @@ float my[] = new float[num];
 void setup() 
 {
   size(800, 600);
-//  smooth();
+  smooth();
   noStroke(); 
   fill(#ff00ae); 
+  frameRate(30);
   
   /* start oscP5, listening for incoming messages at port 12000 
   oscP5 = new OscP5(this,12000);
@@ -106,6 +107,7 @@ void draw()
   for(int i=0; i<num; i++) {
     ellipse(mx[i], my[i], i/2, i/2);
   }
+
 }
 
 

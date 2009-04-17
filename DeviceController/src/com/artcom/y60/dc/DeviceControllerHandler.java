@@ -17,12 +17,13 @@ import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.test.FlakyTest;
 
-import com.artcom.y60.Actions;
 import com.artcom.y60.IntentExtraKeys;
 import com.artcom.y60.Logger;
 import com.artcom.y60.PreferencesActivity;
 import com.artcom.y60.ErrorHandling;
+import com.artcom.y60.Y60Action;
 
 public class DeviceControllerHandler extends DefaultHandler {
     private static final String LOG_TAG = "DeviceControllerHandler";
@@ -115,10 +116,16 @@ public class DeviceControllerHandler extends DefaultHandler {
                     + (String) kvMap.get("arguments"));
 
             Intent intent;
+            Intent broadcastIntent;
+            
             if ((kvMap.get("target")).equals("search")) {
-                intent = new Intent(Actions.SEARCH);
+                intent = new Intent(Y60Action.SEARCH);
+                broadcastIntent = new Intent(Y60Action.SEARCH_BC);
+                
             } else if ((kvMap.get("target")).equals("voice_control")) {
-                intent = new Intent(Actions.SEARCH);
+                intent = new Intent(Y60Action.VOICE_CONTROL);
+                broadcastIntent = new Intent(Y60Action.VOICE_CONTROL_BC);
+                
             } else {
                 ErrorHandling.signalComponentNotFoundError(LOG_TAG, new Exception(
                         "illegal RCA target: " + (kvMap.get("target")) + "from: "
@@ -126,13 +133,15 @@ public class DeviceControllerHandler extends DefaultHandler {
                 return;
             }
 
-            intent.putExtra(IntentExtraKeys.KEY_SEARCH_TARGET, (String) kvMap.get("target"));
-            intent.putExtra(IntentExtraKeys.KEY_SEARCH_SENDER, (String) kvMap.get("sender"));
-            intent.putExtra(IntentExtraKeys.KEY_SEARCH_RECEIVER, (String) kvMap.get("receiver"));
-            intent.putExtra(IntentExtraKeys.KEY_SEARCH_ARGUMENTS, (String) kvMap.get("arguments"));
+            broadcastIntent.putExtra(IntentExtraKeys.KEY_SEARCH_TARGET, (String) kvMap.get("target"));
+            broadcastIntent.putExtra(IntentExtraKeys.KEY_SEARCH_SENDER, (String) kvMap.get("sender"));
+            broadcastIntent.putExtra(IntentExtraKeys.KEY_SEARCH_RECEIVER, (String) kvMap.get("receiver"));
+            broadcastIntent.putExtra(IntentExtraKeys.KEY_SEARCH_ARGUMENTS, (String) kvMap.get("arguments"));
 
-            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
             mService.startActivity(intent);
+            
+            mService.sendBroadcast(broadcastIntent);
 
         } else {
             respond_not_supported(request, response);
