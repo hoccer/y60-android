@@ -41,6 +41,7 @@ public class HTTPHelper {
     // Constants ---------------------------------------------------------
 
     private static final String LOG_TAG = "HTTPHelper";
+    private static final String SCRIPT_RUNNER_URI = "http://t-gom.service.t-gallery.act/gom/script-runner"; 
 
     // Static Methods ----------------------------------------------------
 
@@ -94,6 +95,20 @@ public class HTTPHelper {
         // Logger.v(LOG_TAG, "post('" + uri + "'): " + body);
         HttpPost post = new HttpPost(uri);
         insertXML(body, post);
+        HttpResponse result = executeHTTPMethod(post);
+
+        if (result.getStatusLine().getStatusCode() != 200) {
+            throw new RuntimeException("Execution of HTTP Method POST '" + uri + "' returend "
+                            + result.getStatusLine());
+        }
+
+        return extractBodyAsString(result.getEntity());
+    }
+
+    public static String post(String uri, String body, String pContentType, String pAccept) {
+
+        HttpPost post = new HttpPost(uri);
+        insert(body, pContentType, pAccept, post);
         HttpResponse result = executeHTTPMethod(post);
 
         if (result.getStatusLine().getStatusCode() != 200) {
@@ -197,6 +212,48 @@ public class HTTPHelper {
         throw new RuntimeException("Could not retrive content-length header.");
     }
 
+    public static StatusLine postUrlEncoded(String pUrl, Map<String, String> pData) {
+
+        String body = urlEncode(pData);
+        HttpPost post = new HttpPost(pUrl);
+
+        // Logger.v(LOG_TAG, "POST " + pUrl + " with body " + body);
+
+        insertUrlEncoded(body, post);
+        return executeHTTPMethod(post).getStatusLine();
+    }
+
+    public static JSONObject executeServerScript(String pJsStr, Map<String, String> pParams) throws JSONException {
+
+        String params  = urlEncode(pParams);
+        String uri     = SCRIPT_RUNNER_URI+"?"+params;
+        String jsonStr = post(uri, pJsStr, "text/javascript", "text/json");
+        
+        return new JSONObject(jsonStr);
+    }
+
+    public static String urlEncode(Map pData) {
+        
+        StringBuffer tmp = new StringBuffer();
+        Set keys = pData.keySet();
+        int idx = 0;
+        for (Object key : keys) {
+
+            tmp.append(URLEncoder.encode(String.valueOf(key)));
+            tmp.append("=");
+            tmp.append(URLEncoder.encode(String.valueOf(pData.get(key))));
+
+            idx += 1;
+
+            if (idx < keys.size()) {
+
+                tmp.append("&");
+            }
+        }
+
+        return tmp.toString();
+    }
+    
     // Private Instance Methods ------------------------------------------
 
     private static HttpEntity getAsHttpEntity(Uri uri) {
@@ -334,33 +391,4 @@ public class HTTPHelper {
 
         return pUrl;
     }
-
-    public static StatusLine postUrlEncoded(String pUrl, Map<String, String> pData) {
-        StringBuffer tmp = new StringBuffer();
-        Set<String> keys = pData.keySet();
-        int idx = 0;
-        for (String key : keys) {
-
-            tmp.append(URLEncoder.encode(key));
-            tmp.append("=");
-            tmp.append(URLEncoder.encode(pData.get(key)));
-
-            idx += 1;
-
-            if (idx < keys.size()) {
-
-                tmp.append("&");
-            }
-        }
-
-        HttpPost post = new HttpPost(pUrl);
-        String body = tmp.toString();
-
-        // Logger.v(LOG_TAG, "POST " + pUrl + " with body " + body);
-
-        insertUrlEncoded(body, post);
-        return executeHTTPMethod(post).getStatusLine();
-    }
-
-
 }
