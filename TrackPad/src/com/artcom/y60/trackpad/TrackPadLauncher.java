@@ -23,8 +23,8 @@ public class TrackPadLauncher extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.launcher);
         
-        Button butt = (Button)findViewById(R.id.launch_button);
-        butt.setOnClickListener(new OnClickListener(){
+        Button trackpadButton = (Button)findViewById(R.id.tp_launch_button);
+        trackpadButton.setOnClickListener(new OnClickListener(){
 
             @Override
             public void onClick(View pArg0) {
@@ -35,6 +35,26 @@ public class TrackPadLauncher extends Activity {
                 String port = port_input.getText().toString();
                 
                 Intent intent = new Intent(TrackPadLauncher.this, TrackPad.class);
+                intent.putExtra(TrackPad.ADDRESS_EXTRA, address);
+                intent.putExtra(TrackPad.PORT_EXTRA, port);
+
+                startActivity(intent);
+            }
+            
+        });
+        
+        Button tiltControlButton = (Button)findViewById(R.id.tilt_launch_button);
+        tiltControlButton.setOnClickListener(new OnClickListener(){
+
+            @Override
+            public void onClick(View pArg0) {
+                
+                EditText add_input = (EditText)findViewById(R.id.address_input);
+                String address = add_input.getText().toString();
+                EditText port_input = (EditText)findViewById(R.id.port_input);
+                String port = port_input.getText().toString();
+                
+                Intent intent = new Intent(TrackPadLauncher.this, TiltController.class);
                 intent.putExtra(TrackPad.ADDRESS_EXTRA, address);
                 intent.putExtra(TrackPad.PORT_EXTRA, port);
 
