@@ -154,8 +154,15 @@ public class DeviceControllerService extends Service {
 
         DeviceConfiguration dc = DeviceConfiguration.load();
         String ipAddress = getIpAddress();
+
+        // do not update uri if executed in the emulator; the host will need to
+        // take care of this
+        if (ipAddress.startsWith("10.0.2.")) {
+            Logger.i(LOG_TAG, "I'm running in the emulator. Not publishing Remote Control URI.");
+            return;
+        }
         String command_uri = "http://" + ipAddress + ":" + _port + "/commands";
-        Logger.v(LOG_TAG, "command_uri of local device controller is " + command_uri);
+        Logger.v(LOG_TAG, "command_uri of local device controller is ", command_uri);
 
         try {
             GomNode device = mGom.getNode(dc.getDevicePath());
@@ -276,11 +283,11 @@ public class DeviceControllerService extends Service {
             while (nis.hasMoreElements()) {
                 NetworkInterface ni = (NetworkInterface) nis.nextElement();
                 if (!ni.getName().equals("lo")) { // pick the first interface
-                                                  // that is not the loopback
+                    // that is not the loopback
                     Enumeration<InetAddress> iis = ni.getInetAddresses();
                     if (!iis.hasMoreElements()) {
                         continue; // this interface does not have any ip
-                                  // addresses, try the next one
+                        // addresses, try the next one
                     }
                     address = iis.nextElement().getHostAddress();
                     break;
