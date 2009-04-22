@@ -31,22 +31,21 @@ public class TiltController extends Activity {
 
     private RemoteMousepointerClient mRemote = new RemoteMousepointerClient();
 
+    private AccelerometerSensorListener mAccelListener;
+
     /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.trackpad);
-
-        SensorManager sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
-        AccelerometerSensorListener accelListener = new AccelerometerSensorListener();
-        sensorManager.registerListener(accelListener, SensorManager.SENSOR_ACCELEROMETER,
-                SensorManager.SENSOR_DELAY_FASTEST);
+        mAccelListener = new AccelerometerSensorListener();
     }
 
     @Override
     protected void onPause() {
-
+        SensorManager sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+        sensorManager.unregisterListener(mAccelListener);
         mRemote.disconnectFromDisplay();
         super.onPause();
     }
@@ -56,6 +55,10 @@ public class TiltController extends Activity {
 
         super.onResume();
 
+        SensorManager sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+        sensorManager.registerListener(mAccelListener, SensorManager.SENSOR_ACCELEROMETER,
+                SensorManager.SENSOR_DELAY_FASTEST);
+        
         Intent i = getIntent();
 
         try {

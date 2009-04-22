@@ -15,18 +15,10 @@
 
 package com.artcom.y60.dc;
 
-import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
 import java.util.Enumeration;
-import java.util.List;
-import java.util.NoSuchElementException;
 
 import org.mortbay.jetty.Connector;
 import org.mortbay.jetty.Handler;
@@ -42,7 +34,6 @@ import android.app.Service;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
-import android.net.Uri;
 import android.os.Binder;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -55,12 +46,10 @@ import com.artcom.y60.DeviceConfiguration;
 import com.artcom.y60.ErrorHandling;
 import com.artcom.y60.Logger;
 import com.artcom.y60.PreferencesActivity;
-import com.artcom.y60.gom.GomAttribute;
 import com.artcom.y60.gom.GomNode;
 import com.artcom.y60.gom.GomProxyHelper;
 
 public class DeviceControllerService extends Service {
-    private NotificationManager mNM;
 
     private Server server;
     private boolean _useNIO;
@@ -74,139 +63,38 @@ public class DeviceControllerService extends Service {
     public static final int DEFAULT_PORT = 4042;
 
     private static final String LOG_TAG = "DeviceControllerService";
-    private static final int GOM_NOT_ACCESSIBLE_NOTIFICATION_ID = 42;
 
     private IBinder binder = new DeviceControllerBinder();
-    private NotificationManager mNotificationManager;
     GomProxyHelper mGom = null;
+    private NotificationManager mNM;
 
     public void onCreate() {
         Logger.i(LOG_TAG, "onCreate called");
         __resources = getResources();
 
-        // Get the notification manager serivce.
-        mNotificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-
         // Get the gom proxy helper and run watcher thread if gom is available.
         mGom = new GomProxyHelper(this, new BindingListener<GomProxyHelper>() {
 
             public void bound(GomProxyHelper helper) {
-
+                
                 mGom = helper;
-                Thread thread = new Thread(null, mDeviceHistoryWatcherLoop, "watch net connection");
-                mIsDeviceHistoryWatcherRunning = true;
-                thread.start();
-
                 updateRciUri();
             }
 
             public void unbound(GomProxyHelper helper) {
-
-                mIsDeviceHistoryWatcherRunning = false;
+                
                 mGom = null;
             }
         });
 
     }
 
-    private boolean mIsDeviceHistoryWatcherRunning = true;
-    private Runnable mDeviceHistoryWatcherLoop = new Runnable() {
-
-        // TODO Refactor this very long method into an "Watchdog" class
-        @Override
-        public void run() {
-            DeviceConfiguration dc = DeviceConfiguration.load();
-
-            Intent configureDC = new Intent("y60.intent.CONFIGURE_DEVICE_CONTROLLER");
-            configureDC.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-
-            Notification notification = new Notification(R.drawable.network_down_status_icon,
-                    "Y60's GOM not accessible.", System.currentTimeMillis());
-
-            String historyLog = "";
-            while (mIsDeviceHistoryWatcherRunning) {
-
-                String timestamp = (new SimpleDateFormat("MM/dd/yyyy HH:mm:ss")).format(new Date());
-
-                // this will take some time so we do not need a "Thread.sleep"
-                String pingStatistic = getPingStatistics(dc);
-
-                mNotificationManager.cancel(GOM_NOT_ACCESSIBLE_NOTIFICATION_ID);
-
-                try {
-                    // Log.v(LOG_TAG, "checking gom: " + pingStatistic);
-                    GomNode device = mGom.getNode(dc.getDevicePath());
-                    device.getOrCreateAttribute("last_alive_update").putValue(timestamp);
-
-                    // append current ping statistic to the history_log in gom
-                    GomAttribute historyAttribute = device.getOrCreateAttribute("history_log");
-                    historyAttribute.refresh();
-                    historyAttribute.putValue(historyAttribute.getValue() + historyLog + "\n"
-                            + timestamp + ": " + pingStatistic);
-                    historyLog = "";
-
-                } catch (NoSuchElementException e) {
-                    ErrorHandling.signalMissingGomEntryError(LOG_TAG, e,
-                            DeviceControllerService.this);
-                    // throw new RuntimeException("Missing GOM entry");
-                    return;
-                } catch (Exception e) {
-                    Logger.w(LOG_TAG, "no network available", e);
-                    PendingIntent pint = PendingIntent.getActivity(DeviceControllerService.this, 0,
-                            configureDC, PendingIntent.FLAG_ONE_SHOT);
-
-                    notification.setLatestEventInfo(DeviceControllerService.this,
-                            "GOM not accessible", "network might be down", pint);
-                    mNotificationManager.notify(GOM_NOT_ACCESSIBLE_NOTIFICATION_ID, notification);
-                    // startActivity(configureDC);
-
-                    historyLog += "\n" + timestamp + ": network failure";
-                    historyLog += "\n" + timestamp + ": " + pingStatistic;
-                }
-            }
-
-            ErrorHandling.signalServiceError(LOG_TAG, new Exception(
-                    "Watchdog has stopped unexpetedly"), DeviceControllerService.this);
-            Logger.w(LOG_TAG, "watcher thread stopped...");
-        }
-
-        private String getPingStatistics(DeviceConfiguration dc) {
-            Runtime runtime = Runtime.getRuntime();
-            Process process;
-            try {
-                process = runtime.exec("ping -q -c 20 -i 0.1 "
-                        + Uri.parse(dc.getGomUrl()).getHost());
-            } catch (IOException e) {
-                throw new RuntimeException("Could not execute ping command.", e);
-            }
-            InputStreamReader reader = new InputStreamReader(process.getInputStream());
-            BufferedReader bufferedReader = new BufferedReader(reader);
-
-            String line = "";
-            List<String> pingStatistic = new ArrayList<String>();
-            try {
-                while ((line = bufferedReader.readLine()) != null) {
-                    pingStatistic.add(line.toString());
-                }
-            } catch (IOException e) {
-                throw new RuntimeException("Could not read result of ping command.", e);
-            }
-
-            if (pingStatistic.size() < 3) {
-                return pingStatistic.toString();
-            }
-
-            return pingStatistic.get(pingStatistic.size() - 2);
-        }
-
-    };
-
     public void onStart(Intent intent, int startId) {
         Logger.i(LOG_TAG, "onStart called");
         if (server != null) {
             Toast.makeText(DeviceControllerService.this, R.string.jetty_already_started,
                     Toast.LENGTH_SHORT).show();
-            Logger.i("Jetty", "already running");
+            Logger.i(LOG_TAG, "already running");
             return;
         }
 
@@ -231,13 +119,12 @@ public class DeviceControllerService extends Service {
                 _port = DEFAULT_PORT;
             }
 
-            startJetty();
+            startServer();
 
             mNM = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
 
-            Toast
-                    .makeText(DeviceControllerService.this, R.string.jetty_started,
-                            Toast.LENGTH_SHORT).show();
+            Toast.makeText(DeviceControllerService.this, R.string.jetty_started,
+                           Toast.LENGTH_SHORT).show();
 
             // The PendingIntent to launch DeviceControllerActivity activity if
             // the user selects this notification
@@ -277,15 +164,24 @@ public class DeviceControllerService extends Service {
         String command_uri = "http://" + ipAddress + ":" + _port + "/commands";
         Logger.v(LOG_TAG, "command_uri of local device controller is ", command_uri);
 
-        GomNode device = mGom.getNode(dc.getDevicePath());
-        device.getOrCreateAttribute("rci_uri").putValue(command_uri);
+        try {
+            GomNode device = mGom.getNode(dc.getDevicePath());
+            device.getOrCreateAttribute("rci_uri").putValue(command_uri);
+        } catch (RuntimeException e) {
+            // TODO this is rather ugly and will remain so until the refactoring of the
+            // scattered RuntimeExceptions throughout is complete.
+            
+            // we write something to the logfile, but otherwise ignore this. it's most
+            // likely a transient network error
+            
+            Logger.w(LOG_TAG, "Could not update rci_uri in GOM");
+        }
     }
 
     public void onDestroy() {
-        mIsDeviceHistoryWatcherRunning = true;
         try {
             if (server != null) {
-                stopJetty();
+                stopServer();
                 // Cancel the persistent notification.
                 mNM.cancel(R.string.jetty_started);
                 // Tell the user we stopped.
@@ -297,8 +193,11 @@ public class DeviceControllerService extends Service {
                 Toast.makeText(DeviceControllerService.this, R.string.jetty_not_running,
                         Toast.LENGTH_SHORT).show();
             }
+            if (mGom != null) {
+                mGom.unbind();
+            }
         } catch (Exception e) {
-            Logger.e(LOG_TAG, "Error stopping DeviceControllerService", e);
+            Logger.e(LOG_TAG, "Error stopping DeviceControllerService. Exception: " + e);
             Toast.makeText(this, getText(R.string.jetty_not_stopped), Toast.LENGTH_SHORT).show();
         }
     }
@@ -339,7 +238,7 @@ public class DeviceControllerService extends Service {
         return binder;
     }
 
-    private void startJetty() throws Exception {
+    private void startServer() throws Exception {
         server = new Server();
         Connector connector;
         if (_useNIO) {
@@ -368,7 +267,7 @@ public class DeviceControllerService extends Service {
         server.start();
     }
 
-    private void stopJetty() throws Exception {
+    private void stopServer() throws Exception {
         Logger.i(LOG_TAG, "DeviceControllerService stopping");
         server.stop();
         server.join();
