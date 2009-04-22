@@ -66,6 +66,8 @@ public class StatusWatcher extends Service {
                 IntentFilter fltScreenOff = new IntentFilter(Intent.ACTION_SCREEN_OFF);
                 registerReceiver(mStatusCollector, fltScreenOn);
                 registerReceiver(mStatusCollector, fltScreenOff);
+                
+                
             }
 
             public void unbound(GomProxyHelper helper) {
@@ -168,7 +170,7 @@ public class StatusWatcher extends Service {
         }
 
         private String getPingStatistics() {
-            
+            Logger.v(LOG_TAG, "Entering getPingStatistics");
             Runtime runtime = Runtime.getRuntime();
             Process process = null;
             try {
@@ -177,6 +179,7 @@ public class StatusWatcher extends Service {
             } catch (IOException e) {
                 ErrorHandling.signalNetworkError(LOG_TAG, e, StatusWatcher.this);
             }
+            Logger.v(LOG_TAG, "Executed ping");
             InputStreamReader reader = new InputStreamReader(process.getInputStream());
             BufferedReader bufferedReader = new BufferedReader(reader);
 
@@ -184,6 +187,7 @@ public class StatusWatcher extends Service {
             List<String> pingStatistic = new ArrayList<String>();
             try {
                 while ((line = bufferedReader.readLine()) != null) {
+                    Logger.v(LOG_TAG, line.toString());
                     pingStatistic.add(line.toString());
                 }
             } catch (IOException e) {
