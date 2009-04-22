@@ -1,7 +1,5 @@
 package com.artcom.y60;
 
-import java.io.IOException;
-
 import android.content.Context;
 import android.content.Intent;
 
@@ -13,13 +11,14 @@ public class ErrorHandling {
         // system or software errors
         FILE_NOT_FOUND,
         MALFORMED_URI,
+        MALFORMED_DATA,
         UNSUPPORTED_ENCODING,
         SAX_ERROR,
         JSON_ERROR,
         MISSING_GOM_ENTRY,
         MISSING_MANDATORY_OBJECT,
 
-        // development and environmenal errors
+        // development and environmental errors
         COMPONENT_NOT_FOUND,
         NETWORK_ERROR,
         IO_ERROR,
@@ -111,5 +110,10 @@ public class ErrorHandling {
 	public static void signalIOError(String logTag, Throwable error, Context context) {
 		signalError(logTag, error, context, Category.IO_ERROR);
 	}
+
+    public static void signalMalformedDataError(String logTag, Throwable error,
+            Context context) {
+        signalError(logTag, error, context, Category.MALFORMED_DATA);
+    }
 
 }

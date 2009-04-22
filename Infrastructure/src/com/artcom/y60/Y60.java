@@ -130,8 +130,10 @@ public class Y60 extends Activity {
                         WindowManager.LayoutParams.FLAG_FULLSCREEN);
                 // launchEntryPoint();
 
-                Intent intent = new Intent("y60.intent.START_DEVICE_CONTROLLER");
-                startService(intent);
+                Intent startDcIntent = new Intent("y60.intent.SERVICE_DEVICE_CONTROLLER");
+                startService(startDcIntent);
+                Intent startSwIntent = new Intent("y60.intent.SERVICE_STATUS_WATCHER");
+                startService(startSwIntent);
             }
         });
 
@@ -139,8 +141,10 @@ public class Y60 extends Activity {
         mStopY60Button.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent("y60.intent.START_DEVICE_CONTROLLER");
-                stopService(intent);
+                Intent stopDcIntent = new Intent("y60.intent.SERVICE_DEVICE_CONTROLLER");
+                stopService(stopDcIntent);
+                Intent stopSwIntent = new Intent("y60.intent.SERVICE_STATUS_WATCHER");
+                stopService(stopSwIntent);
             }
         });
 

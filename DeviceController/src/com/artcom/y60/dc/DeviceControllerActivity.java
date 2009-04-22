@@ -144,11 +144,6 @@ public class DeviceControllerActivity extends Activity
     {
         super.onCreate(icicle);
         setContentView(R.layout.dc_console);
-
-        IntentFilter flt_screen_on = new IntentFilter(Intent.ACTION_SCREEN_ON);
-        IntentFilter flt_screen_off = new IntentFilter(Intent.ACTION_SCREEN_OFF);
-//        registerReceiver( StatusCollector.getInstance(), flt_screen_on );
-//        registerReceiver( StatusCollector.getInstance(), flt_screen_off);
         
         // Watch for button clicks.
         final Button startButton = (Button)findViewById(R.id.start);
@@ -157,11 +152,13 @@ public class DeviceControllerActivity extends Activity
                 {
                     public void onClick(View v)
                     {  
-                    	// TODO make this an implicit attempt
-                        Intent intent = new Intent(DeviceControllerActivity.this, DeviceControllerService.class);
-                        intent.putExtra(DeviceControllerService.DEFAULT_PORTNAME, __PORT_DEFAULT);
-                        intent.putExtra(DeviceControllerService.DEFAULT_NIONAME, __NIO_DEFAULT);
-                        startService(intent);
+                        Intent startDcIntent = new Intent("y60.intent.SERVICE_DEVICE_CONTROLLER");
+                        startDcIntent.putExtra(DeviceControllerService.DEFAULT_PORTNAME, __PORT_DEFAULT);
+                        startDcIntent.putExtra(DeviceControllerService.DEFAULT_NIONAME, __NIO_DEFAULT);
+                        startService(startDcIntent);
+                        
+                        Intent startSwIntent = new Intent("y60.intent.SERVICE_STATUS_WATCHER");
+                        startService(startSwIntent);
                     }
                 }
         );
@@ -172,7 +169,10 @@ public class DeviceControllerActivity extends Activity
                 {
                     public void onClick(View v)
                     {
-                        stopService(new Intent(DeviceControllerActivity.this, DeviceControllerService.class));
+                        Intent stopDcIntent = new Intent("y60.intent.SERVICE_DEVICE_CONTROLLER");
+                        stopService(stopDcIntent);
+                        Intent stopSwIntent = new Intent("y60.intent.SERVICE_STATUS_WATCHER");
+                        stopService(stopSwIntent);
                     }
                 }
         );
@@ -184,10 +184,13 @@ public class DeviceControllerActivity extends Activity
         // Automatically start the device controller. Useful during development, possibly remove/refactor
         // in the production code.
         
-        Intent intent = new Intent(DeviceControllerActivity.this, DeviceControllerService.class);
-        intent.putExtra(DeviceControllerService.DEFAULT_PORTNAME, __PORT_DEFAULT);
-        intent.putExtra(DeviceControllerService.DEFAULT_NIONAME, __NIO_DEFAULT);
-        startService(intent);
+        Intent startDcIntent = new Intent("y60.intent.SERVICE_DEVICE_CONTROLLER");
+        startDcIntent.putExtra(DeviceControllerService.DEFAULT_PORTNAME, __PORT_DEFAULT);
+        startDcIntent.putExtra(DeviceControllerService.DEFAULT_NIONAME, __NIO_DEFAULT);
+        startService(startDcIntent);
+        
+        Intent startSwIntent = new Intent("y60.intent.SERVICE_STATUS_WATCHER");
+        startService(startSwIntent);
     }
 
     protected void onResume()
@@ -195,10 +198,4 @@ public class DeviceControllerActivity extends Activity
         _ipList.refresh();
         super.onResume();
     }
-    
-    protected void onStop()
-    {
-//    	unregisterReceiver( StatusCollector.getInstance() );
-    	super.onStop();
-    } 
 }

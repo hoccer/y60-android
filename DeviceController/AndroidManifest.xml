@@ -22,10 +22,29 @@
 
         <service android:name=".DeviceControllerService" android:process=":remote">
         	<intent-filter>
-        	    <action android:name="y60.intent.START_DEVICE_CONTROLLER" />
+        	    <action android:name="y60.intent.SERVICE_DEVICE_CONTROLLER" />
                 <category android:name="android.intent.category.DEFAULT" />	
         	</intent-filter>
         </service>
+
+        <service android:name=".StatusWatcher" android:process=":remote">
+            <intent-filter>
+                <action android:name="y60.intent.SERVICE_STATUS_WATCHER" />
+                <category android:name="android.intent.category.DEFAULT" /> 
+            </intent-filter>
+        </service>
+
+        <receiver android:enabled="true"
+          android:exported="true"
+          android:name="StatusCollector">
+            <intent-filter>
+                <action android:name="android.intent.action.SCREEN_ON" /> 
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.SCREEN_OFF" /> 
+            </intent-filter>
+        </receiver>
+
     </application>
     
     <uses-permission android:name="android.permission.READ_CONTACTS"/>
@@ -36,6 +55,6 @@
     
     <instrumentation android:name="android.test.InstrumentationTestRunner" 
       android:targetPackage="com.artcom.y60.dc" 
-      android:label="DeviceControllerService">
+      android:label="DeviceController">
     </instrumentation>
 </manifest> 
