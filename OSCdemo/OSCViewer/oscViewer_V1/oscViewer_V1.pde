@@ -22,8 +22,10 @@ float rMin = 1;
 float rMax = 3;
 float r = rMin;
 int imageIndexFromOrange = 0;
-
-
+int storedOrangeImageYpos = 0;
+int grayFramePosition = 0;
+int imageIndexFromGray = 0;
+int storedGrayImageYpos = 0;
 
 boolean grow = true;
 boolean storeEvent = false;
@@ -193,8 +195,36 @@ void draw( )
     
     pushMatrix( );
   
-  offset = offset + input1;
+    offset = offset + input1;
     input1 = 0;
+
+   
+   
+   if ( offset > 10 )
+  {
+    println("trackpad: RIGHT");
+    grayFramePosition += scaleWidth+30;
+    imageIndexFromGray ++;  
+    offset = 0;
+           
+  }
+   
+   else if ( offset < -10 )
+  {
+    println("trackpad: LEFT");
+    grayFramePosition -= scaleWidth+30;
+    imageIndexFromGray --;  
+    offset = 0;
+           
+  }
+   
+   
+   if ( input2 > 10 ) {
+    
+    storeImage("Gray"); 
+        input2 = 0;
+     
+   }
    
     float dx = offset - x;
     if(abs(dx) > 0.1) {
@@ -202,14 +232,13 @@ void draw( )
     }
   
     translate(SelectionCenter2.x, SelectionCenter2.y); 
-    translate(offset, 0);
+    translate(grayFramePosition, 0);
    // translate(x*7, 0);
-   // translate(0, 0);
     stroke(#CCCCCC);
     strokeWeight(1);
     strokeJoin(MITER);
     noFill();
-    //rect(0, 0, scaleWidth, scaleHeight);
+
 
 
    rect(0, Yposition, scaleWidth+r-3, scaleHeight+r-3);
@@ -246,34 +275,85 @@ void draw( )
 if (storeEvent) { 
   
   
-    storeImage = new PVector(280, 300);
     pushMatrix();
-   
-    translate(storeImage.x, storeImage.y); 
-    translate(0, 0);
-   
+ 
+    translate(0, storedOrangeImageYpos);
+    storedOrangeImageYpos+=30; 
+    
+    try {
+      
     
     images[imageIndexFromOrange].draw(); 
 
     
+    } catch(ArrayIndexOutOfBoundsException e) {
+    
+      println("no image to store");
+    }
+    
     popMatrix();
-  
+
+    
+    
+    
+    pushMatrix();
+ 
+    translate(0, storedGrayImageYpos);
+    storedGrayImageYpos+=30; 
+    
+    try {
+      
+    
+    images[imageIndexFromGray].draw(); 
+
+    
+    } catch(ArrayIndexOutOfBoundsException e) {
+    
+      println("no image to store");
+    }
+    
+    popMatrix();
+    
   
 
   } 
 
 
 
-////////
-      
   
+
+
+
+
+
+
+
+////////
+
+
   
   
 }
 
 
 
+void storeImage(String frameName) {
+      
 
+     storeEvent = true;  
+     
+     if (frameName == "Orange" && storedOrangeImageYpos > 800) {
+         storedOrangeImageYpos = 0;
+      } 
+      
+      
+      
+      if (frameName == "Gray" && storedGrayImageYpos > 800) {
+         storedGrayImageYpos = 0;
+      }
+ 
+  
+}
 
 
 void keyPressed()
@@ -283,6 +363,7 @@ void keyPressed()
     println("RIGHT");
     cpos += scaleWidth+30;
     imageIndexFromOrange ++;
+    
   }
   
   
@@ -295,8 +376,8 @@ void keyPressed()
  
  
  if (key == 'c' || key == 'C') {
-    storeEvent = true;
     println("storeEvent");
+    storeImage("Orange");
 
  }
   
