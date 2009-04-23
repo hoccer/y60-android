@@ -1,4 +1,4 @@
-package com.artcom.y60.test;
+package com.artcom.y60;
 
 import com.artcom.y60.ErrorHandling;
 import com.artcom.y60.ErrorPresentationActivity;
