@@ -38,19 +38,24 @@ public class GomProxyHelper {
 
         mBindingListener = pBindingListener;
         mContext = pContext;
-
-        Intent proxyIntent = new Intent(IGomProxyService.class.getName());
         mConnection = new GomProxyServiceConnection();
-        Logger.v(logTag(), "binding to GomProxy");
-        if (!pContext.bindService(proxyIntent, mConnection, Context.BIND_AUTO_CREATE)) {
-
-            throw new BindingException("bindService failed for GomProxyService");
-        }
+        
+        bind();
     }
 
     // Public Instance Methods -------------------------------------------
 
+    public void bind() {
+        Intent proxyIntent = new Intent(IGomProxyService.class.getName());
+        Logger.v(logTag(), "binding to GomProxy");
+        if (!mContext.bindService(proxyIntent, mConnection, Context.BIND_AUTO_CREATE)) {
+
+            throw new BindingException("bindService failed for GomProxyService");
+        }
+    }
+    
     public void unbind() {
+        Logger.v(logTag(), "unbinding from GomProxy");
         mContext.unbindService(mConnection);
     }
 
