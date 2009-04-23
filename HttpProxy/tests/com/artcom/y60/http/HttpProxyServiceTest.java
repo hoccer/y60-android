@@ -69,7 +69,6 @@ public class HttpProxyServiceTest extends ServiceTestCase<HttpProxyService> {
         assertTrue("content doesn't match", Arrays.equals(cachedArray, fromHttp));
     }
 
-    /*
     public void testGettingBigData() {
         startService(mIntent);
         HttpProxyService service = getService();
@@ -87,11 +86,11 @@ public class HttpProxyServiceTest extends ServiceTestCase<HttpProxyService> {
                 // kthxbye
             }
         }
-        //assertEquals(resourceDescription.get(Cache.LOCAL_RESOURCE_PATH_TAG).hashCode(), 3153527);
-        assertEquals("/sdcard/HttpProxyCache/" + resourceUri.hashCode(),
-                resourceDescription.get(Cache.LOCAL_RESOURCE_PATH_TAG));
-        }
-    */
+        // assertEquals(resourceDescription.get(Cache.LOCAL_RESOURCE_PATH_TAG).hashCode(),
+        // 3153527);
+        assertEquals("/sdcard/HttpProxyCache/" + resourceUri.hashCode(), resourceDescription
+                .get(Cache.LOCAL_RESOURCE_PATH_TAG));
+    }
 
     // Protected Instance Methods ----------------------------------------
 
