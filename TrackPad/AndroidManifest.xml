@@ -24,4 +24,5 @@
       android:targetPackage="com.artcom.y60.trackpad" 
       android:label="TrackPad">
     </instrumentation>
+<uses-permission android:name="android.permission.VIBRATE"></uses-permission>
 </manifest> 
