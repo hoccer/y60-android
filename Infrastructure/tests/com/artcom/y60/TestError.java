@@ -1,7 +1,8 @@
-package com.artcom.y60;
+package com.artcom.y60.test;
 
 import com.artcom.y60.ErrorHandling;
 import com.artcom.y60.ErrorPresentationActivity;
+import com.artcom.y60.ErrorHandling.Category;
 
 import android.app.Instrumentation.ActivityMonitor;
 import android.content.IntentFilter;
