@@ -3,11 +3,7 @@ package com.artcom.y60.gom;
 import android.content.Intent;
 import android.net.Uri;
 import android.test.ActivityUnitTestCase;
-
-import com.artcom.y60.Logger;
-import com.artcom.y60.gom.GomAttribute;
-import com.artcom.y60.gom.GomProxyActivity;
-import com.artcom.y60.gom.GomProxyHelper;
+import android.test.AssertionFailedError;
 
 public class GomProxyTest extends ActivityUnitTestCase<GomProxyActivity> {
 
@@ -37,6 +33,29 @@ public class GomProxyTest extends ActivityUnitTestCase<GomProxyActivity> {
         assertEquals("http://t-gom.service.t-gallery.act", uri.toString());
     }
 
+    public void testBindingAndUnbinding() throws Exception {
+
+        initializeActivity();
+        GomProxyHelper helper = createHelper();
+        helper.unbind();
+        long requestStartTime = System.currentTimeMillis();
+        while (helper.isBound()) {
+            if (System.currentTimeMillis() > requestStartTime + 5 * 1000) {
+                throw new AssertionFailedError("Could not unbound from service");
+            }
+            Thread.sleep(10);
+        }
+
+        helper.bind();
+        requestStartTime = System.currentTimeMillis();
+        while (!helper.isBound()) {
+            if (System.currentTimeMillis() > requestStartTime + 5 * 1000) {
+                throw new AssertionFailedError("Could not rebound to service");
+            }
+            Thread.sleep(10);
+        }
+    }
+
     public void testGetAttribute() throws Exception {
 
         initializeActivity();
@@ -62,18 +81,18 @@ public class GomProxyTest extends ActivityUnitTestCase<GomProxyActivity> {
 
     // Private Instance Methods ------------------------------------------
 
-    private GomProxyHelper createHelper() {
+    private GomProxyHelper createHelper() throws InterruptedException {
 
         GomProxyHelper helper = new GomProxyHelper(getActivity(), null);
 
-        for (int i = 0; i < 200; i++) {
-            try {
-                Thread.sleep(10);
-            } catch (InterruptedException ix) {
-                Logger.v(LOG_TAG, "INTERRUPT!!1!");
+        long requestStartTime = System.currentTimeMillis();
+        while (!helper.isBound()) {
+            if (System.currentTimeMillis() > requestStartTime + 2 * 1000) {
+                throw new AssertionFailedError("Could not bind to gom service");
             }
+            Thread.sleep(10);
         }
-
+        
         return helper;
     }
 

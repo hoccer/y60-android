@@ -135,23 +135,25 @@ public class StatusWatcherTestCase extends ServiceTestCase<StatusWatcher> {
         }
 
         getService().unbindFromGom();
-        // sleepNonblocking(2 * 1000);
-        Logger.v("westwind", "gom unbound (maybe)> ", getService().isGomAvailable());
-        getService().bindToGom();
-        // sleepNonblocking(2 * 1000);
-        // assertTrue(
-        // "Forced StatusWatcher to unbind from GOM, but StatusWatcher reports that it can still see the GOM",
-        // getService().isWestwindBlowing());
-        // Logger.v("westwind", "b");
-        // Logger.v("westwind", "now rebinding to gom");
-        // getService().bindToGom();
-        // waitForGom();
-        // Logger.v("westwind", "rebound to gom (maybe)");
-        // assertFalse(
-        // "Expected the StatusWatcher to see the GOM after telling it to re-bind, but it doesn't.",
-        // getService().isWestwindBlowing());
-        // Logger.v("westwind", "c");
 
+        requestStartTime = System.currentTimeMillis();
+        while (getService().isGomAvailable()) {
+            if (System.currentTimeMillis() > requestStartTime + 5 * 1000) {
+                throw new AssertionFailedError(
+                        "Forced StatusWatcher to unbind from GOM, but StatusWatcher reports that it can still see the GOM");
+            }
+            Thread.sleep(10);
+        }
+
+        getService().bindToGom();
+
+        while (!getService().isGomAvailable()) {
+            if (System.currentTimeMillis() > requestStartTime + 5 * 1000) {
+                throw new AssertionFailedError(
+                        "Expected the StatusWatcher to see the GOM after telling it to re-bind, but it doesn't.");
+            }
+            Thread.sleep(10);
+        }
     }
 
     // Verifies that the service correctly updates the device's
