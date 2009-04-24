@@ -10,6 +10,7 @@ import android.os.RemoteException;
 
 import com.artcom.y60.BindingException;
 import com.artcom.y60.BindingListener;
+import com.artcom.y60.ErrorHandling;
 import com.artcom.y60.Logger;
 
 public class GomProxyHelper {
@@ -39,7 +40,7 @@ public class GomProxyHelper {
         mBindingListener = pBindingListener;
         mContext = pContext;
         mConnection = new GomProxyServiceConnection();
-        
+
         bind();
     }
 
@@ -53,10 +54,15 @@ public class GomProxyHelper {
             throw new BindingException("bindService failed for GomProxyService");
         }
     }
-    
+
     public void unbind() {
         Logger.v(logTag(), "unbinding from GomProxy");
         mContext.unbindService(mConnection);
+        onUnbound();
+    }
+
+    public boolean isBound() {
+        return mProxy != null;
     }
 
     public GomEntry getEntry(String pPath) {
@@ -124,6 +130,14 @@ public class GomProxyHelper {
 
     // Private Instance Methods ------------------------------------------
 
+    private void onUnbound() {
+        mProxy = null;
+
+        if (mBindingListener != null) {
+            mBindingListener.unbound(GomProxyHelper.this);
+        }
+    }
+
     private void assertConnected() {
 
         if (mProxy == null) {
@@ -151,14 +165,12 @@ public class GomProxyHelper {
             }
         }
 
+        @Override
         public void onServiceDisconnected(ComponentName pName) {
 
-            Logger.v("GomProxyServiceConnection", "onServiceDisconnected(", pName, ")");
-            mProxy = null;
-
-            if (mBindingListener != null) {
-                mBindingListener.unbound(GomProxyHelper.this);
-            }
+            ErrorHandling.signalServiceError("GomProxyServiceConnection", new Exception(
+                    "Service as been unexpetly disconnected"), mContext);
+            onUnbound();
         }
     }
 }

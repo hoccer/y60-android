@@ -78,14 +78,14 @@ public class GomProxyService extends Service {
         DeviceConfiguration conf = DeviceConfiguration.load();
         Logger.setFilterLevel(conf.getLogLevel());
 
-        Logger.i(tag(), "GomProxyService.onStart");
+        Logger.i(tag(), "onStart");
 
         super.onStart(intent, startId);
     }
 
     public void onDestroy() {
 
-        Logger.i(tag(), "HttpProxyService.onDestroy");
+        Logger.i(tag(), "onDestroy");
 
         super.onDestroy();
     }

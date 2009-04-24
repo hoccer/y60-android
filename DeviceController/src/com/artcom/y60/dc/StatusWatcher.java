@@ -54,28 +54,16 @@ public class StatusWatcher extends Service {
         mIsHeartbeatLoopRunning = true;
         mHeartbeatThread.start();
 
-        // Get the GOM proxy helper and run watcher thread when GOM is
-        // available.
-        mGom = new GomProxyHelper(this, new BindingListener<GomProxyHelper>() {
+        bindToGom();
 
-            public void bound(GomProxyHelper helper) {
-                Logger.v(LOG_TAG, "GomProxy bound");
-                mGom = helper;
-
-                mStatusCollector = new StatusCollector(mGom, mDeviceConfiguration);
-                IntentFilter fltScreenOn = new IntentFilter(Intent.ACTION_SCREEN_ON);
-                IntentFilter fltScreenOff = new IntentFilter(Intent.ACTION_SCREEN_OFF);
-                registerReceiver(mStatusCollector, fltScreenOn);
-                registerReceiver(mStatusCollector, fltScreenOff);  
-            }
-
-            public void unbound(GomProxyHelper helper) {
-                Logger.v(LOG_TAG, "GomProxy unbound");
-                unregisterReceiver(mStatusCollector);
-                mStatusCollector = null;
-                mGom = null;
-            }
-        });
+        /*
+         * mStatusCollector = new StatusCollector(mGom, mDeviceConfiguration);
+         * IntentFilter fltScreenOn = new IntentFilter(Intent.ACTION_SCREEN_ON);
+         * IntentFilter fltScreenOff = new
+         * IntentFilter(Intent.ACTION_SCREEN_OFF);
+         * registerReceiver(mStatusCollector, fltScreenOn);
+         * registerReceiver(mStatusCollector, fltScreenOff);
+         */
     }
 
     @Override
@@ -115,13 +103,13 @@ public class StatusWatcher extends Service {
                     "Y60's GOM not accessible.", System.currentTimeMillis());
 
             String historyLog = "";
-            String timestamp  = "";
+            String timestamp = "";
             String pingStatistic = "";
             while (mIsHeartbeatLoopRunning) {
                 try {
 
-                    // this will take some time so we do not need a "Thread.sleep()"
-//                    pingStatistic = getPingStatistics();
+                    Thread.sleep(4 * 1000);
+                    pingStatistic = getPingStatistics();
 
                     timestamp = (new SimpleDateFormat("MM/dd/yyyy HH:mm:ss")).format(new Date());
 
@@ -136,13 +124,11 @@ public class StatusWatcher extends Service {
                     historyLog = "";
 
                     mNotificationManager.cancel(GOM_NOT_ACCESSIBLE_NOTIFICATION_ID);
-                    Logger.v(LOG_TAG, "gom available");
                     mIsGomAvailable = true;
                 } catch (NoSuchElementException e) {
                     ErrorHandling.signalMissingGomEntryError(LOG_TAG, e, StatusWatcher.this);
                     continue;
                 } catch (RuntimeException e) {
-                    Logger.v(LOG_TAG, "no network");
                     // TODO this is rather ugly and will remain so until the
                     // refactoring of the
                     // scattered RuntimeExceptions throughout is complete.
@@ -151,7 +137,7 @@ public class StatusWatcher extends Service {
                     // this. it's most
                     // likely a transient network error
 
-                    Logger.w(LOG_TAG, "Could not update status entries in GOM");
+                    Logger.w(LOG_TAG, "Could not update status entries in GOM: ", e);
                     PendingIntent pint = PendingIntent.getActivity(StatusWatcher.this, 0,
                             configureDC, PendingIntent.FLAG_ONE_SHOT);
 
@@ -160,7 +146,7 @@ public class StatusWatcher extends Service {
                     mNotificationManager.notify(GOM_NOT_ACCESSIBLE_NOTIFICATION_ID, notification);
 
                     mIsGomAvailable = false;
-                    
+
                     historyLog += "\n" + timestamp + ": network failure";
                     historyLog += "\n" + timestamp + ": " + pingStatistic;
                     continue;
@@ -172,7 +158,6 @@ public class StatusWatcher extends Service {
         }
 
         private String getPingStatistics() {
-            Logger.v(LOG_TAG, "Entering getPingStatistics");
             Runtime runtime = Runtime.getRuntime();
             Process process = null;
             try {
@@ -181,7 +166,6 @@ public class StatusWatcher extends Service {
             } catch (IOException e) {
                 ErrorHandling.signalNetworkError(LOG_TAG, e, StatusWatcher.this);
             }
-            Logger.v(LOG_TAG, "Executed ping");
             InputStreamReader reader = new InputStreamReader(process.getInputStream());
             BufferedReader bufferedReader = new BufferedReader(reader);
 
@@ -205,26 +189,35 @@ public class StatusWatcher extends Service {
         }
 
     };
-    
+
     // The following methods were created to facilitate testing
-    
+
     Thread getWatcherThread() {
         return mHeartbeatThread;
     }
-    
+
     boolean isGomAvailable() {
         return mIsGomAvailable;
     }
-    
+
     void bindToGom() {
-        if (mGom != null) {
-            mGom.bind();
-        }
+
+        new GomProxyHelper(this, new BindingListener<GomProxyHelper>() {
+
+            public void bound(GomProxyHelper phelper) {
+                Logger.v(LOG_TAG, "GomProxy bound");
+                mGom = phelper;
+            }
+
+            public void unbound(GomProxyHelper helper) {
+                Logger.v(LOG_TAG, "GomProxy unbound");
+                mStatusCollector = null;
+                mGom = null;
+            }
+        });
     }
-    
+
     void unbindFromGom() {
-        if (mGom != null) {
-            mGom.unbind();
-        }
+        mGom.unbind();
     }
 }
