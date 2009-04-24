@@ -44,11 +44,7 @@
 	
     <instrumentation android:name="android.test.InstrumentationTestRunner" 
       android:targetPackage="com.artcom.y60" 
-<<<<<<< HEAD:Infrastructure/AndroidManifest.xml
-      android:label="y60 Tests">
-=======
       android:label="Y60 Infrastructure Tests">
->>>>>>> 53179e9967c840e9be9dc066e32d93d33646900e:Infrastructure/AndroidManifest.xml
     </instrumentation>
 </manifest> 
 
