@@ -1,6 +1,8 @@
 package com.artcom.y60;
 
 import android.app.Activity;
+import android.content.Context;
+import android.os.Vibrator;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
@@ -20,9 +22,11 @@ public class DragAndDropHelper implements OnTouchListener {
 
     public static final String LOG_TAG = "DragAndDropHelper";
     
-    private static final float SCALE_FACTOR = 0.5f;
+    private static final float SCALE_FACTOR = 0.4f;
     
-    private static final int ANIMATION_DURATION = 1000;
+    private static final int ANIMATION_DURATION = 200;
+
+    public static final int VERTICAL_OFFSET = 20;
     
     // Instance Variables ------------------------------------------------
     
@@ -41,6 +45,10 @@ public class DragAndDropHelper implements OnTouchListener {
     /** Used for detecting the long press */
     private GestureDetector mGest;
     
+    private OnTouchListener mTouchListener;
+    
+    private DragAndDropListener mDragListener;
+    
     // Static Methods ----------------------------------------------------
     
     /**
@@ -58,9 +66,11 @@ public class DragAndDropHelper implements OnTouchListener {
         
         mLayout = pLayout;
         mLayout.setOnTouchListener(this);
+        mLayout.setLongClickable(true);
         
         mSourceView = pView;
         mSourceView.setOnTouchListener(this);
+        mSourceView.setLongClickable(true);
         
         mActivity = pActivity;
         mGest = new GestureDetector(new ShareGestureListener());
@@ -69,56 +79,86 @@ public class DragAndDropHelper implements OnTouchListener {
     // Public Instance Methods -------------------------------------------
 
     @Override
-    public boolean onTouch(View pV, MotionEvent pEvent) {
+    public boolean onTouch(View pTouchedView, MotionEvent pEvent) {
     
-        Logger.d(LOG_TAG, "onTouch ", pV, " ", pEvent.getAction());
+        Logger.d(LOG_TAG, "onTouch ", pTouchedView, " ", pEvent.getAction());
         
-        if (mThumbView == null) {
-            
-            mThumbView = GraphicsHelper.scaleView(mSourceView, SCALE_FACTOR, mActivity);
-            mThumbView.setVisibility(View.INVISIBLE);
-            mThumbView.setOnTouchListener(this);
-            mLayout.addView(mThumbView);
-        }
-        
-        if (isCurrentlyDragging()) {
+        if (isCurrentlyDragging() /*|| pTouchedView == mThumbView || pTouchedView == mSourceView */) {
             
             switch (pEvent.getAction()) {
                 case (MotionEvent.ACTION_UP):
-                    endDragging();
-                    break;
+                    endDragging(pEvent);
+                    return true;
                 case (MotionEvent.ACTION_MOVE):
                     drag(pEvent);
-                    break;
+                    return true;
             }
         }
         
-        if (pV == mSourceView || isCurrentlyDragging()) {
-            mGest.onTouchEvent(pEvent);
+        if (pTouchedView == mSourceView || isCurrentlyDragging()) {
+            if (mGest.onTouchEvent(pEvent)) {
+                Logger.d(LOG_TAG, "dnd gesture detects s o m e t h i n g");
+                return true;
+            }
+            Logger.d(LOG_TAG, "dnd gesture didnt consume touch event");
         }
         
-        return true;
+        
+        
+        if (mTouchListener != null) {
+            
+            Logger.d(LOG_TAG, "delegate touch event to pic gallery lsner");
+            return mTouchListener.onTouch(pTouchedView, pEvent);
+            
+        } else {
+            
+            return false;
+        }
+    }
+    
+    public void setOnTouchListener(OnTouchListener pListener) {
+        
+        mTouchListener = pListener;
+    }
+    
+    public void setDragAndDropListener(DragAndDropListener pListener) {
+        
+        mDragListener = pListener;
     }
 
     // Private Instance Methods ------------------------------------------
     
     private void drag(MotionEvent pEvent) {
         
-        mThumbView.setLayoutParams(positionForDragging(pEvent));
+        LayoutParams position = positionForDragging(pEvent);
+        mThumbView.setLayoutParams(position);
+        if (mDragListener != null) {
+            mDragListener.onDragged(mSourceView, mThumbView, position.x, position.y);
+        }
     }
 
-    private void endDragging() {
+    private void endDragging(MotionEvent pEvent) {
         
         Logger.d(LOG_TAG, "and up!!!");
-        mThumbView.setVisibility(View.INVISIBLE);
+        
+        mThumbView.setVisibility(View.GONE);
+        mLayout.removeView(mThumbView);   
         mSourceView.setVisibility(View.VISIBLE);
         mLayout.invalidate();
+        
+        if (mDragListener != null) { 
+            LayoutParams position = positionForDragging(pEvent);
+            mDragListener.onDraggingEnded(mSourceView, mThumbView, position.x, position.y);
+        }
+        
+        mThumbView = null; // let the gc take care of it
+        System.gc(); // would be nice...
     }
 
     private LayoutParams positionForDragging(MotionEvent pEvent) {
         
         int x = (int)pEvent.getX()-mThumbView.getWidth()/2;
-        int y = (int)pEvent.getY()-mThumbView.getHeight()/2;
+        int y = (int)pEvent.getY()-mThumbView.getHeight()/2-VERTICAL_OFFSET;
         
         return new LayoutParams(LayoutParams.WRAP_CONTENT,
                                 LayoutParams.WRAP_CONTENT,
@@ -127,7 +167,7 @@ public class DragAndDropHelper implements OnTouchListener {
     }
     
     private boolean isCurrentlyDragging() {
-        return mThumbView.getVisibility() == View.VISIBLE;
+        return mThumbView != null && mThumbView.getVisibility() == View.VISIBLE;
     }
     
     // Inner Classes -----------------------------------------------------
@@ -139,18 +179,26 @@ public class DragAndDropHelper implements OnTouchListener {
             
             Logger.v(LOG_TAG, "LOOOOOOOOOOOOOOOOOOOOOOOONG PRESS");
             
+            if (mThumbView == null) {
+                
+                mThumbView = GraphicsHelper.scaleView(mSourceView, SCALE_FACTOR, mActivity);
+                mThumbView.setVisibility(View.INVISIBLE);
+                mThumbView.setOnTouchListener(DragAndDropHelper.this);
+                mLayout.addView(mThumbView);
+            }
+            
             int x = (int)pE.getX();//-mDrawable.getMinimumWidth()/2;
             int y = (int)pE.getY()-10;//-mDrawable.getMinimumHeight()*2;
             
             LayoutParams params = new LayoutParams(LayoutParams.WRAP_CONTENT,
                     LayoutParams.WRAP_CONTENT,
                     x-(int)(mSourceView.getWidth()*SCALE_FACTOR/2),
-                    y-(int)(mSourceView.getHeight()*SCALE_FACTOR/2));
+                    y-(int)(mSourceView.getHeight()*SCALE_FACTOR/2-VERTICAL_OFFSET));
 
             mThumbView.setLayoutParams(params);
             
             TranslateAnimation translate = new TranslateAnimation(0, x-mSourceView.getWidth()/2,
-                    0, y-mSourceView.getHeight()/2);
+                    0, y-mSourceView.getHeight()/2-VERTICAL_OFFSET);
             translate.setDuration(ANIMATION_DURATION);
          
             ScaleAnimation scale = new ScaleAnimation( 1.0f, SCALE_FACTOR, 
@@ -165,10 +213,11 @@ public class DragAndDropHelper implements OnTouchListener {
             anims.setAnimationListener(new ThumbnailAnimationListener());
             
             mSourceView.startAnimation(anims);
+            
         }
 
         public boolean onDown(MotionEvent pE) { return false; }
-        public boolean onFling(MotionEvent pE1, MotionEvent pE2, float pVelocityX, float pVelocityY) { return false; }
+        public boolean onFling(MotionEvent pE1, MotionEvent pE2, float pVelocityX, float pVelocityY) { Logger.d(LOG_TAG, "dnd gesture detects fling"); return false; }
         public boolean onScroll(MotionEvent pE1, MotionEvent pE2, float pDistanceX, float pDistanceY) { return false; }
         public void onShowPress(MotionEvent pE) {}
         public boolean onSingleTapUp(MotionEvent pE) { return false; }
@@ -178,11 +227,16 @@ public class DragAndDropHelper implements OnTouchListener {
         
         public void onAnimationEnd(Animation animation) {
             
-            Logger.d(LOG_TAG, "animation end --------------------------------");
-//            mLayout.getChildAt(0).setVisibility(View.INVISIBLE);
+            Logger.d(LOG_TAG, "animation end -----------------");
+            
             mSourceView.setVisibility(View.INVISIBLE);
             mThumbView.setVisibility(View.VISIBLE);
             mLayout.invalidate();
+            Vibrator vibrator = (Vibrator)mActivity.getSystemService(Context.VIBRATOR_SERVICE);
+            vibrator.vibrate(ANIMATION_DURATION);
+            if (mDragListener != null) {
+                mDragListener.onDraggingStarted(mSourceView);
+            }
         }
 
         public void onAnimationRepeat(Animation animation) {}

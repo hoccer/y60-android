@@ -2,11 +2,11 @@ package com.artcom.y60.ui;
 
 
 import android.app.Activity;
-import android.text.Layout;
 import android.view.View;
 import android.view.Window;
 import android.view.animation.Animation;
 import android.view.animation.TranslateAnimation;
+import android.widget.AbsoluteLayout;
 import android.widget.TableLayout;
 
 import com.artcom.y60.HorizontalDirection;
@@ -20,8 +20,9 @@ public class WorkSpace {
 	private static final String LOG_TAG = "WorkSpace";
     private static final int    ANIMATION_DURATION = 500;
 
-	private TableLayout m_Layout;
-	private View        m_View;
+	private AbsoluteLayout   m_Layout;
+	private TableLayout m_View;
+	private View mContent;
 	private Activity    m_Activity;
 	private String      m_Name;
 	
@@ -34,11 +35,16 @@ public class WorkSpace {
 
 	    m_Name     = p_Name;
 		m_Activity = p_Context;
-		m_View     = p_View;
-		m_Layout   = new TableLayout( m_Activity );
-		
-		m_Layout.setOrientation( TableLayout.HORIZONTAL );
+		mContent = p_View;
+        mContent.setLongClickable(true);
+        m_View     =  new TableLayout( m_Activity );
+        m_View.setOrientation( TableLayout.HORIZONTAL );
+        m_View.setLongClickable(true);
+        m_View.addView(mContent);
+		m_Layout   = new AbsoluteLayout( m_Activity);
+		m_Layout.addView(m_View);
         m_Layout.setLongClickable(true);
+		
         
         m_OutToLeft = new TranslateAnimation(
                 Animation.RELATIVE_TO_SELF,  0, Animation.RELATIVE_TO_SELF, -1,
@@ -65,7 +71,12 @@ public class WorkSpace {
         m_InFromRight.setDuration(ANIMATION_DURATION);
 	}
 	
-	public TableLayout getLayout() { return m_Layout; }
+	public View getContent() {
+	
+	    return mContent;
+	}
+	
+	public AbsoluteLayout getLayout() { return m_Layout; }
 	public Activity getParent() { return m_Activity;}
     public String getName() { return m_Name; }
     public void invalidate() { refresh(); }
