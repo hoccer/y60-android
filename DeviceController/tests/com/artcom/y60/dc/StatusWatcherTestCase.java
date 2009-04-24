@@ -124,11 +124,14 @@ public class StatusWatcherTestCase extends ServiceTestCase<StatusWatcher> {
     // icon) is correctly displayed/cleared.
     public void testGomUnavailableNotification() throws InterruptedException {
         startService(mIntent);
+        
+        // do not sleep beween updates -- tests must run fast
+        getService().setSleepTime(0);
 
         // wait some time to let the service load the data
         long requestStartTime = System.currentTimeMillis();
         while (!getService().isGomAvailable()) {
-            if (System.currentTimeMillis() > requestStartTime + 5 * 1000) {
+            if (System.currentTimeMillis() > requestStartTime + 15 * 1000) {
                 throw new AssertionFailedError(
                         "Expected the StatusWatcher to see the GOM right after starting up, but it doesn't.");
             }
@@ -142,7 +145,7 @@ public class StatusWatcherTestCase extends ServiceTestCase<StatusWatcher> {
 
         requestStartTime = System.currentTimeMillis();
         while (getService().isGomAvailable()) {
-            if (System.currentTimeMillis() > requestStartTime + 5 * 1000) {
+            if (System.currentTimeMillis() > requestStartTime + 15 * 1000) {
                 throw new AssertionFailedError(
                         "Forced StatusWatcher to unbind from GOM, but StatusWatcher reports that it can still see the GOM");
             }
@@ -157,7 +160,7 @@ public class StatusWatcherTestCase extends ServiceTestCase<StatusWatcher> {
 
         requestStartTime = System.currentTimeMillis();
         while (!getService().isGomAvailable()) {
-            if (System.currentTimeMillis() > requestStartTime + 5 * 1000) {
+            if (System.currentTimeMillis() > requestStartTime + 15 * 1000) {
                 throw new AssertionFailedError(
                         "Expected the StatusWatcher to see the GOM after telling it to re-bind, but it doesn't.");
             }

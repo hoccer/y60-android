@@ -42,6 +42,7 @@ public class StatusWatcher extends Service {
     private Thread mHeartbeatThread;
     private DeviceConfiguration mDeviceConfiguration;
     private boolean mIsGomAvailable = false;
+    private long mSleepTime = 4 * 1000;
 
     @Override
     public void onCreate() {
@@ -108,7 +109,7 @@ public class StatusWatcher extends Service {
             while (mIsHeartbeatLoopRunning) {
                 try {
 
-                    Thread.sleep(4 * 1000);
+                    Thread.sleep(mSleepTime);
                     pingStatistic = getPingStatistics();
 
                     timestamp = (new SimpleDateFormat("MM/dd/yyyy HH:mm:ss")).format(new Date());
@@ -194,6 +195,10 @@ public class StatusWatcher extends Service {
 
     Thread getWatcherThread() {
         return mHeartbeatThread;
+    }
+
+    void setSleepTime(long pSleepTime) {
+        mSleepTime = pSleepTime;
     }
 
     boolean isGomAvailable() {
