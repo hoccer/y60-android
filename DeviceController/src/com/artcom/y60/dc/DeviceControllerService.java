@@ -66,7 +66,6 @@ public class DeviceControllerService extends Service {
 
     private IBinder binder = new DeviceControllerBinder();
     GomProxyHelper mGom = null;
-    private NotificationManager mNM;
 
     public void onCreate() {
         Logger.i(LOG_TAG, "onCreate called");
@@ -120,9 +119,7 @@ public class DeviceControllerService extends Service {
             }
 
             startServer();
-
-            mNM = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-
+            
             Toast.makeText(DeviceControllerService.this, R.string.jetty_started,
                            Toast.LENGTH_SHORT).show();
 
@@ -138,7 +135,6 @@ public class DeviceControllerService extends Service {
 
             notification.setLatestEventInfo(this, getText(R.string.app_name), text, contentIntent);
 
-            mNM.notify(R.string.jetty_started, notification);
             Logger.i(LOG_TAG, "DeviceControllerService started");
             super.onStart(intent, startId);
         } catch (BindingException e) {
@@ -183,7 +179,6 @@ public class DeviceControllerService extends Service {
             if (server != null) {
                 stopServer();
                 // Cancel the persistent notification.
-                mNM.cancel(R.string.jetty_started);
                 // Tell the user we stopped.
                 Toast.makeText(this, getText(R.string.jetty_stopped), Toast.LENGTH_SHORT).show();
                 Logger.i(LOG_TAG, "DeviceControllerService stopped");

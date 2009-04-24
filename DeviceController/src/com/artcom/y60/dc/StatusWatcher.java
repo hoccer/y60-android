@@ -108,8 +108,7 @@ public class StatusWatcher extends Service {
             while (mIsHeartbeatLoopRunning) {
                 try {
 
-                    // this will take some time so we do not need a
-                    // "Thread.sleep()"
+                    Thread.sleep(4 * 1000);
                     pingStatistic = getPingStatistics();
 
                     timestamp = (new SimpleDateFormat("MM/dd/yyyy HH:mm:ss")).format(new Date());
@@ -126,12 +125,10 @@ public class StatusWatcher extends Service {
 
                     mNotificationManager.cancel(GOM_NOT_ACCESSIBLE_NOTIFICATION_ID);
                     mIsGomAvailable = true;
-                    Logger.v(LOG_TAG, "gom available");
                 } catch (NoSuchElementException e) {
                     ErrorHandling.signalMissingGomEntryError(LOG_TAG, e, StatusWatcher.this);
                     continue;
                 } catch (RuntimeException e) {
-                    Logger.v(LOG_TAG, "no network");
                     // TODO this is rather ugly and will remain so until the
                     // refactoring of the
                     // scattered RuntimeExceptions throughout is complete.
@@ -140,7 +137,7 @@ public class StatusWatcher extends Service {
                     // this. it's most
                     // likely a transient network error
 
-                    Logger.w(LOG_TAG, "Could not update status entries in GOM");
+                    Logger.w(LOG_TAG, "Could not update status entries in GOM: ", e);
                     PendingIntent pint = PendingIntent.getActivity(StatusWatcher.this, 0,
                             configureDC, PendingIntent.FLAG_ONE_SHOT);
 
@@ -161,7 +158,6 @@ public class StatusWatcher extends Service {
         }
 
         private String getPingStatistics() {
-            Logger.v(LOG_TAG, "Entering getPingStatistics");
             Runtime runtime = Runtime.getRuntime();
             Process process = null;
             try {
@@ -170,7 +166,6 @@ public class StatusWatcher extends Service {
             } catch (IOException e) {
                 ErrorHandling.signalNetworkError(LOG_TAG, e, StatusWatcher.this);
             }
-            Logger.v(LOG_TAG, "Executed ping");
             InputStreamReader reader = new InputStreamReader(process.getInputStream());
             BufferedReader bufferedReader = new BufferedReader(reader);
 
