@@ -88,9 +88,10 @@ public class StatusWatcherTestCase extends ServiceTestCase<StatusWatcher> {
 
         sleepNonblocking(5 * 1000);
 
-        assertTrue(thread.isAlive());
+        assertTrue("Watcher thread died", thread.isAlive());
     }
 
+    /*
     // This is not strictly a test of StatusWatcher functionality. We just want
     // to know if the behaviour on
     // network disappearance is what we expect it to be.
@@ -116,7 +117,7 @@ public class StatusWatcherTestCase extends ServiceTestCase<StatusWatcher> {
         }
         Logger.v(LOG_TAG, lines);
         assertEquals("", lines);
-    }
+    }*/
 
     // Verifies that the "GOM unavailable" notification (symbolized by a
     // "West Wind"
@@ -131,6 +132,9 @@ public class StatusWatcherTestCase extends ServiceTestCase<StatusWatcher> {
                 throw new AssertionFailedError(
                         "Expected the StatusWatcher to see the GOM right after starting up, but it doesn't.");
             }
+            Thread thread = getService().getWatcherThread();
+            assertTrue("Watcher thread died", thread.isAlive());
+            
             Thread.sleep(10);
         }
 
@@ -142,16 +146,24 @@ public class StatusWatcherTestCase extends ServiceTestCase<StatusWatcher> {
                 throw new AssertionFailedError(
                         "Forced StatusWatcher to unbind from GOM, but StatusWatcher reports that it can still see the GOM");
             }
+            Thread thread = getService().getWatcherThread();
+            assertTrue("Watcher thread died", thread.isAlive());
+   
             Thread.sleep(10);
         }
 
+        
         getService().bindToGom();
 
+        requestStartTime = System.currentTimeMillis();
         while (!getService().isGomAvailable()) {
             if (System.currentTimeMillis() > requestStartTime + 5 * 1000) {
                 throw new AssertionFailedError(
                         "Expected the StatusWatcher to see the GOM after telling it to re-bind, but it doesn't.");
             }
+            Thread thread = getService().getWatcherThread();
+            assertTrue("Watcher thread died", thread.isAlive());
+
             Thread.sleep(10);
         }
     }

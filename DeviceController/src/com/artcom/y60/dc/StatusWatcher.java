@@ -54,28 +54,16 @@ public class StatusWatcher extends Service {
         mIsHeartbeatLoopRunning = true;
         mHeartbeatThread.start();
 
-        // Get the GOM proxy helper and run watcher thread when GOM is
-        // available.
-        mGom = new GomProxyHelper(this, new BindingListener<GomProxyHelper>() {
+        bindToGom();
 
-            public void bound(GomProxyHelper helper) {
-                Logger.v(LOG_TAG, "GomProxy bound");
-                mGom = helper;
-
-                mStatusCollector = new StatusCollector(mGom, mDeviceConfiguration);
-                IntentFilter fltScreenOn = new IntentFilter(Intent.ACTION_SCREEN_ON);
-                IntentFilter fltScreenOff = new IntentFilter(Intent.ACTION_SCREEN_OFF);
-                registerReceiver(mStatusCollector, fltScreenOn);
-                registerReceiver(mStatusCollector, fltScreenOff);
-            }
-
-            public void unbound(GomProxyHelper helper) {
-                Logger.v(LOG_TAG, "GomProxy unbound");
-                unregisterReceiver(mStatusCollector);
-                mStatusCollector = null;
-                mGom = null;
-            }
-        });
+        /*
+         * mStatusCollector = new StatusCollector(mGom, mDeviceConfiguration);
+         * IntentFilter fltScreenOn = new IntentFilter(Intent.ACTION_SCREEN_ON);
+         * IntentFilter fltScreenOff = new
+         * IntentFilter(Intent.ACTION_SCREEN_OFF);
+         * registerReceiver(mStatusCollector, fltScreenOn);
+         * registerReceiver(mStatusCollector, fltScreenOff);
+         */
     }
 
     @Override
@@ -122,7 +110,7 @@ public class StatusWatcher extends Service {
 
                     // this will take some time so we do not need a
                     // "Thread.sleep()"
-                    // pingStatistic = getPingStatistics();
+                    pingStatistic = getPingStatistics();
 
                     timestamp = (new SimpleDateFormat("MM/dd/yyyy HH:mm:ss")).format(new Date());
 
@@ -218,14 +206,23 @@ public class StatusWatcher extends Service {
     }
 
     void bindToGom() {
-        if (mGom != null) {
-            mGom.bind();
-        }
+
+        new GomProxyHelper(this, new BindingListener<GomProxyHelper>() {
+
+            public void bound(GomProxyHelper phelper) {
+                Logger.v(LOG_TAG, "GomProxy bound");
+                mGom = phelper;
+            }
+
+            public void unbound(GomProxyHelper helper) {
+                Logger.v(LOG_TAG, "GomProxy unbound");
+                mStatusCollector = null;
+                mGom = null;
+            }
+        });
     }
 
     void unbindFromGom() {
-        if (mGom != null) {
-            mGom.unbind();
-        }
+        mGom.unbind();
     }
 }
