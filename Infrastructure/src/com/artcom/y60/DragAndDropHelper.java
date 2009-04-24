@@ -49,20 +49,28 @@ public class DragAndDropHelper implements OnTouchListener {
     
     private DragAndDropListener mDragListener;
     
+    private View mDefaultThumbnail;
+    
     // Static Methods ----------------------------------------------------
     
     /**
      * Makes the given draggable by longpressing it.
      */
-    public static DragAndDropHelper enableDragAndDrop(View pView, AbsoluteLayout pLayout, Activity pActivity){
+    public static DragAndDropHelper enableDragAndDrop(View pView, AbsoluteLayout pLayout, Activity pActivity, View pDefaultThumbnail){
         
-        DragAndDropHelper helper = new DragAndDropHelper(pView, pLayout, pActivity);
+        DragAndDropHelper helper = new DragAndDropHelper(pView, pLayout, pActivity, pDefaultThumbnail);
         return helper;
     }
     
+    public static DragAndDropHelper enableDragAndDrop(View pView, AbsoluteLayout pLayout, Activity pActivity){
+        
+        return enableDragAndDrop(pView, pLayout, pActivity, null);
+    }
+    
+    
     // Constructors ------------------------------------------------------
 
-    public DragAndDropHelper(View pView, AbsoluteLayout pLayout, Activity pActivity){
+    public DragAndDropHelper(View pView, AbsoluteLayout pLayout, Activity pActivity, View pDefaultThumbnail){
         
         mLayout = pLayout;
         mLayout.setOnTouchListener(this);
@@ -72,6 +80,8 @@ public class DragAndDropHelper implements OnTouchListener {
         mSourceView.setOnTouchListener(this);
         mSourceView.setLongClickable(true);
         
+        mDefaultThumbnail = pDefaultThumbnail;
+                
         mActivity = pActivity;
         mGest = new GestureDetector(new ShareGestureListener());
     }
@@ -178,14 +188,22 @@ public class DragAndDropHelper implements OnTouchListener {
         public void onLongPress(MotionEvent pE) {
             
             Logger.v(LOG_TAG, "LOOOOOOOOOOOOOOOOOOOOOOOONG PRESS");
+
             
             if (mThumbView == null) {
+                mThumbView = mDefaultThumbnail;
                 
-                mThumbView = GraphicsHelper.scaleView(mSourceView, SCALE_FACTOR, mActivity);
+                //if default View IS null
+                if (mThumbView == null) {
+                    
+                    mThumbView = GraphicsHelper.scaleView(mSourceView, SCALE_FACTOR, mActivity);
+                }
                 mThumbView.setVisibility(View.INVISIBLE);
                 mThumbView.setOnTouchListener(DragAndDropHelper.this);
                 mLayout.addView(mThumbView);
             }
+            
+            Logger.v(LOG_TAG, "thumb: ", mThumbView.toString());
             
             int x = (int)pE.getX();//-mDrawable.getMinimumWidth()/2;
             int y = (int)pE.getY()-10;//-mDrawable.getMinimumHeight()*2;
