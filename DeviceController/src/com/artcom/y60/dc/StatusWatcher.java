@@ -39,8 +39,9 @@ public class StatusWatcher extends Service {
     private boolean mIsHeartbeatLoopRunning;
     private StatusCollector mStatusCollector;
     private HeartbeatLoop mHeartbeatLoop;
-    protected Thread mHeartbeatThread;
+    private Thread mHeartbeatThread;
     private DeviceConfiguration mDeviceConfiguration;
+    private boolean mIsGomAvailable = false;
 
     @Override
     public void onCreate() {
@@ -65,9 +66,7 @@ public class StatusWatcher extends Service {
                 IntentFilter fltScreenOn = new IntentFilter(Intent.ACTION_SCREEN_ON);
                 IntentFilter fltScreenOff = new IntentFilter(Intent.ACTION_SCREEN_OFF);
                 registerReceiver(mStatusCollector, fltScreenOn);
-                registerReceiver(mStatusCollector, fltScreenOff);
-                
-                
+                registerReceiver(mStatusCollector, fltScreenOff);  
             }
 
             public void unbound(GomProxyHelper helper) {
@@ -90,9 +89,7 @@ public class StatusWatcher extends Service {
             unregisterReceiver(mStatusCollector);
         }
         mIsHeartbeatLoopRunning = false;
-        if (mGom != null) {
-            mGom.unbind();
-        }
+        unbindFromGom();
         super.onDestroy();
     }
 
@@ -124,11 +121,9 @@ public class StatusWatcher extends Service {
                 try {
 
                     // this will take some time so we do not need a "Thread.sleep()"
-                    pingStatistic = getPingStatistics();
+//                    pingStatistic = getPingStatistics();
 
                     timestamp = (new SimpleDateFormat("MM/dd/yyyy HH:mm:ss")).format(new Date());
-
-                    mNotificationManager.cancel(GOM_NOT_ACCESSIBLE_NOTIFICATION_ID);
 
                     GomNode device = mGom.getNode(mDeviceConfiguration.getDevicePath());
                     device.getOrCreateAttribute("last_alive_update").putValue(timestamp);
@@ -139,10 +134,15 @@ public class StatusWatcher extends Service {
                     historyAttribute.putValue(historyAttribute.getValue() + historyLog + "\n"
                             + timestamp + ": " + pingStatistic);
                     historyLog = "";
+
+                    mNotificationManager.cancel(GOM_NOT_ACCESSIBLE_NOTIFICATION_ID);
+                    Logger.v(LOG_TAG, "gom available");
+                    mIsGomAvailable = true;
                 } catch (NoSuchElementException e) {
                     ErrorHandling.signalMissingGomEntryError(LOG_TAG, e, StatusWatcher.this);
                     continue;
                 } catch (RuntimeException e) {
+                    Logger.v(LOG_TAG, "no network");
                     // TODO this is rather ugly and will remain so until the
                     // refactoring of the
                     // scattered RuntimeExceptions throughout is complete.
@@ -159,6 +159,8 @@ public class StatusWatcher extends Service {
                             "network might be down", pint);
                     mNotificationManager.notify(GOM_NOT_ACCESSIBLE_NOTIFICATION_ID, notification);
 
+                    mIsGomAvailable = false;
+                    
                     historyLog += "\n" + timestamp + ": network failure";
                     historyLog += "\n" + timestamp + ": " + pingStatistic;
                     continue;
@@ -203,4 +205,26 @@ public class StatusWatcher extends Service {
         }
 
     };
+    
+    // The following methods were created to facilitate testing
+    
+    Thread getWatcherThread() {
+        return mHeartbeatThread;
+    }
+    
+    boolean isGomAvailable() {
+        return mIsGomAvailable;
+    }
+    
+    void bindToGom() {
+        if (mGom != null) {
+            mGom.bind();
+        }
+    }
+    
+    void unbindFromGom() {
+        if (mGom != null) {
+            mGom.unbind();
+        }
+    }
 }

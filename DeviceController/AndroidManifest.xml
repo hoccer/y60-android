@@ -57,4 +57,5 @@
       android:targetPackage="com.artcom.y60.dc" 
       android:label="DeviceController">
     </instrumentation>
+<uses-permission android:name="android.permission.CHANGE_NETWORK_STATE"></uses-permission>
 </manifest> 

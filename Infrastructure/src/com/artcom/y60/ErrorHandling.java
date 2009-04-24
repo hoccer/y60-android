@@ -6,7 +6,7 @@ import android.content.Intent;
 
 public class ErrorHandling {
 
-    enum Category {
+    public enum Category {
 
         // system or software errors
         FILE_NOT_FOUND,
