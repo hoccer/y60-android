@@ -11,6 +11,8 @@ import java.util.List;
 
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Bundle;
+import android.test.AssertionFailedError;
 import android.test.ServiceTestCase;
 
 import com.artcom.y60.DeviceConfiguration;
@@ -93,17 +95,17 @@ public class StatusWatcherTestCase extends ServiceTestCase<StatusWatcher> {
     // to know if the behaviour on
     // network disappearance is what we expect it to be.
     public void testCutNetworkConnection() throws IOException, InterruptedException {
-        
+
         // TODO fix me! Kokosnuesse!
-        
+
         startService(mIntent);
 
         Runtime runtime = Runtime.getRuntime();
-        // String cmd = "ifconfig eth0 down && sleep 2 && dhcpcd eth0";
-        String cmd = "/data/su -c \"/data/netupdown.sh\"";
+        String cmd = "ifconfig eth0 down && sleep 2 && dhcpcd eth0";
+        // String cmd = "/data/su -c \"/data/netupdown.sh\"";
         Process process = runtime.exec(cmd);
 
-        assertEquals(1, process.waitFor());
+        assertEquals(255, process.waitFor());
         InputStreamReader reader = new InputStreamReader(process.getInputStream());
         BufferedReader bufferedReader = new BufferedReader(reader);
 
@@ -113,26 +115,30 @@ public class StatusWatcherTestCase extends ServiceTestCase<StatusWatcher> {
             lines += currentLine;
         }
         Logger.v(LOG_TAG, lines);
-        // assertEquals("keks", lines);
+        assertEquals("", lines);
     }
 
     // Verifies that the "GOM unavailable" notification (symbolized by a
     // "West Wind"
     // icon) is correctly displayed/cleared.
-    public void testWestWind() throws InterruptedException {
+    public void testGomUnavailableNotification() throws InterruptedException {
         startService(mIntent);
-        sleepNonblocking(2 * 1000);
 
-        Logger.v("westwind", "a");
-        assertFalse(
-                "Expected the StatusWatcher to see the GOM right after starting up, but it doesn't.",
-                getService().isGomAvailable());
-        Logger.v("westwind", "now unbinding gom");
+        // wait some time to let the service load the data
+        long requestStartTime = System.currentTimeMillis();
+        while (!getService().isGomAvailable()) {
+            if (System.currentTimeMillis() > requestStartTime + 5 * 1000) {
+                throw new AssertionFailedError(
+                        "Expected the StatusWatcher to see the GOM right after starting up, but it doesn't.");
+            }
+            Thread.sleep(10);
+        }
+
         getService().unbindFromGom();
-        sleepNonblocking(2 * 1000);
+        // sleepNonblocking(2 * 1000);
         Logger.v("westwind", "gom unbound (maybe)> ", getService().isGomAvailable());
         getService().bindToGom();
-        sleepNonblocking(2 * 1000);
+        // sleepNonblocking(2 * 1000);
         // assertTrue(
         // "Forced StatusWatcher to unbind from GOM, but StatusWatcher reports that it can still see the GOM",
         // getService().isWestwindBlowing());

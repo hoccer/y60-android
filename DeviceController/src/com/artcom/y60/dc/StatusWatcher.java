@@ -66,7 +66,7 @@ public class StatusWatcher extends Service {
                 IntentFilter fltScreenOn = new IntentFilter(Intent.ACTION_SCREEN_ON);
                 IntentFilter fltScreenOff = new IntentFilter(Intent.ACTION_SCREEN_OFF);
                 registerReceiver(mStatusCollector, fltScreenOn);
-                registerReceiver(mStatusCollector, fltScreenOff);  
+                registerReceiver(mStatusCollector, fltScreenOff);
             }
 
             public void unbound(GomProxyHelper helper) {
@@ -115,13 +115,14 @@ public class StatusWatcher extends Service {
                     "Y60's GOM not accessible.", System.currentTimeMillis());
 
             String historyLog = "";
-            String timestamp  = "";
+            String timestamp = "";
             String pingStatistic = "";
             while (mIsHeartbeatLoopRunning) {
                 try {
 
-                    // this will take some time so we do not need a "Thread.sleep()"
-//                    pingStatistic = getPingStatistics();
+                    // this will take some time so we do not need a
+                    // "Thread.sleep()"
+                    // pingStatistic = getPingStatistics();
 
                     timestamp = (new SimpleDateFormat("MM/dd/yyyy HH:mm:ss")).format(new Date());
 
@@ -136,8 +137,8 @@ public class StatusWatcher extends Service {
                     historyLog = "";
 
                     mNotificationManager.cancel(GOM_NOT_ACCESSIBLE_NOTIFICATION_ID);
-                    Logger.v(LOG_TAG, "gom available");
                     mIsGomAvailable = true;
+                    Logger.v(LOG_TAG, "gom available");
                 } catch (NoSuchElementException e) {
                     ErrorHandling.signalMissingGomEntryError(LOG_TAG, e, StatusWatcher.this);
                     continue;
@@ -160,7 +161,7 @@ public class StatusWatcher extends Service {
                     mNotificationManager.notify(GOM_NOT_ACCESSIBLE_NOTIFICATION_ID, notification);
 
                     mIsGomAvailable = false;
-                    
+
                     historyLog += "\n" + timestamp + ": network failure";
                     historyLog += "\n" + timestamp + ": " + pingStatistic;
                     continue;
@@ -205,23 +206,23 @@ public class StatusWatcher extends Service {
         }
 
     };
-    
+
     // The following methods were created to facilitate testing
-    
+
     Thread getWatcherThread() {
         return mHeartbeatThread;
     }
-    
+
     boolean isGomAvailable() {
         return mIsGomAvailable;
     }
-    
+
     void bindToGom() {
         if (mGom != null) {
             mGom.bind();
         }
     }
-    
+
     void unbindFromGom() {
         if (mGom != null) {
             mGom.unbind();

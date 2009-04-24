@@ -74,7 +74,6 @@ public class HttpProxyServiceTest extends ServiceTestCase<HttpProxyService> {
         HttpProxyService service = getService();
         long requestStartTime = System.currentTimeMillis();
         String resourceUri = "http://www.artcom.de/images/stories/2_pro_bmwmuseum_kinetik/bmwmuseum_kinetik_d.pdf";
-        HTTPHelper.fetchUriToFile(resourceUri, "/sdcard/testGettingBigData.pdf");
         Bundle resourceDescription = null;
         while (resourceDescription == null) {
             resourceDescription = service.get(resourceUri);
