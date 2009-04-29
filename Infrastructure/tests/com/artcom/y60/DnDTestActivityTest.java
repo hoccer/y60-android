@@ -20,10 +20,10 @@ public class DnDTestActivityTest extends Y60ActivityInstrumentationTest<DnDTestA
         DnDTestActivity act = getActivity();
         DragAndDropHelper dnd = act.getDragAndDropHelper();
         
-        dnd.setDragAndDropListener(new DragAndDropListener(){
+        dnd.addDragListener(new DragListener(){
 
             @Override
-            public void onDragged(View pOrigin, View pDraggedView, int pX, int pY) {
+            public void onDragged(View pOrigin, View pDraggedView, AbsoluteLayout pAbsoluteLayout, int pX, int pY) {
 
                 Logger.v(tag(), "onDragged ", pX, pY);
             }
@@ -58,10 +58,10 @@ public class DnDTestActivityTest extends Y60ActivityInstrumentationTest<DnDTestA
         DnDTestActivity testActivity = getActivity();
         DragAndDropHelper dnd= testActivity.getDragAndDropHelper();
         
-        dnd.setDragAndDropListener(new DragAndDropListener(){
+        dnd.addDragListener(new DragListener(){
 
             @Override
-            public void onDragged(View pOrigin, View pDraggedView, int pX, int pY) {
+            public void onDragged(View pOrigin, View pDraggedView, AbsoluteLayout pAbsoluteLayout, int pX, int pY) {
                 // TODO Auto-generated method stub
                 
             }
@@ -84,10 +84,10 @@ public class DnDTestActivityTest extends Y60ActivityInstrumentationTest<DnDTestA
         
         
         TouchUtils.longClickView(this, getActivity().getDragResource());        
-        
-        
-        
     }
     
+    public void testExistenceOfDragTarget(){
+        
+    }
 
 }
