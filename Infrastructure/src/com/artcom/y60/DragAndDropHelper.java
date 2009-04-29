@@ -82,11 +82,11 @@ public class DragAndDropHelper implements OnTouchListener {
     public DragAndDropHelper(View pView, AbsoluteLayout pLayout, Activity pActivity, View pDefaultThumbnail){
         
         mLayout = pLayout;
-        mLayout.setOnTouchListener(this); //override old listener
+        mLayout.setOnTouchListener(this); //override old listener, we take responsibility
         mLayout.setLongClickable(true);
         
         mSourceView = pView;
-        mSourceView.setOnTouchListener(this); //override old listener
+        mSourceView.setOnTouchListener(this); //override old listener, we take responsibility
         mSourceView.setLongClickable(true);
         
         mDefaultThumbnail = pDefaultThumbnail;
@@ -103,9 +103,17 @@ public class DragAndDropHelper implements OnTouchListener {
     
     // Public Instance Methods -------------------------------------------
 
+    /**
+     * We take complete responsibility for handling incoming touch events.
+     * Since the return value is always true, the touch events are not delegated to a higher level view.
+     * Return true ensures that the next touch event is always processed by a first-level pTouchedView  
+     * The DragAndDropHelper cares for dragging and long press 
+     */
     @Override
     public boolean onTouch(View pTouchedView, MotionEvent pEvent) {
     
+        Logger.d(LOG_TAG, "\nnext onTouch ", pTouchedView, " ", pEvent.getAction());
+        
         //mThumbView != null && mThumbView.getVisibility() == View.VISIBLE
         if (isCurrentlyDragging()) {
          
@@ -122,20 +130,21 @@ public class DragAndDropHelper implements OnTouchListener {
         //
         if (pTouchedView == mSourceView || isCurrentlyDragging()) {
             if (mGest.onTouchEvent(pEvent)) {
+                Logger.d(LOG_TAG, "DnD gesture: true");
                 return true;
+            }else{
+                Logger.d(LOG_TAG, "DnD gesture: false");
             }
+            
         }
         
         if (mDelegateTouchListener != null) {
             
-            //Logger.d(LOG_TAG, "delegate touch event to pic gallery lsner");
-            return mDelegateTouchListener.onTouch(pTouchedView, pEvent);
-            
-        } else {
-            
-            return false;
-            
+            mDelegateTouchListener.onTouch(pTouchedView, pEvent);
+            Logger.d(LOG_TAG, "delegate touch event to mDelegateTouchListener");
         }
+            return true;
+            
     }
     
     public void setDelegateOnTouchListener(OnTouchListener pListener) {
@@ -243,8 +252,6 @@ public class DragAndDropHelper implements OnTouchListener {
                 mLayout.addView(mThumbView);
             }
             
-            Logger.v(LOG_TAG, "thumb: ", mThumbView.toString());
-            
             int x = (int)pE.getX();//-mDrawable.getMinimumWidth()/2;
             int y = (int)pE.getY()-10;//-mDrawable.getMinimumHeight()*2;
             
@@ -277,7 +284,7 @@ public class DragAndDropHelper implements OnTouchListener {
         public boolean onDown(MotionEvent pE) { return false; }
         
         public boolean onFling(MotionEvent pE1, MotionEvent pE2, float pVelocityX, float pVelocityY) { 
-            Logger.d(LOG_TAG, "dnd gesture detects fling"); 
+            Logger.d(LOG_TAG, "dnd ShareGestureListener detects fling, event is delegated"); 
             return false; 
         }
         
