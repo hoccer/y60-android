@@ -88,7 +88,7 @@ public class DragAndDropHelper implements OnTouchListener {
     
     // Public Instance Methods -------------------------------------------
 
-    @Override
+//    @Override
     public boolean onTouch(View pTouchedView, MotionEvent pEvent) {
     
         Logger.d(LOG_TAG, "onTouch ", pTouchedView, " ", pEvent.getAction());
@@ -184,7 +184,7 @@ public class DragAndDropHelper implements OnTouchListener {
     
     class ShareGestureListener implements OnGestureListener {
 
-        @Override
+//        @Override
         public void onLongPress(MotionEvent pE) {
             
             Logger.v(LOG_TAG, "LOOOOOOOOOOOOOOOOOOOOOOOONG PRESS");
