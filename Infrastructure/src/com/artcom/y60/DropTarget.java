@@ -15,15 +15,26 @@ public class DropTarget {
     private static final int PADDING_Y = 100;
     private static final long DROPPING_VIBRATION = 100;
     private static final String LOG_TAG = "DropTarget";
+    private static final long ON_TARGET_VIBRATION = 50;
     ImageView mImageView;
     DropListener mDropListener;
     String mName;
+    Activity mActivity;
+    
+    boolean mIsInFocus;
+    
+    public static DropTarget createTargetTv(){
+        
+        return null;
+    }
 
-    public DropTarget(ImageView pImageView, DropListener pDropListener, String pName) {
+    public DropTarget(ImageView pImageView, DropListener pDropListener, Activity pActivity, String pName) {
         super();
         mImageView = pImageView;
         mDropListener = pDropListener;
         mName= pName;
+        mIsInFocus = false;
+        mActivity= pActivity;
     }
 
     public ImageView getImageView(){
@@ -59,6 +70,12 @@ public class DropTarget {
 
     public void focus() {
 
+        if(!mIsInFocus){
+            mIsInFocus = true;
+            Vibrator vibrator = (Vibrator)mActivity.getSystemService(Context.VIBRATOR_SERVICE);
+            vibrator.vibrate(ON_TARGET_VIBRATION);
+        }
+        
        // mImageView.setBackgroundResource(R.drawable.red80);
 //        Drawable d= mImageView.getDrawable();
 //        if(d != null){
@@ -69,8 +86,21 @@ public class DropTarget {
 
     public void unfocus() {
         
-        mImageView.setColorFilter(null);
+        if(mIsInFocus){
+            mIsInFocus = false;
+            Vibrator vibrator = (Vibrator)mActivity.getSystemService(Context.VIBRATOR_SERVICE);
+            vibrator.vibrate(ON_TARGET_VIBRATION);
+        }
 
+    }
+
+    public void handleDragging(View pDraggedView) {
+       
+        if(isOnFocus(pDraggedView)){               
+            focus();
+        }else{
+            unfocus();
+        }        
     }
 
 }

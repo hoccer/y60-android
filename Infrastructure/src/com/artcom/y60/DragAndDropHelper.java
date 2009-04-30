@@ -127,7 +127,8 @@ public class DragAndDropHelper implements OnTouchListener {
             }
         }
         
-        //
+        //check for long press, return true if detected
+        //better: register for long press... always returns false
         if (pTouchedView == mSourceView || isCurrentlyDragging()) {
             if (mGest.onTouchEvent(pEvent)) {
                 Logger.d(LOG_TAG, "DnD gesture: true");

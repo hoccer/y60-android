@@ -13,8 +13,6 @@ import android.widget.LinearLayout;
 
 public class DropTargetCollection implements DragListener{
 
-    private static final int PADDING_X = 15; 
-    private static final int PADDING_Y = 100;
     private static final String LOG_TAG = "DropTargetCollection";
     List<DropTarget> mDropTargetList;
     AbsoluteLayout mAbsoluteLayout;
@@ -82,14 +80,7 @@ public class DropTargetCollection implements DragListener{
 
         while (it.hasNext()) {
             dropTarget= it.next();
-
-            if(dropTarget.isOnFocus(pDraggedView)){
-                
-                dropTarget.focus();
-            }else{
-                dropTarget.unfocus();
-            }
-
+            dropTarget.handleDragging(pDraggedView);
         }
     }
 
