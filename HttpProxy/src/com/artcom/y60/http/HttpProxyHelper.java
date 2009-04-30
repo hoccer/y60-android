@@ -3,12 +3,11 @@ package com.artcom.y60.http;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.nio.MappedByteBuffer;
-import java.nio.channels.FileChannel;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -122,6 +121,19 @@ public class HttpProxyHelper {
         }
     }
 
+    public byte[] get(Uri pUri) {
+        
+        try {
+            
+            return get(new URI(pUri.toString()));
+            
+        } catch (URISyntaxException usx) {
+            
+            Logger.e(LOG_TAG, "uri is not wellformed:", usx);
+            throw new RuntimeException("uri is not wellformed:" + usx);
+        }
+    }
+    
     public byte[] get(URI pUri) {
 
         String uri = pUri.toString();
@@ -197,6 +209,24 @@ public class HttpProxyHelper {
 
             Logger.e(logTag(), "fetchFromCache(", pUri, ") failed", rex);
             throw new RuntimeException(rex);
+        }
+    }
+    
+    public void fetchFromCacheToFile(Uri pUri, File pTargetFile) throws IOException {
+        
+        try {
+            URI              uri     = new URI(pUri.toString());
+            byte[]           content = fetchFromCache(uri);
+            FileOutputStream out     = new FileOutputStream(pTargetFile);
+            for (byte b: content) {
+                
+                out.write(b);
+            }
+            
+        } catch (URISyntaxException usx) {
+            
+            Logger.e(LOG_TAG, "uri is not wellformed:", usx);
+            throw new RuntimeException("uri is not wellformed:" + usx);
         }
     }
 
