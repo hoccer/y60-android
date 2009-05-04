@@ -111,8 +111,25 @@ public class WorkSpace {
         win.setBackgroundDrawableResource( R.drawable.bg );
 	}
 	
-	private synchronized void refresh() {
-	    m_Layout.removeAllViews();
+	public void clear() {
+	    
+        m_View.removeAllViews();
+        m_Layout.removeAllViews();
+	}
+	
+	protected void setContent(View pContent) {
+	    mContent = pContent;
+	}
+	
+	protected synchronized void refresh() {
+	    
+	    clear();
+	    m_View.addView(mContent);
 	    m_Layout.addView( m_View );
+	}
+	
+	protected Activity getActivity() {
+	    
+	    return m_Activity;
 	}
 }
