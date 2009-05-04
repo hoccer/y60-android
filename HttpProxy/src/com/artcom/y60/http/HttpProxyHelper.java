@@ -7,8 +7,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.nio.MappedByteBuffer;
-import java.nio.channels.FileChannel;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -122,6 +120,19 @@ public class HttpProxyHelper {
         }
     }
 
+    public byte[] get(Uri pUri) {
+        
+        try {
+            
+            return get(new URI(pUri.toString()));
+            
+        } catch (URISyntaxException usx) {
+            
+            Logger.e(LOG_TAG, "uri is not wellformed:", usx);
+            throw new RuntimeException("uri is not wellformed:" + usx);
+        }
+    }
+    
     public byte[] get(URI pUri) {
 
         String uri = pUri.toString();
@@ -184,6 +195,18 @@ public class HttpProxyHelper {
 
         return new String(bytes);
     }
+    
+    public boolean isInCache(Uri pUri) {
+        
+        try {
+            return mProxy.isInCache(pUri.toString());
+
+        } catch (RemoteException rex) {
+
+            Logger.e(logTag(), "isInCache(", pUri, ") failed", rex);
+            throw new RuntimeException(rex);
+        }
+    }
 
     public byte[] fetchFromCache(URI pUri) {
 
@@ -197,6 +220,27 @@ public class HttpProxyHelper {
 
             Logger.e(logTag(), "fetchFromCache(", pUri, ") failed", rex);
             throw new RuntimeException(rex);
+        }
+    }
+    
+    public File fetchFromCacheAsFile(Uri pUri) throws IOException {
+        
+        try {
+            Bundle bundle = mProxy.get(pUri.toString());
+            String resourcePath = bundle.getString(Cache.LOCAL_RESOURCE_PATH_TAG);
+            if (resourcePath == null) {
+                ErrorHandling.signalIllegalArgumentError(LOG_TAG, new IllegalArgumentException("Resource for URI "+pUri+" is not available as file!"), mContext);
+            }
+
+            return new File(resourcePath);
+            
+        } catch (RemoteException rx) {
+            
+            ErrorHandling.signalServiceError(LOG_TAG, rx, mContext);
+            
+            // this should never be reached:
+            Logger.e(LOG_TAG, "ErrorHandling didn't abort thread after error!");
+            throw new IllegalStateException("ErrorHandling didn't abort thread after error", rx);
         }
     }
 

@@ -7,6 +7,7 @@ import android.app.Service;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.os.RemoteException;
 
 import com.artcom.y60.DeviceConfiguration;
 import com.artcom.y60.Logger;
@@ -162,6 +163,11 @@ public class HttpProxyService extends Service {
         
         return CACHE.fetchFromCache(pUri);
     }
+    
+    public boolean isInCache(String pUri) {
+        
+        return CACHE.isInCache(pUri);
+    }
        
     
     
@@ -178,14 +184,22 @@ public class HttpProxyService extends Service {
 
     class HttpProxyRemote extends IHttpProxyService.Stub {
         
+        @Override
         public Bundle get(String pUri) {
             
             return HttpProxyService.this.get(pUri);
         }
         
+        @Override
         public Bundle fetchFromCache(String pUri) {
             
             return HttpProxyService.this.fetchFromCache(pUri);
+        }
+
+        @Override
+        public boolean isInCache(String pUri) throws RemoteException {
+            
+            return HttpProxyService.this.isInCache(pUri);
         }
     }
 

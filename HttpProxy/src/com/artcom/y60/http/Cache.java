@@ -19,6 +19,7 @@ public class Cache {
     public static final String LOCAL_RESOURCE_PATH_TAG = "localResourcePath";
     public static final String SIZE_TAG = "resourceSize";
     public static final String BYTE_ARRY_TAG = "resourceByteArray";
+    public static final int MAX_IN_MEMORY_SIZE = 100000;
 
     // Instance Variables ------------------------------------------------
 
@@ -70,6 +71,15 @@ public class Cache {
         synchronized (mCachedContent) {
 
             return mCachedContent.get(pUri);
+        }
+    }
+    
+    public boolean isInCache(String pUri) {
+        
+        Logger.v(LOG_TAG, "isInCache(", pUri, ")");
+        synchronized (mCachedContent) {
+
+            return mCachedContent.containsKey(pUri);
         }
     }
 
@@ -131,7 +141,7 @@ public class Cache {
                 Bundle newContent = new Bundle(2);
                 newContent.putLong(SIZE_TAG, size);
 
-                if (size > 800000) {
+                if (size > MAX_IN_MEMORY_SIZE) {
                     HTTPHelper.fetchUriToFile(pUri, localResourcePath);
                     newContent.putString(LOCAL_RESOURCE_PATH_TAG, localResourcePath);
                 } else {
