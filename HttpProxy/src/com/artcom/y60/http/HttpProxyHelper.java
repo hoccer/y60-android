@@ -3,7 +3,6 @@ package com.artcom.y60.http;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
@@ -196,6 +195,18 @@ public class HttpProxyHelper {
 
         return new String(bytes);
     }
+    
+    public boolean isInCache(Uri pUri) {
+        
+        try {
+            return mProxy.isInCache(pUri.toString());
+
+        } catch (RemoteException rex) {
+
+            Logger.e(logTag(), "isInCache(", pUri, ") failed", rex);
+            throw new RuntimeException(rex);
+        }
+    }
 
     public byte[] fetchFromCache(URI pUri) {
 
@@ -212,21 +223,24 @@ public class HttpProxyHelper {
         }
     }
     
-    public void fetchFromCacheToFile(Uri pUri, File pTargetFile) throws IOException {
+    public File fetchFromCacheAsFile(Uri pUri) throws IOException {
         
         try {
-            URI              uri     = new URI(pUri.toString());
-            byte[]           content = fetchFromCache(uri);
-            FileOutputStream out     = new FileOutputStream(pTargetFile);
-            for (byte b: content) {
-                
-                out.write(b);
+            Bundle bundle = mProxy.get(pUri.toString());
+            String resourcePath = bundle.getString(Cache.LOCAL_RESOURCE_PATH_TAG);
+            if (resourcePath == null) {
+                ErrorHandling.signalIllegalArgumentError(LOG_TAG, new IllegalArgumentException("Resource for URI "+pUri+" is not available as file!"), mContext);
             }
+
+            return new File(resourcePath);
             
-        } catch (URISyntaxException usx) {
+        } catch (RemoteException rx) {
             
-            Logger.e(LOG_TAG, "uri is not wellformed:", usx);
-            throw new RuntimeException("uri is not wellformed:" + usx);
+            ErrorHandling.signalServiceError(LOG_TAG, rx, mContext);
+            
+            // this should never be reached:
+            Logger.e(LOG_TAG, "ErrorHandling didn't abort thread after error!");
+            throw new IllegalStateException("ErrorHandling didn't abort thread after error", rx);
         }
     }
 
