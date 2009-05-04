@@ -100,8 +100,10 @@ public class Y60 extends Activity {
             fr.close();
 
             labelDeviceId = configuration.getString("device-path");
-            labelDeviceId = labelDeviceId.replaceFirst("devices/mobile/", "");
-
+            //labelDeviceId = labelDeviceId.replaceFirst("devices/mobile/", "");
+            int idx = labelDeviceId.lastIndexOf("/");
+            labelDeviceId = labelDeviceId.substring(idx + 1, labelDeviceId.length());
+            
         } catch (FileNotFoundException e) {
             Logger.e(LOG_TAG, "Could not find configuration file ", configFile);
             throw new RuntimeException(e);
