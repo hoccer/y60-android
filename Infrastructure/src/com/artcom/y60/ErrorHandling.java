@@ -30,12 +30,15 @@ public class ErrorHandling {
         UNSPECIFIED,
     }
 
+    private static final String LOG_TAG = "ErrorHandling";
+    
     public static final String ID_ERROR = "error";
     public static final String ID_LOGTAG = "logtag";
     public static final String ID_CATEGORY = "category";
 
     public static void signalError(String logTag, Throwable error, Context context,
             Category category) {
+        Logger.e(LOG_TAG, "signaling error: ", error);
         Intent intent = new Intent("y60.intent.ERROR_PRESENTATION");
         intent.putExtra(ID_ERROR, error);
         intent.putExtra(ID_LOGTAG, logTag);
