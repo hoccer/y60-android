@@ -3,9 +3,13 @@ package com.artcom.y60;
 import android.app.Activity;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
-import android.view.View.OnTouchListener;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.AbsoluteLayout;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.LinearLayout.LayoutParams;
+
 
 public class DnDTestActivity extends Activity {
 
@@ -19,15 +23,37 @@ public class DnDTestActivity extends Activity {
     
     private DragAndDropHelper mDragonDropper;
 
+    private boolean mIsDroppedOnTarget = false;
+
     public void onCreate(Bundle savedInstanceState) {
         
         super.onCreate(savedInstanceState);
+        
+        Window win = getWindow();
+        win.setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                WindowManager.LayoutParams.FLAG_FULLSCREEN);
         
         setContentView(R.layout.dnd_test_layout);
         mLayout = (AbsoluteLayout)findViewById(R.id.share_outer_layout); 
         
         mResourceScreenshot = (ImageView)findViewById(R.id.mock_resource_view);
         mDragonDropper = DragAndDropHelper.enableDragAndDrop(mResourceScreenshot, mLayout, this);
+        
+        ImageView sendToImage = new ImageView(this);
+        sendToImage.setBackgroundResource(R.drawable.red80);
+        sendToImage.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT));
+        DropTarget sentToTarget= new DropTarget(sendToImage, new DropListener(){
+
+            @Override
+            public void onDropped() {
+                
+                mIsDroppedOnTarget = true;
+                
+            }
+            
+        }, this, "CONTACTS");
+        mDragonDropper.addDropTarget(sentToTarget);
+        
     }
     
     public ImageView getDragResource(){
@@ -40,4 +66,15 @@ public class DnDTestActivity extends Activity {
         
         return mDragonDropper;
     }
+    
+    public boolean isDroppedOnTarget() {
+        
+        return mIsDroppedOnTarget;
+    }
+    
+    public AbsoluteLayout getAbsoluteLayout(){
+        
+        return mLayout;
+    }
+    
 }

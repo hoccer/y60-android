@@ -128,6 +128,63 @@ public abstract class Y60ActivityInstrumentationTest<T extends Activity> extends
     }
     
     
+    protected void touch(int pX, int pY) {
+        
+        sendMotionEventAndSync(MotionEvent.ACTION_DOWN, pX, pY);
+    }
+
+    
+    protected void release(int pX, int pY) {
+        
+        sendMotionEventAndSync(MotionEvent.ACTION_UP, pX, pY);
+    }
+    
+    
+    protected void move(int pToX, int pToY) {
+        
+        sendMotionEventAndSync(MotionEvent.ACTION_MOVE, pToX, pToY);
+    }
+    
+    protected void moveAndRelease(int pToX, int pToY){
+        
+        move(pToX, pToY);
+        release(pToX, pToY);
+        
+    }
+    
+    protected void touch(View pView) {
+        
+        int y = pView.getTop()  + pView.getHeight()/2;
+        int x = pView.getLeft() + pView.getWidth()/2;
+        
+        touch(x,y);
+    }
+
+    
+    protected void release(View pView) {
+        
+        int y = pView.getTop()  + pView.getHeight()/2;
+        int x = pView.getLeft() + pView.getWidth()/2;
+        
+        release(x,y);
+    }
+
+    
+    protected void sendMotionEventAndSync(int pAction, int pX, int pY) {
+        
+        long time  = SystemClock.uptimeMillis();
+        
+        MotionEvent eve = MotionEvent.obtain(
+                time, time,
+                pAction,
+                pX, pY, 1);
+
+        Instrumentation instrumentation = getInstrumentation();
+        instrumentation.sendPointerSync(eve);
+        instrumentation.waitForIdleSync();
+    }
+
+    
     /**
      * Convenience method for generating DOWN and UP events. See android.view.KeyEvent for key
      * codes.

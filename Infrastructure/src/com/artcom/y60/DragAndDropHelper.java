@@ -112,7 +112,7 @@ public class DragAndDropHelper implements OnTouchListener {
     @Override
     public boolean onTouch(View pTouchedView, MotionEvent pEvent) {
     
-        Logger.d(LOG_TAG, "\nnext onTouch ", pTouchedView, " ", pEvent.getAction());
+        Logger.d(LOG_TAG, "\nnext onTouch ", pTouchedView, " ", pEvent.getAction(), " ", pEvent.getX(), " ", pEvent.getY());
         
         //mThumbView != null && mThumbView.getVisibility() == View.VISIBLE
         if (isCurrentlyDragging()) {
@@ -216,10 +216,11 @@ public class DragAndDropHelper implements OnTouchListener {
     }
 
     
+    //return top left + vertical offsetted for positioning the view
     private LayoutParams positionForDragging(MotionEvent pEvent) {
         
-        int x = (int)pEvent.getX()-mThumbView.getWidth()/2;
-        int y = (int)pEvent.getY()-mThumbView.getHeight()/2-VERTICAL_OFFSET;
+        int x = (int)pEvent.getX() - mThumbView.getWidth()/2;
+        int y = (int)pEvent.getY() - mThumbView.getHeight()/2 - VERTICAL_OFFSET;
         
         return new LayoutParams(LayoutParams.WRAP_CONTENT,
                                 LayoutParams.WRAP_CONTENT,
@@ -285,7 +286,7 @@ public class DragAndDropHelper implements OnTouchListener {
         public boolean onDown(MotionEvent pE) { return false; }
         
         public boolean onFling(MotionEvent pE1, MotionEvent pE2, float pVelocityX, float pVelocityY) { 
-            Logger.d(LOG_TAG, "dnd ShareGestureListener detects fling, event is delegated"); 
+            Logger.d(LOG_TAG, "dnd ShareGestureListener detects fling, event is potentially delegated"); 
             return false; 
         }
         
@@ -297,9 +298,7 @@ public class DragAndDropHelper implements OnTouchListener {
     class ThumbnailAnimationListener implements Animation.AnimationListener {
         
         public void onAnimationEnd(Animation animation) {
-            
-            Logger.d(LOG_TAG, "animation end -----------------");
-            
+   
             mSourceView.setVisibility(View.INVISIBLE);
             mThumbView.setVisibility(View.VISIBLE);
             
@@ -319,10 +318,12 @@ public class DragAndDropHelper implements OnTouchListener {
                     it.next().onDraggingStarted(mSourceView);
                 }
             }
+            Logger.d(LOG_TAG, "animation end -----------------am Ende von onAnimationEnd()");            
         }
 
         public void onAnimationRepeat(Animation animation) {}
         public void onAnimationStart(Animation animation) {}
+        
     }
 
 }
