@@ -169,6 +169,8 @@ public class HTTPHelper {
         try {
             FileOutputStream fstream = new FileOutputStream(filename);
             entity.writeTo(fstream);
+            fstream.flush();
+            fstream.close();
         } catch (IllegalStateException e) {
             throw new RuntimeException("illegal state: " + e.getMessage());
         } catch (IOException e) {
