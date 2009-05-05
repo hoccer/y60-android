@@ -33,7 +33,6 @@ public abstract class Y60ActivityInstrumentationTest<T extends Activity> extends
     protected final static int SCREEN_HEIGHT = 480;
 
     
-
     // Constructors ------------------------------------------------------
 
     public Y60ActivityInstrumentationTest(String pkg, Class<T> activityClass,
@@ -64,7 +63,7 @@ public abstract class Y60ActivityInstrumentationTest<T extends Activity> extends
     public void tearDown() throws Exception {
         
         Log.v(tag(), " --- "+getName()+" -- tearDown ------------------------------------------------------------");
-        
+
         super.tearDown();
     }
     
