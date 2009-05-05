@@ -65,7 +65,7 @@ public class HttpProxyTest extends ActivityUnitTestCase<HttpProxyActivity> {
         helper.get(uri);
         
         long start = System.currentTimeMillis();
-        while (!listener.wasCalled() && System.currentTimeMillis()-start<2000) {
+        while (!listener.wasCalled() && System.currentTimeMillis()-start < 2000) {
             
             try {
                 Thread.sleep(50);

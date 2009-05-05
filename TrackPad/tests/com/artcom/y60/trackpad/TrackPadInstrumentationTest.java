@@ -40,6 +40,7 @@ public class TrackPadInstrumentationTest extends Y60ActivityInstrumentationTest<
     }
     
     
+    
     public void testTrackball() throws Exception {
         
         testTrackballMove(KeyEvent.KEYCODE_DPAD_UP,     0, -1);
@@ -62,6 +63,7 @@ public class TrackPadInstrumentationTest extends Y60ActivityInstrumentationTest<
     
     // Private Instance Methods ------------------------------------------
 
+    
     private void testTrackballMove(int pKeyCode, int pX, int pY) throws Exception {
         
         Logger.v(tag(), "testTrackballMove");
