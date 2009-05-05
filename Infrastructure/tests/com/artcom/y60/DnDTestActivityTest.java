@@ -1,11 +1,5 @@
 package com.artcom.y60;
 
-import java.lang.ref.WeakReference;
-
-import dalvik.system.PotentialDeadlockError;
-
-import android.test.TouchUtils;
-import android.view.Gravity;
 import android.view.View;
 import android.widget.AbsoluteLayout;
 import android.widget.LinearLayout;
