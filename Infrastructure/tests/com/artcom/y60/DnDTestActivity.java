@@ -3,6 +3,7 @@ package com.artcom.y60;
 import android.app.Activity;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
+import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.AbsoluteLayout;
@@ -36,8 +37,10 @@ public class DnDTestActivity extends Activity {
         setContentView(R.layout.dnd_test_layout);
         mLayout = (AbsoluteLayout)findViewById(R.id.share_outer_layout); 
         
+        ViewGroup contentHolderLayout = (LinearLayout)findViewById(R.id.share_inner_layout);
+        
         mResourceScreenshot = (ImageView)findViewById(R.id.mock_resource_view);
-        mDragonDropper = DragAndDropHelper.enableDragAndDrop(mResourceScreenshot, mLayout, this);
+        mDragonDropper = DragAndDropHelper.enableDragAndDrop(mResourceScreenshot, mLayout, contentHolderLayout, this);
         
         ImageView sendToImage = new ImageView(this);
         sendToImage.setBackgroundResource(R.drawable.red80);
