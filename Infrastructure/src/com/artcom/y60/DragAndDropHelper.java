@@ -169,7 +169,7 @@ public class DragAndDropHelper implements OnTouchListener {
         Logger.v(LOG_TAG, "number of drag listerners: ", mDragListenerList.size());
     }
 
-    public void addDropTarget(String pName, SlotLauncher pLauncher, SlotViewer pViewer){
+    public void addDropTarget(Slot pSlot){
         
         if (!mIsDropTargetEnabled) {
             
@@ -177,8 +177,10 @@ public class DragAndDropHelper implements OnTouchListener {
             mIsDropTargetEnabled= true;
         }
 
-        pViewer.view().setOnTouchListener(this);
-        mDropTargetCollection.addSlot(pName, pLauncher, pViewer);
+        pSlot.getViewer().view().setOnTouchListener(this);
+        mDropTargetCollection.addSlot(pSlot);
+//        pSlot.setHolder(mDropTargetCollection);
+        
         mDropTargetCollection.invalidate();
     }
     

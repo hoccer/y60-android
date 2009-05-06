@@ -56,7 +56,8 @@ public class SlotHolder  {
         
         return mContext;
     }
-
+    
+    
     public void activateSlots() {
         
         for (Slot slot: mSlots) {
@@ -74,10 +75,10 @@ public class SlotHolder  {
     }
     
     
-    public void addSlot(String pName, SlotLauncher pLauncher, SlotViewer pViewer) {
+    public void addSlot(Slot pSlot) {
         
-        Slot slot = new Slot(pName, pLauncher, pViewer, this);
-        mSlots.add(slot);
+        mSlots.add(pSlot);
+        pSlot.setHolder(this);
     }
 
     public List<Slot> getSlots() {
