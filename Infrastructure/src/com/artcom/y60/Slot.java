@@ -2,9 +2,38 @@ package com.artcom.y60;
 
 import android.content.Context;
 import android.view.View;
-import android.view.View.OnTouchListener;
 
 
+/**
+ * Represents a UI element the user can interact with in a simple fashion, such as
+ * 
+ * <ul>
+ * <li>application icons displayed on the home screen</li>
+ * <li>drop targets for sharing and shifting resources</li>
+ * </ul>
+ * 
+ * The purpose the slot API to provide decoupling between client (application) code which defines
+ * the interaction options for the user (e.g. to shift a video to TV) and code providing the needed
+ * functionality (e.g. send a play command to the TV). Additionally, the slot API allows both
+ * (client as well as provider) to abstract from details of UI primitives (clicking, tapping, etc.).
+ * Decoupling is achieved by using a {@link SlotHolder}, which acts as a bridge between both sides:
+ * a slot holder is initialized and passed to the client, which uses it to e.g. activate and
+ * deactivate it for interaction; slots use the holder to update (invalidate) the application view. 
+ * 
+ * From a provider perspective, a slot is basically made up of two objects:
+ * 
+ * <ul>
+ * <li>a {@link SlotLauncher} providing implementation for gaining/losing focusing and for
+ *     <i>launching</i> this slot, i.e. clicking it or drag-and-dropping something on it, such as
+ *     firing an Intent to launch an Activity or just making a simple API to somewhere.</li>
+ * <li>a {@link SlotViewer} providing implementation for viewing this slot, i.e. retrieving a
+ *     {@link android.view.View} on this slot</li>
+ * </ul>
+ * 
+ * @see SlotHolder, SlotLauncher, SlotViewer, StaticSlotViewer, StatusToggler
+ * @author arne
+ *
+ */
 public class Slot {
 
     // Constants ---------------------------------------------------------
@@ -19,18 +48,28 @@ public class Slot {
     
     // Instance Variables ------------------------------------------------
 
+    /** The holder this slot lies in */
     private SlotHolder mHolder;
     
+    /**
+     * Is used to launch whatever the slot is supposed to do, and to react to gaining/losing focus
+     */
     private SlotLauncher mLauncher;
     
+    /** Is used to render a view on this slot. */
     private SlotViewer mViewer;
 
+    /** This slot's name */
     private String mName;
 
     
     
     // Constructors ------------------------------------------------------
 
+    /**
+     * Creates a new slot using the given holder and propagates the holder to the given launcher
+     * and viewer.
+     */
     public Slot(String pName, SlotLauncher pLauncher, SlotViewer pView, SlotHolder pHolder) {
         
         mName = pName;
@@ -80,23 +119,27 @@ public class Slot {
     }
     
     
-    public void activate(OnTouchListener pTouchListener) {
+    /**
+     * Activates this slot for interaction, i.e. launch is executed when the view is clicked.
+     */
+    public void activate() {
         
         Logger.d(LOG_TAG, "activating slot with launcher ", mLauncher, " and viewer ", mViewer);
         
         View view = mViewer.view();
         view.setOnClickListener(new SlotLaunchingClickListener(mLauncher, mHolder));
-        view.setOnTouchListener(pTouchListener);
     }
     
     
+    /**
+     * Deactivates this slot.
+     */
     public void deactivate() {
         
         Logger.d(LOG_TAG, "deactivating slot with launcher ", mLauncher, " and viewer ", mViewer);
         
         View view = mViewer.view();
         view.setOnClickListener(null);
-        view.setOnTouchListener(null);
     }
     
     
