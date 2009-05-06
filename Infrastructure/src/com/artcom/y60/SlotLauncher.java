@@ -2,6 +2,12 @@ package com.artcom.y60;
 
 import android.content.Context;
 
+/**
+ * Base class for implementing slot functionality.
+ * 
+ * @author arne
+ *
+ */
 public abstract class SlotLauncher {
 
     // Instance Variables ------------------------------------------------

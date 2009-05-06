@@ -5,6 +5,22 @@ import java.util.List;
 
 import android.content.Context;
 
+/**
+ * A bridge between slot implementations ({@link SlotLauncher}, {@link SlotViewer}) and 
+ * application code.
+ * 
+ * Slots use their holder e.g. to access a Context object and to signal that the view has to be
+ * updated (invalidate).
+ * 
+ * Applications use a slot holder object to activate and deactivate all slots without having to
+ * know which and how many slots there are.
+ * 
+ * Subclass SlotHolder to provide a custom implementation or to add other features.
+ * 
+ * @see Slot, DropTargetCollection, SlotLauncher, SlotViewer
+ * @author arne
+ *
+ */
 public class SlotHolder  {
 
     // Instance Variables ------------------------------------------------
