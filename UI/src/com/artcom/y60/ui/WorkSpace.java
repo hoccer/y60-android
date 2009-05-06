@@ -20,8 +20,8 @@ public class WorkSpace {
 	private static final String LOG_TAG = "WorkSpace";
     private static final int    ANIMATION_DURATION = 500;
 
-	private AbsoluteLayout   m_Layout;
-	private TableLayout m_View;
+	private AbsoluteLayout   mAbsoluteLayout;
+	private TableLayout mTableLayout;
 	private View mContent;
 	private Activity    m_Activity;
 	private String      m_Name;
@@ -37,13 +37,13 @@ public class WorkSpace {
 		m_Activity = p_Context;
 		mContent = p_View;
         mContent.setLongClickable(true);
-        m_View     =  new TableLayout( m_Activity );
-        m_View.setOrientation( TableLayout.HORIZONTAL );
-        m_View.setLongClickable(true);
-        m_View.addView(mContent);
-		m_Layout   = new AbsoluteLayout( m_Activity);
-		m_Layout.addView(m_View);
-        m_Layout.setLongClickable(true);
+        mTableLayout     =  new TableLayout( m_Activity );
+        mTableLayout.setOrientation( TableLayout.HORIZONTAL );
+        mTableLayout.setLongClickable(true);
+        mTableLayout.addView(mContent);
+		mAbsoluteLayout   = new AbsoluteLayout( m_Activity);
+		mAbsoluteLayout.addView(mTableLayout);
+        mAbsoluteLayout.setLongClickable(true);
 		
         
         m_OutToLeft = new TranslateAnimation(
@@ -76,7 +76,8 @@ public class WorkSpace {
 	    return mContent;
 	}
 	
-	public AbsoluteLayout getLayout() { return m_Layout; }
+	public AbsoluteLayout getAbsoluteLayout() { return mAbsoluteLayout; }
+	public TableLayout getTableLayout() { return mTableLayout; }
 	public Activity getParent() { return m_Activity;}
     public String getName() { return m_Name; }
     public void invalidate() { refresh(); }
@@ -84,22 +85,22 @@ public class WorkSpace {
       
 	public void animate( HorizontalDirection p_Direction, Target p_Target ) {
 
-        m_Layout.clearAnimation();
+        mAbsoluteLayout.clearAnimation();
     	
         if (p_Target == Target.IN) {
             
             refresh();
             
             if (p_Direction == HorizontalDirection.LEFT) {
-                m_Layout.startAnimation(m_InFromRight);
+                mAbsoluteLayout.startAnimation(m_InFromRight);
             } else {
-                m_Layout.startAnimation(m_InFromLeft);
+                mAbsoluteLayout.startAnimation(m_InFromLeft);
             }
         } else {
             if (p_Direction == HorizontalDirection.LEFT) {
-                m_Layout.startAnimation(m_OutToLeft);
+                mAbsoluteLayout.startAnimation(m_OutToLeft);
             } else {
-                m_Layout.startAnimation(m_OutToRight);
+                mAbsoluteLayout.startAnimation(m_OutToRight);
             }
         }
         
@@ -113,8 +114,8 @@ public class WorkSpace {
 	
 	public void clear() {
 	    
-        m_View.removeAllViews();
-        m_Layout.removeAllViews();
+        mTableLayout.removeAllViews();
+        mAbsoluteLayout.removeAllViews();
 	}
 	
 	protected void setContent(View pContent) {
@@ -124,8 +125,8 @@ public class WorkSpace {
 	protected synchronized void refresh() {
 	    
 	    clear();
-	    m_View.addView(mContent);
-	    m_Layout.addView( m_View );
+	    mTableLayout.addView(mContent);
+	    mAbsoluteLayout.addView( mTableLayout );
 	}
 	
 	protected Activity getActivity() {
