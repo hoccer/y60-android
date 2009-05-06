@@ -18,7 +18,7 @@ public class SlotTestActivity extends Activity {
     
     // Instance Variables ------------------------------------------------
 
-    private BasicSlotHolder mHolder;
+    private SlotHolder mHolder;
     
     private SlotViewer mViewer;
     
@@ -58,7 +58,7 @@ public class SlotTestActivity extends Activity {
             
             public void run() {
                 mHolder.addSlot("TestSlot", pLauncher, mViewer);
-                mHolder.activateSlots(null);
+                mHolder.activateSlots();
                 
                 LinearLayout layout = (LinearLayout)findViewById(R.id.slot_test_layout);
                 View view = mViewer.view();
@@ -94,7 +94,7 @@ public class SlotTestActivity extends Activity {
         
     }
     
-    class TestingHolder extends BasicSlotHolder {
+    class TestingHolder extends SlotHolder {
         
         public TestingHolder() {
             

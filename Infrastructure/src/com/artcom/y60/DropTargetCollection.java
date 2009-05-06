@@ -5,7 +5,10 @@ import android.view.View;
 import android.widget.AbsoluteLayout;
 import android.widget.LinearLayout;
 
-public class DropTargetCollection extends BasicSlotHolder implements DragListener{
+/**
+ * A {@link SlotHolder} used for drag-and-dropping.
+ */
+public class DropTargetCollection extends SlotHolder implements DragListener{
 
     private static final String LOG_TAG = "DropTargetCollection";
     

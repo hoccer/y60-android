@@ -66,9 +66,12 @@ public abstract class DecoratingSlotLauncher extends SlotLauncher {
     }
     
     
+    public SlotLauncher getTarget() {
+        
+        return mTarget;
+    }
+
     
-
-
     
     // Protected Instance Methods ----------------------------------------
 
