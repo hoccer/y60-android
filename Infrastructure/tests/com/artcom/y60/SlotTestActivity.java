@@ -57,7 +57,7 @@ public class SlotTestActivity extends Activity {
         runOnUiThread(new Runnable() {
             
             public void run() {
-                mHolder.addSlot(pLauncher, mViewer);
+                mHolder.addSlot("TestSlot", pLauncher, mViewer);
                 mHolder.activateSlots(null);
                 
                 LinearLayout layout = (LinearLayout)findViewById(R.id.slot_test_layout);

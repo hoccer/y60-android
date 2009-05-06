@@ -12,7 +12,17 @@ public abstract class SlotLauncher {
     
     // Public Instance Methods -------------------------------------------
 
-    public abstract void launch();
+    /** Override if you're interested */
+    public void launch() {
+    }
+    
+    /** Override if you're interested */
+    public void focus() {
+    }
+    
+    /** Override if you're interested */
+    public void unfocus() {
+    }
     
     
     

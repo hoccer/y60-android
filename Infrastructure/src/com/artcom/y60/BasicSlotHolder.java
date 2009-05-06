@@ -56,9 +56,9 @@ public class BasicSlotHolder implements SlotHolder {
         }
     }
 
-    public void addSlot(SlotLauncher pLauncher, SlotViewer pViewer) {
+    public void addSlot(String pName, SlotLauncher pLauncher, SlotViewer pViewer) {
         
-        Slot slot = new Slot(pLauncher, pViewer, this);
+        Slot slot = new Slot(pName, pLauncher, pViewer, this);
         mSlots.add(slot);
     }
 

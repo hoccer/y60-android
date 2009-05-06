@@ -42,17 +42,17 @@ public class DnDTestActivity extends Activity {
         ImageView sendToImage = new ImageView(this);
         sendToImage.setBackgroundResource(R.drawable.red80);
         sendToImage.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT));
-        DropTarget sentToTarget= new DropTarget(sendToImage, new DropListener(){
+        SlotLauncher launcher= new SlotLauncher() {
 
             @Override
-            public void onDropped() {
+            public void launch() {
                 
                 mIsDroppedOnTarget = true;
                 
             }
             
-        }, this, "CONTACTS");
-        mDragonDropper.addDropTarget(sentToTarget);
+        };
+        mDragonDropper.addDropTarget("CONTACTS", launcher, new StaticSlotViewer(sendToImage));
         
     }
     

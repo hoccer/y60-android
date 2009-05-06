@@ -19,7 +19,9 @@ import android.view.animation.TranslateAnimation;
 import android.widget.AbsoluteLayout;
 import android.widget.AbsoluteLayout.LayoutParams;
 
-
+/**
+ * Helper for adding drag-and-drop functionality to views.
+ */
 public class DragAndDropHelper implements OnTouchListener {
     
     // Constants ---------------------------------------------------------
@@ -49,10 +51,13 @@ public class DragAndDropHelper implements OnTouchListener {
     /** Used for detecting the long press */
     private GestureDetector mGest;
     
+    /**
+     * For clients which are interested in touch events, e.g. so that it's still possible to
+     * fling a picture which is also draggable.
+     */
     private OnTouchListener mDelegateTouchListener;
     
     private List<DragListener> mDragListenerList;
-    private DragListener mDragListener;
     
     private View mDefaultThumbnail;
       
@@ -63,7 +68,8 @@ public class DragAndDropHelper implements OnTouchListener {
     // Static Methods ----------------------------------------------------
     
     /**
-     * Makes the given draggable by longpressing it.
+     * Makes the given draggable (activated by a long press). Uses the given default
+     * as view for dragging.
      */
     public static DragAndDropHelper enableDragAndDrop(View pView, AbsoluteLayout pLayout, Activity pActivity, View pDefaultThumbnail){
         
@@ -71,6 +77,10 @@ public class DragAndDropHelper implements OnTouchListener {
         return helper;
     }
     
+    /**
+     * Makes the given draggable (activated by a long press). Uses a screenshot of the draggable
+     * view (drawn to a bitmap off-screen) for dragging.
+     */
     public static DragAndDropHelper enableDragAndDrop(View pView, AbsoluteLayout pLayout, Activity pActivity){
         
         return enableDragAndDrop(pView, pLayout, pActivity, null);
@@ -159,16 +169,17 @@ public class DragAndDropHelper implements OnTouchListener {
         Logger.v(LOG_TAG, "number of drag listerners: ", mDragListenerList.size());
     }
 
-    public void addDropTarget(DropTarget pDropTarget){
+    public void addDropTarget(String pName, SlotLauncher pLauncher, SlotViewer pViewer){
         
-        if(mIsDropTargetEnabled == false){
+        if (!mIsDropTargetEnabled) {
+            
             addDragListener(mDropTargetCollection);
             mIsDropTargetEnabled= true;
         }
 
-        pDropTarget.getImageView().setOnTouchListener(this);
-        mDropTargetCollection.addDropTarget(pDropTarget);                
-        
+        pViewer.view().setOnTouchListener(this);
+        mDropTargetCollection.addSlot(pName, pLauncher, pViewer);
+        mDropTargetCollection.invalidate();
     }
     
     // Private Instance Methods ------------------------------------------
@@ -193,9 +204,9 @@ public class DragAndDropHelper implements OnTouchListener {
         
         if(mIsDropTargetEnabled){
         
-            DropTarget target= mDropTargetCollection.getfocusedDropTarget(mThumbView);
+            Slot target= mDropTargetCollection.getfocusedDropTarget(mThumbView);
             if(target != null){
-                target.dropped(mActivity);
+                target.getLauncher().launch();
             }
             mLayout.removeView(mDropTargetCollection.getDropTargetLayout());            
         }

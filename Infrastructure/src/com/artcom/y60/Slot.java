@@ -9,7 +9,11 @@ public class Slot {
 
     // Constants ---------------------------------------------------------
 
-    private static final String LOG_TAG = "Slot";
+    private static final String LOG_TAG = Slot.class.getName();
+
+    private static final int PADDING_X = 15;
+
+    private static final int PADDING_Y = 100;
     
     
     
@@ -20,12 +24,16 @@ public class Slot {
     private SlotLauncher mLauncher;
     
     private SlotViewer mViewer;
-    
+
+    private String mName;
+
     
     
     // Constructors ------------------------------------------------------
 
-    public Slot(SlotLauncher pLauncher, SlotViewer pView, SlotHolder pHolder) {
+    public Slot(String pName, SlotLauncher pLauncher, SlotViewer pView, SlotHolder pHolder) {
+        
+        mName = pName;
         
         mLauncher = pLauncher;
         mLauncher.setSlot(this);
@@ -55,6 +63,7 @@ public class Slot {
     public String toString() {
         
         StringBuffer buf = new StringBuffer();
+        buf.append(mName);
         buf.append("[");
         buf.append(mLauncher.toString());
         buf.append("::");
@@ -62,6 +71,12 @@ public class Slot {
         buf.append("]");
         
         return buf.toString();
+    }
+    
+    
+    public String getName() {
+        
+        return mName;
     }
     
     
@@ -85,6 +100,33 @@ public class Slot {
     }
     
     
+    public boolean isOnFocus(View pThumbView) {
+        
+        int x= pThumbView.getLeft() + pThumbView.getWidth()/2; //mid of thumb
+        int y= (pThumbView.getTop() + PADDING_Y); 
+    
+        View view = getViewer().view();
+        if( view.getLeft()+PADDING_X < x && 
+            view.getRight()-PADDING_X > x &&  
+            view.getBottom() > y){
+    
+            //Logger.v(LOG_TAG, "i am on item: ", toString());
+            return true;
+        }
+        return false;
+    
+    }
+
+    
+    public void handleDragging(View pDraggedView) {
+    
+        if(isOnFocus(pDraggedView)){               
+            mLauncher.focus();
+        }else{
+            mLauncher.unfocus();
+        }        
+    }
+
     
     // Protected Instance Methods ----------------------------------------
 
