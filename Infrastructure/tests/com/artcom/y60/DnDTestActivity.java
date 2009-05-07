@@ -55,7 +55,7 @@ public class DnDTestActivity extends Activity {
             }
             
         };
-        mDragonDropper.addDropTarget("CONTACTS", launcher, new StaticSlotViewer(sendToImage));
+        mDragonDropper.addDropTarget(new Slot("CONTACTS", launcher, new StaticSlotViewer(sendToImage)));
         
     }
     

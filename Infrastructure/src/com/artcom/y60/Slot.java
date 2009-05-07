@@ -70,7 +70,7 @@ public class Slot {
      * Creates a new slot using the given holder and propagates the holder to the given launcher
      * and viewer.
      */
-    public Slot(String pName, SlotLauncher pLauncher, SlotViewer pView, SlotHolder pHolder) {
+    public Slot(String pName, SlotLauncher pLauncher, SlotViewer pView) {
         
         mName = pName;
         
@@ -79,8 +79,6 @@ public class Slot {
         
         mViewer = pView;
         mViewer.setSlot(this);
-        
-        mHolder = pHolder;
     }
     
     
@@ -126,6 +124,8 @@ public class Slot {
         
         Logger.d(LOG_TAG, "activating slot with launcher ", mLauncher, " and viewer ", mViewer);
         
+        assertProperlyInitialized();
+        
         View view = mViewer.view();
         view.setOnClickListener(new SlotLaunchingClickListener(mLauncher, mHolder));
     }
@@ -138,6 +138,8 @@ public class Slot {
         
         Logger.d(LOG_TAG, "deactivating slot with launcher ", mLauncher, " and viewer ", mViewer);
         
+        assertProperlyInitialized();
+        
         View view = mViewer.view();
         view.setOnClickListener(null);
     }
@@ -145,6 +147,7 @@ public class Slot {
     
     public boolean isOnFocus(View pThumbView) {
         
+        assertProperlyInitialized();
         int x= pThumbView.getLeft() + pThumbView.getWidth()/2; //mid of thumb
         int y= (pThumbView.getTop() + PADDING_Y); 
     
@@ -163,11 +166,18 @@ public class Slot {
     
     public void handleDragging(View pDraggedView) {
     
+        assertProperlyInitialized();
         if(isOnFocus(pDraggedView)){               
             mLauncher.focus();
         }else{
             mLauncher.unfocus();
         }        
+    }
+    
+    
+    public void setHolder(SlotHolder pHolder) {
+        
+        mHolder = pHolder;
     }
 
     
@@ -175,18 +185,33 @@ public class Slot {
 
     protected void invalidate() {
 
+        assertProperlyInitialized();
         mHolder.invalidate();
     }
   
   
     protected SlotHolder getHolder() {
 
+        assertProperlyInitialized();
         return mHolder;
     }
     
     
     protected Context getContext() {
         
+        assertProperlyInitialized();
         return mHolder.getContext();
+    }
+    
+    
+    
+    // Private Instance Methods ------------------------------------------
+
+    private void assertProperlyInitialized() {
+        
+        if (mHolder == null) {
+            
+            throw new IllegalStateException("Holder for slot "+getName()+" was never set!");
+        }
     }
 }
