@@ -8,4 +8,6 @@ interface IHttpProxyService {
     Bundle fetchFromCache(String pUri);
     
     boolean isInCache(String pUri);
+    
+    void removeFromCache(String pUri);
 }

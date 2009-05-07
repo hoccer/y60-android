@@ -256,6 +256,17 @@ public class HttpProxyHelper {
         byte[] bytes = fetchFromCache(pUri);
         return new String(bytes);
     }
+    
+    public void removeFromCache(String pUri){
+        
+        try {
+            mProxy.removeFromCache(pUri);
+        } catch (RemoteException rex) {
+
+            Logger.e(logTag(), "removeFromCache(", pUri, ") failed", rex);
+            throw new RuntimeException(rex);
+        }
+    }
 
     public void addResourceChangeListener(URI[] pUris, ResourceChangeListener pLsner) {
 

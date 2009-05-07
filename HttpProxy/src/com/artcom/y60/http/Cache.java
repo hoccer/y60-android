@@ -74,6 +74,15 @@ public class Cache {
         }
     }
     
+    public void remove(String pUri) {
+        Logger.v(LOG_TAG, "removeFromCache(", pUri, ")");
+        synchronized (mCachedContent) {
+
+            mCachedContent.remove(pUri);
+        }
+        
+    }
+    
     public boolean isInCache(String pUri) {
         
         Logger.v(LOG_TAG, "isInCache(", pUri, ")");
@@ -210,5 +219,6 @@ public class Cache {
             Logger.v("ResourceRefresher", "refresher thread STOPS ------------ ");
         }
     }
+
 
 }
