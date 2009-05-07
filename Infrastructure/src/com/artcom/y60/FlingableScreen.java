@@ -3,6 +3,7 @@ package com.artcom.y60;
 
 import android.app.Activity;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.Window;
 import android.view.animation.Animation;
 import android.view.animation.TranslateAnimation;
@@ -99,6 +100,11 @@ public class FlingableScreen {
 	public AbsoluteLayout getBaseLayout() {
 	    
 	    return mBaseLayout;
+	}
+	
+	public ViewGroup getContentLayout() {
+	    
+	    return mContentLayout;
 	}
 	
     public String getName() {
