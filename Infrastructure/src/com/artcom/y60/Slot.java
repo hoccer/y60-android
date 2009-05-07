@@ -85,7 +85,7 @@ public class Slot {
     
     // Public Instance Methods -------------------------------------------
     
-    public SlotLauncher getLauncher() {
+    public synchronized SlotLauncher getLauncher() {
         
         return mLauncher;
     }
@@ -97,7 +97,7 @@ public class Slot {
     }
     
     
-    public String toString() {
+    public synchronized String toString() {
         
         StringBuffer buf = new StringBuffer();
         buf.append(mName);
@@ -120,7 +120,7 @@ public class Slot {
     /**
      * Activates this slot for interaction, i.e. launch is executed when the view is clicked.
      */
-    public void activate() {
+    public synchronized void activate() {
         
         Logger.d(LOG_TAG, "activating slot with launcher ", mLauncher, " and viewer ", mViewer);
         
@@ -134,7 +134,7 @@ public class Slot {
     /**
      * Deactivates this slot.
      */
-    public void deactivate() {
+    public synchronized void deactivate() {
         
         Logger.d(LOG_TAG, "deactivating slot with launcher ", mLauncher, " and viewer ", mViewer);
         
@@ -164,7 +164,7 @@ public class Slot {
     }
 
     
-    public void handleDragging(View pDraggedView) {
+    public synchronized void handleDragging(View pDraggedView) {
     
         assertProperlyInitialized();
         if(isOnFocus(pDraggedView)){               
@@ -178,6 +178,14 @@ public class Slot {
     public void setHolder(SlotHolder pHolder) {
         
         mHolder = pHolder;
+    }
+    
+    
+    public synchronized void prepend(DecoratingSlotLauncher pDeco) {
+        
+        pDeco.setTarget(mLauncher);
+        pDeco.setSlot(this);
+        mLauncher = pDeco;
     }
 
     

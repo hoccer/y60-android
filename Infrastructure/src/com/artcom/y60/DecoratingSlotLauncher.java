@@ -70,6 +70,12 @@ public abstract class DecoratingSlotLauncher extends SlotLauncher {
         
         return mTarget;
     }
+    
+    
+    public void setTarget(SlotLauncher pTarget) {
+        
+        mTarget = pTarget;
+    }
 
     
     
