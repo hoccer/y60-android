@@ -13,6 +13,11 @@ public class IntentLauncher extends SlotLauncher {
     
     // Constructors ------------------------------------------------------
 
+    public IntentLauncher(Intent pIntent) {
+        
+        mIntent = pIntent;
+    }
+    
     public IntentLauncher(String pActivityClass) {
         
         int    dotPos = pActivityClass.lastIndexOf(".");
