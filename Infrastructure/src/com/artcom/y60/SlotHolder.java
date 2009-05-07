@@ -81,6 +81,11 @@ public class SlotHolder  {
         pSlot.setHolder(this);
     }
 
+    public void addSlot(String pName, SlotLauncher pLauncher, SlotViewer pViewer) {
+        
+        addSlot(new Slot(pName, pLauncher, pViewer));
+    }
+
     public List<Slot> getSlots() {
         
         return new LinkedList<Slot>(mSlots);
