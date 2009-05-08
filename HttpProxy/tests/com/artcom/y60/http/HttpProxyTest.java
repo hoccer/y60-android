@@ -126,14 +126,33 @@ public class HttpProxyTest extends ActivityUnitTestCase<HttpProxyActivity> {
         byte[] data = helper.get(uri);
         assertNull(data);
 
-        long start = System.currentTimeMillis();
-        while (!listener.wasResourceAvailableCalled()) {
-            if (System.currentTimeMillis() - start > 4000) {
-                throw new TimeoutException("took to long");
-            }
-            Thread.sleep(50);
-        }
+        blockUntilResourceAvailableWasCalled(listener, 4000);
+        
         assertTrue("callback not succsessful", listener.wasResourceAvailableCalled());
+        data = helper.get(uri);
+        assertNotNull(data);
+    }
+
+    public void testResourceIsAvailableInCache() throws URISyntaxException, TimeoutException,
+            InterruptedException {
+        initializeActivity();
+        HttpProxyHelper helper = createHelper();
+
+        TestListener listener = new TestListener();
+        URI uri = TestUriHelper.createUri();
+        helper.addResourceChangeListener(uri, listener);
+
+        byte[] data = helper.get(uri);
+        assertNull(data);
+        
+        blockUntilResourceAvailableWasCalled(listener, 4000);
+        
+        TestListener listener2 = new TestListener();
+        helper.addResourceChangeListener(uri, listener2);
+
+        // this is minimal asynchronous
+        blockUntilResourceAvailableWasCalled(listener2, 200);
+        assertTrue("callback not succsessful", listener2.wasResourceAvailableCalled());
         data = helper.get(uri);
         assertNotNull(data);
     }
@@ -153,6 +172,17 @@ public class HttpProxyTest extends ActivityUnitTestCase<HttpProxyActivity> {
     }
 
     // Private Instance Methods ------------------------------------------
+
+    private void blockUntilResourceAvailableWasCalled(TestListener pListener, long pTimeout)
+            throws TimeoutException, InterruptedException {
+        long start = System.currentTimeMillis();
+        while (!pListener.wasResourceAvailableCalled()) {
+            if (System.currentTimeMillis() - start > pTimeout) {
+                throw new TimeoutException("took to long");
+            }
+            Thread.sleep(50);
+        }
+    }
 
     private HttpProxyHelper createHelper() {
 

@@ -282,6 +282,10 @@ public class HttpProxyHelper {
         synchronized (lsners) {
 
             lsners.add(pLsner);
+            Uri uri = Uri.parse(pUri.toString());
+            if (isInCache(uri)){
+                pLsner.onResourceAvailable(uri);
+            }
         }
     }
 
