@@ -115,6 +115,12 @@ public class HttpProxyTest extends ActivityUnitTestCase<HttpProxyActivity> {
         
         
     }
+    
+    public void testResourceAvailableCallback(){
+        
+        
+    }
+    
 
     // Protected Instance Methods ----------------------------------------
 

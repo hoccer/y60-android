@@ -2,6 +2,7 @@ package com.artcom.y60.http;
 
 import java.net.URI;
 import java.util.Arrays;
+import java.util.concurrent.TimeoutException;
 import java.util.logging.FileHandler;
 
 import org.apache.http.client.methods.HttpHead;
@@ -33,7 +34,7 @@ public class HttpProxyServiceTest extends ServiceTestCase<HttpProxyService> {
 
     // Public Instance Methods -------------------------------------------
 
-    public void testDoubleGet() throws Exception {
+    public void testMultipleGet() throws Exception {
 
         startService(mIntent);
 
@@ -50,8 +51,8 @@ public class HttpProxyServiceTest extends ServiceTestCase<HttpProxyService> {
         Bundle cached = null;
         while (cached == null) {
             cached = service.get(uri.toString());
-            if (System.currentTimeMillis() > requestStartTime + 2000) {
-                throw new AssertionFailedError("could not retrive data from uri " + uri);
+            if (System.currentTimeMillis() - requestStartTime > 4000) {
+                throw new TimeoutException("Timeout while laoding:" + uri);
             }
             try {
                 Thread.sleep(10);
