@@ -54,7 +54,7 @@ public class HttpProxyHelper {
      * Handler for resource updates, which are received as broadcasts from the
      * HttpProxy
      */
-    private Map<URI, Set<ResourceChangeListener>> mListeners;
+    private Map<URI, Set<ResourceListener>> mListeners;
 
     /**
      * Thread for dispatching incoming broadcasts to the resource update handler
@@ -86,7 +86,7 @@ public class HttpProxyHelper {
         mShutdown = false;
         mContext = pContext;
         mNotificationQueue = new LinkedList<URI>();
-        mListeners = new HashMap<URI, Set<ResourceChangeListener>>();
+        mListeners = new HashMap<URI, Set<ResourceListener>>();
         mBindingListener = pBindingListener;
 
         mReceiver = new HttpResourceUpdateReceiver();
@@ -268,7 +268,7 @@ public class HttpProxyHelper {
         }
     }
 
-    public void addResourceChangeListener(URI[] pUris, ResourceChangeListener pLsner) {
+    public void addResourceChangeListener(URI[] pUris, ResourceListener pLsner) {
 
         for (URI uri : pUris) {
 
@@ -276,16 +276,16 @@ public class HttpProxyHelper {
         }
     }
 
-    public void addResourceChangeListener(URI pUri, ResourceChangeListener pLsner) {
+    public void addResourceChangeListener(URI pUri, ResourceListener pLsner) {
 
-        Set<ResourceChangeListener> lsners = getOrCreateListenersFor(pUri);
+        Set<ResourceListener> lsners = getOrCreateListenersFor(pUri);
         synchronized (lsners) {
 
             lsners.add(pLsner);
         }
     }
 
-    public void addResourceChangeListener(Uri uri, ResourceChangeListener lsner) {
+    public void addResourceChangeListener(Uri uri, ResourceListener lsner) {
 
         try {
             addResourceChangeListener(new URI(uri.toString()), lsner);
@@ -327,12 +327,12 @@ public class HttpProxyHelper {
 
     // Private Instance Methods ------------------------------------------
 
-    private Set<ResourceChangeListener> getOrCreateListenersFor(URI pUri) {
+    private Set<ResourceListener> getOrCreateListenersFor(URI pUri) {
 
-        Set<ResourceChangeListener> listeners = getListenersFor(pUri);
+        Set<ResourceListener> listeners = getListenersFor(pUri);
         if (listeners == null) {
 
-            listeners = new HashSet<ResourceChangeListener>();
+            listeners = new HashSet<ResourceListener>();
             synchronized (mListeners) {
 
                 mListeners.put(pUri, listeners);
@@ -342,7 +342,7 @@ public class HttpProxyHelper {
         return listeners;
     }
 
-    private Set<ResourceChangeListener> getListenersFor(URI pUri) {
+    private Set<ResourceListener> getListenersFor(URI pUri) {
 
         synchronized (mListeners) {
 
@@ -400,12 +400,13 @@ public class HttpProxyHelper {
 
                     Logger.v(logTag(), "registered listeners: ", mListeners.keySet());
                     Logger.v(logTag(), "updating listeners for uri ", uri);
-                    Set<ResourceChangeListener> listeners = getListenersFor(uri);
+                    Set<ResourceListener> listeners = getListenersFor(uri);
                     if (listeners != null) {
                         synchronized (listeners) {
 
-                            for (ResourceChangeListener listener : listeners) {
+                            for (ResourceListener listener : listeners) {
                                 listener.onResourceChanged(uri);
+                                listener.onResourceAvailable(Uri.parse(uri.toString()));
                             }
                         }
                     }

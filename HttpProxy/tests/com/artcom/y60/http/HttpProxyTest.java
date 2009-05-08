@@ -14,7 +14,7 @@ import com.artcom.y60.HTTPHelper;
 import com.artcom.y60.Logger;
 import com.artcom.y60.http.HttpProxyActivity;
 import com.artcom.y60.http.HttpProxyHelper;
-import com.artcom.y60.http.ResourceChangeListener;
+import com.artcom.y60.http.ResourceListener;
 
 /**
  * Blackbox service testing through HttpProxyHelper (aidl and
@@ -61,7 +61,7 @@ public class HttpProxyTest extends ActivityUnitTestCase<HttpProxyActivity> {
         helper.get(uri);
 
         long start = System.currentTimeMillis();
-        while (!listener.wasCalled() && System.currentTimeMillis() - start < 2000) {
+        while (!listener.wasResourceChangeCalled() && System.currentTimeMillis() - start < 2000) {
 
             try {
                 Thread.sleep(50);
@@ -72,7 +72,7 @@ public class HttpProxyTest extends ActivityUnitTestCase<HttpProxyActivity> {
 
         Logger.v(LOG_TAG, "now let's check results");
 
-        assertTrue("update wasn't called", listener.wasCalled());
+        assertTrue("update wasn't called", listener.wasResourceChangeCalled());
         // HttpProxyService.logCache();
 
         byte[] fromService = helper.fetchFromCache(uri);
@@ -96,7 +96,7 @@ public class HttpProxyTest extends ActivityUnitTestCase<HttpProxyActivity> {
         assertNull("uncached content should be null initially", data);
 
         long start = System.currentTimeMillis();
-        while (!listener.wasCalled()) {
+        while (!listener.wasResourceChangeCalled()) {
 
             if (System.currentTimeMillis() - start > 2000) {
                 throw new TimeoutException("took to long");
@@ -105,22 +105,38 @@ public class HttpProxyTest extends ActivityUnitTestCase<HttpProxyActivity> {
             Thread.sleep(50);
         }
 
-        assertTrue("update wasn't called", listener.wasCalled());
+        assertTrue("update wasn't called", listener.wasResourceChangeCalled());
         data = helper.fetchFromCache(uri);
         assertNotNull("content from cache was null", data);
-        
+
         helper.removeFromCache(uri.toString());
         data = helper.get(uri);
         assertNull("content should be null after removing form cache", data);
-        
-        
+
     }
-    
-    public void testResourceAvailableCallback(){
-        
-        
+
+    public void testResourceNotAvailableInCache() throws URISyntaxException, TimeoutException,
+            InterruptedException {
+        initializeActivity();
+        HttpProxyHelper helper = createHelper();
+        TestListener listener = new TestListener();
+        URI uri = TestUriHelper.createUri();
+        helper.addResourceChangeListener(uri, listener);
+
+        byte[] data = helper.get(uri);
+        assertNull(data);
+
+        long start = System.currentTimeMillis();
+        while (!listener.wasResourceAvailableCalled()) {
+            if (System.currentTimeMillis() - start > 4000) {
+                throw new TimeoutException("took to long");
+            }
+            Thread.sleep(50);
+        }
+        assertTrue("callback not succsessful", listener.wasResourceAvailableCalled());
+        data = helper.get(uri);
+        assertNotNull(data);
     }
-    
 
     // Protected Instance Methods ----------------------------------------
 
@@ -161,18 +177,29 @@ public class HttpProxyTest extends ActivityUnitTestCase<HttpProxyActivity> {
 
     // Inner Classes -----------------------------------------------------
 
-    class TestListener implements ResourceChangeListener {
+    class TestListener implements ResourceListener {
 
-        private boolean mCalled = false;
+        private boolean mWasResourceChangedCalled = false;
+        private boolean mWasResourceAvailableCalled = false;
 
         public void onResourceChanged(URI resourceUri) {
 
-            mCalled = true;
+            mWasResourceChangedCalled = true;
         }
 
-        public boolean wasCalled() {
+        @Override
+        public void onResourceAvailable(Uri pResourceUri) {
+            mWasResourceAvailableCalled = true;
+        }
 
-            return mCalled;
+        public boolean wasResourceChangeCalled() {
+
+            return mWasResourceChangedCalled;
+        }
+
+        public boolean wasResourceAvailableCalled() {
+
+            return mWasResourceAvailableCalled;
         }
     }
 
