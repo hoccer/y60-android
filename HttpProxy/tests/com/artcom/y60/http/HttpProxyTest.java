@@ -127,7 +127,7 @@ public class HttpProxyTest extends ActivityUnitTestCase<HttpProxyActivity> {
         assertNull(data);
 
         blockUntilResourceAvailableWasCalled(listener, 4000);
-        
+
         assertTrue("callback not succsessful", listener.wasResourceAvailableCalled());
         data = helper.get(uri);
         assertNotNull(data);
@@ -144,17 +144,17 @@ public class HttpProxyTest extends ActivityUnitTestCase<HttpProxyActivity> {
 
         byte[] data = helper.get(uri);
         assertNull(data);
-        
+
         blockUntilResourceAvailableWasCalled(listener, 4000);
-        
-        TestListener listener2 = new TestListener();
+
+        listener.reset();
         assertFalse(listener.wasResourceChangeCalled());
         assertFalse(listener.wasResourceAvailableCalled());
-        helper.addResourceChangeListener(uri, listener2);
-        
+        helper.addResourceChangeListener(uri, listener);
+
         // this is minimal asynchronous
-        blockUntilResourceAvailableWasCalled(listener2, 200);
-        assertTrue("callback not succsessful", listener2.wasResourceAvailableCalled());
+        blockUntilResourceAvailableWasCalled(listener, 200);
+        assertTrue("callback not succsessful", listener.wasResourceAvailableCalled());
         data = helper.get(uri);
         assertNotNull(data);
     }
@@ -213,7 +213,7 @@ public class HttpProxyTest extends ActivityUnitTestCase<HttpProxyActivity> {
 
         private boolean mWasResourceChangedCalled = false;
         private boolean mWasResourceAvailableCalled = false;
-
+        
         public void onResourceChanged(URI resourceUri) {
 
             mWasResourceChangedCalled = true;
@@ -232,6 +232,11 @@ public class HttpProxyTest extends ActivityUnitTestCase<HttpProxyActivity> {
         public boolean wasResourceAvailableCalled() {
 
             return mWasResourceAvailableCalled;
+        }
+
+        public void reset() {
+            mWasResourceChangedCalled = false;
+            mWasResourceAvailableCalled = false;
         }
     }
 
