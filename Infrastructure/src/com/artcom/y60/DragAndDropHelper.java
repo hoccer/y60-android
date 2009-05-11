@@ -18,6 +18,7 @@ import android.view.animation.AnimationSet;
 import android.view.animation.ScaleAnimation;
 import android.view.animation.TranslateAnimation;
 import android.widget.AbsoluteLayout;
+import android.widget.ImageView;
 import android.widget.AbsoluteLayout.LayoutParams;
 
 /**
@@ -338,6 +339,7 @@ public class DragAndDropHelper implements OnTouchListener {
                 
                 mActivityViewGroup.setVisibility(View.GONE);
                 mThumbView.setVisibility(View.VISIBLE);
+                ((ImageView)mThumbView).getDrawable().setAlpha(128);
                 
                 //place drag targets:
                 if(mIsDropTargetEnabled){

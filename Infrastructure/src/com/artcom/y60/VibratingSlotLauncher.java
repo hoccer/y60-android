@@ -13,14 +13,6 @@ public class VibratingSlotLauncher extends DecoratingSlotLauncher {
     
     private static final long ON_TARGET_VIBRATION = 50;
 
-    
-    
-    // Instance Variables ------------------------------------------------
-
-    private boolean mIsInFocus;
-    
-
-    
     // Constructors ------------------------------------------------------
 
     public VibratingSlotLauncher() {
@@ -46,20 +38,14 @@ public class VibratingSlotLauncher extends DecoratingSlotLauncher {
 
     public void focusThis() {
         
-        if(!mIsInFocus){
-            mIsInFocus = true;
-            Vibrator vibrator = (Vibrator)getContext().getSystemService(Context.VIBRATOR_SERVICE);
-            vibrator.vibrate(ON_TARGET_VIBRATION);
-        }
+        Vibrator vibrator = (Vibrator)getContext().getSystemService(Context.VIBRATOR_SERVICE);
+        vibrator.vibrate(ON_TARGET_VIBRATION);
     }
 
     public void unfocusThis() {
         
-        if(mIsInFocus){
-            mIsInFocus = false;
-            Vibrator vibrator = (Vibrator)getContext().getSystemService(Context.VIBRATOR_SERVICE);
-            vibrator.vibrate(ON_TARGET_VIBRATION);
-        }
+        Vibrator vibrator = (Vibrator)getContext().getSystemService(Context.VIBRATOR_SERVICE);
+        vibrator.vibrate(ON_TARGET_VIBRATION);
     }
 
 }

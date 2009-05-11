@@ -62,6 +62,7 @@ public class Slot {
     /** This slot's name */
     private String mName;
 
+    private boolean mIsInFocus;
     
     
     // Constructors ------------------------------------------------------
@@ -72,6 +73,7 @@ public class Slot {
      */
     public Slot(String pName, SlotLauncher pLauncher, SlotViewer pView) {
         
+        mIsInFocus = false;
         mName = pName;
         
         mLauncher = pLauncher;
@@ -167,10 +169,20 @@ public class Slot {
     public synchronized void handleDragging(View pDraggedView) {
     
         assertProperlyInitialized();
-        if(isOnFocus(pDraggedView)){               
-            mLauncher.focus();
-        }else{
-            mLauncher.unfocus();
+        if(isOnFocus(pDraggedView)) {
+            
+            if (!mIsInFocus) {
+                
+                mIsInFocus = true;
+                mLauncher.focus();
+            }
+        } else {
+            
+            if (mIsInFocus) {
+                
+                mIsInFocus = false;
+                mLauncher.unfocus();
+            }
         }        
     }
     
