@@ -197,11 +197,50 @@ public abstract class Y60ActivityInstrumentationTest<T extends Activity> extends
     }
     
     
+    protected void assertTrueAsync(String pFailMessage, long pWaitMillis, Condition pCon) {
+        
+        long start = System.currentTimeMillis();
+        while (System.currentTimeMillis()-start < pWaitMillis) {
+            
+            if (pCon.isSatisfied()) {
+                
+                return;
+            }
+            
+            try {
+                Thread.sleep(20);
+            } catch (InterruptedException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        }
+        
+        fail(pFailMessage);
+    }
+    
+    
+    protected void assertFalseAsync(String pFailMessage, long pWaitMillis, final Condition pCon) {
+        
+        assertTrueAsync(pFailMessage, pWaitMillis, new Condition() {
+            public boolean isSatisfied() {
+                
+                return !pCon.isSatisfied();
+            }
+        });
+    }
+    
+    
     /**
      * Shorthand for <code>getClass().getName()</code>, to be used for logcat logging.
      */
     protected String tag() {
         
         return getClass().getName();
+    }
+    
+    
+    public interface Condition {
+        
+        public boolean isSatisfied(); 
     }
 } 
