@@ -256,6 +256,11 @@ public class HttpProxyHelper {
         byte[] bytes = fetchFromCache(pUri);
         return new String(bytes);
     }
+
+    public void removeFromCache(Uri pUri){
+
+        removeFromCache(pUri.toString());
+    }
     
     public void removeFromCache(String pUri){
         
@@ -276,15 +281,15 @@ public class HttpProxyHelper {
         }
     }
 
-    public void addResourceChangeListener(URI pUri, ResourceListener pLsner) {
+    public void addResourceChangeListener(URI pUri, ResourceListener pListener) {
 
-        Set<ResourceListener> lsners = getOrCreateListenersFor(pUri);
-        synchronized (lsners) {
+        Set<ResourceListener> listeners = getOrCreateListenersFor(pUri);
+        synchronized (listeners) {
 
-            lsners.add(pLsner);
+            listeners.add(pListener);
             Uri uri = Uri.parse(pUri.toString());
             if (isInCache(uri)){
-                pLsner.onResourceAvailable(uri);
+                pListener.onResourceAvailable(uri);
             }
         }
     }

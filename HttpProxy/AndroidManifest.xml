@@ -21,4 +21,4 @@
       android:targetPackage="com.artcom.y60.http" 
       android:label="HttpProxy">
     </instrumentation>
-</manifest> 
+</manifest>

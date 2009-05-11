@@ -149,7 +149,9 @@ public class HttpProxyTest extends ActivityUnitTestCase<HttpProxyActivity> {
         
         TestListener listener2 = new TestListener();
         helper.addResourceChangeListener(uri, listener2);
-
+        assertFalse(listener.wasResourceChangeCalled());
+        assertFalse(listener.wasResourceAvailableCalled());
+        
         // this is minimal asynchronous
         blockUntilResourceAvailableWasCalled(listener2, 200);
         assertTrue("callback not succsessful", listener2.wasResourceAvailableCalled());
