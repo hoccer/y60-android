@@ -118,11 +118,11 @@ public class StatusWatcher extends Service {
                     device.getOrCreateAttribute("last_alive_update").putValue(timestamp);
 
                     // append current ping statistic to the history_log in gom
-                    GomAttribute historyAttribute = device.getOrCreateAttribute("history_log");
-                    historyAttribute.refresh();
-                    historyAttribute.putValue(historyAttribute.getValue() + historyLog + "\n"
-                            + timestamp + ": " + pingStatistic);
-                    historyLog = "";
+//                    GomAttribute historyAttribute = device.getOrCreateAttribute("history_log");
+//                    historyAttribute.refresh();
+//                    historyAttribute.putValue(historyAttribute.getValue() + historyLog + "\n"
+//                            + timestamp + ": " + pingStatistic);
+//                    historyLog = "";
 
                     mNotificationManager.cancel(GOM_NOT_ACCESSIBLE_NOTIFICATION_ID);
                     mIsGomAvailable = true;
