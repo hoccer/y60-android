@@ -2,7 +2,6 @@ package com.artcom.y60.http;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
@@ -29,6 +28,7 @@ import android.os.RemoteException;
 import com.artcom.y60.BindingListener;
 import com.artcom.y60.ErrorHandling;
 import com.artcom.y60.Logger;
+import com.artcom.y60.ResourceBundleHelper;
 
 /**
  * Helper class for activities which encapsulates the interaction with the
@@ -147,7 +147,7 @@ public class HttpProxyHelper {
         if (resourceDescription == null) {
             return null;
         }
-        return convertResourceBundleToByteArray(resourceDescription);
+        return ResourceBundleHelper.convertResourceBundleToByteArray(resourceDescription);
     }
 
     public Drawable get(Uri uri, Drawable defaultDrawable) {
@@ -214,7 +214,7 @@ public class HttpProxyHelper {
             mProxy.fetchFromCache(pUri.toString());
 
             Bundle resourceDescription = mProxy.fetchFromCache(pUri.toString());
-            return HttpProxyHelper.convertResourceBundleToByteArray(resourceDescription);
+            return ResourceBundleHelper.convertResourceBundleToByteArray(resourceDescription);
 
         } catch (RemoteException rex) {
 
@@ -227,7 +227,7 @@ public class HttpProxyHelper {
         
         try {
             Bundle bundle = mProxy.get(pUri.toString());
-            String resourcePath = bundle.getString(Cache.LOCAL_RESOURCE_PATH_TAG);
+            String resourcePath = bundle.getString(HttpProxyConstants.LOCAL_RESOURCE_PATH_TAG);
             if (resourcePath == null) {
                 ErrorHandling.signalIllegalArgumentError(LOG_TAG, new IllegalArgumentException("Resource for URI "+pUri+" is not available as file!"), mContext);
             }
@@ -307,31 +307,6 @@ public class HttpProxyHelper {
 
         mShutdown = true;
         mContext.unbindService(mConnection);
-    }
-
-    public static byte[] convertResourceBundleToByteArray(Bundle resourceDescription) {
-
-        String resourcePath = resourceDescription.getString(Cache.LOCAL_RESOURCE_PATH_TAG);
-        if (resourcePath == null) {
-            return resourceDescription.getByteArray(Cache.BYTE_ARRY_TAG);
-        }
-
-        byte[] buffer;
-        try {
-            File file = new File(resourcePath);
-            FileInputStream stream = new FileInputStream(file);
-            if (file.length() > Integer.MAX_VALUE) {
-                throw new RuntimeException("file '" + file + "' is to big");
-            }
-            buffer = new byte[(int) file.length()];
-            stream.read(buffer);
-        } catch (IOException e) {
-            Logger.e(LOG_TAG, "io error: " + e.getMessage());
-            e.printStackTrace();
-            return null;
-        }
-
-        return buffer;
     }
 
     // Private Instance Methods ------------------------------------------

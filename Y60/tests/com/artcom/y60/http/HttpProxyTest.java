@@ -12,15 +12,12 @@ import android.test.ActivityUnitTestCase;
 import com.artcom.y60.BindingListener;
 import com.artcom.y60.HTTPHelper;
 import com.artcom.y60.Logger;
-import com.artcom.y60.http.HttpProxyActivity;
-import com.artcom.y60.http.HttpProxyHelper;
-import com.artcom.y60.http.ResourceListener;
 
 /**
  * Blackbox service testing through HttpProxyHelper (aidl and
  * inter-vm-communication).
  */
-public class HttpProxyTest extends ActivityUnitTestCase<HttpProxyActivity> {
+public class HttpProxyTest extends ActivityUnitTestCase<HttpProxyTestActivity> {
 
     // Constants ---------------------------------------------------------
 
@@ -34,7 +31,7 @@ public class HttpProxyTest extends ActivityUnitTestCase<HttpProxyActivity> {
 
     public HttpProxyTest() {
 
-        super(HttpProxyActivity.class);
+        super(HttpProxyTestActivity.class);
     }
 
     // Public Instance Methods -------------------------------------------

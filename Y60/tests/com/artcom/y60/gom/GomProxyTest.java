@@ -5,7 +5,7 @@ import android.net.Uri;
 import android.test.ActivityUnitTestCase;
 import android.test.AssertionFailedError;
 
-public class GomProxyTest extends ActivityUnitTestCase<GomProxyActivity> {
+public class GomProxyTest extends ActivityUnitTestCase<GomProxyTestActivity> {
 
     // Constants ---------------------------------------------------------
 
@@ -19,7 +19,7 @@ public class GomProxyTest extends ActivityUnitTestCase<GomProxyActivity> {
 
     public GomProxyTest() {
 
-        super(GomProxyActivity.class);
+        super(GomProxyTestActivity.class);
     }
 
     // Public Instance Methods -------------------------------------------

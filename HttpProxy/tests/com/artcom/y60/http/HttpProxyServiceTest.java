@@ -3,9 +3,6 @@ package com.artcom.y60.http;
 import java.net.URI;
 import java.util.Arrays;
 import java.util.concurrent.TimeoutException;
-import java.util.logging.FileHandler;
-
-import org.apache.http.client.methods.HttpHead;
 
 import android.content.Intent;
 import android.net.Uri;
@@ -14,7 +11,7 @@ import android.test.AssertionFailedError;
 import android.test.ServiceTestCase;
 
 import com.artcom.y60.HTTPHelper;
-import com.artcom.y60.http.HttpProxyService;
+import com.artcom.y60.ResourceBundleHelper;
 
 /**
  * Direct service testing. No binding, no inter-vm-communication with aidl.
@@ -61,10 +58,10 @@ public class HttpProxyServiceTest extends ServiceTestCase<HttpProxyService> {
             }
         }
 
-        assertNotNull("resource path from cache was null", cached.getByteArray(Cache.BYTE_ARRY_TAG));
+        assertNotNull("resource path from cache was null", cached.getByteArray(HttpProxyConstants.BYTE_ARRY_TAG));
 
         byte[] fromHttp = HTTPHelper.getAsByteArray(Uri.parse(uri.toString()));
-        byte[] cachedArray = HttpProxyHelper.convertResourceBundleToByteArray(cached);
+        byte[] cachedArray = ResourceBundleHelper.convertResourceBundleToByteArray(cached);
         assertNotNull("conversion to array returned null", cachedArray);
         assertTrue("cached data is to small", cachedArray.length > 1000);
         assertTrue("content doesn't match", Arrays.equals(cachedArray, fromHttp));
@@ -90,7 +87,7 @@ public class HttpProxyServiceTest extends ServiceTestCase<HttpProxyService> {
         // assertEquals(resourceDescription.get(Cache.LOCAL_RESOURCE_PATH_TAG).hashCode(),
         // 3153527);
         assertEquals("/sdcard/HttpProxyCache/" + resourceUri.hashCode(), resourceDescription
-                .get(Cache.LOCAL_RESOURCE_PATH_TAG));
+                .get(HttpProxyConstants.LOCAL_RESOURCE_PATH_TAG));
     }
 
     // Protected Instance Methods ----------------------------------------
