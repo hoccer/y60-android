@@ -4,8 +4,6 @@ import android.app.Activity;
 import android.os.Bundle;
 import android.widget.TextView;
 
-import com.artcom.y60.BindingListener;
-
 public class GomProxyActivity extends Activity {
 
     // Instance Variables ------------------------------------------------
@@ -25,24 +23,24 @@ public class GomProxyActivity extends Activity {
 
         super.onResume();
 
-        mText.setText("Binding to GomProxyService...");
-
-        new GomProxyHelper(this, new BindingListener<GomProxyHelper>() {
-
-            public void bound(GomProxyHelper helper) {
-
-                runOnUiThread(new Runnable() {
-
-                    public void run() {
-
-                        mText.setText("Binding to GomProxyService...success.");
-                    }
-                });
-            }
-
-            public void unbound(GomProxyHelper helper) {
-            }
-        });
+//        mText.setText("Binding to GomProxyService...");
+//
+//        new GomProxyHelper(this, new BindingListener<GomProxyHelper>() {
+//
+//            public void bound(GomProxyHelper helper) {
+//
+//                runOnUiThread(new Runnable() {
+//
+//                    public void run() {
+//
+//                        mText.setText("Binding to GomProxyService...success.");
+//                    }
+//                });
+//            }
+//
+//            public void unbound(GomProxyHelper helper) {
+//            }
+//        });
     }
 
 }

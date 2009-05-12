@@ -1,5 +1,6 @@
 package com.artcom.y60;
 
+import android.graphics.Color;
 import android.graphics.PorterDuff.Mode;
 import android.view.View;
 import android.widget.ImageView;
@@ -33,7 +34,7 @@ public class ViewMagentiplyingSlotLauncher extends DecoratingSlotLauncher {
 
         Logger.d(LOG_TAG, "focus!");
         View view = getSlot().getViewer().view();
-        ((ImageView) view).getDrawable().setColorFilter(R.color.highlight_color, Mode.MULTIPLY);
+        ((ImageView) view).getDrawable().setColorFilter(Color.MAGENTA, Mode.MULTIPLY);
         view.invalidate();
     }
 

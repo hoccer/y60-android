@@ -16,13 +16,6 @@ public class Cache {
     // Constants ---------------------------------------------------------
 
     public static final String LOG_TAG = Cache.class.getName();
-    public static final String LOCAL_RESOURCE_PATH_TAG = "localResourcePath";
-    public static final String SIZE_TAG = "resourceSize";
-    public static final String BYTE_ARRY_TAG = "resourceByteArray";
-    public static final int MAX_IN_MEMORY_SIZE = 100000;
-
-    // Instance Variables ------------------------------------------------
-
     private Map<String, Bundle> mCachedContent;
 
     private List<String> mPendingResources;
@@ -148,19 +141,19 @@ public class Cache {
 
                 long size = HTTPHelper.getSize(pUri);
                 Bundle newContent = new Bundle(2);
-                newContent.putLong(SIZE_TAG, size);
+                newContent.putLong(HttpProxyConstants.SIZE_TAG, size);
 
-                if (size > MAX_IN_MEMORY_SIZE) {
+                if (size > HttpProxyConstants.MAX_IN_MEMORY_SIZE) {
                     HTTPHelper.fetchUriToFile(pUri, localResourcePath);
-                    newContent.putString(LOCAL_RESOURCE_PATH_TAG, localResourcePath);
+                    newContent.putString(HttpProxyConstants.LOCAL_RESOURCE_PATH_TAG, localResourcePath);
                 } else {
                     byte[] array = HTTPHelper.getAsByteArray(Uri.parse(pUri));
-                    newContent.putByteArray(BYTE_ARRY_TAG, array);
+                    newContent.putByteArray(HttpProxyConstants.BYTE_ARRY_TAG, array);
                 }
 
                 // if resource has changed (TODO get header and check the
                 // modification date)
-                if (oldContent == null || oldContent.getLong(SIZE_TAG) != size) {
+                if (oldContent == null || oldContent.getLong(HttpProxyConstants.SIZE_TAG) != size) {
 
                     Logger.v(LOG_TAG, "storing new content for '", pUri, "'");
                     mCachedContent.put(pUri, newContent);
