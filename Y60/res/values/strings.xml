@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Y60</string>
+<string name="err_user_general">An internal error occurred. Sorry.</string>
+<string name="err_dev_file_not_found">Could not find file</string>
+<string name="start_Y60_label">Start Y60</string>
+<string name="configFile">/sdcard/device_config.json</string>
+</resources>
