@@ -42,6 +42,7 @@ public class ViewMagnifyingSlotLauncher extends DecoratingSlotLauncher {
 
     @Override
     protected void launchThis() {
+        Logger.v(LOG_TAG, "launch magnifying slot launcher");
         View view = getSlot().getViewer().view();
         int pivx = view.getWidth() / 2;
         int pivy = view.getHeight() / 2;
@@ -55,7 +56,6 @@ public class ViewMagnifyingSlotLauncher extends DecoratingSlotLauncher {
         launchAnimation.setZAdjustment(Animation.ZORDER_TOP);
         launchAnimation.setDuration(800);
 
- 
         view.startAnimation(launchAnimation);
     }
 

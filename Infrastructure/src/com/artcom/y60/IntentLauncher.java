@@ -5,6 +5,8 @@ import android.content.Intent;
 
 public class IntentLauncher extends SlotLauncher {
 
+    private static final String LOG_TAG = IntentLauncher.class.getName();
+    
     // Instance Variables ------------------------------------------------
 
     private Intent mIntent;
@@ -33,7 +35,7 @@ public class IntentLauncher extends SlotLauncher {
     
     @Override
     public void launch() {
-        
+        Logger.v(LOG_TAG, "launch intent slot launcher");
         getContext().startActivity(mIntent);
     }
     

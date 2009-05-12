@@ -31,7 +31,7 @@ public class VibratingSlotLauncher extends DecoratingSlotLauncher {
     @Override
     public void launchThis() {
         
-        Logger.v(LOG_TAG, "dropped, virbrator should start!");
+        Logger.v(LOG_TAG, "launch virbrating slot launcher");
         Vibrator vibrator = (Vibrator)getContext().getSystemService(Context.VIBRATOR_SERVICE);
         vibrator.vibrate(DROPPING_VIBRATION);
     }
