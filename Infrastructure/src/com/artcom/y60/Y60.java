@@ -124,7 +124,7 @@ public class Y60 extends Activity {
 
         mStartY60Button = (Button) findViewById(R.id.mStartY60Button);
         mStartY60Button.setOnClickListener(new OnClickListener() {
-            @Override
+//            @Override
             public void onClick(View v) {
                 // hide status bar
                 Window win = getWindow();
@@ -141,7 +141,7 @@ public class Y60 extends Activity {
 
         mStopY60Button = (Button) findViewById(R.id.mStopY60Button);
         mStopY60Button.setOnClickListener(new OnClickListener() {
-            @Override
+//            @Override
             public void onClick(View v) {
                 Intent stopDcIntent = new Intent("y60.intent.SERVICE_DEVICE_CONTROLLER");
                 stopService(stopDcIntent);
@@ -233,7 +233,7 @@ public class Y60 extends Activity {
 
     class RenameClickListener implements OnClickListener {
 
-        @Override
+//        @Override
         public void onClick(View v) {
 
             String configFile = getResources().getString(R.string.configFile);

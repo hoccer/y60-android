@@ -6,5 +6,6 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/Infrastructure"/>
 	<classpathentry kind="lib" path="libs/NetUtil.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/TgCommon"/>
+	<classpathentry kind="src" path="gen"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
