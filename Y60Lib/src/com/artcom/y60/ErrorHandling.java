@@ -41,7 +41,7 @@ public class ErrorHandling {
         intent.putExtra(ID_LOGTAG, logTag);
         // intent.putExtra(ID_CATEGORY, category);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        
+
         throw new RuntimeException("we need to show an error activity!!! Something happend");
     }
 
@@ -107,15 +107,27 @@ public class ErrorHandling {
         Logger.e(logTag, "MISSING_MANDATORY_OBJECT", error);
     }
 
+    
     public static void signalUnspecifiedError(String logTag, Throwable error, Context context) {
         // TODO this method should not be used eventually
         signalError(logTag, error, context, Category.UNSPECIFIED);
     }
 
+    public static void signalUnspecifiedError(String logTag, Throwable error) {
+        // TODO this method should not be used eventually
+        signalError(logTag, error, Category.UNSPECIFIED);
+    }
+    
+
     public static void signalIOError(String logTag, Throwable error, Context context) {
         signalError(logTag, error, context, Category.IO_ERROR);
     }
+    
+    public static void signalIOError(String logTag, Throwable error) {
+        signalError(logTag, error, Category.IO_ERROR);
+    }
 
+    
     public static void signalMalformedDataError(String logTag, Throwable error, Context context) {
         signalError(logTag, error, context, Category.MALFORMED_DATA);
     }

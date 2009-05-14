@@ -9,6 +9,8 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class NetworkHelper {
+    
+    private static final String LOG_TAG = "NetworkHelper";
 
     public static Collection<InetAddress> getLocalIpAddresses() throws SocketException {
         
@@ -26,4 +28,24 @@ public class NetworkHelper {
         
         return addresses;
     }
+    
+    public InetAddress getTGalleryInetAddress() {
+        InetAddress ip = null;
+        try {
+            Collection<InetAddress> addrs = NetworkHelper.getLocalIpAddresses();
+            for (InetAddress addr : addrs) {
+
+                Logger.v(LOG_TAG, "ip address: <", addr, ">");
+                if (addr.toString().indexOf("192.168.9.") > -1) {
+
+                    ip = addr;
+                }
+            }
+        } catch (SocketException e) {
+
+            //ErrorHandling.signalNetworkError(LOG_TAG, e);
+        }
+        return ip;
+    }
+
 }
