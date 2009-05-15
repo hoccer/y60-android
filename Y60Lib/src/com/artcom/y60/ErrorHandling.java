@@ -42,7 +42,7 @@ public class ErrorHandling {
         // intent.putExtra(ID_CATEGORY, category);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 
-        throw new RuntimeException("we need to show an error activity!!! Something happend");
+        throw new RuntimeException("we need to show an error activity!!! Something happend", error);
     }
 
     public static void signalFileNotFoundError(String logTag, Throwable error, Context context) {
