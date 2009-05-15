@@ -14,6 +14,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.test.AssertionFailedError;
 import android.test.ServiceTestCase;
+import android.test.suitebuilder.annotation.Suppress;
 
 import com.artcom.y60.DeviceConfiguration;
 import com.artcom.y60.ErrorHandling;
@@ -36,48 +37,47 @@ public class StatusWatcherTestCase extends ServiceTestCase<StatusWatcher> {
         mDeviceConfiguration = DeviceConfiguration.load();
     }
 
-    // // Verifies that the service correctly updates the device's
-    // // history log in the GOM
-    // public void testHistoryUpdates() throws ParseException,
-    // InterruptedException {
-    // startService(mIntent);
-    // Runnable checkGom = new Runnable() {
-    // public void run() {
-    // try {
-    // Thread.sleep(10 * 1000); // Wait for service to settle, GOM
-    // // to become available etc
-    // } catch (InterruptedException e) {
-    // // ignore
-    // }
-    // String uri = mDeviceConfiguration.getGomUrl() + "/"
-    // + mDeviceConfiguration.getDevicePath() + ":history_log.txt";
-    // String historyLog = HTTPHelper.get(uri);
-    // String lastLine = historyLog.substring(historyLog.lastIndexOf("\n") + 1);
-    // String timestamp = lastLine.substring(0, lastLine.indexOf(": "));
-    // long now = System.currentTimeMillis();
-    // long historyUpdated;
-    // try {
-    // historyUpdated = new
-    // SimpleDateFormat("MM/dd/yyyy HH:mm:ss").parse(timestamp)
-    // .getTime();
-    // } catch (ParseException e) {
-    // throw new RuntimeException(e.getMessage());
-    // }
-    // final long TIME_DELTA_TOLERANCE = 11 * 1000; // in milliseconds
-    // long delta = Math.abs(historyUpdated - now);
-    // assertTrue("Timestamp in GOM (" + timestamp
-    // + ") is older than expected. Expected a difference of at most "
-    // + (TIME_DELTA_TOLERANCE / 1000) + " seconds, found " + (delta / 1000)
-    // + " seconds.", delta < TIME_DELTA_TOLERANCE);
-    // }
-    // };
-    // Thread thread = new Thread(checkGom);
-    // thread.start();
-    //        
-    // while (thread.getState() != Thread.State.TERMINATED){
-    // Thread.sleep(100);
-    // }
-    // }
+    // Verifies that the service correctly updates the device's
+    // history log in the GOM
+    @Suppress
+    public void testTimestampUpdates() throws ParseException, InterruptedException {
+        startService(mIntent);
+        Runnable checkGom = new Runnable() {
+            public void run() {
+                try {
+                    Thread.sleep(10 * 1000); // Wait for service to settle, GOM
+                    // to become available etc
+                } catch (InterruptedException e) {
+                    // ignore
+                }
+                String uri = mDeviceConfiguration.getGomUrl() + "/"
+                        + mDeviceConfiguration.getDevicePath() + ":history_log.txt";
+                String historyLog = HTTPHelper.get(uri);
+                String lastLine = historyLog.substring(historyLog.lastIndexOf("\n") + 1);
+                String timestamp = lastLine.substring(0, lastLine.indexOf(": "));
+                long now = System.currentTimeMillis();
+                long historyUpdated;
+                try {
+                    historyUpdated = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss").parse(timestamp)
+                            .getTime();
+                } catch (ParseException e) {
+                    throw new RuntimeException(e.getMessage());
+                }
+                final long TIME_DELTA_TOLERANCE = 11 * 1000; // in milliseconds
+                long delta = Math.abs(historyUpdated - now);
+                assertTrue("Timestamp in GOM (" + timestamp
+                        + ") is older than expected. Expected a difference of at most "
+                        + (TIME_DELTA_TOLERANCE / 1000) + " seconds, found " + (delta / 1000)
+                        + " seconds.", delta < TIME_DELTA_TOLERANCE);
+            }
+        };
+        Thread thread = new Thread(checkGom);
+        thread.start();
+
+        while (thread.getState() != Thread.State.TERMINATED) {
+            Thread.sleep(100);
+        }
+    }
 
     public void testWatcherThreadRunning() throws InterruptedException {
         startService(mIntent);
@@ -91,53 +91,25 @@ public class StatusWatcherTestCase extends ServiceTestCase<StatusWatcher> {
         assertTrue("Watcher thread died", thread.isAlive());
     }
 
-    /*
-    // This is not strictly a test of StatusWatcher functionality. We just want
-    // to know if the behaviour on
-    // network disappearance is what we expect it to be.
-    public void testCutNetworkConnection() throws IOException, InterruptedException {
-
-        // TODO fix me! Kokosnuesse!
-
-        startService(mIntent);
-
-        Runtime runtime = Runtime.getRuntime();
-        String cmd = "ifconfig eth0 down && sleep 2 && dhcpcd eth0";
-        // String cmd = "/data/su -c \"/data/netupdown.sh\"";
-        Process process = runtime.exec(cmd);
-
-        assertEquals(255, process.waitFor());
-        InputStreamReader reader = new InputStreamReader(process.getInputStream());
-        BufferedReader bufferedReader = new BufferedReader(reader);
-
-        String lines = "";
-        String currentLine = "";
-        while ((currentLine = bufferedReader.readLine()) != null) {
-            lines += currentLine;
-        }
-        Logger.v(LOG_TAG, lines);
-        assertEquals("", lines);
-    }*/
-
     // Verifies that the "GOM unavailable" notification (symbolized by a
     // "West Wind"
     // icon) is correctly displayed/cleared.
     public void testGomUnavailableNotification() throws InterruptedException {
         startService(mIntent);
-        
+
         // do not sleep beween updates -- tests must run fast
         getService().setSleepTime(0);
 
         // wait some time to let the service load the data
         long requestStartTime = System.currentTimeMillis();
         while (!getService().isGomAvailable()) {
-            if (System.currentTimeMillis() > requestStartTime + 15 * 1000) {
+            if (System.currentTimeMillis() > requestStartTime + 20 * 1000) {
                 throw new AssertionFailedError(
                         "Expected the StatusWatcher to see the GOM right after starting up, but it doesn't.");
             }
             Thread thread = getService().getWatcherThread();
             assertTrue("Watcher thread died", thread.isAlive());
-            
+
             Thread.sleep(10);
         }
 
@@ -145,17 +117,16 @@ public class StatusWatcherTestCase extends ServiceTestCase<StatusWatcher> {
 
         requestStartTime = System.currentTimeMillis();
         while (getService().isGomAvailable()) {
-            if (System.currentTimeMillis() > requestStartTime + 15 * 1000) {
-                throw new AssertionFailedError(
+            if (System.currentTimeMillis() > requestStartTime + 10 * 1000) {
+                throw new AssertionFailedError( 
                         "Forced StatusWatcher to unbind from GOM, but StatusWatcher reports that it can still see the GOM");
             }
             Thread thread = getService().getWatcherThread();
             assertTrue("Watcher thread died", thread.isAlive());
-   
+
             Thread.sleep(10);
         }
 
-        
         getService().bindToGom();
 
         requestStartTime = System.currentTimeMillis();

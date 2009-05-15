@@ -43,6 +43,7 @@ public class StatusWatcher extends Service {
     private DeviceConfiguration mDeviceConfiguration;
     private boolean mIsGomAvailable = false;
     private long mSleepTime = 4 * 1000;
+    private String mHistoryLog;
 
     @Override
     public void onCreate() {
@@ -55,6 +56,8 @@ public class StatusWatcher extends Service {
         mIsHeartbeatLoopRunning = true;
         mHeartbeatThread.start();
 
+        mHistoryLog = "";
+        
         bindToGom();
 
         /*
@@ -65,6 +68,10 @@ public class StatusWatcher extends Service {
          * registerReceiver(mStatusCollector, fltScreenOn);
          * registerReceiver(mStatusCollector, fltScreenOff);
          */
+    }
+
+    String getHistoryLog() {
+        return mHistoryLog;
     }
 
     @Override
@@ -93,6 +100,7 @@ public class StatusWatcher extends Service {
     class HeartbeatLoop implements Runnable {
 
         private static final int GOM_NOT_ACCESSIBLE_NOTIFICATION_ID = 42;
+        private String mHistoryLog;
 
         @Override
         public void run() {
@@ -103,14 +111,9 @@ public class StatusWatcher extends Service {
             Notification notification = new Notification(R.drawable.network_down_status_icon,
                     "Y60's GOM not accessible.", System.currentTimeMillis());
 
-            String historyLog = "";
             String timestamp = "";
-            String pingStatistic = "";
             while (mIsHeartbeatLoopRunning) {
                 try {
-
-                    Thread.sleep(mSleepTime);
-                    pingStatistic = getPingStatistics();
 
                     timestamp = (new SimpleDateFormat("MM/dd/yyyy HH:mm:ss")).format(new Date());
 
@@ -118,11 +121,8 @@ public class StatusWatcher extends Service {
                     device.getOrCreateAttribute("last_alive_update").putValue(timestamp);
 
                     // append current ping statistic to the history_log in gom
-//                    GomAttribute historyAttribute = device.getOrCreateAttribute("history_log");
-//                    historyAttribute.refresh();
-//                    historyAttribute.putValue(historyAttribute.getValue() + historyLog + "\n"
-//                            + timestamp + ": " + pingStatistic);
-//                    historyLog = "";
+                    Thread.sleep(mSleepTime);
+                    updatePingStatistics();
 
                     mNotificationManager.cancel(GOM_NOT_ACCESSIBLE_NOTIFICATION_ID);
                     mIsGomAvailable = true;
@@ -148,8 +148,7 @@ public class StatusWatcher extends Service {
 
                     mIsGomAvailable = false;
 
-                    historyLog += "\n" + timestamp + ": network failure";
-                    historyLog += "\n" + timestamp + ": " + pingStatistic;
+                    appendToLog(timestamp + ": network failure");
                     continue;
                 } catch (Exception e) {
                     ErrorHandling.signalServiceError(LOG_TAG, e, StatusWatcher.this);
@@ -158,7 +157,7 @@ public class StatusWatcher extends Service {
             }
         }
 
-        private String getPingStatistics() {
+        private void updatePingStatistics() {
             Runtime runtime = Runtime.getRuntime();
             Process process = null;
             try {
@@ -182,13 +181,18 @@ public class StatusWatcher extends Service {
             }
 
             if (pingStatistic.size() < 3) {
-                return pingStatistic.toString();
+                appendToLog(pingStatistic.toString());
             }
 
-            return pingStatistic.get(pingStatistic.size() - 2);
+            appendToLog(pingStatistic.get(pingStatistic.size() - 2));
 
         }
 
+        private void appendToLog(String pLogInfo){
+            
+            mHistoryLog += "\n" + pLogInfo;
+        }
+        
     };
 
     // The following methods were created to facilitate testing
