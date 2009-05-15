@@ -3,7 +3,7 @@ package com.artcom.y60;
 import android.app.Activity;
 import android.app.Instrumentation;
 import android.os.SystemClock;
-import android.test.ActivityInstrumentationTestCase;
+import android.test.ActivityInstrumentationTestCase2;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
@@ -16,7 +16,7 @@ import android.view.View;
  *
  * @param <T> the activity class to be tested
  */
-public abstract class Y60ActivityInstrumentationTest<T extends Activity> extends ActivityInstrumentationTestCase<T> {
+public abstract class Y60ActivityInstrumentationTest<T extends Activity> extends ActivityInstrumentationTestCase2<T> {
 
     // Constants ---------------------------------------------------------
 
@@ -37,7 +37,7 @@ public abstract class Y60ActivityInstrumentationTest<T extends Activity> extends
 
     public Y60ActivityInstrumentationTest(String pkg, Class<T> activityClass,
             boolean initialTouchMode) {
-        super(pkg, activityClass, initialTouchMode);
+        super(pkg, activityClass);
         // TODO Auto-generated constructor stub
     }
 
