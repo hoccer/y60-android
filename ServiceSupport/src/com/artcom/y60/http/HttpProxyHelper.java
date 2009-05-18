@@ -4,8 +4,6 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -32,7 +30,7 @@ import com.artcom.y60.ResourceBundleHelper;
 
 /**
  * Helper class for activities which encapsulates the interaction with the
- * HttpProxyService, especially the listening to resource update broadcasts.
+ * HttpProxyService, especially the listening to resou.rce update broadcasts.
  * Activities can register listeners to this helper for particular URI which
  * they are interested in.
  * 
@@ -54,7 +52,7 @@ public class HttpProxyHelper {
      * Handler for resource updates, which are received as broadcasts from the
      * HttpProxy
      */
-    private Map<URI, Set<ResourceListener>> mListeners;
+    private Map<Uri, Set<ResourceListener>> mListeners;
 
     /**
      * Thread for dispatching incoming broadcasts to the resource update handler
@@ -64,7 +62,7 @@ public class HttpProxyHelper {
     /**
      * The queue of URIs of resources which have been updated
      */
-    private List<URI> mNotificationQueue;
+    private List<Uri> mNotificationQueue;
 
     /**
      * Flag indicating if the updater thread should shutdown
@@ -85,8 +83,8 @@ public class HttpProxyHelper {
 
         mShutdown = false;
         mContext = pContext;
-        mNotificationQueue = new LinkedList<URI>();
-        mListeners = new HashMap<URI, Set<ResourceListener>>();
+        mNotificationQueue = new LinkedList<Uri>();
+        mListeners = new HashMap<Uri, Set<ResourceListener>>();
         mBindingListener = pBindingListener;
 
         mReceiver = new HttpResourceUpdateReceiver();
@@ -121,19 +119,6 @@ public class HttpProxyHelper {
     }
 
     public byte[] get(Uri pUri) {
-        
-        try {
-            
-            return get(new URI(pUri.toString()));
-            
-        } catch (URISyntaxException usx) {
-            
-            Logger.e(LOG_TAG, "uri is not wellformed:", usx);
-            throw new RuntimeException("uri is not wellformed:" + usx);
-        }
-    }
-    
-    public byte[] get(URI pUri) {
 
         String uri = pUri.toString();
 
@@ -150,16 +135,7 @@ public class HttpProxyHelper {
         return ResourceBundleHelper.convertResourceBundleToByteArray(resourceDescription);
     }
 
-    public Drawable get(Uri uri, Drawable defaultDrawable) {
-        try {
-            return get(new URI(uri.toString()), defaultDrawable);
-        } catch (URISyntaxException e) {
-            ErrorHandling.signalMalformedUriError(logTag(), e, mContext);
-            return defaultDrawable;
-        }
-    }
-
-    public Drawable get(URI pUri, Drawable pDefault) {
+    public Drawable get(Uri pUri, Drawable pDefault) {
 
         if (mProxy == null) {
 
@@ -179,7 +155,7 @@ public class HttpProxyHelper {
         return Drawable.createFromStream(is, pUri.toString());
     }
 
-    public String get(URI pUri, String pDefault) {
+    public String get(Uri pUri, String pDefault) {
 
         if (mProxy == null) {
 
@@ -208,7 +184,7 @@ public class HttpProxyHelper {
         }
     }
 
-    public byte[] fetchFromCache(URI pUri) {
+    public byte[] fetchFromCache(Uri pUri) {
 
         try {
             mProxy.fetchFromCache(pUri.toString());
@@ -244,14 +220,14 @@ public class HttpProxyHelper {
         }
     }
 
-    public Drawable fetchDrawableFromCache(URI pUri) {
+    public Drawable fetchDrawableFromCache(Uri pUri) {
 
         byte[] bytes = fetchFromCache(pUri);
         InputStream is = new ByteArrayInputStream(bytes);
         return Drawable.createFromStream(is, pUri.toString());
     }
 
-    public String fetchStringFromCache(URI pUri) {
+    public String fetchStringFromCache(Uri pUri) {
 
         byte[] bytes = fetchFromCache(pUri);
         return new String(bytes);
@@ -273,33 +249,15 @@ public class HttpProxyHelper {
         }
     }
 
-    public void addResourceChangeListener(URI[] pUris, ResourceListener pLsner) {
-
-        for (URI uri : pUris) {
-
-            addResourceChangeListener(uri, pLsner);
-        }
-    }
-
-    public void addResourceChangeListener(URI pUri, ResourceListener pListener) {
+    public void addResourceChangeListener(Uri pUri, ResourceListener pListener) {
 
         Set<ResourceListener> listeners = getOrCreateListenersFor(pUri);
         synchronized (listeners) {
 
             listeners.add(pListener);
-            Uri uri = Uri.parse(pUri.toString());
-            if (isInCache(uri)){
-                pListener.onResourceAvailable(uri);
+            if (isInCache(pUri)){
+                pListener.onResourceAvailable(pUri);
             }
-        }
-    }
-
-    public void addResourceChangeListener(Uri uri, ResourceListener lsner) {
-
-        try {
-            addResourceChangeListener(new URI(uri.toString()), lsner);
-        } catch (URISyntaxException e) {
-            throw new RuntimeException("uri is not wellformed:" + e);
         }
     }
 
@@ -311,7 +269,7 @@ public class HttpProxyHelper {
 
     // Private Instance Methods ------------------------------------------
 
-    private Set<ResourceListener> getOrCreateListenersFor(URI pUri) {
+    private Set<ResourceListener> getOrCreateListenersFor(Uri pUri) {
 
         Set<ResourceListener> listeners = getListenersFor(pUri);
         if (listeners == null) {
@@ -326,7 +284,7 @@ public class HttpProxyHelper {
         return listeners;
     }
 
-    private Set<ResourceListener> getListenersFor(URI pUri) {
+    private Set<ResourceListener> getListenersFor(Uri pUri) {
 
         synchronized (mListeners) {
 
@@ -350,14 +308,7 @@ public class HttpProxyHelper {
 
                 String uri = pIntent.getStringExtra(HttpProxyConstants.URI_EXTRA);
                 Logger.v(logTag(), "received broadcast for uri ", uri);
-                try {
-
-                    mNotificationQueue.add(new URI(uri));
-
-                } catch (URISyntaxException ux) {
-
-                    Logger.e(logTag(), "couldn't parse URI extra", ux);
-                }
+                mNotificationQueue.add(Uri.parse(uri));
             }
         }
     }
@@ -368,7 +319,7 @@ public class HttpProxyHelper {
 
             while (!mShutdown) {
 
-                URI uri = null;
+                Uri uri = null;
                 synchronized (mNotificationQueue) {
 
                     if (mNotificationQueue.size() > 0) {
