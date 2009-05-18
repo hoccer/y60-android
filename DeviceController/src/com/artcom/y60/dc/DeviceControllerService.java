@@ -28,14 +28,12 @@ import org.mortbay.jetty.handler.HandlerCollection;
 import org.mortbay.jetty.nio.SelectChannelConnector;
 
 import android.app.Notification;
-import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.os.Binder;
-import android.os.Bundle;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.widget.Toast;
@@ -51,25 +49,23 @@ import com.artcom.y60.gom.GomProxyHelper;
 
 public class DeviceControllerService extends Service {
 
-    private Server server;
-    private boolean _useNIO;
-    private int _port;
-
-    private static Resources __resources;
-
-    private SharedPreferences preferences;
     public static final String DEFAULT_NIONAME = "com.artcom.y60.dc.nio";
     public static final String DEFAULT_PORTNAME = "com.artcom.y60.dc.port";
     public static final int DEFAULT_PORT = 4042;
-
     private static final String LOG_TAG = "DeviceControllerService";
+    
+    private static Resources sResources;
+    
+    private Server mServer;
+    private boolean mUseNio;
+    private SharedPreferences mPreferences;
 
-    private IBinder binder = new DeviceControllerBinder();
+    private IBinder mBinder = new DeviceControllerBinder();
     GomProxyHelper mGom = null;
 
     public void onCreate() {
         Logger.i(LOG_TAG, "onCreate called");
-        __resources = getResources();
+        sResources = getResources();
 
         // Get the gom proxy helper and run watcher thread if gom is available.
         mGom = new GomProxyHelper(this, new BindingListener<GomProxyHelper>() {
@@ -77,7 +73,29 @@ public class DeviceControllerService extends Service {
             public void bound(GomProxyHelper helper) {
                 
                 mGom = helper;
-                updateRciUri();
+                
+//                String portDefault = getText(R.string.pref_port_value).toString();
+//                String portKey = getText(R.string.pref_port_key).toString();
+//                Bundle bundle = intent.getExtras();
+//                if (bundle != null && bundle.containsKey(DEFAULT_PORTNAME)) {
+//                    mPort = Integer.parseInt(bundle.getString(DEFAULT_PORTNAME));
+//                } else if (mPreferences.contains(portKey)) {
+//                    mPort = Integer.parseInt(mPreferences.getString(portKey, portDefault));
+//                } else {
+//                    mPort = DEFAULT_PORT;
+//                }
+                
+                int port = DEFAULT_PORT;
+                Logger.d(LOG_TAG, "set port to "+port);
+
+                try {
+                    startServer(port);
+                    updateRciUri(port);
+                    
+                } catch (Exception ex) {
+                    
+                    ErrorHandling.signalUnspecifiedError(LOG_TAG, ex, DeviceControllerService.this);
+                }
             }
 
             public void unbound(GomProxyHelper helper) {
@@ -90,7 +108,7 @@ public class DeviceControllerService extends Service {
 
     public void onStart(Intent intent, int startId) {
         Logger.i(LOG_TAG, "onStart called");
-        if (server != null) {
+        if (mServer != null) {
             Toast.makeText(DeviceControllerService.this, R.string.jetty_already_started,
                     Toast.LENGTH_SHORT).show();
             Logger.i(LOG_TAG, "already running");
@@ -98,28 +116,13 @@ public class DeviceControllerService extends Service {
         }
 
         try {
-            preferences = PreferenceManager.getDefaultSharedPreferences(this);
+            mPreferences = PreferenceManager.getDefaultSharedPreferences(this);
 
-            String portDefault = getText(R.string.pref_port_value).toString();
-            // Log.v(LOG_TAG, "Default port is " + portDefault);
             String nioDefault = getText(R.string.pref_nio_value).toString();
-
-            String portKey = getText(R.string.pref_port_key).toString();
             String nioKey = getText(R.string.pref_nio_key).toString();
 
-            _useNIO = preferences.getBoolean(nioKey, Boolean.valueOf(nioDefault));
+            mUseNio = mPreferences.getBoolean(nioKey, Boolean.valueOf(nioDefault));
 
-            Bundle bundle = intent.getExtras();
-            if (bundle != null && bundle.containsKey(DEFAULT_PORTNAME)) {
-                _port = Integer.parseInt(bundle.getString(DEFAULT_PORTNAME));
-            } else if (preferences.contains(portKey)) {
-                _port = Integer.parseInt(preferences.getString(portKey, portDefault));
-            } else {
-                _port = DEFAULT_PORT;
-            }
-
-            startServer();
-            
             Toast.makeText(DeviceControllerService.this, R.string.jetty_started,
                            Toast.LENGTH_SHORT).show();
 
@@ -145,8 +148,8 @@ public class DeviceControllerService extends Service {
         }
     }
 
-    private void updateRciUri() {
-        // Update our rci_uri in the GOM
+    /** Update our rci_uri in the GOM */
+    private void updateRciUri(int pPort) {
 
         DeviceConfiguration dc = DeviceConfiguration.load();
         String ipAddress = getIpAddress();
@@ -157,32 +160,23 @@ public class DeviceControllerService extends Service {
             Logger.i(LOG_TAG, "I'm running in the emulator. Not publishing Remote Control URI.");
             return;
         }
-        String command_uri = "http://" + ipAddress + ":" + _port + "/commands";
+        
+        String command_uri = "http://" + ipAddress + ":" + pPort + "/commands";
         Logger.v(LOG_TAG, "command_uri of local device controller is ", command_uri);
 
-        try {
-            GomNode device = mGom.getNode(dc.getDevicePath());
-            device.getOrCreateAttribute("rci_uri").putValue(command_uri);
-        } catch (RuntimeException e) {
-            // TODO this is rather ugly and will remain so until the refactoring of the
-            // scattered RuntimeExceptions throughout is complete.
-            
-            // we write something to the logfile, but otherwise ignore this. it's most
-            // likely a transient network error
-            
-            Logger.w(LOG_TAG, "Could not update rci_uri in GOM");
-        }
+        GomNode device = mGom.getNode(dc.getDevicePath());
+        device.getOrCreateAttribute("rci_uri").putValue(command_uri);
     }
 
     public void onDestroy() {
         try {
-            if (server != null) {
+            if (mServer != null) {
                 stopServer();
                 // Cancel the persistent notification.
                 // Tell the user we stopped.
                 Toast.makeText(this, getText(R.string.jetty_stopped), Toast.LENGTH_SHORT).show();
                 Logger.i(LOG_TAG, "DeviceControllerService stopped");
-                __resources = null;
+                sResources = null;
             } else {
                 Logger.i(LOG_TAG, "DeviceControllerService not running");
                 Toast.makeText(DeviceControllerService.this, R.string.jetty_not_running,
@@ -209,46 +203,46 @@ public class DeviceControllerService extends Service {
      * @return
      */
     public static InputStream getStreamToRawResource(int id) {
-        if (__resources != null)
-            return __resources.openRawResource(id);
+        if (sResources != null)
+            return sResources.openRawResource(id);
         else
             return null;
     }
 
     public String getGomLocation() {
 
-        return preferences.getString(PreferencesActivity.KEY_GOM_LOCATION, "");
+        return mPreferences.getString(PreferencesActivity.KEY_GOM_LOCATION, "");
     }
 
     public String getSelfPath() {
 
-        return preferences.getString(PreferencesActivity.KEY_DEVICES_PATH, "") + "/"
-                + preferences.getString(PreferencesActivity.KEY_DEVICE_ID, "");
+        return mPreferences.getString(PreferencesActivity.KEY_DEVICES_PATH, "") + "/"
+                + mPreferences.getString(PreferencesActivity.KEY_DEVICE_ID, "");
     }
 
     @Override
     public IBinder onBind(Intent intent) {
         Logger.d(LOG_TAG, "onBind called");
 
-        return binder;
+        return mBinder;
     }
 
-    private void startServer() throws Exception {
-        server = new Server();
+    private void startServer(int pPort) throws Exception {
+        mServer = new Server();
         Connector connector;
-        if (_useNIO) {
+        if (mUseNio) {
             SelectChannelConnector nioConnector = new SelectChannelConnector();
             nioConnector.setUseDirectBuffers(false);
-            nioConnector.setPort(_port);
+            nioConnector.setPort(pPort);
             nioConnector.setHost("0.0.0.0"); // listen on all interfaces
             connector = nioConnector;
         } else {
             SocketConnector bioConnector = new SocketConnector();
-            bioConnector.setPort(_port);
+            bioConnector.setPort(pPort);
             bioConnector.setHost("0.0.0.0"); // listen on all interfaces
             connector = bioConnector;
         }
-        server.setConnectors(new Connector[] { connector });
+        mServer.setConnectors(new Connector[] { connector });
 
         // Bridge Jetty logging to Android logging
         System.setProperty("org.mortbay.log.class", "org.mortbay.log.AndroidLog");
@@ -257,16 +251,16 @@ public class DeviceControllerService extends Service {
         HandlerCollection handlers = new HandlerCollection();
 
         handlers.setHandlers(new Handler[] { new DeviceControllerHandler(this) });
-        server.setHandler(handlers);
+        mServer.setHandler(handlers);
 
-        server.start();
+        mServer.start();
     }
 
     private void stopServer() throws Exception {
         Logger.i(LOG_TAG, "DeviceControllerService stopping");
-        server.stop();
-        server.join();
-        server = null;
+        mServer.stop();
+        mServer.join();
+        mServer = null;
     }
 
     private String getIpAddress() {
