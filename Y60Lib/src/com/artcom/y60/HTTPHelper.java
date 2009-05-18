@@ -41,7 +41,7 @@ public class HTTPHelper {
     // Constants ---------------------------------------------------------
 
     private static final String LOG_TAG = "HTTPHelper";
-    private static final String SCRIPT_RUNNER_URI = "http://t-gom.service.t-gallery.act/gom/script-runner"; 
+    private static final String SCRIPT_RUNNER_Uri = "http://t-gom.service.t-gallery.act/gom/script-runner"; 
 
     // Static Methods ----------------------------------------------------
 
@@ -228,7 +228,7 @@ public class HTTPHelper {
     public static JSONObject executeServerScript(String pJsStr, Map<String, String> pParams) throws JSONException {
 
         String params  = urlEncode(pParams);
-        String uri     = SCRIPT_RUNNER_URI+"?"+params;
+        String uri     = SCRIPT_RUNNER_Uri+"?"+params;
         String jsonStr = post(uri, pJsStr, "text/javascript", "text/json");
         
         return new JSONObject(jsonStr);
@@ -376,7 +376,7 @@ public class HTTPHelper {
         if (pUrl.endsWith(".xml")) {
             // an xml uri means that someone is using this method in a wrong way
             // --> fail fast
-            throw new IllegalArgumentException("HttpHelper was passed a URI which explicitly "
+            throw new IllegalArgumentException("HttpHelper was passed a Uri which explicitly "
                             + "asked for a different format: '" + pUrl + "'!");
         }
 
@@ -386,7 +386,7 @@ public class HTTPHelper {
             pUrl = pUrl.substring(0, pUrl.length() - 1);
         }
 
-        // gracefully accept format-agnostic URIs
+        // gracefully accept format-agnostic Uris
         if (!pUrl.endsWith(".json")) {
             pUrl = pUrl + ".json";
         }

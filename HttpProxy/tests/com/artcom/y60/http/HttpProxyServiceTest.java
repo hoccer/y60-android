@@ -1,6 +1,5 @@
 package com.artcom.y60.http;
 
-import java.net.URI;
 import java.util.Arrays;
 import java.util.concurrent.TimeoutException;
 
@@ -38,7 +37,7 @@ public class HttpProxyServiceTest extends ServiceTestCase<HttpProxyService> {
         HttpProxyService service = getService();
         assertNotNull("service must not be null", service);
 
-        URI uri = TestUriHelper.createUri();
+        Uri uri = TestUriHelper.createUri();
 
         Bundle initial = service.get(uri.toString());
         assertNull("content should be null initially", initial);
