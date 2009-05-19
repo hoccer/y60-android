@@ -42,7 +42,7 @@ public class StatusWatcher extends Service {
     private Thread mHeartbeatThread;
     private DeviceConfiguration mDeviceConfiguration;
     private boolean mIsGomAvailable = false;
-    private long mSleepTime = 4 * 1000;
+    private long mSleepTime = 10 * 1000;
     private String mHistoryLog;
 
     @Override

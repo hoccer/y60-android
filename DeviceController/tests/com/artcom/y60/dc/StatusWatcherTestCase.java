@@ -45,7 +45,7 @@ public class StatusWatcherTestCase extends ServiceTestCase<StatusWatcher> {
         Runnable checkGom = new Runnable() {
             public void run() {
                 try {
-                    Thread.sleep(10 * 1000); // Wait for service to settle, GOM
+                    Thread.sleep(4 * 1000); // Wait for service to settle, GOM
                     // to become available etc
                 } catch (InterruptedException e) {
                     // ignore
@@ -162,7 +162,7 @@ public class StatusWatcherTestCase extends ServiceTestCase<StatusWatcher> {
 
     protected void setUp() throws Exception {
         super.setUp();
-        mIntent = new Intent(getContext(), StatusWatcher.class);
+        mIntent = new Intent("y60.intent.SERVICE_STATUS_WATCHER");
     }
 
     protected void tearDown() throws Exception {

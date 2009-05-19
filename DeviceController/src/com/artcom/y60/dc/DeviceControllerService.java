@@ -17,9 +17,11 @@ package com.artcom.y60.dc;
 
 import java.io.InputStream;
 import java.net.InetAddress;
-import java.net.NetworkInterface;
-import java.util.Enumeration;
+import java.net.SocketException;
+import java.util.HashSet;
+import java.util.Iterator;
 
+import org.mortbay.ijetty.AndroidLog;
 import org.mortbay.jetty.Connector;
 import org.mortbay.jetty.Handler;
 import org.mortbay.jetty.Server;
@@ -43,6 +45,7 @@ import com.artcom.y60.BindingListener;
 import com.artcom.y60.DeviceConfiguration;
 import com.artcom.y60.ErrorHandling;
 import com.artcom.y60.Logger;
+import com.artcom.y60.NetworkHelper;
 import com.artcom.y60.PreferencesActivity;
 import com.artcom.y60.gom.GomNode;
 import com.artcom.y60.gom.GomProxyHelper;
@@ -53,10 +56,10 @@ public class DeviceControllerService extends Service {
     public static final String DEFAULT_PORTNAME = "com.artcom.y60.dc.port";
     public static final int DEFAULT_PORT = 4042;
     private static final String LOG_TAG = "DeviceControllerService";
-    
+
     private static Resources sResources;
-    
-    private Server mServer;
+
+    Server mServer;
     private boolean mUseNio;
     private SharedPreferences mPreferences;
 
@@ -71,39 +74,27 @@ public class DeviceControllerService extends Service {
         mGom = new GomProxyHelper(this, new BindingListener<GomProxyHelper>() {
 
             public void bound(GomProxyHelper helper) {
-                
+
                 mGom = helper;
-                
-//                String portDefault = getText(R.string.pref_port_value).toString();
-//                String portKey = getText(R.string.pref_port_key).toString();
-//                Bundle bundle = intent.getExtras();
-//                if (bundle != null && bundle.containsKey(DEFAULT_PORTNAME)) {
-//                    mPort = Integer.parseInt(bundle.getString(DEFAULT_PORTNAME));
-//                } else if (mPreferences.contains(portKey)) {
-//                    mPort = Integer.parseInt(mPreferences.getString(portKey, portDefault));
-//                } else {
-//                    mPort = DEFAULT_PORT;
-//                }
-                
-                int port = DEFAULT_PORT;
-                Logger.d(LOG_TAG, "set port to "+port);
 
                 try {
-                    startServer(port);
-                    updateRciUri(port);
-                    
+                    mServer = startServer(DEFAULT_PORT);
+                    updateRciUri(DEFAULT_PORT);
+
                 } catch (Exception ex) {
-                    
+
                     ErrorHandling.signalUnspecifiedError(LOG_TAG, ex, DeviceControllerService.this);
                 }
             }
 
             public void unbound(GomProxyHelper helper) {
-                
+
                 mGom = null;
             }
         });
 
+        Intent statusWatcherIntent = new Intent("y60.intent.SERVICE_STATUS_WATCHER");
+        startService(statusWatcherIntent);
     }
 
     public void onStart(Intent intent, int startId) {
@@ -123,8 +114,9 @@ public class DeviceControllerService extends Service {
 
             mUseNio = mPreferences.getBoolean(nioKey, Boolean.valueOf(nioDefault));
 
-            Toast.makeText(DeviceControllerService.this, R.string.jetty_started,
-                           Toast.LENGTH_SHORT).show();
+            Toast
+                    .makeText(DeviceControllerService.this, R.string.jetty_started,
+                            Toast.LENGTH_SHORT).show();
 
             // The PendingIntent to launch DeviceControllerActivity activity if
             // the user selects this notification
@@ -160,7 +152,7 @@ public class DeviceControllerService extends Service {
             Logger.i(LOG_TAG, "I'm running in the emulator. Not publishing Remote Control URI.");
             return;
         }
-        
+
         String command_uri = "http://" + ipAddress + ":" + pPort + "/commands";
         Logger.v(LOG_TAG, "command_uri of local device controller is ", command_uri);
 
@@ -186,7 +178,7 @@ public class DeviceControllerService extends Service {
                 mGom.unbind();
             }
         } catch (Exception e) {
-            Logger.e(LOG_TAG, "Error stopping DeviceControllerService. Exception: " + e);
+            ErrorHandling.signalServiceError(LOG_TAG, e, this);
             Toast.makeText(this, getText(R.string.jetty_not_stopped), Toast.LENGTH_SHORT).show();
         }
     }
@@ -227,10 +219,9 @@ public class DeviceControllerService extends Service {
         return mBinder;
     }
 
-    private void startServer(int pPort) throws Exception {
-        mServer = new Server();
+    Server startServer(int pPort) throws Exception {
         Connector connector;
-        if (mUseNio) {
+        if (false) {
             SelectChannelConnector nioConnector = new SelectChannelConnector();
             nioConnector.setUseDirectBuffers(false);
             nioConnector.setPort(pPort);
@@ -242,51 +233,54 @@ public class DeviceControllerService extends Service {
             bioConnector.setHost("0.0.0.0"); // listen on all interfaces
             connector = bioConnector;
         }
-        mServer.setConnectors(new Connector[] { connector });
+        
+        Server server = new Server();
+        server.setConnectors(new Connector[] { connector });
 
         // Bridge Jetty logging to Android logging
         System.setProperty("org.mortbay.log.class", "org.mortbay.log.AndroidLog");
-        // org.mortbay.log.Log.setLog(new AndroidLog());
+        org.mortbay.log.Log.setLog(new AndroidLog());
 
         HandlerCollection handlers = new HandlerCollection();
+        if (server == null) {
+            ErrorHandling.signalMissingMandatoryObjectError(LOG_TAG, new RuntimeException(
+            "sombody removed the webserver object"));
+        }
 
         handlers.setHandlers(new Handler[] { new DeviceControllerHandler(this) });
-        mServer.setHandler(handlers);
+        server.setHandler(handlers);
 
-        mServer.start();
+        server.start();
+        return server;
     }
 
     private void stopServer() throws Exception {
         Logger.i(LOG_TAG, "DeviceControllerService stopping");
         mServer.stop();
-        mServer.join();
         mServer = null;
     }
 
-    private String getIpAddress() {
+    String getIpAddress() {
 
-        String address = null;
-
+        HashSet<InetAddress> addresses = null;
         try {
-            Enumeration<NetworkInterface> nis = NetworkInterface.getNetworkInterfaces();
-            while (nis.hasMoreElements()) {
-                NetworkInterface ni = (NetworkInterface) nis.nextElement();
-                if (!ni.getName().equals("lo")) { // pick the first interface
-                    // that is not the loopback
-                    Enumeration<InetAddress> iis = ni.getInetAddresses();
-                    if (!iis.hasMoreElements()) {
-                        continue; // this interface does not have any ip
-                        // addresses, try the next one
-                    }
-                    address = iis.nextElement().getHostAddress();
-                    break;
-                }
-            }
-        } catch (Exception e) {
-            Logger.e(LOG_TAG, "Problem retrieving ip addresses", e);
+            addresses = NetworkHelper.getLocalIpAddresses();
+        } catch (SocketException e1) {
+            ErrorHandling.signalServiceError(LOG_TAG, new RuntimeException(
+                    "could not retive a valid ip address"), this);
         }
 
-        return address;
+        Iterator<InetAddress> itr = addresses.iterator();
+        while (itr.hasNext()) {
+            String addr = itr.next().toString().substring(1);
+            if (addr != "172.0.0.1") {
+                return addr;
+            }
+        }
+
+        ErrorHandling.signalServiceError(LOG_TAG, new RuntimeException(
+                "could not retive a valid ip address"), this);
+        return null;
     }
 
     public class DeviceControllerBinder extends Binder {
