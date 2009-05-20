@@ -19,21 +19,19 @@ public class RciLauncher extends SlotLauncher {
     
     private String mTarget;
 
-    private String mAction;
     
-    public RciLauncher(String pTarget, String pAction, Uri pResourceUri, Uri pRciUri) {
+    public RciLauncher(String pTarget, Uri pResourceUri, Uri pRciUri) {
         
         mResourceUri = pResourceUri;
         mRciUri = pRciUri;
         mTarget = pTarget;
-        mAction = pAction;
     }
 
     public void launch() {
         
         HashMap<String, String> args = new HashMap<String, String>();
         args.put("target", mTarget);
-        args.put("arguments", "action=" + mAction + "&uri=" + mResourceUri.toString());
+        args.put("arguments", "action=&uri=" + mResourceUri.toString());
 
         try {
             
