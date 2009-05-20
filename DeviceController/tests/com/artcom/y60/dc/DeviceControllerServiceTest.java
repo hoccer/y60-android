@@ -58,7 +58,7 @@ public class DeviceControllerServiceTest extends ServiceTestCase<DeviceControlle
 
         String addressString = getService().getIpAddress();
         assertNotNull(addressString);
-        assertFalse("is a local address", addressString.equals("172.0.0.1"));
+        assertFalse("is a local address", addressString.equals("127.0.0.1"));
         Logger.e("keks", addressString);
         InetAddress address = InetAddress.getByName(addressString);
 

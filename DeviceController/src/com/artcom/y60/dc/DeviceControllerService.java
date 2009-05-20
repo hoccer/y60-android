@@ -152,7 +152,7 @@ public class DeviceControllerService extends Service {
             Logger.i(LOG_TAG, "I'm running in the emulator. Not publishing Remote Control URI.");
             return;
         }
-
+ 
         String command_uri = "http://" + ipAddress + ":" + pPort + "/commands";
         Logger.v(LOG_TAG, "command_uri of local device controller is ", command_uri);
 
@@ -272,9 +272,11 @@ public class DeviceControllerService extends Service {
 
         Iterator<InetAddress> itr = addresses.iterator();
         while (itr.hasNext()) {
-            String addr = itr.next().toString().substring(1);
-            if (addr != "172.0.0.1") {
-                return addr;
+            InetAddress addr = itr.next();
+            Logger.d(LOG_TAG, "address: ", addr.getHostAddress());
+            String addrString = addr.getHostAddress();
+            if (!addrString.equals("127.0.0.1")) {
+                return addrString;
             }
         }
 
