@@ -34,6 +34,7 @@ public class ErrorHandling {
         context.startActivity(intent);
     }
 
+    @Deprecated
     public static void signalError(String logTag, Throwable error, Category category) {
         Logger.e(LOG_TAG, "signaling error: ", error);
         Intent intent = new Intent("y60.intent.ERROR_PRESENTATION");
@@ -66,6 +67,7 @@ public class ErrorHandling {
         signalError(logTag, error, context, Category.JSON_ERROR);
     }
 
+    @Deprecated
     public static void signalJsonError(String logTag, Throwable error) {
         signalError(logTag, error, Category.JSON_ERROR);
     }
@@ -103,6 +105,7 @@ public class ErrorHandling {
         signalError(logTag, error, context, Category.MISSING_MANDATORY_OBJECT);
     }
 
+    @Deprecated
     public static void signalMissingMandatoryObjectError(String logTag, Throwable error) {
         Logger.e(logTag, "MISSING_MANDATORY_OBJECT", error);
     }
@@ -113,6 +116,7 @@ public class ErrorHandling {
         signalError(logTag, error, context, Category.UNSPECIFIED);
     }
 
+    @Deprecated
     public static void signalUnspecifiedError(String logTag, Throwable error) {
         // TODO this method should not be used eventually
         signalError(logTag, error, Category.UNSPECIFIED);
@@ -123,6 +127,7 @@ public class ErrorHandling {
         signalError(logTag, error, context, Category.IO_ERROR);
     }
     
+    @Deprecated
     public static void signalIOError(String logTag, Throwable error) {
         signalError(logTag, error, Category.IO_ERROR);
     }
