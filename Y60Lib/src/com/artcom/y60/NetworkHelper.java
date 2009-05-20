@@ -12,9 +12,9 @@ public class NetworkHelper {
     
     private static final String LOG_TAG = "NetworkHelper";
 
-    public static Collection<InetAddress> getLocalIpAddresses() throws SocketException {
+    public static HashSet<InetAddress> getLocalIpAddresses() throws SocketException {
         
-        Set<InetAddress> addresses = new HashSet<InetAddress>();
+        HashSet<InetAddress> addresses = new HashSet<InetAddress>();
         Enumeration<NetworkInterface> nis = NetworkInterface.getNetworkInterfaces();
         while (nis.hasMoreElements()) {
             
