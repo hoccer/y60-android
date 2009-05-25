@@ -114,8 +114,7 @@ public class DeviceControllerService extends Service {
 
             mUseNio = mPreferences.getBoolean(nioKey, Boolean.valueOf(nioDefault));
 
-            Toast
-                    .makeText(DeviceControllerService.this, R.string.jetty_started,
+            Toast.makeText(DeviceControllerService.this, R.string.jetty_started,
                             Toast.LENGTH_SHORT).show();
 
             // The PendingIntent to launch DeviceControllerActivity activity if

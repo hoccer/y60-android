@@ -19,7 +19,7 @@ public class ErrorHandling {
 
     private static final String LOG_TAG = "ErrorHandling";
 
-    public static final String ID_ERROR = "error";
+    public static final String ID_MESSAGE = "error";
     public static final String ID_LOGTAG = "logtag";
     public static final String ID_CATEGORY = "category";
 
@@ -27,7 +27,7 @@ public class ErrorHandling {
             Category category) {
         Logger.e(LOG_TAG, "signaling error: ", error);
         Intent intent = new Intent("y60.intent.ERROR_PRESENTATION");
-        intent.putExtra(ID_ERROR, error);
+        intent.putExtra(ID_MESSAGE, error.toString());
         intent.putExtra(ID_LOGTAG, logTag);
         intent.putExtra(ID_CATEGORY, category);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -38,7 +38,7 @@ public class ErrorHandling {
     public static void signalError(String logTag, Throwable error, Category category) {
         Logger.e(LOG_TAG, "signaling error: ", error);
         Intent intent = new Intent("y60.intent.ERROR_PRESENTATION");
-        intent.putExtra(ID_ERROR, error);
+        intent.putExtra(ID_MESSAGE, error.toString());
         intent.putExtra(ID_LOGTAG, logTag);
         // intent.putExtra(ID_CATEGORY, category);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);

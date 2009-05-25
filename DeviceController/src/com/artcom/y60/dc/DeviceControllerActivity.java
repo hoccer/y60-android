@@ -198,4 +198,6 @@ public class DeviceControllerActivity extends Activity
         _ipList.refresh();
         super.onResume();
     }
+    
+    
 }

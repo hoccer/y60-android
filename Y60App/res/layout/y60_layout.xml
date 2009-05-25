@@ -24,7 +24,7 @@ android:text="Set device ID"
 android:id="@+id/mStartY60Button"
 android:layout_width="wrap_content"
 android:layout_height="wrap_content"
-android:text="Start DeviceController/StatusWatcher"
+android:text="Initialize y60 components"
 >
 </Button>
 <Button

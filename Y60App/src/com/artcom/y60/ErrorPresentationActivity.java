@@ -54,13 +54,11 @@ public class ErrorPresentationActivity extends Activity {
 			}
 			
 			String message = "(unspecified error)";
-			if (intent.hasExtra(ErrorHandling.ID_ERROR)) {
-				Throwable exception = (Throwable)intent.getSerializableExtra(ErrorHandling.ID_ERROR);
-				if (message != null) // this already happened once...
-				    message = exception.getMessage();
+			if (intent.hasExtra(ErrorHandling.ID_MESSAGE)) {
+			    message = intent.getStringExtra(ErrorHandling.ID_MESSAGE);
 				
 				// Sort by class here later, for now, we just log everything in verbose mode
-				Logger.v(logTag, exception);
+				Logger.e(logTag, message);
 			}
 			
 			mTextView.setText("Oops! " + logTag + " says: " + message);

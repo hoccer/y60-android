@@ -1,6 +1,8 @@
 package com.artcom.y60;
 
-public class MiddlewareException extends Exception {
+import java.io.Serializable;
+
+public class MiddlewareException extends Exception implements Serializable{
 
     public MiddlewareException() {
         super();

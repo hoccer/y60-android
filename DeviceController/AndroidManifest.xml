@@ -44,6 +44,14 @@
                 <action android:name="android.intent.action.SCREEN_OFF" /> 
             </intent-filter>
         </receiver>
+        
+        <receiver android:enabled="true"
+          android:exported="true"
+          android:name="InitReceiver">
+            <intent-filter>
+                <action android:name="y60.intent.INIT_Y60_BC" /> 
+            </intent-filter>
+        </receiver>
 
     </application>
     

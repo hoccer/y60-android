@@ -127,12 +127,13 @@ public class Y60 extends Activity {
                 Window win = getWindow();
                 win.setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                         WindowManager.LayoutParams.FLAG_FULLSCREEN);
-                // launchEntryPoint();
 
-                Intent startDcIntent = new Intent("y60.intent.SERVICE_DEVICE_CONTROLLER");
-                startService(startDcIntent);
-                Intent startSwIntent = new Intent("y60.intent.SERVICE_STATUS_WATCHER");
-                startService(startSwIntent);
+                
+                
+                Intent broadcastInit = new Intent(Y60Action.INIT_Y60_BC);
+                sendBroadcast(broadcastInit);
+                
+
             }
         });
 
