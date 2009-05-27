@@ -16,6 +16,19 @@
             </intent-filter>
         </activity>
         
+        <activity android:name=".GomNotificationMonitorActivity"
+                  android:label="GOM Notification Monitor"
+                  android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="y60.intent.MONITOR_GOM_NOTIFICATIONS" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+        
         <activity android:name=".Y60" android:label="@string/app_name">
 			<intent-filter>
 				<action android:name="android.intent.action.MAIN" />

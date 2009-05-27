@@ -1,6 +1,5 @@
 package com.artcom.y60;
 
-import android.content.Intent;
 
 public abstract class Y60Action {
 
@@ -17,6 +16,11 @@ public abstract class Y60Action {
     public static final String SERVICE_DEVICE_CONTROLLER = "y60.intent.SERVICE_DEVICE_CONTROLLER";
     
     public static final String SERVICE_STATUS_WATCHER = "y60.intent.SERVICE_STATUS_WATCHER";
+
+    public static final String GOM_NOTIFICATION_BC = "y60.intent.GOM_NOTIFICATION";
+    
+    public static final String MONITOR_GOM_NOTIFICATION = "y60.intent.MONITOR_GOM_NOTIFICATION";
+    
     
     
 }
