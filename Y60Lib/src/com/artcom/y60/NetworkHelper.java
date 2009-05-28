@@ -6,7 +6,6 @@ import java.net.SocketException;
 import java.util.Collection;
 import java.util.Enumeration;
 import java.util.HashSet;
-import java.util.Set;
 
 public class NetworkHelper {
     
@@ -29,7 +28,7 @@ public class NetworkHelper {
         return addresses;
     }
     
-    public InetAddress getTGalleryInetAddress() {
+    public static InetAddress getStagingIp() {
         InetAddress ip = null;
         try {
             Collection<InetAddress> addrs = NetworkHelper.getLocalIpAddresses();

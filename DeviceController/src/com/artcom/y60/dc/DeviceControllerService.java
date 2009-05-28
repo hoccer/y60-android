@@ -42,6 +42,7 @@ import android.widget.Toast;
 
 import com.artcom.y60.BindingException;
 import com.artcom.y60.BindingListener;
+import com.artcom.y60.Constants;
 import com.artcom.y60.DeviceConfiguration;
 import com.artcom.y60.ErrorHandling;
 import com.artcom.y60.Logger;
@@ -54,7 +55,6 @@ public class DeviceControllerService extends Service {
 
     public static final String DEFAULT_NIONAME = "com.artcom.y60.dc.nio";
     public static final String DEFAULT_PORTNAME = "com.artcom.y60.dc.port";
-    public static final int DEFAULT_PORT = 4042;
     private static final String LOG_TAG = "DeviceControllerService";
 
     private static Resources sResources;
@@ -78,8 +78,8 @@ public class DeviceControllerService extends Service {
                 mGom = helper;
 
                 try {
-                    mServer = startServer(DEFAULT_PORT);
-                    updateRciUri(DEFAULT_PORT);
+                    mServer = startServer(Constants.Network.DEFAULT_PORT);
+                    updateRciUri(Constants.Network.DEFAULT_PORT);
 
                 } catch (Exception ex) {
 

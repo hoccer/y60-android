@@ -18,6 +18,7 @@ import org.mortbay.util.UrlEncoded;
 import android.app.Service;
 import android.content.Intent;
 
+import com.artcom.y60.Constants;
 import com.artcom.y60.ErrorHandling;
 import com.artcom.y60.IntentExtraKeys;
 import com.artcom.y60.Logger;
@@ -34,9 +35,6 @@ public class DeviceControllerHandler extends DefaultHandler {
     
     /** target for RCA HTTP requests */
     public static final String RCA_TARGET = "/commands";
-    
-    /** target for GNP HTTP requests */
-    public static final String GNP_TARGET = "/notifications";
     
     // Instance Variables ------------------------------------------------
     
@@ -77,7 +75,7 @@ public class DeviceControllerHandler extends DefaultHandler {
     
                 handleCommand(pRequest);
     
-            } else if (GNP_TARGET.equals(pTarget)) {
+            } else if (Constants.Network.GNP_TARGET.equals(pTarget)) {
                 
                 handleGomNotification(pRequest);
                 
@@ -159,7 +157,8 @@ public class DeviceControllerHandler extends DefaultHandler {
         JSONObject notification = new JSONObject(content);
         Intent     gnpIntent    = new Intent(Y60Action.GOM_NOTIFICATION_BC);
         
-        gnpIntent.putExtra(IntentExtraKeys.KEY_NOTIFICATION_URI, notification.getString("uri"));
+        //wrong concept - uri is actually a path! see RFC 2396 for details
+        gnpIntent.putExtra(IntentExtraKeys.KEY_NOTIFICATION_PATH, notification.getString("uri"));
         
         String operation = null;
         if (notification.has("create")) {

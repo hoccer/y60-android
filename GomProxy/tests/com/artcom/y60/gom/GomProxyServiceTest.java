@@ -3,12 +3,15 @@ package com.artcom.y60.gom;
 import java.util.LinkedList;
 import java.util.List;
 
-import com.artcom.y60.gom.GomProxyService;
-
 import android.content.Intent;
 import android.test.ServiceTestCase;
 
 public class GomProxyServiceTest extends ServiceTestCase<GomProxyService> {
+
+    // Constants ---------------------------------------------------------
+
+    private static final String NOTIFICATION_TESTS_URI = 
+        "http://t-gom.service.t-gallery.act/test/android/y60/infrastructure_gom/gom_proxy_service_test/notification_tests";
 
     // Instance Variables ------------------------------------------------
 
@@ -70,7 +73,7 @@ public class GomProxyServiceTest extends ServiceTestCase<GomProxyService> {
                 service
                         .getAttributeValue("/test/android/y60/infrastructure_gom/gom_proxy_service_test:attribute"));
     }
-
+    
     // Protected Instance Methods ----------------------------------------
 
     protected void setUp() throws Exception {

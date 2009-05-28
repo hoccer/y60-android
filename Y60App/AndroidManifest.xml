@@ -57,6 +57,12 @@
             </intent-filter>
         </activity>
         
+        <activity android:name="Y60TestActivity"  android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+            </intent-filter>
+        </activity>
+        
         <uses-library android:name="android.test.runner" />
         
 	</application>
