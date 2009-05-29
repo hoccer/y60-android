@@ -131,7 +131,7 @@ public class HTTPHelper {
         return istream;
     }
 
-    public static void delete(Uri uri) {
+    public static HttpResponse delete(Uri uri) {
 
         HttpDelete del = new HttpDelete(uri.toString());
         HttpResponse result = executeHTTPMethod(del);
@@ -140,6 +140,8 @@ public class HTTPHelper {
             throw new RuntimeException("Execution of HTTP Method DELETE '" + uri + "' returend "
                             + result.getStatusLine());
         }
+        
+        return result;
     }
     
     public static String get(Uri uri) {
@@ -214,7 +216,7 @@ public class HTTPHelper {
         throw new RuntimeException("Could not retrive content-length header.");
     }
 
-    public static StatusLine postUrlEncoded(String pUrl, Map<String, String> pData) {
+    public static HttpResponse postUrlEncoded(String pUrl, Map<String, String> pData) {
 
         String body = urlEncode(pData);
         HttpPost post = new HttpPost(pUrl);
@@ -222,7 +224,7 @@ public class HTTPHelper {
         // Logger.v(LOG_TAG, "POST " + pUrl + " with body " + body);
 
         insertUrlEncoded(body, post);
-        return executeHTTPMethod(post).getStatusLine();
+        return executeHTTPMethod(post);
     }
 
     public static JSONObject executeServerScript(String pJsStr, Map<String, String> pParams) throws JSONException {
@@ -256,6 +258,28 @@ public class HTTPHelper {
         return tmp.toString();
     }
     
+    public static String extractBodyAsString(HttpEntity entity) {
+        
+        try {
+            return extractBody(entity).toString();
+        } catch (IllegalStateException e) {
+            Logger.e(LOG_TAG, "illegal state: " + e.getMessage());
+            e.printStackTrace();
+            return e.getMessage();
+        } catch (IOException e) {
+            Logger.e(LOG_TAG, "io: " + e.getMessage());
+            e.printStackTrace();
+            return e.getMessage();
+        }
+    }
+    
+    public static byte[] extractBodyAsByteArray(HttpEntity entity) throws IllegalStateException,
+    IOException {
+        
+        return extractBody(entity).toByteArray();
+    }
+    
+    
     // Private Instance Methods ------------------------------------------
 
     private static HttpEntity getAsHttpEntity(Uri uri) {
@@ -276,27 +300,6 @@ public class HTTPHelper {
         }
 
         return response.getEntity();
-    }
-
-    private static String extractBodyAsString(HttpEntity entity) {
-
-        try {
-            return extractBody(entity).toString();
-        } catch (IllegalStateException e) {
-            Logger.e(LOG_TAG, "illegal state: " + e.getMessage());
-            e.printStackTrace();
-            return e.getMessage();
-        } catch (IOException e) {
-            Logger.e(LOG_TAG, "io: " + e.getMessage());
-            e.printStackTrace();
-            return e.getMessage();
-        }
-    }
-
-    private static byte[] extractBodyAsByteArray(HttpEntity entity) throws IllegalStateException,
-                    IOException {
-
-        return extractBody(entity).toByteArray();
     }
 
     private static ByteArrayOutputStream extractBody(HttpEntity entity) throws IOException {

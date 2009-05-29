@@ -5,6 +5,7 @@ import java.net.InetAddress;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.http.HttpResponse;
 import org.apache.http.StatusLine;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -36,11 +37,42 @@ public class GomNotificationHelper {
         
         postObserverToGom(pPath);
         
-        return createBroadcastReceiver(pPath,pGomObserver);
-        
+        return createBroadcastReceiver(pPath, pGomObserver);
     }
+    
+    /**
+     * @param pPath
+     * @throws IOException
+     */
+    public static void postObserverToGom(String pPath) throws IOException {
+        Map<String, String> formData = new HashMap<String, String>();
+        
+        InetAddress myIp        = NetworkHelper.getStagingIp();
+        Logger.v(LOG_TAG, "myIp: ", myIp.toString());
+        String      ip          = myIp.getHostAddress();
+        Logger.v(LOG_TAG, "ip: ", ip);
+        String      callbackUrl = "http://"+ip+":"+Constants.Network.DEFAULT_PORT+Constants.Network.GNP_TARGET;
+        Logger.v(LOG_TAG, "callbackUrl: ", callbackUrl);
+        formData.put("callback_url", callbackUrl);
+        formData.put("accept", "application/json");
 
-
+        String      observerPath = getObserverPathFor(pPath);
+        String      observerUri  = Constants.Gom.URI+observerPath;
+        
+        Logger.d(LOG_TAG, "posting observer for GOM entry "+pPath+" to "+observerUri+" for callback "+callbackUrl);
+        
+        HttpResponse response = HTTPHelper.postUrlEncoded(observerUri, formData);
+        StatusLine   status   = response.getStatusLine();
+        if (status.getStatusCode() >= 300) {
+            
+            throw new IOException("Unexpected HTTP status code: "+status.getStatusCode());
+        }
+        
+        String result = HTTPHelper.extractBodyAsString(response.getEntity());
+        Logger.v(LOG_TAG, "result of post to observer: ", result);
+    }
+    
+    
     private static BroadcastReceiver createBroadcastReceiver(final String pPath, final GomObserver pGomObserver) {
         // TODO Auto-generated method stub
         
@@ -53,33 +85,49 @@ public class GomNotificationHelper {
             @Override
             public void onReceive(Context pArg0, Intent pArg1) {
                 
-                Logger.d(LOG_TAG, "onReceive with intent: ", pArg1.toString(), " i-path: ", pArg1.getStringExtra(IntentExtraKeys.KEY_NOTIFICATION_PATH));
-              
+                Logger.d(LOG_TAG, "onReceive with intent: ", pArg1.toString());
+                Logger.v(LOG_TAG, " - path: ", pArg1.getStringExtra(IntentExtraKeys.KEY_NOTIFICATION_PATH));
+                
                 if (pPath.equals(pArg1.getStringExtra(IntentExtraKeys.KEY_NOTIFICATION_PATH))){
+                    
+                    Logger.d(LOG_TAG, "ok, it's my path");
+                    Logger.v(LOG_TAG, " - operation: ", pArg1.getStringExtra(IntentExtraKeys.KEY_NOTIFICATION_OPERATION));
+                    Logger.v(LOG_TAG, " - data: ", pArg1.getStringExtra(IntentExtraKeys.KEY_NOTIFICATION_DATA_STRING));
                     
                     String jsnStr   = pArg1.getStringExtra(IntentExtraKeys.KEY_NOTIFICATION_DATA_STRING);
                     JSONObject data;
                     try {
                         data = new JSONObject(jsnStr);
+                        
                     } catch (JSONException e) {
-                        // TODO Auto-generated catch block
+
                         throw new RuntimeException(e);
                     }
 
-                    if ("create".equals(pArg1.getStringExtra(IntentExtraKeys.KEY_NOTIFICATION_OPERATION))){
+                    String operation = pArg1.getStringExtra(IntentExtraKeys.KEY_NOTIFICATION_OPERATION);
+                    if ("create".equals(operation)) {
                         
+                        Logger.v(LOG_TAG, "it's a CREATE notification");
                         pGomObserver.onEntryCreated(pPath, data);
                         
-                    }else if("update".equals(pArg1.getStringExtra(IntentExtraKeys.KEY_NOTIFICATION_OPERATION))){
+                    } else if("update".equals(operation)) {
                         
+                        Logger.v(LOG_TAG, "it's an UPDATE notification");
                         pGomObserver.onEntryUpdated(pPath, data);
                         
-                    }else if("delete".equals(pArg1.getStringExtra(IntentExtraKeys.KEY_NOTIFICATION_OPERATION))){
+                    } else if("delete".equals(operation)) {
                         
+                        Logger.v(LOG_TAG, "it's an DELETE notification");
                         pGomObserver.onEntryDeleted(pPath, data);
                         
+                    } else {
+                        
+                        Logger.w(LOG_TAG, "GOM notification with unknown operation: ", operation);
                     }
                     
+                } else {
+                    
+                    Logger.d(LOG_TAG, "ignoring -  not my path ("+pPath+")");
                 }
         
             }
@@ -90,32 +138,6 @@ public class GomNotificationHelper {
     }
 
 
-    /**
-     * @param pPath
-     * @throws IOException
-     */
-    private static void postObserverToGom(String pPath) throws IOException {
-        Map<String, String> formData = new HashMap<String, String>();
-        
-        InetAddress myIp        = NetworkHelper.getStagingIp();
-        String      ip          = myIp.getHostAddress();
-        String      callbackUrl = "http://"+ip+":"+Constants.Network.DEFAULT_PORT+Constants.Network.GNP_TARGET;
-        formData.put("callback_url", callbackUrl);
-        formData.put("accept", "application/json");
-
-        String      observerPath = getObserverPathFor(pPath);
-        String      observerUri  = Constants.Gom.URI+observerPath;
-        
-        Logger.d(LOG_TAG, "posting observer for GOM entry "+pPath+" to "+observerUri+" for callback "+callbackUrl);
-        
-        StatusLine status = HTTPHelper.postUrlEncoded(observerUri, formData);
-        if (status.getStatusCode() >= 300) {
-            
-            throw new IOException("Unexpected HTTP status code: "+status.getStatusCode());
-        }
-    }
-    
-    
     /**
      * Convenience Method which returns the path to the node in which all the
      * observers of the given path reside.
