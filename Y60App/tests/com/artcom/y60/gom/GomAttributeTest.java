@@ -66,7 +66,7 @@ public class GomAttributeTest extends AndroidTestCase {
         assertTrue("attribute should not exist", !parent.hasAttribute(attrName));
 
         Uri attrUri = Uri.parse(parent.getUri() + ":" + attrName);
-        GomAttribute.putOrCreateValue(attrUri, "the putted value");
+        GomHttpWrapper.putOrCreateValue(attrUri, "the putted value");
         parent.refresh();
         assertTrue("attribute should exist", parent.hasAttribute(attrName));
         assertEquals("the putted value", parent.getAttribute(attrName).getValue());
