@@ -1,16 +1,12 @@
 package com.artcom.y60.gom;
 
-import java.util.HashMap;
-import java.util.Map;
 
-import org.apache.http.StatusLine;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.net.Uri;
 import android.os.RemoteException;
 
-import com.artcom.y60.HTTPHelper;
+import com.artcom.y60.Constants;
 import com.artcom.y60.Logger;
 
 /**
@@ -26,15 +22,14 @@ public class GomAttribute extends GomEntry {
 
     private final static String LOG_TAG = "GomAttribute";
 
+    
     // Static Methods ----------------------------------------------------
 
     public static String extractNameFromPath(String pPath) {
 
         return pPath.substring(pPath.lastIndexOf(":") + 1);
     }
-
-    // Instance Variables ------------------------------------------------
-
+    
     /** The attribute value */
     private String mValue;
 
@@ -73,7 +68,7 @@ public class GomAttribute extends GomEntry {
 
     public void putValue(String pValue) {
 
-        putOrCreateValue(getUri(), pValue);
+        GomHttpWrapper.updateOrCreateAttribute(getUri(), pValue);
         // update my data
         try {
             refresh();
@@ -82,27 +77,6 @@ public class GomAttribute extends GomEntry {
         }
     }
 
-    public static void putOrCreateValue(Uri pUri, String pValue) {
-        try {
-
-            Map<String, String> formData = new HashMap<String, String>();
-            formData.put(GomKeywords.ATTRIBUTE, pValue);
-
-            StatusLine statusLine = HTTPHelper.putUrlEncoded(pUri.toString(), formData);
-
-            //Logger.v(LOG_TAG, "PUT ", pUri, " with ", formData,"result code: ", statusLine.getStatusCode());
-
-            if (statusLine.getStatusCode() >= 300) {
-
-                // not want!
-                throw new RuntimeException("HTTP server returned status code "
-                        + statusLine.getStatusCode() + "!");
-            }
-        } catch (Exception e) {
-
-            throw new RuntimeException(e);
-        }
-    }
 
     public JSONObject toJson() {
 
@@ -118,12 +92,12 @@ public class GomAttribute extends GomEntry {
             JSONObject json = new JSONObject();
 
             JSONObject attr = new JSONObject();
-            json.put(GomKeywords.ATTRIBUTE, attr);
+            json.put(Constants.Gom.Keywords.ATTRIBUTE, attr);
 
-            attr.put(GomKeywords.NAME, getName());
-            attr.put(GomKeywords.NODE, mNodePath);
-            attr.put(GomKeywords.VALUE, getValue());
-            attr.put(GomKeywords.TYPE, "string");
+            attr.put(Constants.Gom.Keywords.NAME, getName());
+            attr.put(Constants.Gom.Keywords.NODE, mNodePath);
+            attr.put(Constants.Gom.Keywords.VALUE, getValue());
+            attr.put(Constants.Gom.Keywords.TYPE, "string");
 
             return json;
 

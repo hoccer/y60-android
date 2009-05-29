@@ -15,6 +15,7 @@ import org.json.JSONObject;
 import android.net.Uri;
 import android.os.RemoteException;
 
+import com.artcom.y60.Constants;
 import com.artcom.y60.HTTPHelper;
 import com.artcom.y60.Logger;
 
@@ -159,7 +160,7 @@ public class GomNode extends GomEntry {
         try {
             attribute = getAttribute(pName);
         } catch (NoSuchElementException e) {
-            GomAttribute.putOrCreateValue(Uri.parse(getUri() + ":" + pName), "");
+            GomHttpWrapper.updateOrCreateAttribute(Uri.parse(getUri() + ":" + pName), "");
             Logger.e(LOG_TAG, "creating nonexistend gom attribute");
             try {
                 refresh();
@@ -208,9 +209,9 @@ public class GomNode extends GomEntry {
             JSONObject json = new JSONObject();
 
             JSONObject node = new JSONObject();
-            json.put(GomKeywords.NODE, node);
+            json.put(Constants.Gom.Keywords.NODE, node);
 
-            node.put(GomKeywords.URI, getPath());
+            node.put(Constants.Gom.Keywords.URI, getPath());
 
             if (pFlush) {
 
