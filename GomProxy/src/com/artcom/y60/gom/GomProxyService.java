@@ -1,5 +1,6 @@
 package com.artcom.y60.gom;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -10,14 +11,18 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.app.Service;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.IBinder;
 import android.os.RemoteException;
 
+import com.artcom.y60.Constants;
 import com.artcom.y60.DeviceConfiguration;
 import com.artcom.y60.ErrorHandling;
 import com.artcom.y60.HTTPHelper;
+import com.artcom.y60.IntentExtraKeys;
 import com.artcom.y60.JsonHelper;
 import com.artcom.y60.Logger;
 
@@ -25,14 +30,7 @@ public class GomProxyService extends Service {
 
     // Constants ---------------------------------------------------------
 
-    public static final String LOG_TAG;
-
-    // Static Initializer ------------------------------------------------
-
-    static {
-
-        LOG_TAG = "GomProxyService[class " + System.currentTimeMillis() + "]";
-    }
+    private static final String LOG_TAG = "GomProxyService";
 
     // Instance Variables ------------------------------------------------
 
@@ -46,6 +44,8 @@ public class GomProxyService extends Service {
 
     private Uri mBaseUri;
 
+    private GomNotificationBroadcastReceiver mReceiver;
+
     // Constructors ------------------------------------------------------
 
     public GomProxyService() {
@@ -53,10 +53,10 @@ public class GomProxyService extends Service {
         mId = String.valueOf(System.currentTimeMillis());
         mNodes = new HashMap<String, NodeData>();
         mAttributes = new HashMap<String, String>();
-        Logger.v(tag(), "HttpProxyService instantiated");
+        Logger.v(LOG_TAG, "HttpProxyService instantiated");
 
-        DeviceConfiguration conf = DeviceConfiguration.load();
-        mBaseUri = Uri.parse(conf.getGomUrl());
+        mBaseUri = Uri.parse(Constants.Gom.URI);
+        mReceiver = new GomNotificationBroadcastReceiver();
     }
 
     // Public Instance Methods -------------------------------------------
@@ -66,26 +66,26 @@ public class GomProxyService extends Service {
         DeviceConfiguration conf = DeviceConfiguration.load();
         Logger.setFilterLevel(conf.getLogLevel());
 
-        Logger.i(tag(), "GomProxyService.onCreate");
+        Logger.i(LOG_TAG, "GomProxyService.onCreate");
 
         super.onCreate();
 
         mRemote = new GomProxyRemote();
+        registerReceiver(mReceiver, Constants.Gom.NOTIFICATION_FILTER);
     }
 
     public void onStart(Intent intent, int startId) {
 
-        DeviceConfiguration conf = DeviceConfiguration.load();
-        Logger.setFilterLevel(conf.getLogLevel());
-
-        Logger.i(tag(), "onStart");
+        Logger.i(LOG_TAG, "onStart");
 
         super.onStart(intent, startId);
     }
 
     public void onDestroy() {
 
-        Logger.i(tag(), "onDestroy");
+        Logger.i(LOG_TAG, "onDestroy");
+
+        unregisterReceiver(mReceiver);
 
         super.onDestroy();
     }
@@ -106,12 +106,18 @@ public class GomProxyService extends Service {
 
             if (!hasNodeInCache(pPath)) {
 
-                Logger.v(tag(), "node not in cache, load from gom");
+                Logger.v(LOG_TAG, "node not in cache, load from gom");
                 loadNode(pPath);
+
+                try {
+                    GomNotificationHelper.postObserverToGom(pPath);
+                } catch (IOException e) {
+                    ErrorHandling.signalIOError(LOG_TAG, e, this);
+                }
 
             } else {
 
-                Logger.v(tag(), "ok, node's in cache");
+                Logger.v(LOG_TAG, "ok, node's in cache");
             }
 
             node = mNodes.get(pPath);
@@ -129,18 +135,24 @@ public class GomProxyService extends Service {
 
     String getAttributeValue(String pPath) {
 
-        Logger.v(tag(), "getAttributeValue(", pPath, ")");
+        Logger.v(LOG_TAG, "getAttributeValue(", pPath, ")");
 
         synchronized (mAttributes) {
 
             if (!hasAttributeInCache(pPath)) {
 
-                Logger.v(tag(), "attribute not in cache, load from gom");
+                Logger.v(LOG_TAG, "attribute not in cache, load from gom");
                 loadAttribute(pPath);
+
+                try {
+                    GomNotificationHelper.postObserverToGom(pPath);
+                } catch (IOException e) {
+                    ErrorHandling.signalIOError(LOG_TAG, e, this);
+                }
 
             } else {
 
-                Logger.v(tag(), "ok, attribute's in cache");
+                Logger.v(LOG_TAG, "ok, attribute's in cache");
             }
 
             String value = mAttributes.get(pPath);
@@ -151,7 +163,7 @@ public class GomProxyService extends Service {
 
     void refreshEntry(String pPath) {
 
-        Logger.v(tag(), "refreshEntry(", pPath, ")");
+        Logger.v(LOG_TAG, "refreshEntry(", pPath, ")");
         String lastSegment = pPath.substring(pPath.lastIndexOf("/") + 1);
         if (lastSegment.contains(":")) {
 
@@ -182,51 +194,17 @@ public class GomProxyService extends Service {
 
     private void loadNode(String pPath) {
 
-        Logger.v(tag(), "loadNode(", pPath, ")");
-
-        NodeData node = new NodeData(new LinkedList<String>(), new LinkedList<String>());
+        Logger.v(LOG_TAG, "loadNode(", pPath, ")");
 
         try {
 
             String uri = Uri.withAppendedPath(mBaseUri, pPath).toString();
             JSONObject jsob = HTTPHelper.getJson(uri);
-            JSONObject jsNode = JsonHelper.getMemberOrSelf(jsob, GomKeywords.NODE);
-
-            JSONArray children = jsNode.getJSONArray(GomKeywords.ENTRIES);
-            for (int i = 0; i < children.length(); i++) {
-
-                JSONObject jsChild = children.getJSONObject(i);
-
-                // try subnode
-                if (jsChild.has(GomKeywords.NODE)) {
-
-                    String subNodePath = jsChild.getString(GomKeywords.NODE);
-                    String subNodeName = subNodePath.substring(subNodePath.lastIndexOf("/") + 1);
-                    node.subNodeNames.add(subNodeName);
-                    continue;
-                }
-
-                // try attribute
-                if (jsChild.has(GomKeywords.ATTRIBUTE)) {
-
-                    JSONObject jsAttr = jsChild.getJSONObject(GomKeywords.ATTRIBUTE);
-                    String attrName = jsAttr.getString(GomKeywords.NAME);
-                    node.attributeNames.add(attrName);
-                    continue;
-                }
-
-                // huh?!
-                Logger.w(tag(), "got entry as child of a GOM node which I can't decode: ", jsChild);
-            }
-
-            synchronized (mNodes) {
-
-                mNodes.put(pPath, node);
-            }
+            updateNodeFromJson(pPath, jsob);
 
         } catch (JSONException x) {
 
-            Logger.e(tag(), "loading node for path ", pPath, " failed", x);
+            Logger.e(LOG_TAG, "loading node for path ", pPath, " failed", x);
 
             synchronized (mNodes) {
 
@@ -236,15 +214,58 @@ public class GomProxyService extends Service {
 
                 } else {
 
-                    Logger.v(tag(), "previous value is in cache, so I don't throw an exception");
+                    Logger.v(LOG_TAG, "previous value is in cache, so I don't throw an exception");
                 }
             }
         }
     }
 
+    /**
+     * @param pPath
+     * @param jsob
+     * @throws JSONException
+     */
+    private void updateNodeFromJson(String pPath, JSONObject jsob) throws JSONException {
+
+        JSONObject jsNode = JsonHelper.getMemberOrSelf(jsob, Constants.Gom.Keywords.NODE);
+        NodeData node = new NodeData(new LinkedList<String>(), new LinkedList<String>());
+
+        JSONArray children = jsNode.getJSONArray(Constants.Gom.Keywords.ENTRIES);
+        for (int i = 0; i < children.length(); i++) {
+
+            JSONObject jsChild = children.getJSONObject(i);
+
+            // try subnode
+            if (jsChild.has(Constants.Gom.Keywords.NODE)) {
+
+                String subNodePath = jsChild.getString(Constants.Gom.Keywords.NODE);
+                String subNodeName = subNodePath.substring(subNodePath.lastIndexOf("/") + 1);
+                node.subNodeNames.add(subNodeName);
+                continue;
+            }
+
+            // try attribute
+            if (jsChild.has(Constants.Gom.Keywords.ATTRIBUTE)) {
+
+                JSONObject jsAttr = jsChild.getJSONObject(Constants.Gom.Keywords.ATTRIBUTE);
+                String attrName = jsAttr.getString(Constants.Gom.Keywords.NAME);
+                node.attributeNames.add(attrName);
+                continue;
+            }
+
+            // huh?!
+            Logger.w(LOG_TAG, "got entry as child of a GOM node which I can't decode: ", jsChild);
+        }
+
+        synchronized (mNodes) {
+
+            mNodes.put(pPath, node);
+        }
+    }
+
     private void loadAttribute(String pPath) {
 
-        Logger.v(tag(), "loadAttribute(", pPath, ")");
+        Logger.v(LOG_TAG, "loadAttribute(", pPath, ")");
 
         try {
 
@@ -256,17 +277,12 @@ public class GomProxyService extends Service {
                 ErrorHandling.signalNetworkError(LOG_TAG, e, this);
                 return;
             }
-            JSONObject attr = jsob.getJSONObject(GomKeywords.ATTRIBUTE);
-            String value = attr.getString(GomKeywords.VALUE);
-
-            synchronized (mAttributes) {
-
-                mAttributes.put(pPath, value);
-            }
+            JSONObject attr = jsob.getJSONObject(Constants.Gom.Keywords.ATTRIBUTE);
+            updateAttributeFromJson(pPath, attr);
 
         } catch (JSONException x) {
 
-            Logger.e(tag(), "loading attribute for path ", pPath, " failed", x);
+            Logger.e(LOG_TAG, "loading attribute for path ", pPath, " failed", x);
 
             synchronized (mAttributes) {
 
@@ -276,15 +292,25 @@ public class GomProxyService extends Service {
 
                 } else {
 
-                    Logger.v(tag(), "previous value is in cache, so I don't throw an exception");
+                    Logger.v(LOG_TAG, "previous value is in cache, so I don't throw an exception");
                 }
             }
         }
     }
 
-    private String tag() {
+    /**
+     * @param pPath
+     * @param attr
+     * @throws JSONException
+     */
+    private void updateAttributeFromJson(String pPath, JSONObject attr) throws JSONException {
 
-        return LOG_TAG + "[instance " + mId + "]";
+        String value = attr.getString(Constants.Gom.Keywords.VALUE);
+
+        synchronized (mAttributes) {
+
+            mAttributes.put(pPath, value);
+        }
     }
 
     // Inner Classes -----------------------------------------------------
@@ -309,7 +335,7 @@ public class GomProxyService extends Service {
         }
 
         public void getNodeData(String path, List<String> subNodeNames, List<String> attributeNames)
-                throws RemoteException {
+                        throws RemoteException {
 
             GomProxyService.this.getNodeData(path, subNodeNames, attributeNames);
         }
@@ -325,4 +351,148 @@ public class GomProxyService extends Service {
         }
     }
 
+    class GomNotificationBroadcastReceiver extends BroadcastReceiver {
+
+        @Override
+        public void onReceive(Context pContext, Intent pIntent) {
+
+            try {
+                String operation = pIntent.getStringExtra(
+                                IntentExtraKeys.KEY_NOTIFICATION_OPERATION).toLowerCase();
+                String path = pIntent.getStringExtra(IntentExtraKeys.KEY_NOTIFICATION_PATH);
+                String dataStr = pIntent
+                                .getStringExtra(IntentExtraKeys.KEY_NOTIFICATION_DATA_STRING);
+
+                Logger.d(LOG_TAG, "GOM receiver for GomProxyService received notification: ",
+                                operation.toUpperCase(), " ", path);
+
+                synchronized (mAttributes) {
+
+                    if ("update".equals(operation) && mAttributes.containsKey(path)) {
+
+                        Logger.d(LOG_TAG, "notification affects attribute in cache: ", path);
+
+                        JSONObject dataJson = new JSONObject(dataStr);
+                        JSONObject attrJson = dataJson
+                                        .getJSONObject(Constants.Gom.Keywords.ATTRIBUTE);
+                        updateAttributeFromJson(path, attrJson);
+                        return;
+                    }
+
+                }
+
+                synchronized (mNodes) {
+
+                    if (path.contains(":")) {
+
+                        int colonIdx = path.lastIndexOf(":");
+                        String nodePath = path.substring(0, colonIdx);
+
+                        Logger.d(LOG_TAG, "node path: ", nodePath);
+
+                        if ("create".equals(operation)) {
+
+                            if (mNodes.containsKey(nodePath)) {
+
+                                Logger.d(LOG_TAG, "create attribute on node in cache: ", path);
+
+                                String attrName = path.substring(colonIdx + 1);
+                                NodeData nodeData = mNodes.get(nodePath);
+                                nodeData.attributeNames.add(attrName);
+                            }
+
+                            return;
+                        }
+
+                        if ("delete".equals(operation)) {
+
+                            if (mNodes.containsKey(nodePath)) {
+
+                                Logger.d(LOG_TAG, "delete attribute on node in cache: ", path);
+
+                                String attrName = path.substring(colonIdx + 1);
+                                NodeData nodeData = mNodes.get(nodePath);
+                                nodeData.attributeNames.remove(attrName);
+                            }
+
+                            synchronized (mAttributes) {
+
+                                if (mAttributes.containsKey(path)) {
+
+                                    mAttributes.remove(path);
+
+                                }
+                            }
+
+                            return;
+                        }
+
+                    } else {
+
+                        int slashIdx = path.lastIndexOf("/");
+                        String parentPath = path.substring(0, slashIdx);
+
+                        Logger.d(LOG_TAG, "node path: ", parentPath);
+
+                        if ("create".equals(operation)) {
+
+                            if (mNodes.containsKey(parentPath)) {
+
+                                Logger.d(LOG_TAG, "create sub node on node in cache: ", path);
+
+                                String subNodeName = path.substring(slashIdx + 1);
+                                NodeData nodeData = mNodes.get(parentPath);
+                                nodeData.subNodeNames.add(subNodeName);
+                            }
+
+                            return;
+                        }
+
+                        if ("delete".equals(operation)) {
+
+                            if (mNodes.containsKey(parentPath)) {
+
+                                Logger.d(LOG_TAG, "delete sub node on node in cache: ", path);
+
+                                String subNodeName = path.substring(slashIdx + 1);
+                                NodeData nodeData = mNodes.get(parentPath);
+                                nodeData.subNodeNames.remove(subNodeName);
+                            }
+
+                            if (mNodes.containsKey(path)) {
+
+                                mNodes.remove(path);
+
+                            }
+
+                            synchronized (mAttributes) {
+
+                                for (String attributePath : mAttributes.keySet()) {
+                                    if (attributePath.startsWith(path + ":")) {
+                                        mAttributes.remove(attributePath);
+                                    }
+                                }
+                                
+                            }
+                            
+                            for (String nodePath : mNodes.keySet()) {
+                                if (nodePath.startsWith(path + "/")) {
+                                    mNodes.remove(nodePath);
+                                }                                
+                            }
+
+                            return;
+                        }
+                    }
+                }
+
+                Logger.d(LOG_TAG, "notification doesn't affect cache");
+
+            } catch (JSONException jsx) {
+
+                ErrorHandling.signalJsonError(LOG_TAG, jsx, GomProxyService.this);
+            }
+        }
+
+    }
 }
