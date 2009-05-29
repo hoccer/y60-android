@@ -14,7 +14,6 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.net.Uri;
 import android.os.IBinder;
 
@@ -22,7 +21,6 @@ import com.artcom.y60.BindingListener;
 import com.artcom.y60.DeviceConfiguration;
 import com.artcom.y60.ErrorHandling;
 import com.artcom.y60.Logger;
-import com.artcom.y60.gom.GomAttribute;
 import com.artcom.y60.gom.GomNode;
 import com.artcom.y60.gom.GomProxyHelper;
 
@@ -105,56 +103,58 @@ public class StatusWatcher extends Service {
         @Override
         public void run() {
 
-            Intent configureDC = new Intent("y60.intent.CONFIGURE_DEVICE_CONTROLLER");
-            configureDC.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-
-            Notification notification = new Notification(R.drawable.network_down_status_icon,
-                    "Y60's GOM not accessible.", System.currentTimeMillis());
 
             String timestamp = "";
             while (mIsHeartbeatLoopRunning) {
                 try {
 
+                    Thread.sleep(mSleepTime);
+                    
                     timestamp = (new SimpleDateFormat("MM/dd/yyyy HH:mm:ss")).format(new Date());
 
-                    GomNode device = mGom.getNode(mDeviceConfiguration.getDevicePath());
-                    device.getOrCreateAttribute("last_alive_update").putValue(timestamp);
+                    if (mGom != null) {
+                        
+                        GomNode device = mGom.getNode(mDeviceConfiguration.getDevicePath());
+                        device.getOrCreateAttribute("last_alive_update").putValue(timestamp);
+    
+                        // append current ping statistic to the history_log in gom
+                        updatePingStatistics();
+    
+                        mNotificationManager.cancel(GOM_NOT_ACCESSIBLE_NOTIFICATION_ID);
+                        mIsGomAvailable = true;
+                        continue;
+                    }
+                        
+                    Logger.w(LOG_TAG, "StatusWatcher isn't (yet?) bound to GomProxyService");
 
-                    // append current ping statistic to the history_log in gom
-                    Thread.sleep(mSleepTime);
-                    updatePingStatistics();
-
-                    mNotificationManager.cancel(GOM_NOT_ACCESSIBLE_NOTIFICATION_ID);
-                    mIsGomAvailable = true;
                 } catch (NoSuchElementException e) {
                     ErrorHandling.signalMissingGomEntryError(LOG_TAG, e, StatusWatcher.this);
-                    continue;
                 } catch (RuntimeException e) {
-                    // TODO this is rather ugly and will remain so until the
-                    // refactoring of the
-                    // scattered RuntimeExceptions throughout is complete.
-
-                    // we write something to the logfile, but otherwise ignore
-                    // this. it's most
-                    // likely a transient network error
-
-                    Logger.w(LOG_TAG, "Could not update status entries in GOM: ", e);
-                    PendingIntent pint = PendingIntent.getActivity(StatusWatcher.this, 0,
-                            configureDC, PendingIntent.FLAG_ONE_SHOT);
-
-                    notification.setLatestEventInfo(StatusWatcher.this, "GOM not accessible",
-                            "network might be down", pint);
-                    mNotificationManager.notify(GOM_NOT_ACCESSIBLE_NOTIFICATION_ID, notification);
-
-                    mIsGomAvailable = false;
-
-                    appendToLog(timestamp + ": network failure");
-                    continue;
+                    ErrorHandling.signalUnspecifiedError(LOG_TAG, e, StatusWatcher.this);
                 } catch (Exception e) {
                     ErrorHandling.signalServiceError(LOG_TAG, e, StatusWatcher.this);
-                    continue;
                 }
+                
+                showWestWindNotification(timestamp);
+                mIsGomAvailable = false;
             }
+        }
+
+        private void showWestWindNotification(String pTimestamp) {
+            
+            Intent configureDC = new Intent("y60.intent.CONFIGURE_DEVICE_CONTROLLER");
+            configureDC.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            Notification notification = new Notification(R.drawable.network_down_status_icon,
+                            "Y60's GOM not accessible.", System.currentTimeMillis());
+            PendingIntent pint = PendingIntent.getActivity(StatusWatcher.this, 0, configureDC,
+                            PendingIntent.FLAG_ONE_SHOT);
+
+            notification.setLatestEventInfo(StatusWatcher.this, "GOM not accessible",
+                            "network might be down", pint);
+            mNotificationManager.notify(GOM_NOT_ACCESSIBLE_NOTIFICATION_ID, notification);
+
+
+            appendToLog(pTimestamp + ": network failure");
         }
 
         private void updatePingStatistics() {
@@ -227,6 +227,9 @@ public class StatusWatcher extends Service {
     }
 
     void unbindFromGom() {
-        mGom.unbind();
+        
+        if (mGom != null) {
+            mGom.unbind();
+        }
     }
 }

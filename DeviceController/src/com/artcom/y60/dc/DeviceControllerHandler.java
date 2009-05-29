@@ -90,9 +90,21 @@ public class DeviceControllerHandler extends DefaultHandler {
             
         } finally {
         
-            Request baseRequest = (pRequest instanceof Request) ? (Request) pRequest : HttpConnection
-                            .getCurrentConnection().getRequest();
-            baseRequest.setHandled(true);
+            if (pRequest instanceof Request) {
+                
+                ((Request) pRequest).setHandled(true);
+                
+            } else {
+
+                HttpConnection connection = HttpConnection.getCurrentConnection();
+                
+                // HACK: if this is called in a test, the request will be mocked and
+                // thus the connection will be null
+                if (connection != null) {
+                    
+                    connection.getRequest().setHandled(true);
+                }
+            }
         }
     }
     
@@ -153,7 +165,9 @@ public class DeviceControllerHandler extends DefaultHandler {
         
         Logger.d(LOG_TAG, "handling GOM notification");
         
-        String     content      = extractContent(pRequest);
+        String content = extractContent(pRequest);
+        Logger.v(LOG_TAG, "JSON data of notification: ", content);
+        
         JSONObject notification = new JSONObject(content);
         Intent     gnpIntent    = new Intent(Y60Action.GOM_NOTIFICATION_BC);
         
@@ -186,6 +200,9 @@ public class DeviceControllerHandler extends DefaultHandler {
         
         mService.sendBroadcast(gnpIntent);
     }
+
+    
+    // Private Instance Methods ------------------------------------------
 
     /**
      * @param pRequest
