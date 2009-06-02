@@ -1,18 +1,23 @@
 package com.artcom.y60.gom;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 import junit.framework.TestCase;
 
+import org.apache.http.StatusLine;
 import org.json.JSONObject;
 
 import android.content.BroadcastReceiver;
 import android.content.Intent;
+import android.net.Uri;
 
 import com.artcom.y60.Constants;
 import com.artcom.y60.HTTPHelper;
 import com.artcom.y60.IntentExtraKeys;
 import com.artcom.y60.Logger;
+import com.artcom.y60.UriHelper;
 import com.artcom.y60.Y60Action;
 
 public class GomNotificationHelperTest extends TestCase {
@@ -136,7 +141,7 @@ public class GomNotificationHelperTest extends TestCase {
         String testPath = TEST_BASE_PATH + "/test_notification_create";
         String attrPath = testPath + ":" + timestamp;
 
-        AssertiveGomObserver gomObserver = new AssertiveGomObserver();
+        GomTestObserver gomObserver = new GomTestObserver();
 
         BroadcastReceiver br;
         br = GomNotificationHelper.registerObserver(attrPath, gomObserver);
@@ -157,7 +162,7 @@ public class GomNotificationHelperTest extends TestCase {
         String testPath = TEST_BASE_PATH + "/test_notification_update";
         String attrPath = testPath + ":" + timestamp;
 
-        AssertiveGomObserver gomObserver = new AssertiveGomObserver();
+        GomTestObserver gomObserver = new GomTestObserver();
 
         BroadcastReceiver br;
         br = GomNotificationHelper.registerObserver(attrPath, gomObserver);
@@ -177,7 +182,7 @@ public class GomNotificationHelperTest extends TestCase {
         String testPath = TEST_BASE_PATH + "/test_notification_delete";
         String attrPath = testPath + ":" + timestamp;
 
-        AssertiveGomObserver gomObserver = new AssertiveGomObserver();
+        GomTestObserver gomObserver = new GomTestObserver();
 
         BroadcastReceiver br;
         br = GomNotificationHelper.registerObserver(attrPath, gomObserver);
@@ -193,13 +198,33 @@ public class GomNotificationHelperTest extends TestCase {
     }
 
     public void testCreateRegularExpFromPath() {
-        
+
         String basePath = "/baseNode/node";
-        
+
         String regExp = GomNotificationHelper.createRegularExpression(basePath);
+
+        assertTrue("Regular expression should have matched the path", Pattern.matches(regExp,
+                basePath));
+        assertTrue("Regular expression should have matched the path", Pattern.matches(regExp,
+                basePath + "/subNode"));
+        assertTrue("Regular expression should have matched the path", Pattern.matches(regExp,
+                basePath + ":attribute"));
+        assertFalse("Regular expression shouldnt have matched the path", Pattern.matches(regExp,
+                basePath + "/subNode/subSubNode"));
+        assertFalse("Regular expression shouldnt have matched the path", Pattern.matches(regExp,
+                basePath + "/subNode:attribute"));
         
-        assertTrue("Regulare exp does not match path", Pattern.matches(regExp, basePath + "/subNode"));     
+        assertFalse("Regular expression shouldnt have matched the path", Pattern.matches(regExp,
+        "/baseNode/otherNode"));
+        
+        regExp = GomNotificationHelper.createRegularExpression("/test/android/y60/infrastructure_gom/gom_notification_helper_test/test_reg_exp_contraint_on_observer/1243951216126/A/B");
+        assertFalse(Pattern.matches(regExp, 
+                "/test/android/y60/infrastructure_gom/gom_notification_helper_test/test_reg_exp_contraint_on_observer/1243951216126/A/B/X:invalid_attribute"));
+        assertTrue(Pattern.matches(regExp, 
+                "/test/android/y60/infrastructure_gom/gom_notification_helper_test/test_reg_exp_contraint_on_observer/1243951216126/A/B:attribute"));
     }
+
+ 
 
     // Private Instance Methods ------------------------------------------
 
@@ -214,145 +239,4 @@ public class GomNotificationHelperTest extends TestCase {
         return gnpIntent;
 
     }
-
-    // Inner Classes -----------------------------------------------------
-
-    class AssertiveGomObserver implements GomObserver {
-
-        private boolean mCreateCalled = false;
-        private boolean mUpdateCalled = false;
-        private boolean mDeleteCalled = false;
-        private JSONObject mData;
-        private String mPath;
-
-        @Override
-        public void onEntryCreated(String pPath, JSONObject pData) {
-
-            mCreateCalled = true;
-            mData = pData;
-            mPath = pPath;
-        }
-
-        @Override
-        public void onEntryDeleted(String pPath, JSONObject pData) {
-
-            mDeleteCalled = true;
-            mData = pData;
-            mPath = pPath;
-        }
-
-        @Override
-        public void onEntryUpdated(String pPath, JSONObject pData) {
-
-            mUpdateCalled = true;
-            mData = pData;
-            mPath = pPath;
-        }
-
-        public void assertCreateCalled() {
-
-            assertTrue("create not called", mCreateCalled);
-        }
-
-        public void assertDeleteCalled() {
-
-            assertTrue("delete not called", mDeleteCalled);
-        }
-
-        public void assertUpdateCalled() {
-
-            assertTrue("update not called", mUpdateCalled);
-        }
-
-        public void assertCreateNotCalled() {
-
-            assertTrue("create called", !mCreateCalled);
-        }
-
-        public void assertDeleteNotCalled() {
-
-            assertTrue("delete called", !mDeleteCalled);
-        }
-
-        public void assertUpdateNotCalled() {
-
-            assertTrue("update called", !mUpdateCalled);
-        }
-
-        public String getPath() {
-
-            return mPath;
-        }
-
-        public JSONObject getData() {
-
-            return mData;
-        }
-    }
 }
-
-// public void testUpdatesForNode() {
-//        
-// String timestamp = String.valueOf(System.currentTimeMillis());
-// String testPath = TEST_BASE_PATH+"/test_register_observer";
-// String nodePath = testPath+"/"+timestamp;
-// String nodeUri = Constants.Gom.URI+nodePath;
-//        
-// try {
-//            
-// String result = HTTPHelper.get(nodeUri);
-// fail("Expected a 404 on test node "+nodePath+", which shouldn't exist");
-//            
-// } catch (Exception ex) {
-//            
-// boolean is404 = ex.toString().contains("404");
-// assertTrue("expected a 404", is404);
-// }
-//        
-// GomNotificationHelper.registerObserver(nodePath);
-//
-// Map<String, String> formData = new HashMap<String, String>();
-//
-// StatusLine statusLine = HTTPHelper.putUrlEncoded(nodeUri, formData);
-// assertEquals("expected a 200 after creating the node", 200,
-// statusLine.getStatusCode());
-//        
-// // check it's there now - if not, an exception is thrown
-// assertNotNull("unexpected response from GOM", HTTPHelper.get(nodeUri));
-//        
-// // todo: register observer, check for updates
-// }
-
-// public void testUpdatesForAttribute() {
-//        
-// String timestamp = String.valueOf(System.currentTimeMillis());
-// String testPath = TEST_BASE_PATH+"/test_register_observer";
-// String attrPath = testPath+":"+timestamp;
-// String attrUri = Constants.Gom.URI+attrPath;
-//        
-// try {
-//            
-// String result = HTTPHelper.get(attrUri);
-// fail("Expected a 404 on test node "+attrPath+", which shouldn't exist");
-//            
-// } catch (Exception ex) {
-//            
-// boolean is404 = ex.toString().contains("404");
-// assertTrue("expected a 404", is404);
-// }
-//        
-// GomNotificationHelper.registerObserver(attrPath);
-//
-// String attrValue = "der wert ist ganz egal";
-// Map<String, String> formData = new HashMap<String, String>();
-// formData.put(GomKeywords.ATTRIBUTE, attrValue);
-//
-// StatusLine statusLine = HTTPHelper.putUrlEncoded(attrUri, formData);
-// assertEquals("expected a 200 after creating the attribute", 200,
-// statusLine.getStatusCode());
-//        
-// // check it's there now - if not, an exception is thrown
-// assertNotNull("unexpected response from GOM", HTTPHelper.get(attrUri));
-//      
-// // todo: register observer, check for updates
-// }

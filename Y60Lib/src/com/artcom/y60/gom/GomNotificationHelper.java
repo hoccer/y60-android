@@ -45,6 +45,12 @@ public class GomNotificationHelper {
      * @throws IOException
      */
     public static void postObserverToGom(String pPath) throws IOException {
+        
+        postObserverToGom(pPath, false);
+    }
+    
+    public static void postObserverToGom(String pPath, boolean pWithBubbleUp) throws IOException {
+        
         Map<String, String> formData = new HashMap<String, String>();
         
         InetAddress myIp        = NetworkHelper.getStagingIp();
@@ -56,18 +62,21 @@ public class GomNotificationHelper {
         formData.put("callback_url", callbackUrl);
         formData.put("accept", "application/json");
         
-        // constrain gom notifications using a regexp, so that for each entry we get only
-        // events on that entry and one level below, i.e. for nodes events on immediate subnodes
-        // or attributes (no bubbling up from way below)
-        // the structure of the regexp is
-        // base path + optional segment consisting of separator (/, :) + node/attribute name
-        // (no separator allowed in names)
-        //formData.put("uri_regexp", createRegularExpression(pPath) );
+        if (!pWithBubbleUp) {
+            
+            // constrain gom notifications using a regexp, so that for each entry we get only
+            // events on that entry and one level below, i.e. for nodes events on immediate subnodes
+            // or attributes (no bubbling up from way below)
+            // the structure of the regexp is
+            // base path + optional segment consisting of separator (/, :) + node/attribute name
+            // (no separator allowed in names)
+            formData.put("uri_regexp", createRegularExpression(pPath) );
+        }
 
         String      observerPath = getObserverPathFor(pPath);
         String      observerUri  = Constants.Gom.URI+observerPath;
         
-        Logger.d(LOG_TAG, "posting observer for GOM entry "+pPath+" to "+observerUri+" for callback "+callbackUrl);
+        Logger.d(LOG_TAG, "posting observer for GOM entry "+pPath+" to "+observerUri+" for callback "+callbackUrl + " for reg exp: " + createRegularExpression(pPath) );
         
         HttpResponse response = HTTPHelper.postUrlEncoded(observerUri, formData);
         StatusLine   status   = response.getStatusLine();
@@ -97,52 +106,44 @@ public class GomNotificationHelper {
                 Logger.v(LOG_TAG, " - path: ", pArg1
                         .getStringExtra(IntentExtraKeys.KEY_NOTIFICATION_PATH));
 
-                if (pPath.equals(pArg1.getStringExtra(IntentExtraKeys.KEY_NOTIFICATION_PATH))) {
+                Logger.d(LOG_TAG, "ok, it's my path");
+                Logger.v(LOG_TAG, " - operation: ", pArg1
+                        .getStringExtra(IntentExtraKeys.KEY_NOTIFICATION_OPERATION));
+                Logger.v(LOG_TAG, " - data: ", pArg1
+                        .getStringExtra(IntentExtraKeys.KEY_NOTIFICATION_DATA_STRING));
 
-                    Logger.d(LOG_TAG, "ok, it's my path");
-                    Logger.v(LOG_TAG, " - operation: ", pArg1
-                            .getStringExtra(IntentExtraKeys.KEY_NOTIFICATION_OPERATION));
-                    Logger.v(LOG_TAG, " - data: ", pArg1
-                            .getStringExtra(IntentExtraKeys.KEY_NOTIFICATION_DATA_STRING));
+                String jsnStr = pArg1
+                        .getStringExtra(IntentExtraKeys.KEY_NOTIFICATION_DATA_STRING);
+                JSONObject data;
+                try {
+                    data = new JSONObject(jsnStr);
 
-                    String jsnStr = pArg1
-                            .getStringExtra(IntentExtraKeys.KEY_NOTIFICATION_DATA_STRING);
-                    JSONObject data;
-                    try {
-                        data = new JSONObject(jsnStr);
+                } catch (JSONException e) {
 
-                    } catch (JSONException e) {
+                    throw new RuntimeException(e);
+                }
 
-                        throw new RuntimeException(e);
-                    }
+                String operation = pArg1
+                        .getStringExtra(IntentExtraKeys.KEY_NOTIFICATION_OPERATION);
+                if ("create".equals(operation)) {
 
-                    String operation = pArg1
-                            .getStringExtra(IntentExtraKeys.KEY_NOTIFICATION_OPERATION);
-                    if ("create".equals(operation)) {
+                    Logger.v(LOG_TAG, "it's a CREATE notification");
+                    pGomObserver.onEntryCreated(pPath, data);
 
-                        Logger.v(LOG_TAG, "it's a CREATE notification");
-                        pGomObserver.onEntryCreated(pPath, data);
+                } else if ("update".equals(operation)) {
 
-                    } else if ("update".equals(operation)) {
+                    Logger.v(LOG_TAG, "it's an UPDATE notification");
+                    pGomObserver.onEntryUpdated(pPath, data);
 
-                        Logger.v(LOG_TAG, "it's an UPDATE notification");
-                        pGomObserver.onEntryUpdated(pPath, data);
+                } else if ("delete".equals(operation)) {
 
-                    } else if ("delete".equals(operation)) {
-
-                        Logger.v(LOG_TAG, "it's an DELETE notification");
-                        pGomObserver.onEntryDeleted(pPath, data);
-
-                    } else {
-
-                        Logger.w(LOG_TAG, "GOM notification with unknown operation: ", operation);
-                    }
+                    Logger.v(LOG_TAG, "it's a DELETE notification");
+                    pGomObserver.onEntryDeleted(pPath, data);
 
                 } else {
 
-                    Logger.d(LOG_TAG, "ignoring -  not my path (" + pPath + ")");
+                    Logger.w(LOG_TAG, "GOM notification with unknown operation: ", operation);
                 }
-
             }
         };
 
