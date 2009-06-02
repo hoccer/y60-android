@@ -1,15 +1,10 @@
 package com.artcom.y60.gom;
 
-import java.text.AttributedCharacterIterator.Attribute;
-
 import android.net.Uri;
 import android.os.RemoteException;
 import android.test.AndroidTestCase;
 
 import com.artcom.y60.Logger;
-import com.artcom.y60.gom.GomAttribute;
-import com.artcom.y60.gom.GomEntry;
-import com.artcom.y60.gom.GomProxyHelper;
 
 public class GomAttributeTest extends AndroidTestCase {
 
@@ -66,7 +61,7 @@ public class GomAttributeTest extends AndroidTestCase {
         assertTrue("attribute should not exist", !parent.hasAttribute(attrName));
 
         Uri attrUri = Uri.parse(parent.getUri() + ":" + attrName);
-        GomHttpWrapper.putOrCreateValue(attrUri, "the putted value");
+        GomHttpWrapper.updateOrCreateAttribute(attrUri, "the putted value");
         parent.refresh();
         assertTrue("attribute should exist", parent.hasAttribute(attrName));
         assertEquals("the putted value", parent.getAttribute(attrName).getValue());
