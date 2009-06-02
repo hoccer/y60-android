@@ -335,7 +335,7 @@ public class GomProxyService extends Service {
         }
 
         public void getNodeData(String path, List<String> subNodeNames, List<String> attributeNames)
-                        throws RemoteException {
+                throws RemoteException {
 
             GomProxyService.this.getNodeData(path, subNodeNames, attributeNames);
         }
@@ -358,140 +358,150 @@ public class GomProxyService extends Service {
 
             try {
                 String operation = pIntent.getStringExtra(
-                                IntentExtraKeys.KEY_NOTIFICATION_OPERATION).toLowerCase();
+                        IntentExtraKeys.KEY_NOTIFICATION_OPERATION).toLowerCase();
                 String path = pIntent.getStringExtra(IntentExtraKeys.KEY_NOTIFICATION_PATH);
                 String dataStr = pIntent
-                                .getStringExtra(IntentExtraKeys.KEY_NOTIFICATION_DATA_STRING);
+                        .getStringExtra(IntentExtraKeys.KEY_NOTIFICATION_DATA_STRING);
 
                 Logger.d(LOG_TAG, "GOM receiver for GomProxyService received notification: ",
-                                operation.toUpperCase(), " ", path);
-
+                        operation.toUpperCase(), " ", path);
+        
                 synchronized (mAttributes) {
+                    synchronized (mNodes) {
 
-                    if ("update".equals(operation) && mAttributes.containsKey(path)) {
-
-                        Logger.d(LOG_TAG, "notification affects attribute in cache: ", path);
-
-                        JSONObject dataJson = new JSONObject(dataStr);
-                        JSONObject attrJson = dataJson
-                                        .getJSONObject(Constants.Gom.Keywords.ATTRIBUTE);
-                        updateAttributeFromJson(path, attrJson);
-                        return;
-                    }
-
-                }
-
-                synchronized (mNodes) {
-
-                    if (path.contains(":")) {
-
-                        int colonIdx = path.lastIndexOf(":");
-                        String nodePath = path.substring(0, colonIdx);
-
-                        Logger.d(LOG_TAG, "node path: ", nodePath);
-
-                        if ("create".equals(operation)) {
-
-                            if (mNodes.containsKey(nodePath)) {
-
-                                Logger.d(LOG_TAG, "create attribute on node in cache: ", path);
-
-                                String attrName = path.substring(colonIdx + 1);
-                                NodeData nodeData = mNodes.get(nodePath);
-                                nodeData.attributeNames.add(attrName);
-                            }
-
-                            return;
-                        }
-
-                        if ("delete".equals(operation)) {
-
-                            if (mNodes.containsKey(nodePath)) {
-
-                                Logger.d(LOG_TAG, "delete attribute on node in cache: ", path);
-
-                                String attrName = path.substring(colonIdx + 1);
-                                NodeData nodeData = mNodes.get(nodePath);
-                                nodeData.attributeNames.remove(attrName);
-                            }
-
-                            synchronized (mAttributes) {
-
-                                if (mAttributes.containsKey(path)) {
-
-                                    mAttributes.remove(path);
-
-                                }
-                            }
-
-                            return;
-                        }
-
-                    } else {
-
-                        int slashIdx = path.lastIndexOf("/");
-                        String parentPath = path.substring(0, slashIdx);
-
-                        Logger.d(LOG_TAG, "node path: ", parentPath);
-
-                        if ("create".equals(operation)) {
-
-                            if (mNodes.containsKey(parentPath)) {
-
-                                Logger.d(LOG_TAG, "create sub node on node in cache: ", path);
-
-                                String subNodeName = path.substring(slashIdx + 1);
-                                NodeData nodeData = mNodes.get(parentPath);
-                                nodeData.subNodeNames.add(subNodeName);
-                            }
-
-                            return;
-                        }
-
-                        if ("delete".equals(operation)) {
-
-                            if (mNodes.containsKey(parentPath)) {
-
-                                Logger.d(LOG_TAG, "delete sub node on node in cache: ", path);
-
-                                String subNodeName = path.substring(slashIdx + 1);
-                                NodeData nodeData = mNodes.get(parentPath);
-                                nodeData.subNodeNames.remove(subNodeName);
-                            }
-
-                            if (mNodes.containsKey(path)) {
-
-                                mNodes.remove(path);
-
-                            }
-
-                            synchronized (mAttributes) {
-
-                                for (String attributePath : mAttributes.keySet()) {
-                                    if (attributePath.startsWith(path + ":")) {
-                                        mAttributes.remove(attributePath);
-                                    }
-                                }
-                                
-                            }
+                        if (path.contains(":")) {
                             
-                            for (String nodePath : mNodes.keySet()) {
-                                if (nodePath.startsWith(path + "/")) {
-                                    mNodes.remove(nodePath);
-                                }                                
-                            }
-
-                            return;
+                            handleAttributeTransformation(operation, path, dataStr);
+                            
+                        } else {
+                            
+                            handleNodeTransformation(operation, path);
                         }
                     }
                 }
-
-                Logger.d(LOG_TAG, "notification doesn't affect cache");
-
             } catch (JSONException jsx) {
-
                 ErrorHandling.signalJsonError(LOG_TAG, jsx, GomProxyService.this);
             }
+        }
+
+        private void handleAttributeTransformation(String operation, String path, String dataStr)
+                throws JSONException {
+            if ("update".equals(operation) && mAttributes.containsKey(path)) {
+                handleUpdateAttributeOnNotification(path, dataStr);
+                return;
+            }
+            
+            int colonIdx = path.lastIndexOf(":");
+            String nodePath = path.substring(0, colonIdx);
+            String attrName = path.substring(colonIdx + 1);
+
+            Logger.d(LOG_TAG, "node path: ", nodePath);
+
+            if ("create".equals(operation)) {
+                handleCreateAttributeOnNotification(path, nodePath, attrName);
+            }
+            if ("delete".equals(operation)) {
+                handleRemoveAttributeOnNotification(path, nodePath, attrName);
+            }
+        }
+
+        private void handleNodeTransformation(String operation, String path) {
+            int slashIdx = path.lastIndexOf("/");
+            String parentPath = path.substring(0, slashIdx);
+            String subNodeName = path.substring(slashIdx + 1);
+
+            Logger.d(LOG_TAG, "node path: ", parentPath);
+
+            if ("create".equals(operation)) {
+                handleCreateNodeOnNotification(path, parentPath, subNodeName);
+             }
+            if ("delete".equals(operation)) {
+                handleDeleteNodeOnNotification(path, parentPath, subNodeName);
+            }
+        }
+
+        private void handleDeleteNodeOnNotification(String path, String parentPath,
+                String subNodeName) {
+            if (mNodes.containsKey(parentPath)) {
+
+                Logger.d(LOG_TAG, "delete sub node on node in cache: ", path);
+
+                NodeData nodeData = mNodes.get(parentPath);
+                nodeData.subNodeNames.remove(subNodeName);
+            }
+
+            if (mNodes.containsKey(path)) {
+
+                mNodes.remove(path);
+
+            }
+
+            synchronized (mAttributes) {
+
+                for (String attributePath : mAttributes.keySet()) {
+                    if (attributePath.startsWith(path + ":")) {
+                        mAttributes.remove(attributePath);
+                    }
+                }
+
+            }
+
+            for (String nodePath : mNodes.keySet()) {
+                if (nodePath.startsWith(path + "/")) {
+                    mNodes.remove(nodePath);
+                }
+            }
+        }
+
+        private void handleCreateNodeOnNotification(String path, String parentPath,
+                String subNodeName) {
+            if (mNodes.containsKey(parentPath)) {
+
+                Logger.d(LOG_TAG, "create sub node on node in cache: ", path);
+
+                NodeData nodeData = mNodes.get(parentPath);
+                nodeData.subNodeNames.add(subNodeName);
+            }
+        }
+
+        private void handleRemoveAttributeOnNotification(String path, String nodePath,
+                String attrName) {
+            if (mNodes.containsKey(nodePath)) {
+
+                Logger.d(LOG_TAG, "delete attribute on node in cache: ", path);
+
+                NodeData nodeData = mNodes.get(nodePath);
+                nodeData.attributeNames.remove(attrName);
+            }
+
+            synchronized (mAttributes) {
+
+                if (mAttributes.containsKey(path)) {
+
+                    mAttributes.remove(path);
+
+                }
+            }
+        }
+
+        private void handleCreateAttributeOnNotification(String path, String nodePath,
+                String attrName) {
+            if (mNodes.containsKey(nodePath)) {
+
+                Logger.d(LOG_TAG, "create attribute on node in cache: ", path);
+
+                NodeData nodeData = mNodes.get(nodePath);
+                nodeData.attributeNames.add(attrName);
+            }
+        }
+
+        private void handleUpdateAttributeOnNotification(String path, String dataStr)
+                throws JSONException {
+            Logger.d(LOG_TAG, "notification affects attribute in cache: ", path);
+
+            JSONObject dataJson = new JSONObject(dataStr);
+            JSONObject attrJson = dataJson.getJSONObject(Constants.Gom.Keywords.ATTRIBUTE);
+            updateAttributeFromJson(path, attrJson);
         }
 
     }

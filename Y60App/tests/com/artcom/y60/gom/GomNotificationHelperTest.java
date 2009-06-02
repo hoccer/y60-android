@@ -1,5 +1,7 @@
 package com.artcom.y60.gom;
 
+import java.util.regex.Pattern;
+
 import junit.framework.TestCase;
 
 import org.json.JSONObject;
@@ -26,7 +28,6 @@ public class GomNotificationHelperTest extends TestCase {
 
     // Constructors ------------------------------------------------------
 
-    
     // Public Instance Methods -------------------------------------------
 
     @Override
@@ -34,9 +35,14 @@ public class GomNotificationHelperTest extends TestCase {
         super.setUp();
 
         mMockGomObserver = new GomObserver() {
-            public void onEntryCreated(String pPath, JSONObject pData) {}
-            public void onEntryDeleted(String pPath, JSONObject pData) {}
-            public void onEntryUpdated(String pPath, JSONObject pData) {}
+            public void onEntryCreated(String pPath, JSONObject pData) {
+            }
+
+            public void onEntryDeleted(String pPath, JSONObject pData) {
+            }
+
+            public void onEntryUpdated(String pPath, JSONObject pData) {
+            }
         };
         mJson = new JSONObject("{\"hans\":\"wurst\"}");
     }
@@ -134,10 +140,10 @@ public class GomNotificationHelperTest extends TestCase {
 
         BroadcastReceiver br;
         br = GomNotificationHelper.registerObserver(attrPath, gomObserver);
-        
+
         Intent bcIntent = createBroadcastIntent(attrPath, "create", mJson);
         br.onReceive(null, bcIntent);
-        
+
         gomObserver.assertCreateCalled();
         gomObserver.assertDeleteNotCalled();
         gomObserver.assertUpdateNotCalled();
@@ -146,7 +152,7 @@ public class GomNotificationHelperTest extends TestCase {
     }
 
     public void testNotificationUpdate() throws Exception {
-       
+
         String timestamp = String.valueOf(System.currentTimeMillis());
         String testPath = TEST_BASE_PATH + "/test_notification_update";
         String attrPath = testPath + ":" + timestamp;
@@ -155,10 +161,10 @@ public class GomNotificationHelperTest extends TestCase {
 
         BroadcastReceiver br;
         br = GomNotificationHelper.registerObserver(attrPath, gomObserver);
-        
+
         Intent bcIntent = createBroadcastIntent(attrPath, "update", mJson);
         br.onReceive(null, bcIntent);
-        
+
         gomObserver.assertCreateNotCalled();
         gomObserver.assertUpdateCalled();
         gomObserver.assertDeleteNotCalled();
@@ -175,10 +181,10 @@ public class GomNotificationHelperTest extends TestCase {
 
         BroadcastReceiver br;
         br = GomNotificationHelper.registerObserver(attrPath, gomObserver);
-        
+
         Intent bcIntent = createBroadcastIntent(attrPath, "delete", mJson);
         br.onReceive(null, bcIntent);
-        
+
         gomObserver.assertCreateNotCalled();
         gomObserver.assertUpdateNotCalled();
         gomObserver.assertDeleteCalled();
@@ -186,7 +192,14 @@ public class GomNotificationHelperTest extends TestCase {
         assertEquals("data doesn't match", mJson.toString(), gomObserver.getData().toString());
     }
 
-    
+    public void testCreateRegularExpFromPath() {
+        
+        String basePath = "/baseNode/node";
+        
+        String regExp = GomNotificationHelper.createRegularExpression(basePath);
+        
+        assertTrue("Regulare exp does not match path", Pattern.matches(regExp, basePath + "/subNode"));     
+    }
 
     // Private Instance Methods ------------------------------------------
 
@@ -199,11 +212,9 @@ public class GomNotificationHelperTest extends TestCase {
         gnpIntent.putExtra(IntentExtraKeys.KEY_NOTIFICATION_DATA_STRING, pData.toString());
 
         return gnpIntent;
-        
+
     }
-    
-    
-    
+
     // Inner Classes -----------------------------------------------------
 
     class AssertiveGomObserver implements GomObserver {
@@ -213,7 +224,7 @@ public class GomNotificationHelperTest extends TestCase {
         private boolean mDeleteCalled = false;
         private JSONObject mData;
         private String mPath;
-        
+
         @Override
         public void onEntryCreated(String pPath, JSONObject pData) {
 
@@ -224,7 +235,7 @@ public class GomNotificationHelperTest extends TestCase {
 
         @Override
         public void onEntryDeleted(String pPath, JSONObject pData) {
-            
+
             mDeleteCalled = true;
             mData = pData;
             mPath = pPath;
@@ -232,42 +243,49 @@ public class GomNotificationHelperTest extends TestCase {
 
         @Override
         public void onEntryUpdated(String pPath, JSONObject pData) {
-            
+
             mUpdateCalled = true;
             mData = pData;
             mPath = pPath;
         }
 
         public void assertCreateCalled() {
-            
+
             assertTrue("create not called", mCreateCalled);
         }
+
         public void assertDeleteCalled() {
-            
+
             assertTrue("delete not called", mDeleteCalled);
         }
+
         public void assertUpdateCalled() {
-            
+
             assertTrue("update not called", mUpdateCalled);
         }
+
         public void assertCreateNotCalled() {
-            
+
             assertTrue("create called", !mCreateCalled);
         }
+
         public void assertDeleteNotCalled() {
-            
+
             assertTrue("delete called", !mDeleteCalled);
         }
+
         public void assertUpdateNotCalled() {
-            
+
             assertTrue("update called", !mUpdateCalled);
         }
+
         public String getPath() {
-            
+
             return mPath;
         }
+
         public JSONObject getData() {
-            
+
             return mData;
         }
     }

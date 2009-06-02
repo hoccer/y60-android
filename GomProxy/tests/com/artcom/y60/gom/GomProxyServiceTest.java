@@ -86,7 +86,7 @@ public class GomProxyServiceTest extends ServiceTestCase<GomProxyService> {
                                         .getAttributeValue("/test/android/y60/infrastructure_gom/gom_proxy_service_test:attribute"));
     }
 
-    public void testRefreshAttributeOnNotification() throws Exception {
+    public void testUpdateAttributeOnNotification() throws Exception {
 
         startService(mIntent);
 
@@ -255,12 +255,6 @@ public class GomProxyServiceTest extends ServiceTestCase<GomProxyService> {
 
     }
 
-    @Suppress
-    public void testUpdateNodeOnNotification() throws Exception {
-
-        // TODO
-    }
-
     public void testRefreshNodeOnAttributeCreation() throws Exception {
 
         startService(mIntent);
@@ -420,6 +414,8 @@ public class GomProxyServiceTest extends ServiceTestCase<GomProxyService> {
         assertFalse("sub node name shouldn't be there", subNodeNames.contains(subNodeName));
     }
 
+    
+    
     // Protected Instance Methods ----------------------------------------
 
     protected void setUp() throws Exception {
