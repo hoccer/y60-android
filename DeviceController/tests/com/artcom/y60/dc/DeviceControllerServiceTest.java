@@ -7,12 +7,13 @@ import java.net.UnknownHostException;
 
 import org.mortbay.jetty.Connector;
 
-import com.artcom.y60.Logger;
-
 import android.content.Intent;
 import android.test.AssertionFailedError;
 import android.test.ServiceTestCase;
 import android.test.suitebuilder.annotation.Suppress;
+
+import com.artcom.y60.DeviceConfiguration;
+import com.artcom.y60.HTTPHelper;
 
 public class DeviceControllerServiceTest extends ServiceTestCase<DeviceControllerService> {
 
@@ -33,13 +34,13 @@ public class DeviceControllerServiceTest extends ServiceTestCase<DeviceControlle
         blockUntilWebserverIsStarted();
         assertTrue("webserver does not run", getService().mServer.isRunning());
 
-        assertEquals("webserver has unexpected number of connectors", 1,
-                getService().mServer.getConnectors().length);
+        assertEquals("webserver has unexpected number of connectors", 1, getService().mServer
+                .getConnectors().length);
 
         Connector connector = getService().mServer.getConnectors()[0];
-        assertEquals("webserver has unexpected number of open connections", 0,
-                connector.getConnections());
-        
+        assertEquals("webserver has unexpected number of open connections", 0, connector
+                .getConnections());
+
         assertEquals("local port", 4042, connector.getLocalPort());
 
     }
@@ -59,7 +60,6 @@ public class DeviceControllerServiceTest extends ServiceTestCase<DeviceControlle
         String addressString = getService().getIpAddress();
         assertNotNull(addressString);
         assertFalse("is a local address", addressString.equals("127.0.0.1"));
-        Logger.e("keks", addressString);
         InetAddress address = InetAddress.getByName(addressString);
 
         assertTrue("local adress " + address + " is not reachable", address.isReachable(100));
@@ -74,6 +74,23 @@ public class DeviceControllerServiceTest extends ServiceTestCase<DeviceControlle
         blockUntilWebserverIsStarted();
         Socket socket = new Socket("localhost", Integer.parseInt(TEST_PORT));
         socket.close();
+    }
+
+    public void testRciUriInGom() {
+        Intent startIntent = new Intent("y60.intent.SERVICE_DEVICE_CONTROLLER");
+        startService(startIntent);
+
+        DeviceConfiguration dc = DeviceConfiguration.load();
+        String rciUri = HTTPHelper.get(dc.getGomUrl() + dc.getDevicePath() + ":rci_uri.txt");
+
+        // if executed on emulator
+        if (getService().getIpAddress().startsWith("10.0.2.")) {
+            assertTrue("rci_uri starts with 'http://'", rciUri.startsWith("http://"));
+            assertTrue("rci_uri contains a gallery address ", rciUri.contains("192.168.9."));
+            assertTrue("rci_uri ends with ':4042/commands'", rciUri.endsWith(":4042/commands"));
+        } else {
+            assertEquals("http://" + getService().getIpAddress() + ":4042/commands", rciUri);
+        }
     }
 
     void blockUntilWebserverIsStarted() {
