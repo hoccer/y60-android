@@ -11,6 +11,8 @@ public class Constants {
         /** target for GNP HTTP requests */
         public static final String GNP_TARGET = "/notifications";
         
+        public static final String IP_ADDRESS_ATTRIBUTE = "ip_address";
+        
     }
     
     public static class Gom {

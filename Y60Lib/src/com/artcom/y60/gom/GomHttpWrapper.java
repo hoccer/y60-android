@@ -5,6 +5,8 @@ import java.util.Map;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.StatusLine;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import android.net.Uri;
 
@@ -45,4 +47,18 @@ public class GomHttpWrapper {
         return HTTPHelper.delete(pUri);
     }
 
+    public static String getAttributeValue(Uri pAttrUrl) {
+        
+        try {
+            JSONObject wrapper = HTTPHelper.getJson(pAttrUrl.toString());
+            JSONObject attr    = wrapper.getJSONObject(Constants.Gom.Keywords.ATTRIBUTE);
+            String     value   = attr.getString(Constants.Gom.Keywords.VALUE);
+            
+            return value;
+            
+        } catch (JSONException jsx) {
+            
+            throw new RuntimeException(jsx);
+        }
+    }
 }

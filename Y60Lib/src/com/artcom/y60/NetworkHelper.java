@@ -7,6 +7,10 @@ import java.util.Collection;
 import java.util.Enumeration;
 import java.util.HashSet;
 
+import android.net.Uri;
+
+import com.artcom.y60.gom.GomHttpWrapper;
+
 public class NetworkHelper {
     
     private static final String LOG_TAG = "NetworkHelper";
@@ -29,7 +33,9 @@ public class NetworkHelper {
     }
     
     public static InetAddress getStagingIp() {
+        
         InetAddress ip = null;
+        
         try {
             Collection<InetAddress> addrs = NetworkHelper.getLocalIpAddresses();
             for (InetAddress addr : addrs) {
@@ -40,11 +46,29 @@ public class NetworkHelper {
                     ip = addr;
                 }
             }
+            
+            if (ip != null)
+                return ip;
+            
         } catch (SocketException e) {
 
-            //ErrorHandling.signalNetworkError(LOG_TAG, e);
+            Logger.e(LOG_TAG, "couldn't determine local staging IP, now trying to get it from GOM", e);
         }
-        return ip;
+        
+        try {
+            DeviceConfiguration dc = DeviceConfiguration.load();
+            
+            String self       = dc.getDevicePath();
+            String ipAttrPath = self + ":" + Constants.Network.IP_ADDRESS_ATTRIBUTE;
+            Uri    ipAttrUrl  = Uri.parse(Constants.Gom.URI + ipAttrPath); 
+            String ipStr      = GomHttpWrapper.getAttributeValue(ipAttrUrl);
+            
+            return InetAddress.getByName(ipStr);
+            
+        } catch(Exception ex) {
+            
+            throw new RuntimeException(ex);
+        }
     }
 
 }

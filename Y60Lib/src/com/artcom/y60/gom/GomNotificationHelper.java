@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.StatusLine;
@@ -97,6 +98,10 @@ public class GomNotificationHelper {
             throw new IllegalArgumentException("Path cannot be null");
         }
 
+        // reg ex for paths of entries in which we are interested
+        // i.e. the path we observe or one level below
+        final String regEx = createRegularExpression(pPath);
+        
         BroadcastReceiver br = new BroadcastReceiver() {
 
             @Override
@@ -106,43 +111,50 @@ public class GomNotificationHelper {
                 Logger.v(LOG_TAG, " - path: ", pArg1
                         .getStringExtra(IntentExtraKeys.KEY_NOTIFICATION_PATH));
 
-                Logger.d(LOG_TAG, "ok, it's my path");
-                Logger.v(LOG_TAG, " - operation: ", pArg1
-                        .getStringExtra(IntentExtraKeys.KEY_NOTIFICATION_OPERATION));
-                Logger.v(LOG_TAG, " - data: ", pArg1
-                        .getStringExtra(IntentExtraKeys.KEY_NOTIFICATION_DATA_STRING));
-
-                String jsnStr = pArg1
-                        .getStringExtra(IntentExtraKeys.KEY_NOTIFICATION_DATA_STRING);
-                JSONObject data;
-                try {
-                    data = new JSONObject(jsnStr);
-
-                } catch (JSONException e) {
-
-                    throw new RuntimeException(e);
-                }
-
-                String operation = pArg1
-                        .getStringExtra(IntentExtraKeys.KEY_NOTIFICATION_OPERATION);
-                if ("create".equals(operation)) {
-
-                    Logger.v(LOG_TAG, "it's a CREATE notification");
-                    pGomObserver.onEntryCreated(pPath, data);
-
-                } else if ("update".equals(operation)) {
-
-                    Logger.v(LOG_TAG, "it's an UPDATE notification");
-                    pGomObserver.onEntryUpdated(pPath, data);
-
-                } else if ("delete".equals(operation)) {
-
-                    Logger.v(LOG_TAG, "it's a DELETE notification");
-                    pGomObserver.onEntryDeleted(pPath, data);
-
+                String notificationPath = pArg1.getStringExtra(IntentExtraKeys.KEY_NOTIFICATION_PATH);
+                if (Pattern.matches(regEx, notificationPath)) {
+                    
+                    Logger.d(LOG_TAG, "ok, the path is relevant to me");
+                    Logger.v(LOG_TAG, " - operation: ", pArg1
+                            .getStringExtra(IntentExtraKeys.KEY_NOTIFICATION_OPERATION));
+                    Logger.v(LOG_TAG, " - data: ", pArg1
+                            .getStringExtra(IntentExtraKeys.KEY_NOTIFICATION_DATA_STRING));
+    
+                    String jsnStr = pArg1
+                            .getStringExtra(IntentExtraKeys.KEY_NOTIFICATION_DATA_STRING);
+                    JSONObject data;
+                    try {
+                        data = new JSONObject(jsnStr);
+    
+                    } catch (JSONException e) {
+    
+                        throw new RuntimeException(e);
+                    }
+    
+                    String operation = pArg1
+                            .getStringExtra(IntentExtraKeys.KEY_NOTIFICATION_OPERATION);
+                    if ("create".equals(operation)) {
+    
+                        Logger.v(LOG_TAG, "it's a CREATE notification");
+                        pGomObserver.onEntryCreated(pPath, data);
+    
+                    } else if ("update".equals(operation)) {
+    
+                        Logger.v(LOG_TAG, "it's an UPDATE notification");
+                        pGomObserver.onEntryUpdated(pPath, data);
+    
+                    } else if ("delete".equals(operation)) {
+    
+                        Logger.v(LOG_TAG, "it's a DELETE notification");
+                        pGomObserver.onEntryDeleted(pPath, data);
+    
+                    } else {
+    
+                        Logger.w(LOG_TAG, "GOM notification with unknown operation: ", operation);
+                    }
                 } else {
-
-                    Logger.w(LOG_TAG, "GOM notification with unknown operation: ", operation);
+                    
+                    Logger.d(LOG_TAG, "path is not relevant to me");
                 }
             }
         };
