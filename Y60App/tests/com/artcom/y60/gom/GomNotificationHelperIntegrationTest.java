@@ -27,7 +27,7 @@ public class GomNotificationHelperIntegrationTest extends
 
     public void setUp() {
         
-        getActivity().startService(new Intent(Y60Action.SERVICE_STATUS_WATCHER));
+        getActivity().startService(new Intent(Y60Action.SERVICE_DEVICE_CONTROLLER));
     }
 
     public void testRegExpConstraintOnObserver() throws Exception {
