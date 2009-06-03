@@ -99,95 +99,135 @@ public class GomProxyService extends Service {
 
     void getNodeData(String pPath, List<String> pSubNodeNames, List<String> pAttributeNames) {
 
-        // Logger.v(tag(), "getNodeData("+pPath+")");
-
-        NodeData node = null;
-        synchronized (mNodes) {
-
-            if (!hasNodeInCache(pPath)) {
-
-                Logger.v(LOG_TAG, "node not in cache, load from gom");
-                loadNode(pPath);
-
-                try {
-                    GomNotificationHelper.postObserverToGom(pPath);
-                } catch (IOException e) {
-                    ErrorHandling.signalIOError(LOG_TAG, e, this);
+        try {
+            // Logger.v(tag(), "getNodeData("+pPath+")");
+    
+            NodeData node = null;
+            synchronized (mNodes) {
+    
+                if (!hasNodeInCache(pPath)) {
+    
+                    Logger.v(LOG_TAG, "node not in cache, load from gom");
+                    loadNode(pPath);
+    
+                    try {
+                        GomNotificationHelper.postObserverToGom(pPath);
+                    } catch (IOException e) {
+                        ErrorHandling.signalIOError(LOG_TAG, e, this);
+                    }
+    
+                } else {
+    
+                    Logger.v(LOG_TAG, "ok, node's in cache");
                 }
-
-            } else {
-
-                Logger.v(LOG_TAG, "ok, node's in cache");
+    
+                node = mNodes.get(pPath);
             }
-
-            node = mNodes.get(pPath);
-        }
-
-        synchronized (node) {
-
-            pSubNodeNames.clear();
-            pSubNodeNames.addAll(node.subNodeNames);
-
-            pAttributeNames.clear();
-            pAttributeNames.addAll(node.attributeNames);
-        }
-    }
+    
+            synchronized (node) {
+    
+                pSubNodeNames.clear();
+                pSubNodeNames.addAll(node.subNodeNames);
+    
+                pAttributeNames.clear();
+                pAttributeNames.addAll(node.attributeNames);
+            }
+        } catch (Exception ex) {
+            
+            Logger.e(LOG_TAG, ex);
+            throw new RuntimeException(ex);
+        }    }
 
     String getAttributeValue(String pPath) {
 
-        Logger.v(LOG_TAG, "getAttributeValue(", pPath, ")");
-
-        synchronized (mAttributes) {
-
-            if (!hasAttributeInCache(pPath)) {
-
-                Logger.v(LOG_TAG, "attribute not in cache, load from gom");
-                loadAttribute(pPath);
-
-                try {
-                    GomNotificationHelper.postObserverToGom(pPath);
-                } catch (IOException e) {
-                    ErrorHandling.signalIOError(LOG_TAG, e, this);
+        try {
+            Logger.v(LOG_TAG, "getAttributeValue(", pPath, ")");
+    
+            synchronized (mAttributes) {
+    
+                if (!hasAttributeInCache(pPath)) {
+    
+                    Logger.v(LOG_TAG, "attribute not in cache, load from gom");
+                    loadAttribute(pPath);
+    
+                    try {
+                        GomNotificationHelper.postObserverToGom(pPath);
+                    } catch (IOException e) {
+                        ErrorHandling.signalIOError(LOG_TAG, e, this);
+                    }
+    
+                } else {
+    
+                    Logger.v(LOG_TAG, "ok, attribute's in cache");
                 }
-
-            } else {
-
-                Logger.v(LOG_TAG, "ok, attribute's in cache");
+    
+                String value = mAttributes.get(pPath);
+                // Logger.v(tag(), "attribute value: "+value);
+                return value;
             }
-
-            String value = mAttributes.get(pPath);
-            // Logger.v(tag(), "attribute value: "+value);
-            return value;
+        } catch (Exception ex) {
+            
+            Logger.e(LOG_TAG, ex);
+            throw new RuntimeException(ex);
         }
     }
 
     void refreshEntry(String pPath) {
 
-        Logger.v(LOG_TAG, "refreshEntry(", pPath, ")");
-        String lastSegment = pPath.substring(pPath.lastIndexOf("/") + 1);
-        if (lastSegment.contains(":")) {
+        try {
+            Logger.v(LOG_TAG, "refreshEntry(", pPath, ")");
+            String lastSegment = pPath.substring(pPath.lastIndexOf("/") + 1);
+            if (lastSegment.contains(":")) {
 
-            loadAttribute(pPath);
+                loadAttribute(pPath);
 
-        } else {
+            } else {
 
-            loadNode(pPath);
-        }
+                loadNode(pPath);
+            }
+
+        } catch (Exception ex) {
+
+            Logger.e(LOG_TAG, ex);
+            throw new RuntimeException(ex);
+        }        
     }
 
     String getBaseUri() {
 
-        return mBaseUri.toString();
+        try {
+            return mBaseUri.toString();
+            
+        } catch (Exception ex) {
+            
+            Logger.e(LOG_TAG, ex);
+            throw new RuntimeException(ex);
+        }
     }
 
     boolean hasAttributeInCache(String pPath) {
+        
+        try {
+            return mAttributes.containsKey(pPath);
+            
+        } catch (Exception ex) {
 
-        return mAttributes.containsKey(pPath);
+            Logger.e(LOG_TAG, ex);
+            throw new RuntimeException(ex);
+        }
     }
 
     boolean hasNodeInCache(String pPath) {
+        
+        try {
+            
+            return mNodes.containsKey(pPath);
+            
+        } catch (Exception ex) {
 
-        return mNodes.containsKey(pPath);
+            Logger.e(LOG_TAG, ex);
+            throw new RuntimeException(ex);
+        }
     }
 
     // Private Instance Methods ------------------------------------------
