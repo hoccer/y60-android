@@ -10,6 +10,7 @@ import android.test.suitebuilder.annotation.Suppress;
 
 import com.artcom.y60.DeviceConfiguration;
 import com.artcom.y60.HTTPHelper;
+import com.artcom.y60.Y60Action;
 
 public class StatusWatcherTestCase extends ServiceTestCase<StatusWatcher> {
 
@@ -152,7 +153,7 @@ public class StatusWatcherTestCase extends ServiceTestCase<StatusWatcher> {
 
     protected void setUp() throws Exception {
         super.setUp();
-        mIntent = new Intent("y60.intent.SERVICE_STATUS_WATCHER");
+        mIntent = new Intent(Y60Action.SERVICE_STATUS_WATCHER);
     }
 
     protected void tearDown() throws Exception {
