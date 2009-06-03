@@ -1,25 +1,15 @@
 package com.artcom.y60.dc;
 
-import java.io.BufferedReader;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.List;
 
 import android.content.Intent;
-import android.net.Uri;
-import android.os.Bundle;
 import android.test.AssertionFailedError;
 import android.test.ServiceTestCase;
 import android.test.suitebuilder.annotation.Suppress;
 
 import com.artcom.y60.DeviceConfiguration;
-import com.artcom.y60.ErrorHandling;
 import com.artcom.y60.HTTPHelper;
-import com.artcom.y60.Logger;
 
 public class StatusWatcherTestCase extends ServiceTestCase<StatusWatcher> {
 
@@ -98,7 +88,7 @@ public class StatusWatcherTestCase extends ServiceTestCase<StatusWatcher> {
         startService(mIntent);
 
         // do not sleep beween updates -- tests must run fast
-        getService().setSleepTime(0);
+        getService().setSleepTime(250);
 
         // wait some time to let the service load the data
         long requestStartTime = System.currentTimeMillis();
@@ -110,7 +100,7 @@ public class StatusWatcherTestCase extends ServiceTestCase<StatusWatcher> {
             Thread thread = getService().getWatcherThread();
             assertTrue("Watcher thread died", thread.isAlive());
 
-            Thread.sleep(10);
+            Thread.sleep(250);
         }
 
         getService().unbindFromGom();
