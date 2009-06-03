@@ -55,7 +55,7 @@ public class StatusWatcher extends Service {
         mHeartbeatThread.start();
 
         mHistoryLog = "";
-        
+
         bindToGom();
 
         /*
@@ -103,28 +103,34 @@ public class StatusWatcher extends Service {
         @Override
         public void run() {
 
-
             String timestamp = "";
             while (mIsHeartbeatLoopRunning) {
                 try {
 
                     Thread.sleep(mSleepTime);
-                    
+
                     timestamp = (new SimpleDateFormat("MM/dd/yyyy HH:mm:ss")).format(new Date());
 
                     if (mGom != null) {
-                        
-                        GomNode device = mGom.getNode(mDeviceConfiguration.getDevicePath());
-                        device.getOrCreateAttribute("last_alive_update").putValue(timestamp);
-    
-                        // append current ping statistic to the history_log in gom
-                        updatePingStatistics();
-    
-                        mNotificationManager.cancel(GOM_NOT_ACCESSIBLE_NOTIFICATION_ID);
+
                         mIsGomAvailable = true;
+
+                        GomNode device = mGom.getNode(mDeviceConfiguration.getDevicePath());
+                        Logger.v(LOG_TAG, "putting timestamp");
+                        device.getOrCreateAttribute("last_alive_update").putValue(timestamp);
+                        Logger.v(LOG_TAG, "putted timestamp");
+
+                        // append current ping statistic to the history_log in
+                        // gom
+                        if (!DeviceConfiguration.isRunningAsEmulator()) {
+                            updatePingStatistics();
+                        }
+
+                        mNotificationManager.cancel(GOM_NOT_ACCESSIBLE_NOTIFICATION_ID);
+
                         continue;
                     }
-                        
+
                     Logger.w(LOG_TAG, "StatusWatcher isn't (yet?) bound to GomProxyService");
 
                 } catch (NoSuchElementException e) {
@@ -134,25 +140,24 @@ public class StatusWatcher extends Service {
                 } catch (Exception e) {
                     ErrorHandling.signalServiceError(LOG_TAG, e, StatusWatcher.this);
                 }
-                
+
                 showWestWindNotification(timestamp);
                 mIsGomAvailable = false;
             }
         }
 
         private void showWestWindNotification(String pTimestamp) {
-            
+
             Intent configureDC = new Intent("y60.intent.CONFIGURE_DEVICE_CONTROLLER");
             configureDC.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             Notification notification = new Notification(R.drawable.network_down_status_icon,
-                            "Y60's GOM not accessible.", System.currentTimeMillis());
+                    "Y60's GOM not accessible.", System.currentTimeMillis());
             PendingIntent pint = PendingIntent.getActivity(StatusWatcher.this, 0, configureDC,
-                            PendingIntent.FLAG_ONE_SHOT);
+                    PendingIntent.FLAG_ONE_SHOT);
 
             notification.setLatestEventInfo(StatusWatcher.this, "GOM not accessible",
-                            "network might be down", pint);
+                    "network might be down", pint);
             mNotificationManager.notify(GOM_NOT_ACCESSIBLE_NOTIFICATION_ID, notification);
-
 
             appendToLog(pTimestamp + ": network failure");
         }
@@ -188,11 +193,11 @@ public class StatusWatcher extends Service {
 
         }
 
-        private void appendToLog(String pLogInfo){
-            
+        private void appendToLog(String pLogInfo) {
+
             mHistoryLog += "\n" + pLogInfo;
         }
-        
+
     };
 
     // The following methods were created to facilitate testing
@@ -227,7 +232,7 @@ public class StatusWatcher extends Service {
     }
 
     void unbindFromGom() {
-        
+
         if (mGom != null) {
             mGom.unbind();
         }

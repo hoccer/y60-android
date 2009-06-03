@@ -10,6 +10,7 @@ import android.test.suitebuilder.annotation.Suppress;
 
 import com.artcom.y60.DeviceConfiguration;
 import com.artcom.y60.HTTPHelper;
+import com.artcom.y60.Logger;
 import com.artcom.y60.Y60Action;
 
 public class StatusWatcherTestCase extends ServiceTestCase<StatusWatcher> {
@@ -89,7 +90,7 @@ public class StatusWatcherTestCase extends ServiceTestCase<StatusWatcher> {
         startService(mIntent);
 
         // do not sleep beween updates -- tests must run fast
-        getService().setSleepTime(250);
+        getService().setSleepTime(0);
 
         // wait some time to let the service load the data
         long requestStartTime = System.currentTimeMillis();
@@ -100,10 +101,12 @@ public class StatusWatcherTestCase extends ServiceTestCase<StatusWatcher> {
             }
             Thread thread = getService().getWatcherThread();
             assertTrue("Watcher thread died", thread.isAlive());
+            Logger.v(LOG_TAG, "gom is still not available");
 
             Thread.sleep(250);
         }
 
+        Logger.v(LOG_TAG, "unbinding from gom");
         getService().unbindFromGom();
 
         requestStartTime = System.currentTimeMillis();
@@ -118,6 +121,7 @@ public class StatusWatcherTestCase extends ServiceTestCase<StatusWatcher> {
             Thread.sleep(10);
         }
 
+        Logger.v(LOG_TAG, "binding again");
         getService().bindToGom();
 
         requestStartTime = System.currentTimeMillis();

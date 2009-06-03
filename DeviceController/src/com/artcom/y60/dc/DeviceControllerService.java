@@ -16,10 +16,6 @@
 package com.artcom.y60.dc;
 
 import java.io.InputStream;
-import java.net.InetAddress;
-import java.net.SocketException;
-import java.util.HashSet;
-import java.util.Iterator;
 
 import org.mortbay.ijetty.AndroidLog;
 import org.mortbay.jetty.Connector;
@@ -46,8 +42,8 @@ import com.artcom.y60.Constants;
 import com.artcom.y60.DeviceConfiguration;
 import com.artcom.y60.ErrorHandling;
 import com.artcom.y60.Logger;
-import com.artcom.y60.NetworkHelper;
 import com.artcom.y60.PreferencesActivity;
+import com.artcom.y60.DeviceConfiguration.IpAddressNotFoundException;
 import com.artcom.y60.gom.GomNode;
 import com.artcom.y60.gom.GomProxyHelper;
 
@@ -114,7 +110,8 @@ public class DeviceControllerService extends Service {
 
             mUseNio = mPreferences.getBoolean(nioKey, Boolean.valueOf(nioDefault));
 
-            Toast.makeText(DeviceControllerService.this, R.string.jetty_started,
+            Toast
+                    .makeText(DeviceControllerService.this, R.string.jetty_started,
                             Toast.LENGTH_SHORT).show();
 
             // The PendingIntent to launch DeviceControllerActivity activity if
@@ -143,20 +140,28 @@ public class DeviceControllerService extends Service {
     private void updateRciUri(int pPort) {
 
         DeviceConfiguration dc = DeviceConfiguration.load();
-        String ipAddress = getIpAddress();
+        String ipAddress;
+        try {
+            ipAddress = DeviceConfiguration.getDeviceIpAddress();
 
-        // do not update uri if executed in the emulator; the host will need to
-        // take care of this
-        if (ipAddress.startsWith("10.0.2.")) {
-            Logger.i(LOG_TAG, "I'm running in the emulator. Not publishing Remote Control URI.");
-            return;
+            // do not update uri if executed in the emulator; the host will need
+            // to take care of this
+            if (DeviceConfiguration.isRunningAsEmulator()) {
+                Logger
+                        .i(LOG_TAG,
+                                "I'm running in the emulator. Not publishing Remote Control URI.");
+                return;
+            }
+
+            String command_uri = "http://" + ipAddress + ":" + pPort + "/commands";
+            Logger.v(LOG_TAG, "command_uri of local device controller is ", command_uri);
+
+            GomNode device = mGom.getNode(dc.getDevicePath());
+            device.getOrCreateAttribute("rci_uri").putValue(command_uri);
+
+        } catch (IpAddressNotFoundException e) {
+            ErrorHandling.signalNetworkError(LOG_TAG, e, this);
         }
- 
-        String command_uri = "http://" + ipAddress + ":" + pPort + "/commands";
-        Logger.v(LOG_TAG, "command_uri of local device controller is ", command_uri);
-
-        GomNode device = mGom.getNode(dc.getDevicePath());
-        device.getOrCreateAttribute("rci_uri").putValue(command_uri);
     }
 
     public void onDestroy() {
@@ -183,7 +188,7 @@ public class DeviceControllerService extends Service {
     }
 
     public void onLowMemory() {
-        Logger.w(LOG_TAG, "Low on memory");
+        ErrorHandling.signalUnspecifiedError(LOG_TAG, new Exception("Low on memory"), this);
         super.onLowMemory();
     }
 
@@ -232,7 +237,7 @@ public class DeviceControllerService extends Service {
             bioConnector.setHost("0.0.0.0"); // listen on all interfaces
             connector = bioConnector;
         }
-        
+
         Server server = new Server();
         server.setConnectors(new Connector[] { connector });
 
@@ -243,7 +248,7 @@ public class DeviceControllerService extends Service {
         HandlerCollection handlers = new HandlerCollection();
         if (server == null) {
             ErrorHandling.signalMissingMandatoryObjectError(LOG_TAG, new RuntimeException(
-            "sombody removed the webserver object"));
+                    "sombody removed the webserver object"));
         }
 
         handlers.setHandlers(new Handler[] { new DeviceControllerHandler(this) });
@@ -257,31 +262,6 @@ public class DeviceControllerService extends Service {
         Logger.i(LOG_TAG, "DeviceControllerService stopping");
         mServer.stop();
         mServer = null;
-    }
-
-    String getIpAddress() {
-
-        HashSet<InetAddress> addresses = null;
-        try {
-            addresses = NetworkHelper.getLocalIpAddresses();
-        } catch (SocketException e1) {
-            ErrorHandling.signalServiceError(LOG_TAG, new RuntimeException(
-                    "could not retive a valid ip address"), this);
-        }
-
-        Iterator<InetAddress> itr = addresses.iterator();
-        while (itr.hasNext()) {
-            InetAddress addr = itr.next();
-            Logger.d(LOG_TAG, "address: ", addr.getHostAddress());
-            String addrString = addr.getHostAddress();
-            if (!addrString.equals("127.0.0.1")) {
-                return addrString;
-            }
-        }
-
-        ErrorHandling.signalServiceError(LOG_TAG, new RuntimeException(
-                "could not retive a valid ip address"), this);
-        return null;
     }
 
     public class DeviceControllerBinder extends Binder {

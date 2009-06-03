@@ -14,6 +14,7 @@ import android.test.suitebuilder.annotation.Suppress;
 
 import com.artcom.y60.DeviceConfiguration;
 import com.artcom.y60.HTTPHelper;
+import com.artcom.y60.DeviceConfiguration.IpAddressNotFoundException;
 
 public class DeviceControllerServiceTest extends ServiceTestCase<DeviceControllerService> {
 
@@ -53,11 +54,11 @@ public class DeviceControllerServiceTest extends ServiceTestCase<DeviceControlle
         assertNull(getService().mServer);
     }
 
-    public void testGetIpAddress() throws IOException {
+    public void testGetIpAddress() throws IOException, IpAddressNotFoundException {
         Intent startIntent = new Intent("y60.intent.SERVICE_DEVICE_CONTROLLER");
         startService(startIntent);
 
-        String addressString = getService().getIpAddress();
+        String addressString = DeviceConfiguration.getDeviceIpAddress();
         assertNotNull(addressString);
         assertFalse("is a local address", addressString.equals("127.0.0.1"));
         InetAddress address = InetAddress.getByName(addressString);
@@ -76,20 +77,23 @@ public class DeviceControllerServiceTest extends ServiceTestCase<DeviceControlle
         socket.close();
     }
 
-    public void testRciUriInGom() {
+    public void testRciUriInGom() throws IpAddressNotFoundException {
         Intent startIntent = new Intent("y60.intent.SERVICE_DEVICE_CONTROLLER");
         startService(startIntent);
+
+        String ipAddress;
+        ipAddress = DeviceConfiguration.getDeviceIpAddress();
 
         DeviceConfiguration dc = DeviceConfiguration.load();
         String rciUri = HTTPHelper.get(dc.getGomUrl() + dc.getDevicePath() + ":rci_uri.txt");
 
         // if executed on emulator
-        if (getService().getIpAddress().startsWith("10.0.2.")) {
+        if (ipAddress.startsWith("10.0.2.")) {
             assertTrue("rci_uri starts with 'http://'", rciUri.startsWith("http://"));
             assertTrue("rci_uri contains a gallery address ", rciUri.contains("192.168.9."));
             assertTrue("rci_uri ends with ':4042/commands'", rciUri.endsWith(":4042/commands"));
         } else {
-            assertEquals("http://" + getService().getIpAddress() + ":4042/commands", rciUri);
+            assertEquals("http://" + ipAddress + ":4042/commands", rciUri);
         }
     }
 
