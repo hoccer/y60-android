@@ -14,7 +14,8 @@ import android.test.suitebuilder.annotation.Suppress;
 
 import com.artcom.y60.DeviceConfiguration;
 import com.artcom.y60.HTTPHelper;
-import com.artcom.y60.DeviceConfiguration.IpAddressNotFoundException;
+import com.artcom.y60.IpAddressNotFoundException;
+import com.artcom.y60.NetworkHelper;
 
 public class DeviceControllerServiceTest extends ServiceTestCase<DeviceControllerService> {
 
@@ -58,7 +59,7 @@ public class DeviceControllerServiceTest extends ServiceTestCase<DeviceControlle
         Intent startIntent = new Intent("y60.intent.SERVICE_DEVICE_CONTROLLER");
         startService(startIntent);
 
-        String addressString = DeviceConfiguration.getDeviceIpAddress();
+        String addressString = NetworkHelper.getDeviceIpAddress();
         assertNotNull(addressString);
         assertFalse("is a local address", addressString.equals("127.0.0.1"));
         InetAddress address = InetAddress.getByName(addressString);
@@ -82,7 +83,7 @@ public class DeviceControllerServiceTest extends ServiceTestCase<DeviceControlle
         startService(startIntent);
 
         String ipAddress;
-        ipAddress = DeviceConfiguration.getDeviceIpAddress();
+        ipAddress = NetworkHelper.getDeviceIpAddress();
 
         DeviceConfiguration dc = DeviceConfiguration.load();
         String rciUri = HTTPHelper.get(dc.getGomUrl() + dc.getDevicePath() + ":rci_uri.txt");

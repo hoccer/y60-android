@@ -4,25 +4,11 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.net.InetAddress;
-import java.net.SocketException;
-import java.util.HashSet;
-import java.util.Iterator;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 public class DeviceConfiguration {
-
-    public static class IpAddressNotFoundException extends Exception {
-
-        public IpAddressNotFoundException(String pMessage) {
-            super(pMessage);
-        }
-
-        private static final long serialVersionUID = 1L;
-
-    }
 
     private static final String LOG_TAG = "DeviceConfiguration";
     private static final String CONFIG_FILE_PATH = "/sdcard/device_config.json";
@@ -39,30 +25,11 @@ public class DeviceConfiguration {
         return mGomUrl;
     }
 
-    public static String getDeviceIpAddress() throws IpAddressNotFoundException {
-
-        HashSet<InetAddress> addresses = null;
-        try {
-            addresses = NetworkHelper.getLocalIpAddresses();
-        } catch (SocketException e1) {
-            throw new IpAddressNotFoundException("could not retive a valid ip address");
-        }
-
-        Iterator<InetAddress> itr = addresses.iterator();
-        while (itr.hasNext()) {
-            InetAddress addr = itr.next();
-            Logger.d(LOG_TAG, "address: ", addr.getHostAddress());
-            String addrString = addr.getHostAddress();
-            if (!addrString.equals("127.0.0.1")) {
-                return addrString;
-            }
-        }
-
-        throw new IpAddressNotFoundException("could not retive a valid ip address");
-    }
-
+    /**
+     * @return true iff the code is executed on an emulator
+     */
     public static boolean isRunningAsEmulator() throws IpAddressNotFoundException {
-        if (getDeviceIpAddress().startsWith("10.0.2.")) {
+        if (NetworkHelper.getDeviceIpAddress().startsWith("10.0.2.")) {
             return true;
         }
         return false;

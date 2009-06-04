@@ -41,9 +41,10 @@ import com.artcom.y60.BindingListener;
 import com.artcom.y60.Constants;
 import com.artcom.y60.DeviceConfiguration;
 import com.artcom.y60.ErrorHandling;
+import com.artcom.y60.IpAddressNotFoundException;
 import com.artcom.y60.Logger;
+import com.artcom.y60.NetworkHelper;
 import com.artcom.y60.PreferencesActivity;
-import com.artcom.y60.DeviceConfiguration.IpAddressNotFoundException;
 import com.artcom.y60.gom.GomNode;
 import com.artcom.y60.gom.GomProxyHelper;
 
@@ -142,7 +143,7 @@ public class DeviceControllerService extends Service {
         DeviceConfiguration dc = DeviceConfiguration.load();
         String ipAddress;
         try {
-            ipAddress = DeviceConfiguration.getDeviceIpAddress();
+            ipAddress = NetworkHelper.getDeviceIpAddress();
 
             // do not update uri if executed in the emulator; the host will need
             // to take care of this
