@@ -183,9 +183,4 @@ public abstract class Y60ActivityInstrumentationTest<T extends Activity> extends
 
         return getClass().getName();
     }
-
-    public interface Condition {
-
-        public boolean isSatisfied();
-    }
 }
