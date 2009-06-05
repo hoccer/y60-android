@@ -247,11 +247,6 @@ public class DeviceControllerService extends Service {
         org.mortbay.log.Log.setLog(new AndroidLog());
 
         HandlerCollection handlers = new HandlerCollection();
-        if (server == null) {
-            ErrorHandling.signalMissingMandatoryObjectError(LOG_TAG, new RuntimeException(
-                    "sombody removed the webserver object"));
-        }
-
         handlers.setHandlers(new Handler[] { new DeviceControllerHandler(this) });
         server.setHandler(handlers);
 
