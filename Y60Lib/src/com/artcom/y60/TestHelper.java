@@ -1,10 +1,14 @@
 package com.artcom.y60;
 
-import com.artcom.y60.Y60ActivityInstrumentationTest.Condition;
 
 public class TestHelper {
 
-    public static void assertTrueAsync(String pFailMessage, long pWaitMillis, Condition pCon) {
+    public interface Condition {
+    
+        public boolean isSatisfied();
+    }
+
+    public static void assertTrueAsync(String pFailMessage, long pWaitMillis, TestHelper.Condition pCon) {
 
         long start = System.currentTimeMillis();
         while (System.currentTimeMillis() - start < pWaitMillis) {
@@ -25,9 +29,9 @@ public class TestHelper {
         throw new AssertionError(pFailMessage);
     }
 
-    public static void assertFalseAsync(String pFailMessage, long pWaitMillis, final Condition pCon) {
+    public static void assertFalseAsync(String pFailMessage, long pWaitMillis, final TestHelper.Condition pCon) {
 
-        assertTrueAsync(pFailMessage, pWaitMillis, new Condition() {
+        assertTrueAsync(pFailMessage, pWaitMillis, new TestHelper.Condition() {
             public boolean isSatisfied() {
 
                 return !pCon.isSatisfied();
