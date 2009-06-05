@@ -10,7 +10,6 @@ import org.apache.http.StatusLine;
 import android.content.Intent;
 import android.net.Uri;
 import android.test.ServiceTestCase;
-import android.test.suitebuilder.annotation.Suppress;
 
 import com.artcom.y60.Constants;
 import com.artcom.y60.HTTPHelper;
@@ -81,9 +80,9 @@ public class GomProxyServiceTest extends ServiceTestCase<GomProxyService> {
         assertEquals("an_attribute", attributeNames.get(0));
 
         assertEquals(
-                        "honolulu",
-                        service
-                                        .getAttributeValue("/test/android/y60/infrastructure_gom/gom_proxy_service_test:attribute"));
+                "honolulu",
+                service
+                        .getAttributeValue("/test/android/y60/infrastructure_gom/gom_proxy_service_test:attribute"));
     }
 
     public void testUpdateAttributeOnNotification() throws Exception {
@@ -104,7 +103,7 @@ public class GomProxyServiceTest extends ServiceTestCase<GomProxyService> {
         StatusLine statusLine = HTTPHelper.putUrlEncoded(attrUrl, formData);
         int statusCode = statusLine.getStatusCode();
         assertTrue("something went wrong with the PUT old value to the GOM - status code is: "
-                        + statusCode, statusCode < 300);
+                + statusCode, statusCode < 300);
 
         // make sure the proxy has the attribute cached
         service.getAttributeValue(attrPath);
@@ -114,7 +113,7 @@ public class GomProxyServiceTest extends ServiceTestCase<GomProxyService> {
         formData.put(Constants.Gom.Keywords.ATTRIBUTE, newValue);
         statusLine = HTTPHelper.putUrlEncoded(attrUrl, formData);
         assertTrue("something went wrong with the PUT new value to the GOM", statusLine
-                        .getStatusCode() < 300);
+                .getStatusCode() < 300);
 
         // update may take a while
         Thread.sleep(3000);
@@ -141,7 +140,7 @@ public class GomProxyServiceTest extends ServiceTestCase<GomProxyService> {
         StatusLine statusLine = HTTPHelper.putUrlEncoded(nodeUrl, formData);
         int statusCode = statusLine.getStatusCode();
         assertTrue("something went wrong with the PUT to the GOM - status code is: " + statusCode,
-                        statusCode < 300);
+                statusCode < 300);
 
         // create attribute in the test node
         String attrName = "test_attribute";
@@ -161,7 +160,6 @@ public class GomProxyServiceTest extends ServiceTestCase<GomProxyService> {
 
         isInCache = getService().hasAttributeInCache(attrPath);
         assertFalse("attribute shouldn't be there", isInCache);
-
     }
 
     public void testDeleteNodeOnNotification() throws Exception {
@@ -181,7 +179,7 @@ public class GomProxyServiceTest extends ServiceTestCase<GomProxyService> {
         StatusLine statusLine = HTTPHelper.putUrlEncoded(nodeUrl, formData);
         int statusCode = statusLine.getStatusCode();
         assertTrue("something went wrong with the PUT to the GOM - status code is: " + statusCode,
-                        statusCode < 300);
+                statusCode < 300);
 
         // make sure it's in the cache
         service.getNodeData(nodePath, new LinkedList<String>(), new LinkedList<String>());
@@ -205,7 +203,8 @@ public class GomProxyServiceTest extends ServiceTestCase<GomProxyService> {
         GomProxyService service = getService();
         String timestamp = String.valueOf(System.currentTimeMillis());
 
-        String nodePath = BASE_TEST_PATH + "/test_recursive_delete_node_on_notification/" + timestamp;
+        String nodePath = BASE_TEST_PATH + "/test_recursive_delete_node_on_notification/"
+                + timestamp;
         String nodeUrl = UriHelper.join(Constants.Gom.URI, nodePath);
 
         Logger.d(LOG_TAG, "node URL: ", nodeUrl);
@@ -214,34 +213,33 @@ public class GomProxyServiceTest extends ServiceTestCase<GomProxyService> {
         StatusLine statusLine = HTTPHelper.putUrlEncoded(nodeUrl, formData);
         int statusCode = statusLine.getStatusCode();
         assertTrue("something went wrong with the PUT to the GOM - status code is: " + statusCode,
-                        statusCode < 300);
+                statusCode < 300);
 
         // create sub node
         String subNodeName = "subNode";
         String subNodeUrl = UriHelper.join(nodeUrl, subNodeName);
         statusLine = HTTPHelper.putUrlEncoded(subNodeUrl, formData);
         assertTrue("something went wrong with the PUT to the GOM - status code is: " + statusCode,
-                        statusCode < 300);
+                statusCode < 300);
 
         String subNodePath = nodePath + "/" + subNodeName;
         // make sure it's in the cache
         service.getNodeData(nodePath, new LinkedList<String>(), new LinkedList<String>());
         service.getNodeData(subNodePath, new LinkedList<String>(), new LinkedList<String>());
 
-
         boolean isInCache = service.hasNodeInCache(subNodePath);
         assertTrue("sub node is not in cache", isInCache);
-        
+
         // create attribute in the test node
         String attrName = "test_attribute";
         String attrPath = nodePath + ":" + attrName;
         Uri attrUri = Uri.parse(nodeUrl + ":" + attrName);
         GomHttpWrapper.updateOrCreateAttribute(attrUri, "who cares?");
-        service.getAttributeValue(attrPath); 
-        
+        service.getAttributeValue(attrPath);
+
         isInCache = service.hasAttributeInCache(attrPath);
         assertTrue("attribute is not in cache", isInCache);
-        
+
         GomHttpWrapper.deleteNode(Uri.parse(nodeUrl));
 
         // update may take a while
@@ -272,7 +270,7 @@ public class GomProxyServiceTest extends ServiceTestCase<GomProxyService> {
         StatusLine statusLine = HTTPHelper.putUrlEncoded(nodeUrl, formData);
         int statusCode = statusLine.getStatusCode();
         assertTrue("something went wrong with the PUT to the GOM - status code is: " + statusCode,
-                        statusCode < 300);
+                statusCode < 300);
 
         // make sure it's in the cache
         service.getNodeData(nodePath, new LinkedList<String>(), new LinkedList<String>());
@@ -308,7 +306,7 @@ public class GomProxyServiceTest extends ServiceTestCase<GomProxyService> {
         StatusLine statusLine = HTTPHelper.putUrlEncoded(nodeUrl, formData);
         int statusCode = statusLine.getStatusCode();
         assertTrue("something went wrong with the PUT to the GOM - status code is: " + statusCode,
-                        statusCode < 300);
+                statusCode < 300);
 
         // create attribute in the test node
         String attrName = "test_attribute";
@@ -347,7 +345,7 @@ public class GomProxyServiceTest extends ServiceTestCase<GomProxyService> {
         StatusLine statusLine = HTTPHelper.putUrlEncoded(nodeUrl, formData);
         int statusCode = statusLine.getStatusCode();
         assertTrue("something went wrong with the PUT to the GOM - status code is: " + statusCode,
-                        statusCode < 300);
+                statusCode < 300);
 
         // make sure it's in the cache
         service.getNodeData(nodePath, new LinkedList<String>(), new LinkedList<String>());
@@ -357,7 +355,7 @@ public class GomProxyServiceTest extends ServiceTestCase<GomProxyService> {
         String subNodeUrl = UriHelper.join(nodeUrl, subNodeName);
         statusLine = HTTPHelper.putUrlEncoded(subNodeUrl, formData);
         assertTrue("something went wrong with the PUT to the GOM - status code is: " + statusCode,
-                        statusCode < 300);
+                statusCode < 300);
 
         // update may take a while
         Thread.sleep(3000);
@@ -385,14 +383,14 @@ public class GomProxyServiceTest extends ServiceTestCase<GomProxyService> {
         StatusLine statusLine = HTTPHelper.putUrlEncoded(nodeUrl, formData);
         int statusCode = statusLine.getStatusCode();
         assertTrue("something went wrong with the PUT to the GOM - status code is: " + statusCode,
-                        statusCode < 300);
+                statusCode < 300);
 
         // create sub node
         String subNodeName = "subNode";
         String subNodeUrl = UriHelper.join(nodeUrl, subNodeName);
         statusLine = HTTPHelper.putUrlEncoded(subNodeUrl, formData);
         assertTrue("something went wrong with the PUT to the GOM - status code is: " + statusCode,
-                        statusCode < 300);
+                statusCode < 300);
 
         // make sure it's in the cache
         service.getNodeData(nodePath, new LinkedList<String>(), new LinkedList<String>());
@@ -414,8 +412,6 @@ public class GomProxyServiceTest extends ServiceTestCase<GomProxyService> {
         assertFalse("sub node name shouldn't be there", subNodeNames.contains(subNodeName));
     }
 
-    
-    
     // Protected Instance Methods ----------------------------------------
 
     protected void setUp() throws Exception {

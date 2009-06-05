@@ -13,26 +13,27 @@ import android.view.View;
  * Adds some helpers to the ActivityInstrumentationTestCase
  * 
  * @author arne
- *
- * @param <T> the activity class to be tested
+ * 
+ * @param <T>
+ *            the activity class to be tested
  */
-public abstract class Y60ActivityInstrumentationTest<T extends Activity> extends ActivityInstrumentationTestCase2<T> {
+public abstract class Y60ActivityInstrumentationTest<T extends Activity> extends
+        ActivityInstrumentationTestCase2<T> {
 
     // Constants ---------------------------------------------------------
 
     /**
-     * Horizontal resolution of the display in portrait orientation.
-     * To be used for testing only, thus protected.
+     * Horizontal resolution of the display in portrait orientation. To be used
+     * for testing only, thus protected.
      */
     protected final static int SCREEN_WIDTH = 320;
-    
+
     /**
-     * Vertical resolution of the display in portrait orientation.
-     * To be used for testing only, thus protected.
+     * Vertical resolution of the display in portrait orientation. To be used
+     * for testing only, thus protected.
      */
     protected final static int SCREEN_HEIGHT = 480;
 
-    
     // Constructors ------------------------------------------------------
 
     public Y60ActivityInstrumentationTest(String pkg, Class<T> activityClass,
@@ -41,206 +42,150 @@ public abstract class Y60ActivityInstrumentationTest<T extends Activity> extends
         // TODO Auto-generated constructor stub
     }
 
-
-
     public Y60ActivityInstrumentationTest(String pkg, Class<T> activityClass) {
         super(pkg, activityClass);
         // TODO Auto-generated constructor stub
     }
 
-    
-
     // Public Instance Methods -------------------------------------------
 
     public void setUp() throws Exception {
-        
-        Log.v(tag(), " --- "+getName()+" -- setUp ------------------------------------------------------------");
-        
+
+        Log.v(tag(), " --- " + getName()
+                + " -- setUp ------------------------------------------------------------");
+
         super.setUp();
     }
-    
 
     public void tearDown() throws Exception {
-        
-        Log.v(tag(), " --- "+getName()+" -- tearDown ------------------------------------------------------------");
+
+        Log.v(tag(), " --- " + getName()
+                + " -- tearDown ------------------------------------------------------------");
 
         super.tearDown();
     }
-    
 
-    
     // Protected Instance Methods ----------------------------------------
-    
+
     protected void assertIsShown(int pViewId) {
-        
+
         View view = getActivity().findViewById(pViewId);
-        assertTrue("visibility of view "+pViewId, view.isShown());
+        assertTrue("view '" + getActivity().getResources().getResourceName(pViewId)
+                + "' sould be visible", view.isShown());
+
     }
-    
-    
+
     /**
-     * In order for a fling gesture to be detected by the Android GestureDetector class,
-     * it has to consist of a sequence of small move events. This method takes care
-     * of generating these events.
+     * In order for a fling gesture to be detected by the Android
+     * GestureDetector class, it has to consist of a sequence of small move
+     * events. This method takes care of generating these events.
      */
     protected void fling(HorizontalDirection pDirection) {
-        
+
         // fling to next
-        int y      = SCREEN_HEIGHT-10;
-        int fromX  = SCREEN_WIDTH/2;
+        int y = SCREEN_HEIGHT - 10;
+        int fromX = SCREEN_WIDTH / 2;
         int deltaX = (pDirection == HorizontalDirection.LEFT ? -4 : 4);
-        
-        long time  = SystemClock.uptimeMillis();
-        
-        MotionEvent down = MotionEvent.obtain(
-                                    time, time,
-                                    MotionEvent.ACTION_DOWN,
-                                    fromX, y, 1);
-        
+
+        long time = SystemClock.uptimeMillis();
+
+        MotionEvent down = MotionEvent.obtain(time, time, MotionEvent.ACTION_DOWN, fromX, y, 1);
+
         int x = fromX;
-        
+
         MotionEvent[] moves = new MotionEvent[20];
-        for (int mov=0; mov<20; mov++) {
-            
+        for (int mov = 0; mov < 20; mov++) {
+
             time += 10;
-            x    += deltaX;
-            
-            moves[mov] = MotionEvent.obtain(
-                                    time, time,
-                                    MotionEvent.ACTION_MOVE,
-                                    x, y, 1);
+            x += deltaX;
+
+            moves[mov] = MotionEvent.obtain(time, time, MotionEvent.ACTION_MOVE, x, y, 1);
         }
-        
-        MotionEvent up = MotionEvent.obtain(
-                                    time, time,
-                                    MotionEvent.ACTION_UP,
-                                    x, y, 1);
-        
+
+        MotionEvent up = MotionEvent.obtain(time, time, MotionEvent.ACTION_UP, x, y, 1);
+
         Instrumentation instrumentation = getInstrumentation();
         instrumentation.sendPointerSync(down);
         instrumentation.waitForIdleSync();
-        for (MotionEvent move: moves) {
+        for (MotionEvent move : moves) {
             instrumentation.sendPointerSync(move);
         }
         instrumentation.sendPointerSync(up);
         instrumentation.waitForIdleSync();
     }
-    
-    
+
     protected void touch(int pX, int pY) {
-        
+
         sendMotionEventAndSync(MotionEvent.ACTION_DOWN, pX, pY);
     }
 
-    
     protected void release(int pX, int pY) {
-        
+
         sendMotionEventAndSync(MotionEvent.ACTION_UP, pX, pY);
     }
-    
-    
+
     protected void move(int pToX, int pToY) {
-        
+
         sendMotionEventAndSync(MotionEvent.ACTION_MOVE, pToX, pToY);
     }
-    
-    protected void moveAndRelease(int pToX, int pToY){
-        
+
+    protected void moveAndRelease(int pToX, int pToY) {
+
         move(pToX, pToY);
         release(pToX, pToY);
-        
+
     }
-    
+
     protected void touch(View pView) {
-        
-        int y = pView.getTop()  + pView.getHeight()/2;
-        int x = pView.getLeft() + pView.getWidth()/2;
-        
-        touch(x,y);
+
+        int y = pView.getTop() + pView.getHeight() / 2;
+        int x = pView.getLeft() + pView.getWidth() / 2;
+
+        touch(x, y);
     }
 
-    
     protected void release(View pView) {
-        
-        int y = pView.getTop()  + pView.getHeight()/2;
-        int x = pView.getLeft() + pView.getWidth()/2;
-        
-        release(x,y);
+
+        int y = pView.getTop() + pView.getHeight() / 2;
+        int x = pView.getLeft() + pView.getWidth() / 2;
+
+        release(x, y);
     }
 
-    
     protected void sendMotionEventAndSync(int pAction, int pX, int pY) {
-        
-        long time  = SystemClock.uptimeMillis();
-        
-        MotionEvent eve = MotionEvent.obtain(
-                time, time,
-                pAction,
-                pX, pY, 1);
+
+        long time = SystemClock.uptimeMillis();
+
+        MotionEvent eve = MotionEvent.obtain(time, time, pAction, pX, pY, 1);
 
         Instrumentation instrumentation = getInstrumentation();
         instrumentation.sendPointerSync(eve);
         instrumentation.waitForIdleSync();
     }
 
-    
     /**
-     * Convenience method for generating DOWN and UP events. See android.view.KeyEvent for key
-     * codes.
+     * Convenience method for generating DOWN and UP events. See
+     * android.view.KeyEvent for key codes.
      */
     protected void pressKey(int pKeyCode, long pDurationMillis) throws InterruptedException {
-        
+
         Instrumentation instrumentation = getInstrumentation();
         instrumentation.sendKeySync(new KeyEvent(KeyEvent.ACTION_DOWN, pKeyCode));
         Thread.sleep(pDurationMillis);
         instrumentation.sendKeySync(new KeyEvent(KeyEvent.ACTION_UP, pKeyCode));
     }
-    
-    
-    protected void assertTrueAsync(String pFailMessage, long pWaitMillis, Condition pCon) {
-        
-        long start = System.currentTimeMillis();
-        while (System.currentTimeMillis()-start < pWaitMillis) {
-            
-            if (pCon.isSatisfied()) {
-                
-                return;
-            }
-            
-            try {
-                Thread.sleep(20);
-            } catch (InterruptedException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-        }
-        
-        fail(pFailMessage);
-    }
-    
-    
-    protected void assertFalseAsync(String pFailMessage, long pWaitMillis, final Condition pCon) {
-        
-        assertTrueAsync(pFailMessage, pWaitMillis, new Condition() {
-            public boolean isSatisfied() {
-                
-                return !pCon.isSatisfied();
-            }
-        });
-    }
-    
-    
+
     /**
-     * Shorthand for <code>getClass().getName()</code>, to be used for logcat logging.
+     * Shorthand for <code>getClass().getName()</code>, to be used for logcat
+     * logging.
      */
     protected String tag() {
-        
+
         return getClass().getName();
     }
-    
-    
+
     public interface Condition {
-        
-        public boolean isSatisfied(); 
+
+        public boolean isSatisfied();
     }
-} 
+}

@@ -15,6 +15,7 @@ import android.content.Intent;
 
 import com.artcom.y60.Constants;
 import com.artcom.y60.IntentExtraKeys;
+import com.artcom.y60.IpAddressNotFoundException;
 import com.artcom.y60.Logger;
 import com.artcom.y60.NetworkHelper;
 
@@ -31,7 +32,7 @@ public class GomNotificationHelper {
      * not supported.
      */
     public static BroadcastReceiver registerObserver(String pPath, GomObserver pGomObserver)
-            throws IOException {
+            throws IOException, IpAddressNotFoundException {
 
         postObserverToGom(pPath);
 
@@ -42,12 +43,14 @@ public class GomNotificationHelper {
      * @param pPath
      * @throws IOException
      */
-    public static void postObserverToGom(String pPath) throws IOException {
+    public static void postObserverToGom(String pPath) throws IOException,
+            IpAddressNotFoundException {
 
         postObserverToGom(pPath, false);
     }
 
-    public static void postObserverToGom(String pPath, boolean pWithBubbleUp) throws IOException {
+    public static void postObserverToGom(String pPath, boolean pWithBubbleUp) throws IOException,
+            IpAddressNotFoundException {
 
         Map<String, String> formData = new HashMap<String, String>();
 
