@@ -92,7 +92,7 @@ public class GomProxyTest extends ActivityUnitTestCase<GomProxyTestActivity> {
             }
             Thread.sleep(10);
         }
-        
+
         return helper;
     }
 
@@ -101,4 +101,5 @@ public class GomProxyTest extends ActivityUnitTestCase<GomProxyTestActivity> {
         startActivity(mStartIntent, null, null);
         assertNotNull(getActivity());
     }
+
 }
