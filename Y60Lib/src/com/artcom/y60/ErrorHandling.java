@@ -16,7 +16,7 @@ public class ErrorHandling {
     public enum Category {
 
         // system or software errors
-        FILE_NOT_FOUND, MALFORMED_URI, MALFORMED_DATA, UNSUPPORTED_ENCODING, SAX_ERROR, JSON_ERROR, MISSING_GOM_ENTRY, MISSING_MANDATORY_OBJECT,
+        FILE_NOT_FOUND, MALFORMED_URI, MALFORMED_DATA, UNSUPPORTED_ENCODING, SAX_ERROR, JSON_ERROR, MISSING_GOM_ENTRY, MISSING_MANDATORY_OBJECT, LOW_ON_MEMORY_ERROR,
 
         // development and environmental errors
         COMPONENT_NOT_FOUND, NETWORK_ERROR, IO_ERROR, ILLEGAL_ARGUMENT, GOM_ERROR, BACKEND_ERROR, SERVICE_ERROR, DEFECTIVE_CONTENT_ERROR,
@@ -41,6 +41,13 @@ public class ErrorHandling {
         context.startActivity(intent);
     }
 
+    public static void notifyAboutError(String logTag, Throwable error, Context context,
+            Category category) {
+        Logger.e(LOG_TAG, "notifiying error: ", error);
+
+        // TODO implement a notification in the statusbar
+    }
+    
     public static void signalFileNotFoundError(String logTag, FileNotFoundException error, Context context) {
         signalError(logTag, error, context, Category.FILE_NOT_FOUND);
     }
@@ -103,7 +110,7 @@ public class ErrorHandling {
                     Context context) {
         signalError(logTag, error, context, Category.DEFECTIVE_CONTENT_ERROR);
     }
-   
+
     public static void signalUnspecifiedError(String logTag, Throwable error, Context context) {
         // TODO this method should not be used eventually
         signalError(logTag, error, context, Category.UNSPECIFIED);
@@ -112,4 +119,13 @@ public class ErrorHandling {
     public static void signalIOError(String logTag, IOException error, Context context) {
         signalError(logTag, error, context, Category.IO_ERROR);
     }
+
+    public static void signalLowOnMemoryError(String logTag, Throwable error, Context context) {
+        notifyAboutError(logTag, error, context, Category.LOW_ON_MEMORY_ERROR);
+    }
+
+    public static void signalMalformedDataError(String logTag, Throwable error, Context context) {
+        signalError(logTag, error, context, Category.MALFORMED_DATA);
+    }
+
 }

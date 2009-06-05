@@ -189,7 +189,7 @@ public class DeviceControllerService extends Service {
     }
 
     public void onLowMemory() {
-        ErrorHandling.signalUnspecifiedError(LOG_TAG, new Exception("Low on memory"), this);
+        ErrorHandling.signalLowOnMemoryError(LOG_TAG, new Exception("Low on memory!"), this);
         super.onLowMemory();
     }
 
