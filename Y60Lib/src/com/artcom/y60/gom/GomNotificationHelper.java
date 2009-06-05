@@ -6,8 +6,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Pattern;
 
-import org.apache.http.HttpResponse;
-import org.apache.http.StatusLine;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -16,7 +14,6 @@ import android.content.Context;
 import android.content.Intent;
 
 import com.artcom.y60.Constants;
-import com.artcom.y60.HTTPHelper;
 import com.artcom.y60.IntentExtraKeys;
 import com.artcom.y60.Logger;
 import com.artcom.y60.NetworkHelper;
@@ -46,48 +43,59 @@ public class GomNotificationHelper {
      * @throws IOException
      */
     public static void postObserverToGom(String pPath) throws IOException {
-        
+
         postObserverToGom(pPath, false);
     }
-    
+
     public static void postObserverToGom(String pPath, boolean pWithBubbleUp) throws IOException {
-        
+
         Map<String, String> formData = new HashMap<String, String>();
-        
-        InetAddress myIp        = NetworkHelper.getStagingIp();
+
+        InetAddress myIp = NetworkHelper.getStagingIp();
         Logger.v(LOG_TAG, "myIp: ", myIp.toString());
-        String      ip          = myIp.getHostAddress();
+        String ip = myIp.getHostAddress();
         Logger.v(LOG_TAG, "ip: ", ip);
-        String      callbackUrl = "http://"+ip+":"+Constants.Network.DEFAULT_PORT+Constants.Network.GNP_TARGET;
+        String callbackUrl = "http://" + ip + ":" + Constants.Network.DEFAULT_PORT
+                + Constants.Network.GNP_TARGET;
         Logger.v(LOG_TAG, "callbackUrl: ", callbackUrl);
         formData.put("callback_url", callbackUrl);
         formData.put("accept", "application/json");
-        
+
         if (!pWithBubbleUp) {
-            
-            // constrain gom notifications using a regexp, so that for each entry we get only
-            // events on that entry and one level below, i.e. for nodes events on immediate subnodes
+
+            // constrain gom notifications using a regexp, so that for each
+            // entry we get only
+            // events on that entry and one level below, i.e. for nodes events
+            // on immediate subnodes
             // or attributes (no bubbling up from way below)
             // the structure of the regexp is
-            // base path + optional segment consisting of separator (/, :) + node/attribute name
+            // base path + optional segment consisting of separator (/, :) +
+            // node/attribute name
             // (no separator allowed in names)
-            formData.put("uri_regexp", createRegularExpression(pPath) );
+            formData.put("uri_regexp", createRegularExpression(pPath));
         }
 
-        String      observerPath = getObserverPathFor(pPath);
-        String      observerUri  = Constants.Gom.URI+observerPath;
-        
-        Logger.d(LOG_TAG, "posting observer for GOM entry "+pPath+" to "+observerUri+" for callback "+callbackUrl + " for reg exp: " + createRegularExpression(pPath) );
-        
-        HttpResponse response = HTTPHelper.postUrlEncoded(observerUri, formData);
-        StatusLine   status   = response.getStatusLine();
-        if (status.getStatusCode() >= 300) {
-            
-            throw new IOException("Unexpected HTTP status code: "+status.getStatusCode());
-        }
-        
-        String result = HTTPHelper.extractBodyAsString(response.getEntity());
-        Logger.v(LOG_TAG, "result of post to observer: ", result);
+        String observerPath = getObserverPathFor(pPath);
+        String observerUri = Constants.Gom.URI + observerPath;
+
+        Logger.d(LOG_TAG, "posting observer for GOM entry " + pPath + " to " + observerUri
+                + " for callback " + callbackUrl + " for reg exp: "
+                + createRegularExpression(pPath));
+
+        // Deactivated because the implementation does not unsubscribe registerd
+        // observers
+        /*
+         * HttpResponse response = HTTPHelper.postUrlEncoded(observerUri,
+         * formData); StatusLine status = response.getStatusLine(); if
+         * (status.getStatusCode() >= 300) {
+         * 
+         * throw new
+         * IOException("Unexpected HTTP status code: "+status.getStatusCode());
+         * }
+         * 
+         * String result = HTTPHelper.extractBodyAsString(response.getEntity());
+         * Logger.v(LOG_TAG, "result of post to observer: ", result);
+         */
     }
 
     private static BroadcastReceiver createBroadcastReceiver(final String pPath,
@@ -101,7 +109,7 @@ public class GomNotificationHelper {
         // reg ex for paths of entries in which we are interested
         // i.e. the path we observe or one level below
         final String regEx = createRegularExpression(pPath);
-        
+
         BroadcastReceiver br = new BroadcastReceiver() {
 
             @Override
@@ -111,49 +119,50 @@ public class GomNotificationHelper {
                 Logger.v(LOG_TAG, " - path: ", pArg1
                         .getStringExtra(IntentExtraKeys.KEY_NOTIFICATION_PATH));
 
-                String notificationPath = pArg1.getStringExtra(IntentExtraKeys.KEY_NOTIFICATION_PATH);
+                String notificationPath = pArg1
+                        .getStringExtra(IntentExtraKeys.KEY_NOTIFICATION_PATH);
                 if (Pattern.matches(regEx, notificationPath)) {
-                    
+
                     Logger.d(LOG_TAG, "ok, the path is relevant to me");
                     Logger.v(LOG_TAG, " - operation: ", pArg1
                             .getStringExtra(IntentExtraKeys.KEY_NOTIFICATION_OPERATION));
                     Logger.v(LOG_TAG, " - data: ", pArg1
                             .getStringExtra(IntentExtraKeys.KEY_NOTIFICATION_DATA_STRING));
-    
+
                     String jsnStr = pArg1
                             .getStringExtra(IntentExtraKeys.KEY_NOTIFICATION_DATA_STRING);
                     JSONObject data;
                     try {
                         data = new JSONObject(jsnStr);
-    
+
                     } catch (JSONException e) {
-    
+
                         throw new RuntimeException(e);
                     }
-    
+
                     String operation = pArg1
                             .getStringExtra(IntentExtraKeys.KEY_NOTIFICATION_OPERATION);
                     if ("create".equals(operation)) {
-    
+
                         Logger.v(LOG_TAG, "it's a CREATE notification");
                         pGomObserver.onEntryCreated(pPath, data);
-    
+
                     } else if ("update".equals(operation)) {
-    
+
                         Logger.v(LOG_TAG, "it's an UPDATE notification");
                         pGomObserver.onEntryUpdated(pPath, data);
-    
+
                     } else if ("delete".equals(operation)) {
-    
+
                         Logger.v(LOG_TAG, "it's a DELETE notification");
                         pGomObserver.onEntryDeleted(pPath, data);
-    
+
                     } else {
-    
+
                         Logger.w(LOG_TAG, "GOM notification with unknown operation: ", operation);
                     }
                 } else {
-                    
+
                     Logger.d(LOG_TAG, "path is not relevant to me");
                 }
             }
@@ -193,7 +202,7 @@ public class GomNotificationHelper {
     }
 
     public static String createRegularExpression(String pPath) {
-    
-        return "^"+pPath+"([/:]([^/:])*)?$";
+
+        return "^" + pPath + "([/:]([^/:])*)?$";
     }
 }
