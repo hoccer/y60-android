@@ -2,14 +2,13 @@ package com.artcom.y60;
 
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 
 public class ErrorHandling {
 
     public enum Category {
 
         // system or software errors
-        FILE_NOT_FOUND, MALFORMED_URI, MALFORMED_DATA, UNSUPPORTED_ENCODING, SAX_ERROR, JSON_ERROR, MISSING_GOM_ENTRY, MISSING_MANDATORY_OBJECT,
+        FILE_NOT_FOUND, MALFORMED_URI, MALFORMED_DATA, UNSUPPORTED_ENCODING, SAX_ERROR, JSON_ERROR, MISSING_GOM_ENTRY, MISSING_MANDATORY_OBJECT, LOW_ON_MEMORY_ERROR,
 
         // development and environmental errors
         COMPONENT_NOT_FOUND, NETWORK_ERROR, IO_ERROR, ILLEGAL_ARGUMENT, GOM_ERROR, BACKEND_ERROR, SERVICE_ERROR,
@@ -32,6 +31,13 @@ public class ErrorHandling {
         intent.putExtra(ID_CATEGORY, category);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         context.startActivity(intent);
+    }
+
+    public static void notifyAboutError(String logTag, Throwable error, Context context,
+            Category category) {
+        Logger.e(LOG_TAG, "notifiying error: ", error);
+
+        // TODO implement a notification in the statusbar
     }
 
     @Deprecated
@@ -110,7 +116,6 @@ public class ErrorHandling {
         Logger.e(logTag, "MISSING_MANDATORY_OBJECT", error);
     }
 
-    
     public static void signalUnspecifiedError(String logTag, Throwable error, Context context) {
         // TODO this method should not be used eventually
         signalError(logTag, error, context, Category.UNSPECIFIED);
@@ -121,18 +126,20 @@ public class ErrorHandling {
         // TODO this method should not be used eventually
         signalError(logTag, error, Category.UNSPECIFIED);
     }
-    
 
     public static void signalIOError(String logTag, Throwable error, Context context) {
         signalError(logTag, error, context, Category.IO_ERROR);
     }
-    
+
+    public static void signalLowOnMemoryError(String logTag, Throwable error, Context context) {
+        notifyAboutError(logTag, error, context, Category.LOW_ON_MEMORY_ERROR);
+    }
+
     @Deprecated
     public static void signalIOError(String logTag, Throwable error) {
         signalError(logTag, error, Category.IO_ERROR);
     }
 
-    
     public static void signalMalformedDataError(String logTag, Throwable error, Context context) {
         signalError(logTag, error, context, Category.MALFORMED_DATA);
     }
