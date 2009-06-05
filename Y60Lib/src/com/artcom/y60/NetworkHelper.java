@@ -36,8 +36,10 @@ public class NetworkHelper {
     /**
      * Fetches the ip address used to go "on stage". This is either the one we
      * got from a dhcp server or (on emulators) an address setted in the GOM.
+     * 
+     * @throws IpAddressNotFoundException
      */
-    public static InetAddress getStagingIp() {
+    public static InetAddress getStagingIp() throws IpAddressNotFoundException {
 
         InetAddress ip = null;
 
@@ -73,7 +75,7 @@ public class NetworkHelper {
 
         } catch (Exception ex) {
 
-            throw new RuntimeException(ex);
+            throw new IpAddressNotFoundException("could not retive a valid ip address");
         }
     }
 

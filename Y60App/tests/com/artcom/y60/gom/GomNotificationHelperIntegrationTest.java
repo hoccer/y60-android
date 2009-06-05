@@ -8,6 +8,7 @@ import org.apache.http.StatusLine;
 import android.content.BroadcastReceiver;
 import android.content.Intent;
 import android.net.Uri;
+import android.test.suitebuilder.annotation.Suppress;
 
 import com.artcom.y60.Constants;
 import com.artcom.y60.HTTPHelper;
@@ -16,7 +17,7 @@ import com.artcom.y60.Y60ActivityInstrumentationTest;
 import com.artcom.y60.Y60TestActivity;
 
 public class GomNotificationHelperIntegrationTest extends
-                Y60ActivityInstrumentationTest<Y60TestActivity> {
+        Y60ActivityInstrumentationTest<Y60TestActivity> {
 
     private static final String TEST_BASE_PATH = "/test/android/y60/infrastructure_gom/gom_notification_helper_integration_test";
 
@@ -26,10 +27,11 @@ public class GomNotificationHelperIntegrationTest extends
     }
 
     public void setUp() {
-        
+
         getActivity().startService(new Intent(Y60Action.SERVICE_DEVICE_CONTROLLER));
     }
 
+    @Suppress
     public void testRegExpConstraintOnObserver() throws Exception {
 
         String timestamp = String.valueOf(System.currentTimeMillis());
@@ -42,10 +44,10 @@ public class GomNotificationHelperIntegrationTest extends
         String visibleNodePath = observedPath + "/X";
         String invisibleNodePath = visibleNodePath + "/Y";
         StatusLine statusLine = HTTPHelper.putUrlEncoded(Constants.Gom.URI + invisibleNodePath,
-                        formData);
+                formData);
         int statusCode = statusLine.getStatusCode();
         assertTrue("something went wrong with the PUT to the GOM - status code is: " + statusCode,
-                        statusCode < 300);
+                statusCode < 300);
 
         String visibleAttrPath = observedPath + ":attribute";
         Uri visibleAttrUrl = Uri.parse(Constants.Gom.URI + visibleAttrPath);

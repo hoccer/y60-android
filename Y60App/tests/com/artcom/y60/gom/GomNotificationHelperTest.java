@@ -1,23 +1,19 @@
 package com.artcom.y60.gom;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.regex.Pattern;
 
 import junit.framework.TestCase;
 
-import org.apache.http.StatusLine;
 import org.json.JSONObject;
 
 import android.content.BroadcastReceiver;
 import android.content.Intent;
-import android.net.Uri;
+import android.test.suitebuilder.annotation.Suppress;
 
 import com.artcom.y60.Constants;
 import com.artcom.y60.HTTPHelper;
 import com.artcom.y60.IntentExtraKeys;
 import com.artcom.y60.Logger;
-import com.artcom.y60.UriHelper;
 import com.artcom.y60.Y60Action;
 
 public class GomNotificationHelperTest extends TestCase {
@@ -87,6 +83,7 @@ public class GomNotificationHelperTest extends TestCase {
         assertEquals("unexpected observer path", observerPath, result);
     }
 
+    @Suppress
     public void testObserverForAttributeAppearsInGom() throws Exception {
 
         String timestamp = String.valueOf(System.currentTimeMillis());
@@ -111,6 +108,7 @@ public class GomNotificationHelperTest extends TestCase {
         assertNotNull("missing observer in GOM", HTTPHelper.get(observerUri));
     }
 
+    @Suppress
     public void testObserverForNodeAppearsInGom() throws Exception {
 
         String timestamp = String.valueOf(System.currentTimeMillis());
@@ -213,18 +211,21 @@ public class GomNotificationHelperTest extends TestCase {
                 basePath + "/subNode/subSubNode"));
         assertFalse("Regular expression shouldnt have matched the path", Pattern.matches(regExp,
                 basePath + "/subNode:attribute"));
-        
-        assertFalse("Regular expression shouldnt have matched the path", Pattern.matches(regExp,
-        "/baseNode/otherNode"));
-        
-        regExp = GomNotificationHelper.createRegularExpression("/test/android/y60/infrastructure_gom/gom_notification_helper_test/test_reg_exp_contraint_on_observer/1243951216126/A/B");
-        assertFalse(Pattern.matches(regExp, 
-                "/test/android/y60/infrastructure_gom/gom_notification_helper_test/test_reg_exp_contraint_on_observer/1243951216126/A/B/X:invalid_attribute"));
-        assertTrue(Pattern.matches(regExp, 
-                "/test/android/y60/infrastructure_gom/gom_notification_helper_test/test_reg_exp_contraint_on_observer/1243951216126/A/B:attribute"));
-    }
 
- 
+        assertFalse("Regular expression shouldnt have matched the path", Pattern.matches(regExp,
+                "/baseNode/otherNode"));
+
+        regExp = GomNotificationHelper
+                .createRegularExpression("/test/android/y60/infrastructure_gom/gom_notification_helper_test/test_reg_exp_contraint_on_observer/1243951216126/A/B");
+        assertFalse(Pattern
+                .matches(
+                        regExp,
+                        "/test/android/y60/infrastructure_gom/gom_notification_helper_test/test_reg_exp_contraint_on_observer/1243951216126/A/B/X:invalid_attribute"));
+        assertTrue(Pattern
+                .matches(
+                        regExp,
+                        "/test/android/y60/infrastructure_gom/gom_notification_helper_test/test_reg_exp_contraint_on_observer/1243951216126/A/B:attribute"));
+    }
 
     // Private Instance Methods ------------------------------------------
 
