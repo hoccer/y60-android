@@ -90,9 +90,9 @@ public class DeviceControllerServiceTest extends ServiceTestCase<DeviceControlle
 
         // if executed on emulator
         if (ipAddress.startsWith("10.0.2.")) {
-            assertTrue("rci_uri starts with 'http://'", rciUri.startsWith("http://"));
-            assertTrue("rci_uri contains a gallery address ", rciUri.contains("192.168.9."));
-            assertTrue("rci_uri ends with ':4042/commands'", rciUri.endsWith(":4042/commands"));
+            assertTrue("rci_uri should start with 'http://'", rciUri.startsWith("http://"));
+            assertTrue("rci_uri should contain a gallery address ", rciUri.contains("192.168.9."));
+            assertTrue("rci_uri should end with ':4042/commands'", rciUri.endsWith(":4042/commands"));
         } else {
             assertEquals("http://" + ipAddress + ":4042/commands", rciUri);
         }

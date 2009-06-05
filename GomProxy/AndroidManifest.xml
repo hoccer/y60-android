@@ -18,8 +18,8 @@
     </application>
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.RUN_INSTRUMENTATION" />
-    <instrumentation android:name="android.test.InstrumentationTestRunner" 
+    <!--  instrumentation android:name="android.test.InstrumentationTestRunner" 
       android:targetPackage="com.artcom.y60.gom" 
       android:label="Infrastructure">
-    </instrumentation>
+    </instrumentation -->
 </manifest> 
