@@ -8,26 +8,26 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.VIBRATE" />   
      
-    <application  android:icon="@drawable/icon" android:label="@string/app_name">
+    <application  android:icon="@drawable/default_icon" android:label="Y60:ErrorPresentation">
+    
+        <activity android:name=".Y60" android:label="@string/app_name"
+                  android:icon="@drawable/y60_icon">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="y60.intent.SHOW_Y60" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>            
+        </activity>
+        
         <activity android:name=".ErrorPresentationActivity"  android:exported="true">
             <intent-filter>
                 <action android:name="y60.intent.ERROR_PRESENTATION" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
-        
-        <activity android:name=".Y60" android:label="@string/app_name">
-			<intent-filter>
-				<action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-			</intent-filter>
-			
-			<intent-filter>
-				<action android:name="y60.intent.SHOW_Y60" />
-                <category android:name="android.intent.category.DEFAULT" />
-			</intent-filter>			
-		</activity>
-        
         
         <activity android:name=".GomNotificationMonitorActivity"
                   android:label="GOM Notification Monitor"
@@ -42,23 +42,27 @@
             </intent-filter>
         </activity>
         
+        <!-- The following activities are for meant to be used for instrumentation
+             tests only ................................................................. -->
+        
         <activity android:name="DnDTestActivity"  android:exported="true" 
-                  android:theme="@android:style/Theme.NoTitleBar">
+                  android:theme="@android:style/Theme.NoTitleBar"
+                  android:label="Y60:DnDTestActivity" android:icon="@drawable/default_icon">
 			<intent-filter>
 				<action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
 			</intent-filter>
         </activity>
         
         <activity android:name="SlotTestActivity"  android:exported="true" 
-                  android:theme="@android:style/Theme.NoTitleBar">
+                  android:theme="@android:style/Theme.NoTitleBar"
+                  android:label="Y60:SlotTestActivity" android:icon="@drawable/default_icon">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
         
-        <activity android:name="Y60TestActivity"  android:exported="true">
+        <activity android:name="Y60TestActivity"  android:exported="true"
+                  android:label="Y60:TestActivity" android:icon="@drawable/default_icon">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
             </intent-filter>

@@ -1,18 +1,25 @@
 package com.artcom.y60;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.util.NoSuchElementException;
+
+import org.json.JSONException;
+import org.xml.sax.SAXException;
+import org.xml.sax.SAXParseException;
+
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 
 public class ErrorHandling {
 
     public enum Category {
 
         // system or software errors
-        FILE_NOT_FOUND, MALFORMED_URI, MALFORMED_DATA, UNSUPPORTED_ENCODING, SAX_ERROR, JSON_ERROR, MISSING_GOM_ENTRY, MISSING_MANDATORY_OBJECT,
+        FILE_NOT_FOUND, MALFORMED_URI, MALFORMED_DATA, UNSUPPORTED_ENCODING, SAX_ERROR, JSON_ERROR, MISSING_GOM_ENTRY, MISSING_MANDATORY_OBJECT, LOW_ON_MEMORY_ERROR,
 
         // development and environmental errors
-        COMPONENT_NOT_FOUND, NETWORK_ERROR, IO_ERROR, ILLEGAL_ARGUMENT, GOM_ERROR, BACKEND_ERROR, SERVICE_ERROR,
+        COMPONENT_NOT_FOUND, NETWORK_ERROR, IO_ERROR, ILLEGAL_ARGUMENT, GOM_ERROR, BACKEND_ERROR, SERVICE_ERROR, DEFECTIVE_CONTENT_ERROR,
 
         UNSPECIFIED,
     }
@@ -34,19 +41,14 @@ public class ErrorHandling {
         context.startActivity(intent);
     }
 
-    @Deprecated
-    public static void signalError(String logTag, Throwable error, Category category) {
-        Logger.e(LOG_TAG, "signaling error: ", error);
-        Intent intent = new Intent("y60.intent.ERROR_PRESENTATION");
-        intent.putExtra(ID_MESSAGE, error.toString());
-        intent.putExtra(ID_LOGTAG, logTag);
-        // intent.putExtra(ID_CATEGORY, category);
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+    public static void notifyAboutError(String logTag, Throwable error, Context context,
+            Category category) {
+        Logger.e(LOG_TAG, "notifiying error: ", error);
 
-        throw new RuntimeException("we need to show an error activity!!! Something happend", error);
+        // TODO implement a notification in the statusbar
     }
-
-    public static void signalFileNotFoundError(String logTag, Throwable error, Context context) {
+    
+    public static void signalFileNotFoundError(String logTag, FileNotFoundException error, Context context) {
         signalError(logTag, error, context, Category.FILE_NOT_FOUND);
     }
 
@@ -59,17 +61,16 @@ public class ErrorHandling {
         signalError(logTag, error, context, Category.UNSUPPORTED_ENCODING);
     }
 
-    public static void signalSaxError(String logTag, Throwable error, Context context) {
+    public static void signalSaxError(String logTag, SAXException error, Context context) {
         signalError(logTag, error, context, Category.SAX_ERROR);
     }
 
-    public static void signalJsonError(String logTag, Throwable error, Context context) {
-        signalError(logTag, error, context, Category.JSON_ERROR);
+    public static void signalSaxError(String logTag, SAXParseException error, Context context) {
+        signalError(logTag, error, context, Category.SAX_ERROR);
     }
 
-    @Deprecated
-    public static void signalJsonError(String logTag, Throwable error) {
-        signalError(logTag, error, Category.JSON_ERROR);
+    public static void signalJsonError(String logTag, JSONException error, Context context) {
+        signalError(logTag, error, context, Category.JSON_ERROR);
     }
 
     public static void signalComponentNotFoundError(String logTag, Throwable error, Context context) {
@@ -80,7 +81,7 @@ public class ErrorHandling {
         signalError(logTag, error, context, Category.NETWORK_ERROR);
     }
 
-    public static void signalIllegalArgumentError(String logTag, Throwable error, Context context) {
+    public static void signalIllegalArgumentError(String logTag, IllegalArgumentException error, Context context) {
         signalError(logTag, error, context, Category.ILLEGAL_ARGUMENT);
     }
 
@@ -96,7 +97,7 @@ public class ErrorHandling {
         signalError(logTag, error, context, Category.SERVICE_ERROR);
     }
 
-    public static void signalMissingGomEntryError(String logTag, Throwable error, Context context) {
+    public static void signalMissingGomEntryError(String logTag, NoSuchElementException error, Context context) {
         signalError(logTag, error, context, Category.MISSING_GOM_ENTRY);
     }
 
@@ -105,34 +106,24 @@ public class ErrorHandling {
         signalError(logTag, error, context, Category.MISSING_MANDATORY_OBJECT);
     }
 
-    @Deprecated
-    public static void signalMissingMandatoryObjectError(String logTag, Throwable error) {
-        Logger.e(logTag, "MISSING_MANDATORY_OBJECT", error);
+    public static void signalDefectiveContentError(String logTag, DefectiveContentException error,
+                    Context context) {
+        signalError(logTag, error, context, Category.DEFECTIVE_CONTENT_ERROR);
     }
 
-    
     public static void signalUnspecifiedError(String logTag, Throwable error, Context context) {
         // TODO this method should not be used eventually
         signalError(logTag, error, context, Category.UNSPECIFIED);
     }
 
-    @Deprecated
-    public static void signalUnspecifiedError(String logTag, Throwable error) {
-        // TODO this method should not be used eventually
-        signalError(logTag, error, Category.UNSPECIFIED);
-    }
-    
-
-    public static void signalIOError(String logTag, Throwable error, Context context) {
+    public static void signalIOError(String logTag, IOException error, Context context) {
         signalError(logTag, error, context, Category.IO_ERROR);
     }
-    
-    @Deprecated
-    public static void signalIOError(String logTag, Throwable error) {
-        signalError(logTag, error, Category.IO_ERROR);
+
+    public static void signalLowOnMemoryError(String logTag, Throwable error, Context context) {
+        notifyAboutError(logTag, error, context, Category.LOW_ON_MEMORY_ERROR);
     }
 
-    
     public static void signalMalformedDataError(String logTag, Throwable error, Context context) {
         signalError(logTag, error, context, Category.MALFORMED_DATA);
     }

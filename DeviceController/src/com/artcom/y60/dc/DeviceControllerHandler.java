@@ -161,44 +161,50 @@ public class DeviceControllerHandler extends DefaultHandler {
     }
     
     private void handleGomNotification(HttpServletRequest pRequest)
-                            throws IOException, JSONException, HandlerException {
+                            throws IOException, HandlerException {
         
         Logger.d(LOG_TAG, "handling GOM notification");
         
         String content = extractContent(pRequest);
         Logger.v(LOG_TAG, "JSON data of notification: ", content);
         
-        JSONObject notification = new JSONObject(content);
-        Intent     gnpIntent    = new Intent(Y60Action.GOM_NOTIFICATION_BC);
-        
-        //wrong concept - uri is actually a path! see RFC 2396 for details
-        gnpIntent.putExtra(IntentExtraKeys.KEY_NOTIFICATION_PATH, notification.getString("uri"));
-        
-        String operation = null;
-        if (notification.has("create")) {
+        try {
+            JSONObject notification = new JSONObject(content);
+            Intent     gnpIntent    = new Intent(Y60Action.GOM_NOTIFICATION_BC);
             
-            operation = "create";
+            //wrong concept - uri is actually a path! see RFC 2396 for details
+            gnpIntent.putExtra(IntentExtraKeys.KEY_NOTIFICATION_PATH, notification.getString("uri"));
             
-        } else if (notification.has("update")) {
+            String operation = null;
+            if (notification.has("create")) {
+                
+                operation = "create";
+                
+            } else if (notification.has("update")) {
+                
+                operation = "update";
+                
+            } else if (notification.has("delete")) {
+                
+                operation = "delete";
+            }
             
-            operation = "update";
+            if (operation == null) {
+                
+                throw new HandlerException("GOM notification malformed:\n"+content);
+            }
+    
+            gnpIntent.putExtra(IntentExtraKeys.KEY_NOTIFICATION_OPERATION, operation);
             
-        } else if (notification.has("delete")) {
+            String data = notification.getJSONObject(operation).toString();
+            gnpIntent.putExtra(IntentExtraKeys.KEY_NOTIFICATION_DATA_STRING, data);
             
-            operation = "delete";
+            mService.sendBroadcast(gnpIntent);
+            
+        } catch (JSONException jsx) {
+            
+            Logger.e(LOG_TAG, "ignoring notification - failed to parse json: \n'", content, "'\n", jsx);
         }
-        
-        if (operation == null) {
-            
-            throw new HandlerException("GOM notification malformed:\n"+content);
-        }
-
-        gnpIntent.putExtra(IntentExtraKeys.KEY_NOTIFICATION_OPERATION, operation);
-        
-        String data = notification.getJSONObject(operation).toString();
-        gnpIntent.putExtra(IntentExtraKeys.KEY_NOTIFICATION_DATA_STRING, data);
-        
-        mService.sendBroadcast(gnpIntent);
     }
 
     

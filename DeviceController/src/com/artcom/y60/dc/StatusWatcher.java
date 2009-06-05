@@ -182,7 +182,7 @@ public class StatusWatcher extends Service {
                     pingStatistic.add(line.toString());
                 }
             } catch (IOException e) {
-                ErrorHandling.signalMalformedDataError(LOG_TAG, e, StatusWatcher.this);
+                ErrorHandling.signalIOError(LOG_TAG, e, StatusWatcher.this);
             }
 
             if (pingStatistic.size() < 3) {
