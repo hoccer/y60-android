@@ -56,6 +56,7 @@ public class GomProxyServiceTest extends ServiceTestCase<GomProxyService> {
         assertNotNull("service must not be null", service);
 
         String attrPath = "/test/android/y60/infrastructure_gom/gom_proxy_service_test:attribute";
+        HTTPHelper.putXML(service.getBaseUri() + attrPath, "<attribute>honolulu</attribute>");
         assertEquals("honolulu", service.getAttributeValue(attrPath));
         assertTrue(service.hasAttributeInCache(attrPath));
     }
@@ -70,6 +71,7 @@ public class GomProxyServiceTest extends ServiceTestCase<GomProxyService> {
         List<String> subNodeNames = new LinkedList<String>();
         List<String> attributeNames = new LinkedList<String>();
         String nodePath = "/test/android/y60/infrastructure_gom/gom_proxy_service_test/node/";
+        HTTPHelper.putXML(service.getBaseUri() + nodePath, "<node></node>");
         service.getNodeData(nodePath, subNodeNames, attributeNames);
 
         assertTrue(service.hasNodeInCache(nodePath));

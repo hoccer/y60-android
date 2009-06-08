@@ -5,6 +5,8 @@ import android.net.Uri;
 import android.test.ActivityUnitTestCase;
 import android.test.AssertionFailedError;
 
+import com.artcom.y60.HTTPHelper;
+
 public class GomProxyTest extends ActivityUnitTestCase<GomProxyTestActivity> {
 
     // Constants ---------------------------------------------------------
@@ -60,6 +62,8 @@ public class GomProxyTest extends ActivityUnitTestCase<GomProxyTestActivity> {
 
         initializeActivity();
         GomProxyHelper helper = createHelper();
+        HTTPHelper.putText("/test/android/y60/infrastructure_gom/gom_proxy_test:attribute",
+                "nassau");
         GomAttribute attr = helper
                 .getAttribute("/test/android/y60/infrastructure_gom/gom_proxy_test:attribute");
         assertEquals("nassau", attr.getValue());
