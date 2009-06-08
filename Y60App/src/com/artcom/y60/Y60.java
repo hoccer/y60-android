@@ -71,6 +71,7 @@ public class Y60 extends Activity {
     private Button mSetNameButton;
     private Button mStartY60Button;
     private Button mStopY60Button;
+    private Button mWifiCfgButton;
 
     private TextView mHomeTargetTextView;
     private Spinner mChooseHomeButtonTarget;
@@ -118,6 +119,16 @@ public class Y60 extends Activity {
 
         mSetNameButton = (Button) findViewById(R.id.mSetNameButton);
         mSetNameButton.setOnClickListener(new RenameClickListener());
+
+        mWifiCfgButton = (Button) findViewById(R.id.wifi_config_button);
+        mWifiCfgButton.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent();
+                intent.setClassName("com.android.settings", "com.android.settings.WirelessSettings");
+                startActivity(intent);
+            }
+        });
 
         mStartY60Button = (Button) findViewById(R.id.mStartY60Button);
         mStartY60Button.setOnClickListener(new OnClickListener() {
