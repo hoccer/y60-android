@@ -22,7 +22,7 @@ public class TestHelper {
      *            in milliseconds
      * @param pCon
      */
-    public static void assertTrueAsync(String pFailMessage, long pTimeout, TestHelper.Condition pCon) {
+    public static void blockUntilTrue(String pFailMessage, long pTimeout, TestHelper.Condition pCon) {
 
         long start = System.currentTimeMillis();
         while (System.currentTimeMillis() - start < pTimeout) {
@@ -50,10 +50,10 @@ public class TestHelper {
      *            in milliseconds
      * @param pCon
      */
-    public static void assertFalseAsync(String pFailMessage, long pTimeout,
+    public static void blockUntilFalse(String pFailMessage, long pTimeout,
             final TestHelper.Condition pCon) {
 
-        assertTrueAsync(pFailMessage, pTimeout, new TestHelper.Condition() {
+        blockUntilTrue(pFailMessage, pTimeout, new TestHelper.Condition() {
             public boolean isSatisfied() {
 
                 return !pCon.isSatisfied();
