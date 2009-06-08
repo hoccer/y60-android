@@ -9,4 +9,5 @@ public class IntentExtraKeys {
     public static final String KEY_NOTIFICATION_PATH         = "uri";
     public static final String KEY_NOTIFICATION_OPERATION   = "operation";
     public static final String KEY_NOTIFICATION_DATA_STRING = "data";
+    public static final String KEY_WEB_URL = "web_url";
 }
