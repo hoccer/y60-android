@@ -21,6 +21,13 @@ android:text="Set device ID"
 >
 </Button>
 <Button
+android:id="@+id/wifi_config_button"
+android:layout_width="wrap_content"
+android:layout_height="wrap_content"
+android:text="Configure WiFi"
+>
+</Button>
+<Button
 android:id="@+id/mStartY60Button"
 android:layout_width="wrap_content"
 android:layout_height="wrap_content"
