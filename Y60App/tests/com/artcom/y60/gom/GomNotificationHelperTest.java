@@ -6,6 +6,7 @@ import java.util.regex.Pattern;
 
 import junit.framework.TestCase;
 
+import org.apache.http.HttpResponse;
 import org.json.JSONObject;
 
 import android.content.BroadcastReceiver;
@@ -13,7 +14,7 @@ import android.content.Intent;
 import android.test.suitebuilder.annotation.Suppress;
 
 import com.artcom.y60.Constants;
-import com.artcom.y60.HTTPHelper;
+import com.artcom.y60.HttpHelper;
 import com.artcom.y60.IntentExtraKeys;
 import com.artcom.y60.Logger;
 import com.artcom.y60.NetworkHelper;
@@ -90,13 +91,15 @@ public class GomNotificationHelperTest extends TestCase {
 
         String timestamp = String.valueOf(System.currentTimeMillis());
         String testPath = TEST_BASE_PATH + "/test_put_observer_multiple_times";
-        String attrPath = testPath + "/" + timestamp;
-        String observerUri = Constants.Gom.URI + GomNotificationHelper.getObserverPathFor(attrPath);
+        String nodePath = testPath + "/" + timestamp;
+        String observerHolder = Constants.Gom.URI
+                + GomNotificationHelper.getObserverPathFor(nodePath);
+        String observerUrl = observerHolder + "/" + GomNotificationHelper.getObserverId();
 
         try {
 
-            HTTPHelper.get(observerUri);
-            fail("Expected a 404 on observer " + observerUri + ", which shouldn't exist");
+            HttpHelper.get(observerUrl);
+            fail("Expected a 404 on observer " + observerUrl + ", which shouldn't exist");
 
         } catch (Exception ex) {
 
@@ -104,15 +107,17 @@ public class GomNotificationHelperTest extends TestCase {
             assertTrue("expected a 404", is404);
         }
 
-        HTTPHelper.putUrlEncoded(observerUri + "/" + GomNotificationHelper.getObserverId(),
-                getObserverNodeData(attrPath));
+        GomHttpWrapper.createNode(Constants.Gom.URI + nodePath);
+        HttpResponse resp = HttpHelper.putUrlEncoded(observerUrl, getObserverNodeData(nodePath));
+        assertTrue(resp.getStatusLine().getStatusCode() < 300);
 
         // check that the observer has arrived in gom
-        assertNotNull("missing observer in GOM", HTTPHelper.get(observerUri));
+        assertNotNull("missing observer in GOM", HttpHelper.get(observerUrl));
+        assertNotNull("missing node in GOM", HttpHelper.get(Constants.Gom.URI + nodePath));
 
         // change value
 
-        // check number of incoming notifications
+        // check number of incoming notifications, number of gom nodes
 
         // register multiple times
 
@@ -132,7 +137,7 @@ public class GomNotificationHelperTest extends TestCase {
 
         try {
 
-            HTTPHelper.get(observerUri);
+            HttpHelper.get(observerUri);
             fail("Expected a 404 on observer " + observerUri + ", which shouldn't exist");
 
         } catch (Exception ex) {
@@ -144,7 +149,7 @@ public class GomNotificationHelperTest extends TestCase {
         GomNotificationHelper.registerObserver(attrPath, mMockGomObserver);
 
         // check that the observer has arrived in gom
-        assertNotNull("missing observer in GOM", HTTPHelper.get(observerUri));
+        assertNotNull("missing observer in GOM", HttpHelper.get(observerUri));
     }
 
     @Suppress
@@ -157,7 +162,7 @@ public class GomNotificationHelperTest extends TestCase {
 
         try {
 
-            String result = HTTPHelper.get(observerUri);
+            String result = HttpHelper.get(observerUri);
             fail("Expected a 404 on observer " + observerUri + ", which shouldn't exist");
 
         } catch (Exception ex) {
@@ -169,7 +174,7 @@ public class GomNotificationHelperTest extends TestCase {
         GomNotificationHelper.registerObserver(nodePath, mMockGomObserver);
 
         // check that the observer has arrived in gom
-        assertNotNull("missing observer in GOM", HTTPHelper.get(observerUri));
+        assertNotNull("missing observer in GOM", HttpHelper.get(observerUri));
     }
 
     public void testNotificationCreate() throws Exception {

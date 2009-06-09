@@ -11,7 +11,7 @@ import org.json.JSONObject;
 import android.net.Uri;
 
 import com.artcom.y60.Constants;
-import com.artcom.y60.HTTPHelper;
+import com.artcom.y60.HttpHelper;
 
 public class GomHttpWrapper {
 
@@ -21,7 +21,7 @@ public class GomHttpWrapper {
             Map<String, String> formData = new HashMap<String, String>();
             formData.put(Constants.Gom.Keywords.ATTRIBUTE, pValue);
 
-            StatusLine statusLine = HTTPHelper.putUrlEncoded(pUri.toString(), formData)
+            StatusLine statusLine = HttpHelper.putUrlEncoded(pUri.toString(), formData)
                     .getStatusLine();
 
             // Logger.v(LOG_TAG, "PUT ", pUri, " with ",
@@ -41,18 +41,18 @@ public class GomHttpWrapper {
 
     public static HttpResponse deleteAttribute(Uri pUri) {
 
-        return HTTPHelper.delete(pUri);
+        return HttpHelper.delete(pUri);
     }
 
     public static HttpResponse deleteNode(Uri pUri) {
 
-        return HTTPHelper.delete(pUri);
+        return HttpHelper.delete(pUri);
     }
 
     public static String getAttributeValue(Uri pAttrUrl) {
 
         try {
-            JSONObject wrapper = HTTPHelper.getJson(pAttrUrl.toString());
+            JSONObject wrapper = HttpHelper.getJson(pAttrUrl.toString());
             JSONObject attr = wrapper.getJSONObject(Constants.Gom.Keywords.ATTRIBUTE);
             String value = attr.getString(Constants.Gom.Keywords.VALUE);
 
@@ -63,4 +63,21 @@ public class GomHttpWrapper {
             throw new RuntimeException(jsx);
         }
     }
+
+    public static String createNode(String pNodeUrl) {
+
+        return HttpHelper.putXML(pNodeUrl, "<node/>");
+    }
+
+    public static void createNodeWithAttributes(String pNodeUrl, HashMap<String, String> pAttrs) {
+
+        HashMap<String, String> formData = new HashMap<String, String>(pAttrs.size());
+        for (String attrName : pAttrs.keySet()) {
+
+            formData.put("attributes[" + attrName + "]", pAttrs.get(attrName));
+        }
+        HttpHelper.putUrlEncoded(pNodeUrl, formData);
+
+    }
+
 }

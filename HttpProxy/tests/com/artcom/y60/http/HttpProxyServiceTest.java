@@ -9,7 +9,7 @@ import android.os.Bundle;
 import android.test.AssertionFailedError;
 import android.test.ServiceTestCase;
 
-import com.artcom.y60.HTTPHelper;
+import com.artcom.y60.HttpHelper;
 import com.artcom.y60.ResourceBundleHelper;
 
 /**
@@ -59,7 +59,7 @@ public class HttpProxyServiceTest extends ServiceTestCase<HttpProxyService> {
 
         assertNotNull("resource path from cache was null", cached.getByteArray(HttpProxyConstants.BYTE_ARRY_TAG));
 
-        byte[] fromHttp = HTTPHelper.getAsByteArray(Uri.parse(uri.toString()));
+        byte[] fromHttp = HttpHelper.getAsByteArray(Uri.parse(uri.toString()));
         byte[] cachedArray = ResourceBundleHelper.convertResourceBundleToByteArray(cached);
         assertNotNull("conversion to array returned null", cachedArray);
         assertTrue("cached data is to small", cachedArray.length > 1000);

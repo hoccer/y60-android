@@ -35,11 +35,11 @@ import org.json.JSONObject;
 
 import android.net.Uri;
 
-public class HTTPHelper {
+public class HttpHelper {
 
     // Constants ---------------------------------------------------------
 
-    private static final String LOG_TAG = "HTTPHelper";
+    private static final String LOG_TAG = "HttpHelper";
     private static final String SCRIPT_RUNNER_Uri = "http://t-gom.service.t-gallery.act/gom/script-runner";
 
     // Static Methods ----------------------------------------------------
@@ -73,7 +73,7 @@ public class HTTPHelper {
         HttpPut put = new HttpPut(pUrl);
         String body = tmp.toString();
 
-        // Log.v(LOG_TAG, "PUT " + pUrl + " with body " + body);
+        Logger.v(LOG_TAG, "PUT " + pUrl + " with body " + body);
 
         insertUrlEncoded(body, put);
         return executeHTTPMethod(put);
