@@ -75,7 +75,7 @@ public class NetworkHelper {
 
         } catch (Exception ex) {
 
-            throw new IpAddressNotFoundException("could not retive a valid ip address");
+            throw new IpAddressNotFoundException("could not retrieve a valid ip address", ex);
         }
     }
 

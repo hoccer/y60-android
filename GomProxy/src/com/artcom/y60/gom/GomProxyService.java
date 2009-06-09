@@ -111,7 +111,7 @@ public class GomProxyService extends Service {
                     loadNode(pPath);
     
                     try {
-                        GomNotificationHelper.postObserverToGom(pPath);
+                        GomNotificationHelper.putObserverToGom(pPath);
                     } catch (IOException e) {
                         ErrorHandling.signalIOError(LOG_TAG, e, this);
                     }
@@ -151,7 +151,7 @@ public class GomProxyService extends Service {
                     loadAttribute(pPath);
     
                     try {
-                        GomNotificationHelper.postObserverToGom(pPath);
+                        GomNotificationHelper.putObserverToGom(pPath);
                     } catch (IOException e) {
                         ErrorHandling.signalIOError(LOG_TAG, e, this);
                     }

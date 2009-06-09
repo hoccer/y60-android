@@ -69,14 +69,15 @@ public class GomHttpWrapper {
         return HttpHelper.putXML(pNodeUrl, "<node/>");
     }
 
-    public static void createNodeWithAttributes(String pNodeUrl, HashMap<String, String> pAttrs) {
+    public static HttpResponse putNodeWithAttributes(String pNodeUrl,
+            HashMap<String, String> pAttrs) {
 
         HashMap<String, String> formData = new HashMap<String, String>(pAttrs.size());
         for (String attrName : pAttrs.keySet()) {
 
             formData.put("attributes[" + attrName + "]", pAttrs.get(attrName));
         }
-        HttpHelper.putUrlEncoded(pNodeUrl, formData);
+        return HttpHelper.putUrlEncoded(pNodeUrl, formData);
 
     }
 

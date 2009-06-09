@@ -51,7 +51,7 @@ public class HttpGomWrapperTest extends TestCase {
         HashMap<String, String> data = new HashMap<String, String>();
         data.put("attribute_1", "mangosalat");
 
-        GomHttpWrapper.createNodeWithAttributes(nodeUrl, data);
+        GomHttpWrapper.putNodeWithAttributes(nodeUrl, data);
 
         assertNotNull("attribute should be in gom", HttpHelper.get(nodeUrl + ":" + attr1));
 

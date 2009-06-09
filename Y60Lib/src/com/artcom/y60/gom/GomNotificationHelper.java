@@ -3,9 +3,10 @@ package com.artcom.y60.gom;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.util.HashMap;
-import java.util.Map;
 import java.util.regex.Pattern;
 
+import org.apache.http.HttpResponse;
+import org.apache.http.StatusLine;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -15,6 +16,7 @@ import android.content.Intent;
 
 import com.artcom.y60.Constants;
 import com.artcom.y60.DeviceConfiguration;
+import com.artcom.y60.HttpHelper;
 import com.artcom.y60.IntentExtraKeys;
 import com.artcom.y60.IpAddressNotFoundException;
 import com.artcom.y60.Logger;
@@ -35,7 +37,7 @@ public class GomNotificationHelper {
     public static BroadcastReceiver registerObserver(String pPath, GomObserver pGomObserver)
             throws IOException, IpAddressNotFoundException {
 
-        postObserverToGom(pPath);
+        putObserverToGom(pPath);
 
         return createBroadcastReceiver(pPath, pGomObserver);
     }
@@ -44,16 +46,18 @@ public class GomNotificationHelper {
      * @param pPath
      * @throws IOException
      */
-    public static void postObserverToGom(String pPath) throws IOException,
+    public static HttpResponse putObserverToGom(String pPath) throws IOException,
             IpAddressNotFoundException {
 
-        postObserverToGom(pPath, false);
+        return putObserverToGom(pPath, false);
     }
 
-    public static void postObserverToGom(String pPath, boolean pWithBubbleUp) throws IOException,
-            IpAddressNotFoundException {
+    public static HttpResponse putObserverToGom(String pPath, boolean pWithBubbleUp)
+            throws IOException, IpAddressNotFoundException {
 
-        Map<String, String> formData = new HashMap<String, String>();
+        String observerId = getObserverId();
+
+        HashMap<String, String> formData = new HashMap<String, String>();
 
         InetAddress myIp = NetworkHelper.getStagingIp();
         Logger.v(LOG_TAG, "myIp: ", myIp.toString());
@@ -89,16 +93,18 @@ public class GomNotificationHelper {
         // Deactivated because the implementation does not unsubscribe registerd
         // observers
 
-        // HttpResponse response = HTTPHelper.postUrlEncoded(observerUri,
-        // formData); StatusLine status = response.getStatusLine(); if
-        // (status.getStatusCode() >= 300) {
-        //         
-        // throw new
-        // IOException("Unexpected HTTP status code: "+status.getStatusCode());
-        // }
-        //         
-        // String result = HTTPHelper.extractBodyAsString(response.getEntity());
-        // Logger.v(LOG_TAG, "result of post to observer: ", result);
+        HttpResponse response = GomHttpWrapper.putNodeWithAttributes(
+                observerUri + "/" + observerId, formData);
+        StatusLine status = response.getStatusLine();
+        if (status.getStatusCode() >= 300) {
+
+            throw new IOException("Unexpected HTTP status code: " + status.getStatusCode());
+        }
+
+        String result = HttpHelper.extractBodyAsString(response.getEntity());
+        Logger.v(LOG_TAG, "result of post to observer: ", result);
+
+        return response;
 
     }
 

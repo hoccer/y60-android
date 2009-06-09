@@ -7,6 +7,7 @@ import java.util.regex.Pattern;
 import junit.framework.TestCase;
 
 import org.apache.http.HttpResponse;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import android.content.BroadcastReceiver;
@@ -92,9 +93,7 @@ public class GomNotificationHelperTest extends TestCase {
         String timestamp = String.valueOf(System.currentTimeMillis());
         String testPath = TEST_BASE_PATH + "/test_put_observer_multiple_times";
         String nodePath = testPath + "/" + timestamp;
-        String observerHolder = Constants.Gom.URI
-                + GomNotificationHelper.getObserverPathFor(nodePath);
-        String observerUrl = observerHolder + "/" + GomNotificationHelper.getObserverId();
+        String observerUrl = Constants.Gom.URI + GomNotificationHelper.getObserverPathFor(nodePath);
 
         try {
 
@@ -108,22 +107,29 @@ public class GomNotificationHelperTest extends TestCase {
         }
 
         GomHttpWrapper.createNode(Constants.Gom.URI + nodePath);
-        HttpResponse resp = HttpHelper.putUrlEncoded(observerUrl, getObserverNodeData(nodePath));
+        HttpResponse resp = GomNotificationHelper.putObserverToGom(nodePath);
         assertTrue(resp.getStatusLine().getStatusCode() < 300);
 
         // check that the observer has arrived in gom
         assertNotNull("missing observer in GOM", HttpHelper.get(observerUrl));
         assertNotNull("missing node in GOM", HttpHelper.get(Constants.Gom.URI + nodePath));
 
-        // change value
-
-        // check number of incoming notifications, number of gom nodes
-
         // register multiple times
+        resp = GomNotificationHelper.putObserverToGom(nodePath);
+        assertTrue(resp.getStatusLine().getStatusCode() < 300);
 
-        // change value
+        resp = GomNotificationHelper.putObserverToGom(nodePath);
+        assertTrue(resp.getStatusLine().getStatusCode() < 300);
 
-        // check number of incoming notifications
+        JSONObject json = HttpHelper.getJson(observerUrl);
+        JSONObject node = json.getJSONObject(Constants.Gom.Keywords.NODE);
+        JSONArray entries = node.getJSONArray(Constants.Gom.Keywords.ENTRIES);
+        assertEquals("There should be one observer node", 1, entries.length());
+        JSONObject innerNode = entries.getJSONObject(0);
+        assertEquals("Observer node should be named like the observer id", GomNotificationHelper
+                .getObserverPathFor(nodePath)
+                + "/" + GomNotificationHelper.getObserverId(), innerNode
+                .getString(Constants.Gom.Keywords.NODE));
 
     }
 
