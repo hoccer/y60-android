@@ -35,13 +35,12 @@ import org.json.JSONObject;
 
 import android.net.Uri;
 
-
 public class HTTPHelper {
 
     // Constants ---------------------------------------------------------
 
     private static final String LOG_TAG = "HTTPHelper";
-    private static final String SCRIPT_RUNNER_Uri = "http://t-gom.service.t-gallery.act/gom/script-runner"; 
+    private static final String SCRIPT_RUNNER_Uri = "http://t-gom.service.t-gallery.act/gom/script-runner";
 
     // Static Methods ----------------------------------------------------
 
@@ -52,41 +51,41 @@ public class HTTPHelper {
         return statusLine.getStatusCode() + " " + statusLine.getReasonPhrase();
     }
 
-    public static StatusLine putUrlEncoded(String pUrl, Map<String, String> pData) {
-        
+    public static HttpResponse putUrlEncoded(String pUrl, Map<String, String> pData) {
+
         StringBuffer tmp = new StringBuffer();
         Set<String> keys = pData.keySet();
         int idx = 0;
         for (String key : keys) {
-            
+
             tmp.append(URLEncoder.encode(key));
             tmp.append("=");
             tmp.append(URLEncoder.encode(pData.get(key)));
-            
+
             idx += 1;
-            
+
             if (idx < keys.size()) {
-                
+
                 tmp.append("&");
             }
         }
-        
+
         HttpPut put = new HttpPut(pUrl);
         String body = tmp.toString();
-        
+
         // Log.v(LOG_TAG, "PUT " + pUrl + " with body " + body);
-        
+
         insertUrlEncoded(body, put);
-        return executeHTTPMethod(put).getStatusLine();
+        return executeHTTPMethod(put);
     }
-    
+
     public static String putText(String pUri, String pData) {
         HttpPut put = new HttpPut(pUri);
         insert(pData, "text/xml", "text/xml", put);
         StatusLine statusLine = executeHTTPMethod(put).getStatusLine();
         if (statusLine.getStatusCode() != 200) {
             throw new RuntimeException("Execution of HTTP Method PUT '" + pUri + "' returend "
-                            + statusLine);
+                    + statusLine);
         }
         return statusLine.getStatusCode() + " " + statusLine.getReasonPhrase();
     }
@@ -99,7 +98,7 @@ public class HTTPHelper {
 
         if (result.getStatusLine().getStatusCode() != 200) {
             throw new RuntimeException("Execution of HTTP Method POST '" + uri + "' returend "
-                            + result.getStatusLine());
+                    + result.getStatusLine());
         }
 
         return extractBodyAsString(result.getEntity());
@@ -113,7 +112,7 @@ public class HTTPHelper {
 
         if (result.getStatusLine().getStatusCode() != 200) {
             throw new RuntimeException("Execution of HTTP Method POST '" + uri + "' returend "
-                            + result.getStatusLine());
+                    + result.getStatusLine());
         }
 
         return extractBodyAsString(result.getEntity());
@@ -135,15 +134,15 @@ public class HTTPHelper {
 
         HttpDelete del = new HttpDelete(uri.toString());
         HttpResponse result = executeHTTPMethod(del);
-        
+
         if (result.getStatusLine().getStatusCode() != 200) {
             throw new RuntimeException("Execution of HTTP Method DELETE '" + uri + "' returend "
-                            + result.getStatusLine());
+                    + result.getStatusLine());
         }
-        
+
         return result;
     }
-    
+
     public static String get(Uri uri) {
 
         HttpEntity result = getAsHttpEntity(uri);
@@ -176,7 +175,7 @@ public class HTTPHelper {
         } catch (IllegalStateException e) {
             throw new RuntimeException("illegal state: " + e.getMessage());
         } catch (IOException e) {
-            throw new RuntimeException( "io error: " + e.getMessage());
+            throw new RuntimeException("io error: " + e.getMessage());
         }
     }
 
@@ -227,17 +226,18 @@ public class HTTPHelper {
         return executeHTTPMethod(post);
     }
 
-    public static JSONObject executeServerScript(String pJsStr, Map<String, String> pParams) throws JSONException {
+    public static JSONObject executeServerScript(String pJsStr, Map<String, String> pParams)
+            throws JSONException {
 
-        String params  = urlEncode(pParams);
-        String uri     = SCRIPT_RUNNER_Uri+"?"+params;
+        String params = urlEncode(pParams);
+        String uri = SCRIPT_RUNNER_Uri + "?" + params;
         String jsonStr = post(uri, pJsStr, "text/javascript", "text/json");
-        
+
         return new JSONObject(jsonStr);
     }
 
     public static String urlEncode(Map pData) {
-        
+
         StringBuffer tmp = new StringBuffer();
         Set keys = pData.keySet();
         int idx = 0;
@@ -257,9 +257,9 @@ public class HTTPHelper {
 
         return tmp.toString();
     }
-    
+
     public static String extractBodyAsString(HttpEntity entity) {
-        
+
         try {
             return extractBody(entity).toString();
         } catch (IllegalStateException e) {
@@ -272,14 +272,13 @@ public class HTTPHelper {
             return e.getMessage();
         }
     }
-    
+
     public static byte[] extractBodyAsByteArray(HttpEntity entity) throws IllegalStateException,
-    IOException {
-        
+            IOException {
+
         return extractBody(entity).toByteArray();
     }
-    
-    
+
     // Private Instance Methods ------------------------------------------
 
     private static HttpEntity getAsHttpEntity(Uri uri) {
@@ -293,7 +292,8 @@ public class HTTPHelper {
         int statusCode = status.getStatusCode();
         if (statusCode == HttpStatus.SC_INTERNAL_SERVER_ERROR) {
             Logger.w(LOG_TAG, "Request '", uri, "' came back with 501 Internal Server Error");
-            throw new RuntimeException("Request '" + uri + "' came back with 501 Internal Server Error");
+            throw new RuntimeException("Request '" + uri
+                    + "' came back with 501 Internal Server Error");
         } else if (statusCode == HttpStatus.SC_NOT_FOUND) {
             Logger.w(LOG_TAG, "Request '", uri, "'came back with 404 Not Found");
             throw new RuntimeException("Request '" + uri + "' came back with 404 Not Found");
@@ -321,7 +321,7 @@ public class HTTPHelper {
     }
 
     private static void insert(String pBody, String pContentType, String pAccept,
-                    HttpEntityEnclosingRequestBase pMethod) {
+            HttpEntityEnclosingRequestBase pMethod) {
 
         // Logger.v(LOG_TAG, "inserting for content type " + pContentType
         // + ", body is " + pBody);
@@ -348,7 +348,7 @@ public class HTTPHelper {
         httpclient.setRedirectHandler(new DefaultRedirectHandler() {
             @Override
             public URI getLocationURI(HttpResponse response, HttpContext context)
-                            throws ProtocolException {
+                    throws ProtocolException {
                 URI uri = super.getLocationURI(response, context);
                 // Log.v(LOG_TAG, response.getStatusLine().getStatusCode()
                 // + " redirect to: " + uri);
@@ -380,7 +380,7 @@ public class HTTPHelper {
             // an xml uri means that someone is using this method in a wrong way
             // --> fail fast
             throw new IllegalArgumentException("HttpHelper was passed a Uri which explicitly "
-                            + "asked for a different format: '" + pUrl + "'!");
+                    + "asked for a different format: '" + pUrl + "'!");
         }
 
         // remove trailing slashes

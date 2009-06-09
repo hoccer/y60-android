@@ -1,5 +1,7 @@
 package com.artcom.y60.gom;
 
+import java.net.InetAddress;
+import java.util.HashMap;
 import java.util.regex.Pattern;
 
 import junit.framework.TestCase;
@@ -14,6 +16,7 @@ import com.artcom.y60.Constants;
 import com.artcom.y60.HTTPHelper;
 import com.artcom.y60.IntentExtraKeys;
 import com.artcom.y60.Logger;
+import com.artcom.y60.NetworkHelper;
 import com.artcom.y60.Y60Action;
 
 public class GomNotificationHelperTest extends TestCase {
@@ -81,6 +84,42 @@ public class GomNotificationHelperTest extends TestCase {
         Logger.v(LOG_TAG, "Actual observer path: ", result);
 
         assertEquals("unexpected observer path", observerPath, result);
+    }
+
+    public void testPutObserverMultipleTimes() throws Exception {
+
+        String timestamp = String.valueOf(System.currentTimeMillis());
+        String testPath = TEST_BASE_PATH + "/test_put_observer_multiple_times";
+        String attrPath = testPath + "/" + timestamp;
+        String observerUri = Constants.Gom.URI + GomNotificationHelper.getObserverPathFor(attrPath);
+
+        try {
+
+            HTTPHelper.get(observerUri);
+            fail("Expected a 404 on observer " + observerUri + ", which shouldn't exist");
+
+        } catch (Exception ex) {
+
+            boolean is404 = ex.toString().contains("404");
+            assertTrue("expected a 404", is404);
+        }
+
+        HTTPHelper.putUrlEncoded(observerUri + "/" + GomNotificationHelper.getObserverId(),
+                getObserverNodeData(attrPath));
+
+        // check that the observer has arrived in gom
+        assertNotNull("missing observer in GOM", HTTPHelper.get(observerUri));
+
+        // change value
+
+        // check number of incoming notifications
+
+        // register multiple times
+
+        // change value
+
+        // check number of incoming notifications
+
     }
 
     @Suppress
@@ -239,5 +278,19 @@ public class GomNotificationHelperTest extends TestCase {
 
         return gnpIntent;
 
+    }
+
+    private HashMap<String, String> getObserverNodeData(String pPath) throws Exception {
+
+        HashMap<String, String> formData = new HashMap<String, String>();
+        InetAddress myIp = NetworkHelper.getStagingIp();
+        String ip = myIp.getHostAddress();
+        String callbackUrl = "http://" + ip + ":" + Constants.Network.DEFAULT_PORT
+                + Constants.Network.GNP_TARGET;
+        formData.put("callback_url", callbackUrl);
+        formData.put("accept", "application/json");
+        formData.put("uri_regexp", GomNotificationHelper.createRegularExpression(pPath));
+
+        return formData;
     }
 }

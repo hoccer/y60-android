@@ -104,7 +104,7 @@ public class GomProxyServiceTest extends ServiceTestCase<GomProxyService> {
         Map<String, String> formData = new HashMap<String, String>();
         String oldValue = "Gehen sie weiter, es gibt nichts zu sehen.";
         formData.put(Constants.Gom.Keywords.ATTRIBUTE, oldValue);
-        StatusLine statusLine = HTTPHelper.putUrlEncoded(attrUrl, formData);
+        StatusLine statusLine = HTTPHelper.putUrlEncoded(attrUrl, formData).getStatusLine();
         int statusCode = statusLine.getStatusCode();
         assertTrue("something went wrong with the PUT old value to the GOM - status code is: "
                 + statusCode, statusCode < 300);
@@ -115,7 +115,7 @@ public class GomProxyServiceTest extends ServiceTestCase<GomProxyService> {
         // change the value in GOM
         String newValue = "Der Wert ist mal wieder ganz egal.";
         formData.put(Constants.Gom.Keywords.ATTRIBUTE, newValue);
-        statusLine = HTTPHelper.putUrlEncoded(attrUrl, formData);
+        statusLine = HTTPHelper.putUrlEncoded(attrUrl, formData).getStatusLine();
         assertTrue("something went wrong with the PUT new value to the GOM", statusLine
                 .getStatusCode() < 300);
 
@@ -142,7 +142,7 @@ public class GomProxyServiceTest extends ServiceTestCase<GomProxyService> {
 
         // create the node we want to test
         Map<String, String> formData = new HashMap<String, String>();
-        StatusLine statusLine = HTTPHelper.putUrlEncoded(nodeUrl, formData);
+        StatusLine statusLine = HTTPHelper.putUrlEncoded(nodeUrl, formData).getStatusLine();
         int statusCode = statusLine.getStatusCode();
         assertTrue("something went wrong with the PUT to the GOM - status code is: " + statusCode,
                 statusCode < 300);
@@ -182,7 +182,7 @@ public class GomProxyServiceTest extends ServiceTestCase<GomProxyService> {
 
         // create the node we want to test
         Map<String, String> formData = new HashMap<String, String>();
-        StatusLine statusLine = HTTPHelper.putUrlEncoded(nodeUrl, formData);
+        StatusLine statusLine = HTTPHelper.putUrlEncoded(nodeUrl, formData).getStatusLine();
         int statusCode = statusLine.getStatusCode();
         assertTrue("something went wrong with the PUT to the GOM - status code is: " + statusCode,
                 statusCode < 300);
@@ -217,7 +217,7 @@ public class GomProxyServiceTest extends ServiceTestCase<GomProxyService> {
         Logger.d(LOG_TAG, "node URL: ", nodeUrl);
 
         Map<String, String> formData = new HashMap<String, String>();
-        StatusLine statusLine = HTTPHelper.putUrlEncoded(nodeUrl, formData);
+        StatusLine statusLine = HTTPHelper.putUrlEncoded(nodeUrl, formData).getStatusLine();
         int statusCode = statusLine.getStatusCode();
         assertTrue("something went wrong with the PUT to the GOM - status code is: " + statusCode,
                 statusCode < 300);
@@ -225,7 +225,7 @@ public class GomProxyServiceTest extends ServiceTestCase<GomProxyService> {
         // create sub node
         String subNodeName = "subNode";
         String subNodeUrl = UriHelper.join(nodeUrl, subNodeName);
-        statusLine = HTTPHelper.putUrlEncoded(subNodeUrl, formData);
+        statusLine = HTTPHelper.putUrlEncoded(subNodeUrl, formData).getStatusLine();
         assertTrue("something went wrong with the PUT to the GOM - status code is: " + statusCode,
                 statusCode < 300);
 
@@ -275,7 +275,7 @@ public class GomProxyServiceTest extends ServiceTestCase<GomProxyService> {
 
         // create the node we want to test
         Map<String, String> formData = new HashMap<String, String>();
-        StatusLine statusLine = HTTPHelper.putUrlEncoded(nodeUrl, formData);
+        StatusLine statusLine = HTTPHelper.putUrlEncoded(nodeUrl, formData).getStatusLine();
         int statusCode = statusLine.getStatusCode();
         assertTrue("something went wrong with the PUT to the GOM - status code is: " + statusCode,
                 statusCode < 300);
@@ -312,7 +312,7 @@ public class GomProxyServiceTest extends ServiceTestCase<GomProxyService> {
 
         // create the node we want to test
         Map<String, String> formData = new HashMap<String, String>();
-        StatusLine statusLine = HTTPHelper.putUrlEncoded(nodeUrl, formData);
+        StatusLine statusLine = HTTPHelper.putUrlEncoded(nodeUrl, formData).getStatusLine();
         int statusCode = statusLine.getStatusCode();
         assertTrue("something went wrong with the PUT to the GOM - status code is: " + statusCode,
                 statusCode < 300);
@@ -352,7 +352,7 @@ public class GomProxyServiceTest extends ServiceTestCase<GomProxyService> {
 
         // create the node we want to test
         Map<String, String> formData = new HashMap<String, String>();
-        StatusLine statusLine = HTTPHelper.putUrlEncoded(nodeUrl, formData);
+        StatusLine statusLine = HTTPHelper.putUrlEncoded(nodeUrl, formData).getStatusLine();
         int statusCode = statusLine.getStatusCode();
         assertTrue("something went wrong with the PUT to the GOM - status code is: " + statusCode,
                 statusCode < 300);
@@ -363,7 +363,7 @@ public class GomProxyServiceTest extends ServiceTestCase<GomProxyService> {
         // create sub node
         String subNodeName = "subNode";
         String subNodeUrl = UriHelper.join(nodeUrl, subNodeName);
-        statusLine = HTTPHelper.putUrlEncoded(subNodeUrl, formData);
+        statusLine = HTTPHelper.putUrlEncoded(subNodeUrl, formData).getStatusLine();
         assertTrue("something went wrong with the PUT to the GOM - status code is: " + statusCode,
                 statusCode < 300);
 
@@ -391,7 +391,7 @@ public class GomProxyServiceTest extends ServiceTestCase<GomProxyService> {
 
         // create the node we want to test
         Map<String, String> formData = new HashMap<String, String>();
-        StatusLine statusLine = HTTPHelper.putUrlEncoded(nodeUrl, formData);
+        StatusLine statusLine = HTTPHelper.putUrlEncoded(nodeUrl, formData).getStatusLine();
         int statusCode = statusLine.getStatusCode();
         assertTrue("something went wrong with the PUT to the GOM - status code is: " + statusCode,
                 statusCode < 300);
@@ -399,7 +399,7 @@ public class GomProxyServiceTest extends ServiceTestCase<GomProxyService> {
         // create sub node
         String subNodeName = "subNode";
         String subNodeUrl = UriHelper.join(nodeUrl, subNodeName);
-        statusLine = HTTPHelper.putUrlEncoded(subNodeUrl, formData);
+        statusLine = HTTPHelper.putUrlEncoded(subNodeUrl, formData).getStatusLine();
         assertTrue("something went wrong with the PUT to the GOM - status code is: " + statusCode,
                 statusCode < 300);
 

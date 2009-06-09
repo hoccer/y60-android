@@ -14,6 +14,7 @@ import android.content.Context;
 import android.content.Intent;
 
 import com.artcom.y60.Constants;
+import com.artcom.y60.DeviceConfiguration;
 import com.artcom.y60.IntentExtraKeys;
 import com.artcom.y60.IpAddressNotFoundException;
 import com.artcom.y60.Logger;
@@ -87,18 +88,18 @@ public class GomNotificationHelper {
 
         // Deactivated because the implementation does not unsubscribe registerd
         // observers
-        /*
-         * HttpResponse response = HTTPHelper.postUrlEncoded(observerUri,
-         * formData); StatusLine status = response.getStatusLine(); if
-         * (status.getStatusCode() >= 300) {
-         * 
-         * throw new
-         * IOException("Unexpected HTTP status code: "+status.getStatusCode());
-         * }
-         * 
-         * String result = HTTPHelper.extractBodyAsString(response.getEntity());
-         * Logger.v(LOG_TAG, "result of post to observer: ", result);
-         */
+
+        // HttpResponse response = HTTPHelper.postUrlEncoded(observerUri,
+        // formData); StatusLine status = response.getStatusLine(); if
+        // (status.getStatusCode() >= 300) {
+        //         
+        // throw new
+        // IOException("Unexpected HTTP status code: "+status.getStatusCode());
+        // }
+        //         
+        // String result = HTTPHelper.extractBodyAsString(response.getEntity());
+        // Logger.v(LOG_TAG, "result of post to observer: ", result);
+
     }
 
     private static BroadcastReceiver createBroadcastReceiver(final String pPath,
@@ -207,5 +208,10 @@ public class GomNotificationHelper {
     public static String createRegularExpression(String pPath) {
 
         return "^" + pPath + "([/:]([^/:])*)?$";
+    }
+
+    public static String getObserverId() {
+
+        return DeviceConfiguration.load().getDevicePath().replaceAll("/", "_").toLowerCase();
     }
 }

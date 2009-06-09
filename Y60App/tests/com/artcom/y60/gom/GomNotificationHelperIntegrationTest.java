@@ -44,7 +44,7 @@ public class GomNotificationHelperIntegrationTest extends
         String visibleNodePath = observedPath + "/X";
         String invisibleNodePath = visibleNodePath + "/Y";
         StatusLine statusLine = HTTPHelper.putUrlEncoded(Constants.Gom.URI + invisibleNodePath,
-                formData);
+                formData).getStatusLine();
         int statusCode = statusLine.getStatusCode();
         assertTrue("something went wrong with the PUT to the GOM - status code is: " + statusCode,
                 statusCode < 300);
