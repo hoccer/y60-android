@@ -5,12 +5,12 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import com.artcom.y60.gom.GomAttribute;
-import com.artcom.y60.gom.GomEntry;
-import com.artcom.y60.gom.GomNode;
-import com.artcom.y60.gom.GomProxyHelper;
-
+import android.net.Uri;
 import android.test.AndroidTestCase;
+
+import com.artcom.y60.Constants;
+import com.artcom.y60.HTTPHelper;
+import com.artcom.y60.TestHelper;
 
 public class GomNodeTest extends AndroidTestCase {
 
@@ -19,33 +19,48 @@ public class GomNodeTest extends AndroidTestCase {
     static final String NAME = "node";
 
     static final String PATH = GomTestConstants.FIXTURES + "gom_node_test/" + NAME;
+    
+    static final Uri    NODE_URL = Uri.parse(Constants.Gom.URI+PATH);
 
     static final String ATTR_NAME = "attribute";
 
     static final String ATTR_VALUE = "value";
 
     static final String ATTR_PATH = PATH + ":" + ATTR_NAME;
+    
+    static final Uri    ATTR_URL = Uri.parse(Constants.Gom.URI+ATTR_PATH);
 
     static final String CHILD_NAME = "child";
 
     static final String CHILD_PATH = PATH + "/" + CHILD_NAME;
+    
+    static final Uri    CHILD_URL = Uri.parse(Constants.Gom.URI+CHILD_PATH);
 
     // Instance Variables ------------------------------------------------
 
     private GomNode mTestNode;
 
+    // Constructors ------------------------------------------------------
+
+    public GomNodeTest() {
+        
+        // write fixtures to the GOM:
+        HTTPHelper.postXML(CHILD_URL.toString(), "<node/>");
+        HTTPHelper.putXML(ATTR_URL.toString(), "<attribute>"+ATTR_VALUE+"</attribute>");        
+    }
+    
     // Public Instance Methods -------------------------------------------
 
     public void setUp() {
 
-        GomProxyHelper helper = new GomProxyHelper(getContext(), null);
+        final GomProxyHelper helper = new GomProxyHelper(getContext(), null);
 
-        for (int i = 0; i < 200; i++) {
-            try {
-                Thread.sleep(10);
-            } catch (InterruptedException ix) {
+        TestHelper.blockUntilTrue("GOM not bound", 2000, new TestHelper.Condition() {
+            @Override
+            public boolean isSatisfied() {
+                return helper.getProxy() != null;
             }
-        }
+        });
 
         mTestNode = helper.getNode(PATH);
     }
@@ -60,8 +75,8 @@ public class GomNodeTest extends AndroidTestCase {
         assertEquals(PATH, mTestNode.getPath());
     }
 
-    public void testGetChildNode() {
-
+    public void testGetChildNode() throws Exception {
+        
         GomEntry entry = mTestNode.getNode(CHILD_NAME);
 
         assertNotNull(entry);
@@ -70,7 +85,7 @@ public class GomNodeTest extends AndroidTestCase {
         assertTrue(entry instanceof GomNode);
     }
 
-    public void testGetAttribute() {
+    public void testGetAttribute() throws Exception {
 
         GomEntry entry = mTestNode.getEntry(ATTR_NAME);
 
