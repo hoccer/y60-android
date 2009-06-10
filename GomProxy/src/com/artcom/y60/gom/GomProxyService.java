@@ -21,7 +21,7 @@ import android.os.RemoteException;
 import com.artcom.y60.Constants;
 import com.artcom.y60.DeviceConfiguration;
 import com.artcom.y60.ErrorHandling;
-import com.artcom.y60.HTTPHelper;
+import com.artcom.y60.HttpHelper;
 import com.artcom.y60.IntentExtraKeys;
 import com.artcom.y60.JsonHelper;
 import com.artcom.y60.Logger;
@@ -111,7 +111,7 @@ public class GomProxyService extends Service {
                     loadNode(pPath);
     
                     try {
-                        GomNotificationHelper.postObserverToGom(pPath);
+                        GomNotificationHelper.putObserverToGom(pPath);
                     } catch (IOException e) {
                         ErrorHandling.signalIOError(LOG_TAG, e, this);
                     }
@@ -151,7 +151,7 @@ public class GomProxyService extends Service {
                     loadAttribute(pPath);
     
                     try {
-                        GomNotificationHelper.postObserverToGom(pPath);
+                        GomNotificationHelper.putObserverToGom(pPath);
                     } catch (IOException e) {
                         ErrorHandling.signalIOError(LOG_TAG, e, this);
                     }
@@ -239,7 +239,7 @@ public class GomProxyService extends Service {
         try {
 
             String uri = Uri.withAppendedPath(mBaseUri, pPath).toString();
-            JSONObject jsob = HTTPHelper.getJson(uri);
+            JSONObject jsob = HttpHelper.getJson(uri);
             updateNodeFromJson(pPath, jsob);
 
         } catch (JSONException x) {
@@ -312,7 +312,7 @@ public class GomProxyService extends Service {
             String uri = Uri.withAppendedPath(mBaseUri, pPath).toString();
             JSONObject jsob;
             try {
-                jsob = HTTPHelper.getJson(uri);
+                jsob = HttpHelper.getJson(uri);
             } catch (RuntimeException e) {
                 ErrorHandling.signalNetworkError(LOG_TAG, e, this);
                 return;

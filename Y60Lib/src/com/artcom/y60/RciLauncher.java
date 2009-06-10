@@ -37,8 +37,8 @@ public class RciLauncher extends SlotLauncher {
 
         try {
             
-            Logger.d(LOG_TAG, "Send: ", HTTPHelper.urlEncode(args));
-            HTTPHelper.postUrlEncoded(mRciUri.toString(), args);
+            Logger.d(LOG_TAG, "Send: ", HttpHelper.urlEncode(args));
+            HttpHelper.postUrlEncoded(mRciUri.toString(), args);
             
         } catch (RuntimeException e) {
             

@@ -1,9 +1,13 @@
 package com.artcom.y60.gom;
 
+import java.net.InetAddress;
+import java.util.HashMap;
 import java.util.regex.Pattern;
 
 import junit.framework.TestCase;
 
+import org.apache.http.HttpResponse;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import android.content.BroadcastReceiver;
@@ -11,9 +15,10 @@ import android.content.Intent;
 import android.test.suitebuilder.annotation.Suppress;
 
 import com.artcom.y60.Constants;
-import com.artcom.y60.HTTPHelper;
+import com.artcom.y60.HttpHelper;
 import com.artcom.y60.IntentExtraKeys;
 import com.artcom.y60.Logger;
+import com.artcom.y60.NetworkHelper;
 import com.artcom.y60.Y60Action;
 
 public class GomNotificationHelperTest extends TestCase {
@@ -83,6 +88,51 @@ public class GomNotificationHelperTest extends TestCase {
         assertEquals("unexpected observer path", observerPath, result);
     }
 
+    public void testPutObserverMultipleTimes() throws Exception {
+
+        String timestamp = String.valueOf(System.currentTimeMillis());
+        String testPath = TEST_BASE_PATH + "/test_put_observer_multiple_times";
+        String nodePath = testPath + "/" + timestamp;
+        String observerUrl = Constants.Gom.URI + GomNotificationHelper.getObserverPathFor(nodePath);
+
+        try {
+
+            HttpHelper.get(observerUrl);
+            fail("Expected a 404 on observer " + observerUrl + ", which shouldn't exist");
+
+        } catch (Exception ex) {
+
+            boolean is404 = ex.toString().contains("404");
+            assertTrue("expected a 404", is404);
+        }
+
+        GomHttpWrapper.createNode(Constants.Gom.URI + nodePath);
+        HttpResponse resp = GomNotificationHelper.putObserverToGom(nodePath);
+        assertTrue(resp.getStatusLine().getStatusCode() < 300);
+
+        // check that the observer has arrived in gom
+        assertNotNull("missing observer in GOM", HttpHelper.get(observerUrl));
+        assertNotNull("missing node in GOM", HttpHelper.get(Constants.Gom.URI + nodePath));
+
+        // register multiple times
+        resp = GomNotificationHelper.putObserverToGom(nodePath);
+        assertTrue(resp.getStatusLine().getStatusCode() < 300);
+
+        resp = GomNotificationHelper.putObserverToGom(nodePath);
+        assertTrue(resp.getStatusLine().getStatusCode() < 300);
+
+        JSONObject json = HttpHelper.getJson(observerUrl);
+        JSONObject node = json.getJSONObject(Constants.Gom.Keywords.NODE);
+        JSONArray entries = node.getJSONArray(Constants.Gom.Keywords.ENTRIES);
+        assertEquals("There should be one observer node", 1, entries.length());
+        JSONObject innerNode = entries.getJSONObject(0);
+        assertEquals("Observer node should be named like the observer id", GomNotificationHelper
+                .getObserverPathFor(nodePath)
+                + "/" + GomNotificationHelper.getObserverId(), innerNode
+                .getString(Constants.Gom.Keywords.NODE));
+
+    }
+
     @Suppress
     public void testObserverForAttributeAppearsInGom() throws Exception {
 
@@ -93,7 +143,7 @@ public class GomNotificationHelperTest extends TestCase {
 
         try {
 
-            HTTPHelper.get(observerUri);
+            HttpHelper.get(observerUri);
             fail("Expected a 404 on observer " + observerUri + ", which shouldn't exist");
 
         } catch (Exception ex) {
@@ -105,7 +155,7 @@ public class GomNotificationHelperTest extends TestCase {
         GomNotificationHelper.registerObserver(attrPath, mMockGomObserver);
 
         // check that the observer has arrived in gom
-        assertNotNull("missing observer in GOM", HTTPHelper.get(observerUri));
+        assertNotNull("missing observer in GOM", HttpHelper.get(observerUri));
     }
 
     @Suppress
@@ -118,7 +168,7 @@ public class GomNotificationHelperTest extends TestCase {
 
         try {
 
-            String result = HTTPHelper.get(observerUri);
+            String result = HttpHelper.get(observerUri);
             fail("Expected a 404 on observer " + observerUri + ", which shouldn't exist");
 
         } catch (Exception ex) {
@@ -130,7 +180,7 @@ public class GomNotificationHelperTest extends TestCase {
         GomNotificationHelper.registerObserver(nodePath, mMockGomObserver);
 
         // check that the observer has arrived in gom
-        assertNotNull("missing observer in GOM", HTTPHelper.get(observerUri));
+        assertNotNull("missing observer in GOM", HttpHelper.get(observerUri));
     }
 
     public void testNotificationCreate() throws Exception {
@@ -239,5 +289,19 @@ public class GomNotificationHelperTest extends TestCase {
 
         return gnpIntent;
 
+    }
+
+    private HashMap<String, String> getObserverNodeData(String pPath) throws Exception {
+
+        HashMap<String, String> formData = new HashMap<String, String>();
+        InetAddress myIp = NetworkHelper.getStagingIp();
+        String ip = myIp.getHostAddress();
+        String callbackUrl = "http://" + ip + ":" + Constants.Network.DEFAULT_PORT
+                + Constants.Network.GNP_TARGET;
+        formData.put("callback_url", callbackUrl);
+        formData.put("accept", "application/json");
+        formData.put("uri_regexp", GomNotificationHelper.createRegularExpression(pPath));
+
+        return formData;
     }
 }

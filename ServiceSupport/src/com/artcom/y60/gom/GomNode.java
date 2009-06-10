@@ -16,7 +16,7 @@ import android.net.Uri;
 import android.os.RemoteException;
 
 import com.artcom.y60.Constants;
-import com.artcom.y60.HTTPHelper;
+import com.artcom.y60.HttpHelper;
 import com.artcom.y60.Logger;
 
 /**
@@ -136,7 +136,7 @@ public class GomNode extends GomEntry {
     }
 
     public void deleteAttribute(String pAttrName) {
-        HTTPHelper.delete(Uri.parse(getUri() + ":" + pAttrName));
+        HttpHelper.delete(Uri.parse(getUri() + ":" + pAttrName));
     }
 
     public GomAttribute getAttribute(String pName) throws NoSuchElementException,

@@ -11,7 +11,7 @@ import android.net.Uri;
 import android.test.suitebuilder.annotation.Suppress;
 
 import com.artcom.y60.Constants;
-import com.artcom.y60.HTTPHelper;
+import com.artcom.y60.HttpHelper;
 import com.artcom.y60.Y60Action;
 import com.artcom.y60.Y60ActivityInstrumentationTest;
 import com.artcom.y60.Y60TestActivity;
@@ -43,8 +43,8 @@ public class GomNotificationHelperIntegrationTest extends
         Map<String, String> formData = new HashMap<String, String>();
         String visibleNodePath = observedPath + "/X";
         String invisibleNodePath = visibleNodePath + "/Y";
-        StatusLine statusLine = HTTPHelper.putUrlEncoded(Constants.Gom.URI + invisibleNodePath,
-                formData);
+        StatusLine statusLine = HttpHelper.putUrlEncoded(Constants.Gom.URI + invisibleNodePath,
+                formData).getStatusLine();
         int statusCode = statusLine.getStatusCode();
         assertTrue("something went wrong with the PUT to the GOM - status code is: " + statusCode,
                 statusCode < 300);
@@ -57,7 +57,7 @@ public class GomNotificationHelperIntegrationTest extends
         Uri invisibleAttrUrl = Uri.parse(Constants.Gom.URI + invisibleAttrPath);
         GomHttpWrapper.updateOrCreateAttribute(invisibleAttrUrl, "who else cares?");
 
-        String content = HTTPHelper.get(invisibleAttrUrl);
+        String content = HttpHelper.get(invisibleAttrUrl);
         assertNotNull(content);
 
         GomTestObserver observer = new GomTestObserver();

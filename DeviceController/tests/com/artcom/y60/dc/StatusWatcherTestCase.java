@@ -9,7 +9,7 @@ import android.test.ServiceTestCase;
 import android.test.suitebuilder.annotation.Suppress;
 
 import com.artcom.y60.DeviceConfiguration;
-import com.artcom.y60.HTTPHelper;
+import com.artcom.y60.HttpHelper;
 import com.artcom.y60.Logger;
 import com.artcom.y60.Y60Action;
 
@@ -44,7 +44,7 @@ public class StatusWatcherTestCase extends ServiceTestCase<StatusWatcher> {
                 }
                 String uri = mDeviceConfiguration.getGomUrl() + "/"
                         + mDeviceConfiguration.getDevicePath() + ":history_log.txt";
-                String historyLog = HTTPHelper.get(uri);
+                String historyLog = HttpHelper.get(uri);
                 String lastLine = historyLog.substring(historyLog.lastIndexOf("\n") + 1);
                 String timestamp = lastLine.substring(0, lastLine.indexOf(": "));
                 long now = System.currentTimeMillis();

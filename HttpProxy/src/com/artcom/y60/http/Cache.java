@@ -8,7 +8,7 @@ import java.util.Map;
 import android.net.Uri;
 import android.os.Bundle;
 
-import com.artcom.y60.HTTPHelper;
+import com.artcom.y60.HttpHelper;
 import com.artcom.y60.Logger;
 
 public class Cache {
@@ -139,15 +139,15 @@ public class Cache {
 
                 String localResourcePath = "/sdcard/HttpProxyCache/" + pUri.hashCode();
 
-                long size = HTTPHelper.getSize(pUri);
+                long size = HttpHelper.getSize(pUri);
                 Bundle newContent = new Bundle(2);
                 newContent.putLong(HttpProxyConstants.SIZE_TAG, size);
 
                 if (size > HttpProxyConstants.MAX_IN_MEMORY_SIZE) {
-                    HTTPHelper.fetchUriToFile(pUri, localResourcePath);
+                    HttpHelper.fetchUriToFile(pUri, localResourcePath);
                     newContent.putString(HttpProxyConstants.LOCAL_RESOURCE_PATH_TAG, localResourcePath);
                 } else {
-                    byte[] array = HTTPHelper.getAsByteArray(Uri.parse(pUri));
+                    byte[] array = HttpHelper.getAsByteArray(Uri.parse(pUri));
                     newContent.putByteArray(HttpProxyConstants.BYTE_ARRY_TAG, array);
                 }
 

@@ -13,7 +13,7 @@ import android.test.ServiceTestCase;
 import android.test.suitebuilder.annotation.Suppress;
 
 import com.artcom.y60.DeviceConfiguration;
-import com.artcom.y60.HTTPHelper;
+import com.artcom.y60.HttpHelper;
 import com.artcom.y60.IpAddressNotFoundException;
 import com.artcom.y60.NetworkHelper;
 
@@ -86,7 +86,7 @@ public class DeviceControllerServiceTest extends ServiceTestCase<DeviceControlle
         ipAddress = NetworkHelper.getDeviceIpAddress();
 
         DeviceConfiguration dc = DeviceConfiguration.load();
-        String rciUri = HTTPHelper.get(dc.getGomUrl() + dc.getDevicePath() + ":rci_uri.txt");
+        String rciUri = HttpHelper.get(dc.getGomUrl() + dc.getDevicePath() + ":rci_uri.txt");
 
         // if executed on emulator
         if (ipAddress.startsWith("10.0.2.")) {

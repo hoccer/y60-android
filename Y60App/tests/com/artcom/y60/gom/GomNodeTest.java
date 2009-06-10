@@ -9,7 +9,7 @@ import android.net.Uri;
 import android.test.AndroidTestCase;
 
 import com.artcom.y60.Constants;
-import com.artcom.y60.HTTPHelper;
+import com.artcom.y60.HttpHelper;
 import com.artcom.y60.TestHelper;
 
 public class GomNodeTest extends AndroidTestCase {
@@ -45,8 +45,8 @@ public class GomNodeTest extends AndroidTestCase {
     public GomNodeTest() {
         
         // write fixtures to the GOM:
-        HTTPHelper.postXML(CHILD_URL.toString(), "<node/>");
-        HTTPHelper.putXML(ATTR_URL.toString(), "<attribute>"+ATTR_VALUE+"</attribute>");        
+        HttpHelper.postXML(CHILD_URL.toString(), "<node/>");
+        HttpHelper.putXML(ATTR_URL.toString(), "<attribute>"+ATTR_VALUE+"</attribute>");        
     }
     
     // Public Instance Methods -------------------------------------------
