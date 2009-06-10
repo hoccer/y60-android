@@ -98,7 +98,7 @@ public class HttpHelper {
 
         if (result.getStatusLine().getStatusCode() != 200) {
             throw new RuntimeException("Execution of HTTP Method POST '" + uri + "' returend "
-                    + result.getStatusLine());
+                    + result.getStatusLine() + " " + extractBodyAsString(result.getEntity()));
         }
 
         return extractBodyAsString(result.getEntity());
