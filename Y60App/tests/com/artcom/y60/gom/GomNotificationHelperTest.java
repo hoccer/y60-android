@@ -85,8 +85,6 @@ public class GomNotificationHelperTest extends GomActivityUnitTestCase {
         // another time
         Thread.sleep(2500);
         assertFalse("Update is called another time", gto.getUpdateCount() > 1);
-
-        // mGom.unbind();
     }
 
     public void testCallbackWithNodeDataFromProxy() throws Exception {

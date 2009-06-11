@@ -19,7 +19,7 @@ public class GomProxyHelper {
 
     // Constants ---------------------------------------------------------
 
-    public static final String LOG_TAG = "GomProxyHelper";
+    public static final String              LOG_TAG = "GomProxyHelper";
 
     // Instance Variables ------------------------------------------------
 
@@ -27,13 +27,13 @@ public class GomProxyHelper {
      * The client for this helperProxyHelper
      */
     // private Context mContext;
-    private IGomProxyService mProxy;
+    private IGomProxyService                mProxy;
 
-    private GomProxyServiceConnection mConnection;
+    private GomProxyServiceConnection       mConnection;
 
     private BindingListener<GomProxyHelper> mBindingListener;
 
-    private Context mContext;
+    private Context                         mContext;
 
     // Constructors ------------------------------------------------------
 
@@ -50,7 +50,7 @@ public class GomProxyHelper {
 
     public void bind() {
         Intent proxyIntent = new Intent(IGomProxyService.class.getName());
-        Logger.v(logTag(), "binding to GomProxy");
+        Logger.v(logTag(), "binding to GomProxy (" + toString() + ")");
         if (!mContext.bindService(proxyIntent, mConnection, Context.BIND_AUTO_CREATE)) {
 
             throw new BindingException("bindService failed for GomProxyService");
@@ -58,7 +58,7 @@ public class GomProxyHelper {
     }
 
     public void unbind() {
-        Logger.v(logTag(), "unbinding from GomProxy");
+        Logger.v(logTag(), "unbinding from GomProxy (" + toString() + ")");
         mContext.unbindService(mConnection);
         onUnbound();
     }
@@ -190,7 +190,7 @@ public class GomProxyHelper {
 
         if (mProxy == null) {
 
-            throw new BindingException("Unable to bind proxy!");
+            throw new BindingException("GomProxyHelper " + toString() + " unable to bind proxy!");
         }
     }
 

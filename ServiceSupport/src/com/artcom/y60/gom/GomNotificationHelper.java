@@ -44,7 +44,14 @@ public class GomNotificationHelper {
             public void run() {
 
                 try {
+
                     putObserverToGom(pPath);
+
+                    if (!pGom.isBound()) {
+
+                        throw new IllegalStateException("GomProxyHelper " + pGom.toString()
+                                + " is not bound!");
+                    }
 
                     boolean doRefresh = pGom.hasInCache(pPath);
 
