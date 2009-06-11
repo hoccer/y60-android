@@ -1,6 +1,5 @@
 package com.artcom.y60.gom;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -101,77 +100,67 @@ public class GomProxyService extends Service {
 
         try {
             // Logger.v(tag(), "getNodeData("+pPath+")");
-    
+
             NodeData node = null;
             synchronized (mNodes) {
-    
+
                 if (!hasNodeInCache(pPath)) {
-    
+
                     Logger.v(LOG_TAG, "node not in cache, load from gom");
                     loadNode(pPath);
-    
-                    try {
-                        GomNotificationHelper.putObserverToGom(pPath);
-                    } catch (IOException e) {
-                        ErrorHandling.signalIOError(LOG_TAG, e, this);
-                    }
-    
+
                 } else {
-    
+
                     Logger.v(LOG_TAG, "ok, node's in cache");
                 }
-    
+
                 node = mNodes.get(pPath);
             }
-    
+
             synchronized (node) {
-    
+
                 pSubNodeNames.clear();
                 pSubNodeNames.addAll(node.subNodeNames);
-    
+
                 pAttributeNames.clear();
                 pAttributeNames.addAll(node.attributeNames);
             }
         } catch (Exception ex) {
-            
-            Logger.e(LOG_TAG, ex);
-            throw new RuntimeException(ex);
-        }    }
 
-    String getAttributeValue(String pPath) {
-
-        try {
-            Logger.v(LOG_TAG, "getAttributeValue(", pPath, ")");
-    
-            synchronized (mAttributes) {
-    
-                if (!hasAttributeInCache(pPath)) {
-    
-                    Logger.v(LOG_TAG, "attribute not in cache, load from gom");
-                    loadAttribute(pPath);
-    
-                    try {
-                        GomNotificationHelper.putObserverToGom(pPath);
-                    } catch (IOException e) {
-                        ErrorHandling.signalIOError(LOG_TAG, e, this);
-                    }
-    
-                } else {
-    
-                    Logger.v(LOG_TAG, "ok, attribute's in cache");
-                }
-    
-                String value = mAttributes.get(pPath);
-                // Logger.v(tag(), "attribute value: "+value);
-                return value;
-            }
-        } catch (Exception ex) {
-            
             Logger.e(LOG_TAG, ex);
             throw new RuntimeException(ex);
         }
     }
 
+    String getAttributeValue(String pPath) {
+
+        try {
+            Logger.v(LOG_TAG, "getAttributeValue(", pPath, ")");
+
+            synchronized (mAttributes) {
+
+                if (!hasAttributeInCache(pPath)) {
+
+                    Logger.v(LOG_TAG, "attribute not in cache, load from gom");
+                    loadAttribute(pPath);
+
+                } else {
+
+                    Logger.v(LOG_TAG, "ok, attribute's in cache");
+                }
+
+                String value = mAttributes.get(pPath);
+                // Logger.v(tag(), "attribute value: "+value);
+                return value;
+            }
+        } catch (Exception ex) {
+
+            Logger.e(LOG_TAG, ex);
+            throw new RuntimeException(ex);
+        }
+    }
+
+    @Deprecated
     void refreshEntry(String pPath) {
 
         try {
@@ -190,26 +179,26 @@ public class GomProxyService extends Service {
 
             Logger.e(LOG_TAG, ex);
             throw new RuntimeException(ex);
-        }        
+        }
     }
 
     String getBaseUri() {
 
         try {
             return mBaseUri.toString();
-            
+
         } catch (Exception ex) {
-            
+
             Logger.e(LOG_TAG, ex);
             throw new RuntimeException(ex);
         }
     }
 
     boolean hasAttributeInCache(String pPath) {
-        
+
         try {
             return mAttributes.containsKey(pPath);
-            
+
         } catch (Exception ex) {
 
             Logger.e(LOG_TAG, ex);
@@ -218,16 +207,38 @@ public class GomProxyService extends Service {
     }
 
     boolean hasNodeInCache(String pPath) {
-        
+
         try {
-            
+
             return mNodes.containsKey(pPath);
-            
+
         } catch (Exception ex) {
 
             Logger.e(LOG_TAG, ex);
             throw new RuntimeException(ex);
         }
+    }
+
+    void saveAttribute(String pPath, String pValue) {
+
+        synchronized (mAttributes) {
+
+            mAttributes.put(pPath, pValue);
+        }
+    }
+
+    void saveNode(String pNodePath, List<String> pSubNodeNames, List<String> pAttributeNames) {
+
+        synchronized (mNodes) {
+            NodeData data = mNodes.get(pNodePath);
+            if (data == null) {
+                data = new NodeData();
+                mNodes.put(pNodePath, data);
+            }
+            data.attributeNames = pAttributeNames;
+            data.subNodeNames = pSubNodeNames;
+        }
+
     }
 
     // Private Instance Methods ------------------------------------------
@@ -365,6 +376,10 @@ public class GomProxyService extends Service {
             subNodeNames = pSubNodeNames;
             attributeNames = pAttributeNames;
         }
+
+        NodeData() {
+
+        }
     }
 
     class GomProxyRemote extends IGomProxyService.Stub {
@@ -383,11 +398,31 @@ public class GomProxyService extends Service {
         public void refreshEntry(String path) throws RemoteException {
 
             GomProxyService.this.refreshEntry(path);
+
         }
 
         public String getBaseUri() throws RemoteException {
 
             return GomProxyService.this.getBaseUri();
+        }
+
+        @Override
+        public boolean hasInCache(String pPath) throws RemoteException {
+            return GomProxyService.this.hasAttributeInCache(pPath)
+                    || GomProxyService.this.hasNodeInCache(pPath);
+        }
+
+        @Override
+        public void saveAttribute(String pPath, String pValue) throws RemoteException {
+
+            GomProxyService.this.saveAttribute(pPath, pValue);
+        }
+
+        @Override
+        public void saveNode(String pPath, List<String> pSubNodeNames, List<String> pAttributeNames)
+                throws RemoteException {
+            GomProxyService.this.saveNode(pPath, pSubNodeNames, pAttributeNames);
+
         }
     }
 
@@ -405,16 +440,16 @@ public class GomProxyService extends Service {
 
                 Logger.d(LOG_TAG, "GOM receiver for GomProxyService received notification: ",
                         operation.toUpperCase(), " ", path);
-        
+
                 synchronized (mAttributes) {
                     synchronized (mNodes) {
 
                         if (path.contains(":")) {
-                            
+
                             handleAttributeTransformation(operation, path, dataStr);
-                            
+
                         } else {
-                            
+
                             handleNodeTransformation(operation, path);
                         }
                     }
@@ -430,7 +465,7 @@ public class GomProxyService extends Service {
                 handleUpdateAttributeOnNotification(path, dataStr);
                 return;
             }
-            
+
             int colonIdx = path.lastIndexOf(":");
             String nodePath = path.substring(0, colonIdx);
             String attrName = path.substring(colonIdx + 1);
@@ -454,7 +489,7 @@ public class GomProxyService extends Service {
 
             if ("create".equals(operation)) {
                 handleCreateNodeOnNotification(path, parentPath, subNodeName);
-             }
+            }
             if ("delete".equals(operation)) {
                 handleDeleteNodeOnNotification(path, parentPath, subNodeName);
             }
@@ -545,4 +580,5 @@ public class GomProxyService extends Service {
         }
 
     }
+
 }

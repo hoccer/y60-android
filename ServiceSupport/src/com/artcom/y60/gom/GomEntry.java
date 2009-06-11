@@ -134,6 +134,25 @@ public abstract class GomEntry {
         }
     }
 
+    public boolean equals(Object pObj) {
+
+        if (pObj != null && pObj instanceof GomEntry) {
+
+            GomEntry other = (GomEntry) pObj;
+            return mPath.equals(other.mPath) && mName.equals(other.mName)
+                    && mUri.equals(other.mUri);
+        } else {
+
+            return false;
+        }
+    }
+
+    @Override
+    public int hashCode() {
+
+        return mUri.hashCode();
+    }
+
     // Package Protected Instance Methods --------------------------------
 
     IGomProxyService getProxy() {

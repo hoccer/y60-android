@@ -1,5 +1,7 @@
 package com.artcom.y60.gom;
 
+import java.util.LinkedList;
+
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -121,6 +123,52 @@ public class GomProxyHelper {
         }
     }
 
+    public boolean hasInCache(String pPath) {
+
+        assertConnected();
+
+        try {
+
+            return mProxy.hasInCache(pPath);
+
+        } catch (Exception x) {
+
+            Logger.e(LOG_TAG, "hasInCache failed", x);
+            throw new RuntimeException(x);
+        }
+    }
+
+    public void saveAttribute(String pPath, String pValue) {
+
+        assertConnected();
+
+        try {
+
+            mProxy.saveAttribute(pPath, pValue);
+
+        } catch (Exception x) {
+
+            Logger.e(LOG_TAG, "saveAttribute failed", x);
+            throw new RuntimeException(x);
+        }
+    }
+
+    public void saveNode(String pNodePath, LinkedList<String> pSubNodeNames,
+            LinkedList<String> pAttributeNames) {
+
+        assertConnected();
+
+        try {
+
+            mProxy.saveNode(pNodePath, pSubNodeNames, pAttributeNames);
+
+        } catch (Exception x) {
+
+            Logger.e(LOG_TAG, "saveNode failed", x);
+            throw new RuntimeException(x);
+        }
+    }
+
     // Package Protected Instance Methods --------------------------------
 
     IGomProxyService getProxy() {
@@ -173,4 +221,5 @@ public class GomProxyHelper {
             onUnbound();
         }
     }
+
 }

@@ -149,7 +149,6 @@ public class GomNode extends GomEntry {
         return entry.forceAttributeOrException();
     }
 
-    
     public boolean hasAttribute(String pName) {
         return hasEntry(pName);
     }
@@ -183,6 +182,7 @@ public class GomNode extends GomEntry {
         return entry.forceNodeOrException();
     }
 
+    @Deprecated
     public void refresh() throws RemoteException {
         getProxy().refreshEntry(getPath());
         loadData();
@@ -191,6 +191,25 @@ public class GomNode extends GomEntry {
     public JSONObject toJson() {
 
         return toJsonFlushEntries(true);
+    }
+
+    public boolean equals(Object pObject) {
+
+        if (pObject != null && pObject instanceof GomNode && super.equals(pObject)) {
+
+            GomNode other = (GomNode) pObject;
+            if (!isDataLoaded() || !other.isDataLoaded()) {
+
+                throw new IllegalStateException(
+                        "Trying to call equals on a GomNode which has not been loaded lazily!");
+            }
+
+            return mEntries.keySet().equals(other.mEntries.keySet());
+
+        } else {
+
+            return false;
+        }
     }
 
     // Private Instance Methods ------------------------------------------
