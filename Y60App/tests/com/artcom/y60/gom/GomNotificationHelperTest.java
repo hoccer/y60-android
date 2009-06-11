@@ -5,33 +5,24 @@ import java.util.LinkedList;
 import org.json.JSONObject;
 
 import android.content.Intent;
-import android.test.ActivityUnitTestCase;
-import android.test.AssertionFailedError;
 
 import com.artcom.y60.IntentExtraKeys;
 import com.artcom.y60.TestHelper;
 import com.artcom.y60.Y60Action;
-import com.artcom.y60.Y60TestActivity;
 
-public class GomNotificationHelperTest extends ActivityUnitTestCase<Y60TestActivity> {
+public class GomNotificationHelperTest extends GomActivityUnitTestCase {
 
     // Constants ---------------------------------------------------------
-    private static final String LOG_TAG = "GomNotificationHelperTest";
+    private static final String LOG_TAG        = "GomNotificationHelperTest";
     private static final String TEST_BASE_PATH = "/test/android/y60/infrastructure_gom/gom_notification_helper_test";
 
     // Instance Variables ------------------------------------------------
 
-    private GomObserver mMockGomObserver;
-    private JSONObject mJson;
-    private GomProxyHelper mGom;
-    private Intent mStartIntent;
+    private GomObserver         mMockGomObserver;
+    private JSONObject          mJson;
+    private GomProxyHelper      mGom;
 
     // Constructors ------------------------------------------------------
-
-    public GomNotificationHelperTest() {
-
-        super(Y60TestActivity.class);
-    }
 
     // Public Instance Methods -------------------------------------------
 
@@ -54,9 +45,8 @@ public class GomNotificationHelperTest extends ActivityUnitTestCase<Y60TestActiv
             public void onEntryUpdated(String pPath, JSONObject pData) {
             }
         };
-        mJson = new JSONObject("{\"hans\":\"wurst\"}");
 
-        mStartIntent = new Intent(Intent.ACTION_MAIN);
+        mJson = new JSONObject("{\"hans\":\"wurst\"}");
     }
 
     public void testCallbackWithAttributeDataFromProxy() throws Exception {
@@ -125,7 +115,6 @@ public class GomNotificationHelperTest extends ActivityUnitTestCase<Y60TestActiv
         // another time
         Thread.sleep(2500);
         assertFalse("Update is called another time", gto.getUpdateCount() > 1);
-        // mGom.unbind();
     }
 
     // public void testCreateRegularExpFromPath() {
@@ -376,27 +365,6 @@ public class GomNotificationHelperTest extends ActivityUnitTestCase<Y60TestActiv
 
         return gnpIntent;
 
-    }
-
-    private GomProxyHelper createHelper() throws InterruptedException {
-
-        GomProxyHelper helper = new GomProxyHelper(getActivity(), null);
-
-        long requestStartTime = System.currentTimeMillis();
-        while (!helper.isBound()) {
-            if (System.currentTimeMillis() > requestStartTime + 2 * 1000) {
-                throw new AssertionFailedError("Could not bind to gom service");
-            }
-            Thread.sleep(10);
-        }
-
-        return helper;
-    }
-
-    private void initializeActivity() {
-
-        startActivity(mStartIntent, null, null);
-        assertNotNull(getActivity());
     }
 
 }

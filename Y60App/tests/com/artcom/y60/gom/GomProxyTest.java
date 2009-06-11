@@ -1,29 +1,16 @@
 package com.artcom.y60.gom;
 
-import android.content.Intent;
 import android.net.Uri;
-import android.test.ActivityUnitTestCase;
 import android.test.AssertionFailedError;
 
 import com.artcom.y60.Constants;
 import com.artcom.y60.HttpHelper;
 
-public class GomProxyTest extends ActivityUnitTestCase<GomProxyTestActivity> {
+public class GomProxyTest extends GomActivityUnitTestCase {
 
     // Constants ---------------------------------------------------------
 
     public static final String LOG_TAG = "GomProxyTest";
-
-    // Instance Variables ------------------------------------------------
-
-    private Intent mStartIntent;
-
-    // Constructors ------------------------------------------------------
-
-    public GomProxyTest() {
-
-        super(GomProxyTestActivity.class);
-    }
 
     // Public Instance Methods -------------------------------------------
 
@@ -63,7 +50,8 @@ public class GomProxyTest extends ActivityUnitTestCase<GomProxyTestActivity> {
 
         initializeActivity();
         GomProxyHelper helper = createHelper();
-        HttpHelper.putXML(Constants.Gom.URI+"/test/android/y60/infrastructure_gom/gom_proxy_test:attribute",
+        HttpHelper.putXML(Constants.Gom.URI
+                + "/test/android/y60/infrastructure_gom/gom_proxy_test:attribute",
                 "<attribute>nassau</attribute>");
         GomAttribute attr = helper
                 .getAttribute("/test/android/y60/infrastructure_gom/gom_proxy_test:attribute");
@@ -75,36 +63,11 @@ public class GomProxyTest extends ActivityUnitTestCase<GomProxyTestActivity> {
     protected void setUp() throws Exception {
 
         super.setUp();
-
-        mStartIntent = new Intent(Intent.ACTION_MAIN);
     }
 
     protected void tearDown() throws Exception {
 
         super.tearDown();
-    }
-
-    // Private Instance Methods ------------------------------------------
-
-    private GomProxyHelper createHelper() throws InterruptedException {
-
-        GomProxyHelper helper = new GomProxyHelper(getActivity(), null);
-
-        long requestStartTime = System.currentTimeMillis();
-        while (!helper.isBound()) {
-            if (System.currentTimeMillis() > requestStartTime + 2 * 1000) {
-                throw new AssertionFailedError("Could not bind to gom service");
-            }
-            Thread.sleep(10);
-        }
-
-        return helper;
-    }
-
-    private void initializeActivity() {
-
-        startActivity(mStartIntent, null, null);
-        assertNotNull(getActivity());
     }
 
 }
