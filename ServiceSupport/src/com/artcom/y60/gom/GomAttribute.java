@@ -1,6 +1,5 @@
 package com.artcom.y60.gom;
 
-
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -22,14 +21,13 @@ public class GomAttribute extends GomEntry {
 
     private final static String LOG_TAG = "GomAttribute";
 
-    
     // Static Methods ----------------------------------------------------
 
     public static String extractNameFromPath(String pPath) {
 
         return pPath.substring(pPath.lastIndexOf(":") + 1);
     }
-    
+
     /** The attribute value */
     private String mValue;
 
@@ -51,6 +49,7 @@ public class GomAttribute extends GomEntry {
 
     // Public Instance Methods -------------------------------------------
 
+    @Deprecated
     public void refresh() throws RemoteException {
         getProxy().refreshEntry(getPath());
         mValue = getProxy().getAttributeValue(getPath());
@@ -76,7 +75,6 @@ public class GomAttribute extends GomEntry {
             throw new RuntimeException("could not refresh gom attribute " + this.toString());
         }
     }
-
 
     public JSONObject toJson() {
 
@@ -104,6 +102,20 @@ public class GomAttribute extends GomEntry {
         } catch (JSONException e) {
 
             throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public boolean equals(Object pObj) {
+
+        if ((pObj != null) && (pObj instanceof GomAttribute) && super.equals(pObj)) {
+
+            GomAttribute other = (GomAttribute) pObj;
+            return mValue.equals(other.mValue);
+
+        } else {
+
+            return false;
         }
     }
 

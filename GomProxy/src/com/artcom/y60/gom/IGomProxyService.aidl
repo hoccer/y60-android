@@ -13,4 +13,10 @@ interface IGomProxyService {
     void refreshEntry(String pPath);
     
     String getBaseUri();
+    
+    void saveAttribute(in String pPath, in String pValue);
+    
+    void saveNode(in String pPath, out List<String> pSubNodeNames, out List<String> pAttributeNames);
+    
+    boolean hasInCache(String pPath);
 }

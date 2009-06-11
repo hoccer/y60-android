@@ -3,83 +3,115 @@
  */
 package com.artcom.y60.gom;
 
+import java.util.LinkedList;
+import java.util.List;
+
 import org.json.JSONObject;
 
 class GomTestObserver implements GomObserver {
 
-    private boolean mCreateCalled = false;
-    private boolean mUpdateCalled = false;
-    private boolean mDeleteCalled = false;
-    private JSONObject mData;
-    private String mPath;
+    private int mCreateCount = 0;
+    private int mUpdateCount = 0;
+    private int mDeleteCount = 0;
+    public LinkedList<Event> mEvents = new LinkedList<Event>();
 
-    public void reset(){
-        mCreateCalled = false;
-        mUpdateCalled = false;
-        mDeleteCalled = false;
+    public void reset() {
+        mCreateCount = 0;
+        mUpdateCount = 0;
+        mDeleteCount = 0;
+        mEvents = new LinkedList<Event>();
     }
-    
+
     @Override
     public void onEntryCreated(String pPath, JSONObject pData) {
 
-        mCreateCalled = true;
-        mData = pData;
-        mPath = pPath;
+        mCreateCount += 1;
+        mEvents.add(new Event(pData, pPath));
     }
 
     @Override
     public void onEntryDeleted(String pPath, JSONObject pData) {
 
-        mDeleteCalled = true;
-        mData = pData;
-        mPath = pPath;
+        mDeleteCount += 1;
+        mEvents.add(new Event(pData, pPath));
     }
 
     @Override
     public void onEntryUpdated(String pPath, JSONObject pData) {
 
-        mUpdateCalled = true;
-        mData = pData;
-        mPath = pPath;
+        mUpdateCount += 1;
+        mEvents.add(new Event(pData, pPath));
     }
 
     public void assertCreateCalled() {
 
-        GomNotificationHelperTest.assertTrue("create not called", mCreateCalled);
+        GomNotificationHelperTest.assertTrue("create not called", mCreateCount > 0);
     }
 
     public void assertDeleteCalled() {
 
-        GomNotificationHelperTest.assertTrue("delete not called", mDeleteCalled);
+        GomNotificationHelperTest.assertTrue("delete not called", mDeleteCount > 0);
     }
 
     public void assertUpdateCalled() {
 
-        GomNotificationHelperTest.assertTrue("update not called", mUpdateCalled);
+        GomNotificationHelperTest.assertTrue("update not called", mUpdateCount > 0);
     }
 
     public void assertCreateNotCalled() {
 
-        GomNotificationHelperTest.assertTrue("create called", !mCreateCalled);
+        GomNotificationHelperTest.assertTrue("create called", mCreateCount == 0);
     }
 
     public void assertDeleteNotCalled() {
 
-        GomNotificationHelperTest.assertTrue("delete called", !mDeleteCalled);
+        GomNotificationHelperTest.assertTrue("delete called", mDeleteCount == 0);
     }
 
     public void assertUpdateNotCalled() {
 
-        GomNotificationHelperTest.assertTrue("update called", !mUpdateCalled);
+        GomNotificationHelperTest.assertTrue("update called", mUpdateCount == 0);
+    }
+
+    public int getUpdateCount() {
+
+        return mUpdateCount;
+    }
+
+    public int getDeleteCount() {
+
+        return mDeleteCount;
+    }
+
+    public int getCreateCount() {
+
+        return mCreateCount;
     }
 
     public String getPath() {
 
-        return mPath;
+        return mEvents.getLast().path;
     }
 
     public JSONObject getData() {
 
-        return mData;
+        return mEvents.getLast().data;
+    }
+
+    public List<Event> getEvents() {
+
+        return mEvents;
+    }
+
+    public class Event {
+
+        public JSONObject data;
+        public String path;
+
+        public Event(JSONObject pData, String pPath) {
+
+            data = pData;
+            path = pPath;
+        }
     }
 }

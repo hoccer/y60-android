@@ -1,10 +1,7 @@
 package com.artcom.y60.gom;
 
-import java.net.InetAddress;
-import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.regex.Pattern;
-
-import junit.framework.TestCase;
 
 import org.apache.http.HttpResponse;
 import org.json.JSONArray;
@@ -18,23 +15,26 @@ import com.artcom.y60.Constants;
 import com.artcom.y60.HttpHelper;
 import com.artcom.y60.IntentExtraKeys;
 import com.artcom.y60.Logger;
-import com.artcom.y60.NetworkHelper;
+import com.artcom.y60.TestHelper;
 import com.artcom.y60.Y60Action;
 
-public class GomNotificationHelperTest extends TestCase {
+public class GomNotificationHelperTest extends GomActivityUnitTestCase {
 
     // Constants ---------------------------------------------------------
-    private static final String LOG_TAG = "GomNotificationHelperTest";
+    private static final String LOG_TAG        = "GomNotificationHelperTest";
     private static final String TEST_BASE_PATH = "/test/android/y60/infrastructure_gom/gom_notification_helper_test";
 
     // Instance Variables ------------------------------------------------
 
-    private GomObserver mMockGomObserver;
-    private JSONObject mJson;
-
-    // Constructors ------------------------------------------------------
+    private GomObserver         mMockGomObserver;
+    private JSONObject          mJson;
 
     // Public Instance Methods -------------------------------------------
+
+    protected void tearDown() throws Exception {
+
+        super.tearDown();
+    }
 
     @Override
     public void setUp() throws Exception {
@@ -50,12 +50,108 @@ public class GomNotificationHelperTest extends TestCase {
             public void onEntryUpdated(String pPath, JSONObject pData) {
             }
         };
+
         mJson = new JSONObject("{\"hans\":\"wurst\"}");
     }
 
-    @Override
-    public void tearDown() throws Exception {
-        super.tearDown();
+    public void testCallbackWithAttributeDataFromProxy() throws Exception {
+
+        initializeActivity();
+        GomProxyHelper helper = createHelper();
+
+        String timestamp = String.valueOf(System.currentTimeMillis());
+        String testPath = TEST_BASE_PATH + "/test_callback_with_attribute_data_from_proxy";
+        String attrPath = testPath + ":" + timestamp;
+
+        final GomTestObserver gto = new GomTestObserver();
+
+        String value = "huhu";
+        helper.saveAttribute(attrPath, value);
+
+        GomNotificationHelper.registerObserver(attrPath, gto, helper);
+
+        TestHelper.blockUntilTrue("update not called", 3000, new TestHelper.Condition() {
+
+            @Override
+            public boolean isSatisfied() {
+                return gto.getUpdateCount() == 1;
+            }
+
+        });
+
+        gto.assertUpdateCalled();
+
+        // Unfortunately we need to make sure that the callback is not called
+        // another time
+        Thread.sleep(2500);
+        assertFalse("Update is called another time", gto.getUpdateCount() > 1);
+
+        // mGom.unbind();
+    }
+
+    public void testCallbackWithNodeDataFromProxy() throws Exception {
+
+        initializeActivity();
+        GomProxyHelper helper = createHelper();
+
+        String timestamp = String.valueOf(System.currentTimeMillis());
+        String testPath = TEST_BASE_PATH + "/test_callback_with_node_data_from_proxy";
+        String nodePath = testPath + "/" + timestamp;
+
+        final GomTestObserver gto = new GomTestObserver();
+
+        helper.saveNode(nodePath, new LinkedList<String>(), new LinkedList<String>());
+        assertNotNull(helper.getNode(nodePath));
+
+        GomNotificationHelper.registerObserver(nodePath, gto, helper);
+
+        TestHelper.blockUntilTrue("update not called", 3000, new TestHelper.Condition() {
+
+            @Override
+            public boolean isSatisfied() {
+                return gto.getUpdateCount() == 1;
+            }
+
+        });
+
+        gto.assertUpdateCalled();
+
+        // Unfortunately we need to make sure that the callback is not called
+        // another time
+        Thread.sleep(2500);
+        assertFalse("Update is called another time", gto.getUpdateCount() > 1);
+    }
+
+    public void testCreateRegularExpFromPath() throws Exception {
+
+        String basePath = "/baseNode/node";
+
+        String regExp = GomNotificationHelper.createRegularExpression(basePath);
+
+        assertTrue("Regular expression should have matched the path", Pattern.matches(regExp,
+                basePath));
+        assertTrue("Regular expression should have matched the path", Pattern.matches(regExp,
+                basePath + "/subNode"));
+        assertTrue("Regular expression should have matched the path", Pattern.matches(regExp,
+                basePath + ":attribute"));
+        assertFalse("Regular expression shouldnt have matched the path", Pattern.matches(regExp,
+                basePath + "/subNode/subSubNode"));
+        assertFalse("Regular expression shouldnt have matched the path", Pattern.matches(regExp,
+                basePath + "/subNode:attribute"));
+
+        assertFalse("Regular expression shouldnt have matched the path", Pattern.matches(regExp,
+                "/baseNode/otherNode"));
+
+        regExp = GomNotificationHelper
+                .createRegularExpression("/test/android/y60/infrastructure_gom/gom_notification_helper_test/test_reg_exp_contraint_on_observer/1243951216126/A/B");
+        assertFalse(Pattern
+                .matches(
+                        regExp,
+                        "/test/android/y60/infrastructure_gom/gom_notification_helper_test/test_reg_exp_contraint_on_observer/1243951216126/A/B/X:invalid_attribute"));
+        assertTrue(Pattern
+                .matches(
+                        regExp,
+                        "/test/android/y60/infrastructure_gom/gom_notification_helper_test/test_reg_exp_contraint_on_observer/1243951216126/A/B:attribute"));
     }
 
     public void testGetObserverPathForAttribute() throws Exception {
@@ -88,7 +184,140 @@ public class GomNotificationHelperTest extends TestCase {
         assertEquals("unexpected observer path", observerPath, result);
     }
 
+    public void testNotificationCreate() throws Exception {
+
+        initializeActivity();
+        GomProxyHelper helper = createHelper();
+
+        String timestamp = String.valueOf(System.currentTimeMillis());
+        String testPath = TEST_BASE_PATH + "/test_notification_create";
+        String attrPath = testPath + ":" + timestamp;
+
+        GomTestObserver gomObserver = new GomTestObserver();
+
+        BroadcastReceiver br;
+        br = GomNotificationHelper.registerObserver(attrPath, gomObserver, helper);
+
+        Intent bcIntent = createBroadcastIntent(attrPath, "create", mJson);
+        br.onReceive(null, bcIntent);
+
+        gomObserver.assertCreateCalled();
+        gomObserver.assertDeleteNotCalled();
+        gomObserver.assertUpdateNotCalled();
+        assertEquals("path doesn't match", attrPath, gomObserver.getPath());
+        assertEquals("data doesn't match", mJson.toString(), gomObserver.getData().toString());
+    }
+
+    public void testNotificationDelete() throws Exception {
+
+        initializeActivity();
+        GomProxyHelper helper = createHelper();
+
+        String timestamp = String.valueOf(System.currentTimeMillis());
+        String testPath = TEST_BASE_PATH + "/test_notification_delete";
+        String attrPath = testPath + ":" + timestamp;
+
+        GomTestObserver gomObserver = new GomTestObserver();
+
+        BroadcastReceiver br;
+        br = GomNotificationHelper.registerObserver(attrPath, gomObserver, helper);
+
+        Intent bcIntent = createBroadcastIntent(attrPath, "delete", mJson);
+        br.onReceive(null, bcIntent);
+
+        gomObserver.assertCreateNotCalled();
+        gomObserver.assertUpdateNotCalled();
+        gomObserver.assertDeleteCalled();
+        assertEquals("path doesn't match", attrPath, gomObserver.getPath());
+        assertEquals("data doesn't match", mJson.toString(), gomObserver.getData().toString());
+    }
+
+    public void testNotificationUpdate() throws Exception {
+
+        initializeActivity();
+        GomProxyHelper helper = createHelper();
+
+        String timestamp = String.valueOf(System.currentTimeMillis());
+        String testPath = TEST_BASE_PATH + "/test_notification_update";
+        String attrPath = testPath + ":" + timestamp;
+
+        GomTestObserver gomObserver = new GomTestObserver();
+
+        BroadcastReceiver br;
+        br = GomNotificationHelper.registerObserver(attrPath, gomObserver, helper);
+
+        Intent bcIntent = createBroadcastIntent(attrPath, "update", mJson);
+        br.onReceive(null, bcIntent);
+
+        gomObserver.assertCreateNotCalled();
+        gomObserver.assertUpdateCalled();
+        gomObserver.assertDeleteNotCalled();
+        assertEquals("path doesn't match", attrPath, gomObserver.getPath());
+        assertEquals("data doesn't match", mJson.toString(), gomObserver.getData().toString());
+    }
+
+    @Suppress
+    public void testObserverForAttributeAppearsInGom() throws Exception {
+
+        initializeActivity();
+        GomProxyHelper helper = createHelper();
+
+        String timestamp = String.valueOf(System.currentTimeMillis());
+        String testPath = TEST_BASE_PATH + "/test_register_observer";
+        String attrPath = testPath + ":" + timestamp;
+        String observerUri = Constants.Gom.URI + GomNotificationHelper.getObserverPathFor(attrPath);
+
+        try {
+
+            HttpHelper.get(observerUri);
+            fail("Expected a 404 on observer " + observerUri + ", which shouldn't exist");
+
+        } catch (Exception ex) {
+
+            boolean is404 = ex.toString().contains("404");
+            assertTrue("expected a 404", is404);
+        }
+
+        GomNotificationHelper.registerObserver(attrPath, mMockGomObserver, helper);
+
+        // check that the observer has arrived in gom
+        assertNotNull("missing observer in GOM", HttpHelper.get(observerUri));
+    }
+
+    // Private Instance Methods ------------------------------------------
+
+    @Suppress
+    public void testObserverForNodeAppearsInGom() throws Exception {
+
+        initializeActivity();
+        GomProxyHelper helper = createHelper();
+
+        String timestamp = String.valueOf(System.currentTimeMillis());
+        String testPath = TEST_BASE_PATH + "/test_register_observer";
+        String nodePath = testPath + "/" + timestamp;
+        String observerUri = Constants.Gom.URI + GomNotificationHelper.getObserverPathFor(nodePath);
+
+        try {
+
+            String result = HttpHelper.get(observerUri);
+            fail("Expected a 404 on observer " + observerUri + ", which shouldn't exist");
+
+        } catch (Exception ex) {
+
+            boolean is404 = ex.toString().contains("404");
+            assertTrue("expected a 404", is404);
+        }
+
+        GomNotificationHelper.registerObserver(nodePath, mMockGomObserver, helper);
+
+        // check that the observer has arrived in gom
+        assertNotNull("missing observer in GOM", HttpHelper.get(observerUri));
+    }
+
     public void testPutObserverMultipleTimes() throws Exception {
+
+        initializeActivity();
+        GomProxyHelper helper = createHelper();
 
         String timestamp = String.valueOf(System.currentTimeMillis());
         String testPath = TEST_BASE_PATH + "/test_put_observer_multiple_times";
@@ -133,152 +362,6 @@ public class GomNotificationHelperTest extends TestCase {
 
     }
 
-    @Suppress
-    public void testObserverForAttributeAppearsInGom() throws Exception {
-
-        String timestamp = String.valueOf(System.currentTimeMillis());
-        String testPath = TEST_BASE_PATH + "/test_register_observer";
-        String attrPath = testPath + ":" + timestamp;
-        String observerUri = Constants.Gom.URI + GomNotificationHelper.getObserverPathFor(attrPath);
-
-        try {
-
-            HttpHelper.get(observerUri);
-            fail("Expected a 404 on observer " + observerUri + ", which shouldn't exist");
-
-        } catch (Exception ex) {
-
-            boolean is404 = ex.toString().contains("404");
-            assertTrue("expected a 404", is404);
-        }
-
-        GomNotificationHelper.registerObserver(attrPath, mMockGomObserver);
-
-        // check that the observer has arrived in gom
-        assertNotNull("missing observer in GOM", HttpHelper.get(observerUri));
-    }
-
-    @Suppress
-    public void testObserverForNodeAppearsInGom() throws Exception {
-
-        String timestamp = String.valueOf(System.currentTimeMillis());
-        String testPath = TEST_BASE_PATH + "/test_register_observer";
-        String nodePath = testPath + "/" + timestamp;
-        String observerUri = Constants.Gom.URI + GomNotificationHelper.getObserverPathFor(nodePath);
-
-        try {
-
-            String result = HttpHelper.get(observerUri);
-            fail("Expected a 404 on observer " + observerUri + ", which shouldn't exist");
-
-        } catch (Exception ex) {
-
-            boolean is404 = ex.toString().contains("404");
-            assertTrue("expected a 404", is404);
-        }
-
-        GomNotificationHelper.registerObserver(nodePath, mMockGomObserver);
-
-        // check that the observer has arrived in gom
-        assertNotNull("missing observer in GOM", HttpHelper.get(observerUri));
-    }
-
-    public void testNotificationCreate() throws Exception {
-
-        String timestamp = String.valueOf(System.currentTimeMillis());
-        String testPath = TEST_BASE_PATH + "/test_notification_create";
-        String attrPath = testPath + ":" + timestamp;
-
-        GomTestObserver gomObserver = new GomTestObserver();
-
-        BroadcastReceiver br;
-        br = GomNotificationHelper.registerObserver(attrPath, gomObserver);
-
-        Intent bcIntent = createBroadcastIntent(attrPath, "create", mJson);
-        br.onReceive(null, bcIntent);
-
-        gomObserver.assertCreateCalled();
-        gomObserver.assertDeleteNotCalled();
-        gomObserver.assertUpdateNotCalled();
-        assertEquals("path doesn't match", attrPath, gomObserver.getPath());
-        assertEquals("data doesn't match", mJson.toString(), gomObserver.getData().toString());
-    }
-
-    public void testNotificationUpdate() throws Exception {
-
-        String timestamp = String.valueOf(System.currentTimeMillis());
-        String testPath = TEST_BASE_PATH + "/test_notification_update";
-        String attrPath = testPath + ":" + timestamp;
-
-        GomTestObserver gomObserver = new GomTestObserver();
-
-        BroadcastReceiver br;
-        br = GomNotificationHelper.registerObserver(attrPath, gomObserver);
-
-        Intent bcIntent = createBroadcastIntent(attrPath, "update", mJson);
-        br.onReceive(null, bcIntent);
-
-        gomObserver.assertCreateNotCalled();
-        gomObserver.assertUpdateCalled();
-        gomObserver.assertDeleteNotCalled();
-        assertEquals("path doesn't match", attrPath, gomObserver.getPath());
-        assertEquals("data doesn't match", mJson.toString(), gomObserver.getData().toString());
-    }
-
-    public void testNotificationDelete() throws Exception {
-        String timestamp = String.valueOf(System.currentTimeMillis());
-        String testPath = TEST_BASE_PATH + "/test_notification_delete";
-        String attrPath = testPath + ":" + timestamp;
-
-        GomTestObserver gomObserver = new GomTestObserver();
-
-        BroadcastReceiver br;
-        br = GomNotificationHelper.registerObserver(attrPath, gomObserver);
-
-        Intent bcIntent = createBroadcastIntent(attrPath, "delete", mJson);
-        br.onReceive(null, bcIntent);
-
-        gomObserver.assertCreateNotCalled();
-        gomObserver.assertUpdateNotCalled();
-        gomObserver.assertDeleteCalled();
-        assertEquals("path doesn't match", attrPath, gomObserver.getPath());
-        assertEquals("data doesn't match", mJson.toString(), gomObserver.getData().toString());
-    }
-
-    public void testCreateRegularExpFromPath() {
-
-        String basePath = "/baseNode/node";
-
-        String regExp = GomNotificationHelper.createRegularExpression(basePath);
-
-        assertTrue("Regular expression should have matched the path", Pattern.matches(regExp,
-                basePath));
-        assertTrue("Regular expression should have matched the path", Pattern.matches(regExp,
-                basePath + "/subNode"));
-        assertTrue("Regular expression should have matched the path", Pattern.matches(regExp,
-                basePath + ":attribute"));
-        assertFalse("Regular expression shouldnt have matched the path", Pattern.matches(regExp,
-                basePath + "/subNode/subSubNode"));
-        assertFalse("Regular expression shouldnt have matched the path", Pattern.matches(regExp,
-                basePath + "/subNode:attribute"));
-
-        assertFalse("Regular expression shouldnt have matched the path", Pattern.matches(regExp,
-                "/baseNode/otherNode"));
-
-        regExp = GomNotificationHelper
-                .createRegularExpression("/test/android/y60/infrastructure_gom/gom_notification_helper_test/test_reg_exp_contraint_on_observer/1243951216126/A/B");
-        assertFalse(Pattern
-                .matches(
-                        regExp,
-                        "/test/android/y60/infrastructure_gom/gom_notification_helper_test/test_reg_exp_contraint_on_observer/1243951216126/A/B/X:invalid_attribute"));
-        assertTrue(Pattern
-                .matches(
-                        regExp,
-                        "/test/android/y60/infrastructure_gom/gom_notification_helper_test/test_reg_exp_contraint_on_observer/1243951216126/A/B:attribute"));
-    }
-
-    // Private Instance Methods ------------------------------------------
-
     private Intent createBroadcastIntent(String pUri, String pOperation, JSONObject pData) {
 
         Intent gnpIntent = new Intent(Y60Action.GOM_NOTIFICATION_BC);
@@ -291,17 +374,4 @@ public class GomNotificationHelperTest extends TestCase {
 
     }
 
-    private HashMap<String, String> getObserverNodeData(String pPath) throws Exception {
-
-        HashMap<String, String> formData = new HashMap<String, String>();
-        InetAddress myIp = NetworkHelper.getStagingIp();
-        String ip = myIp.getHostAddress();
-        String callbackUrl = "http://" + ip + ":" + Constants.Network.DEFAULT_PORT
-                + Constants.Network.GNP_TARGET;
-        formData.put("callback_url", callbackUrl);
-        formData.put("accept", "application/json");
-        formData.put("uri_regexp", GomNotificationHelper.createRegularExpression(pPath));
-
-        return formData;
-    }
 }
