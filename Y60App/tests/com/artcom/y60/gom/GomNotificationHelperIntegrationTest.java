@@ -15,38 +15,27 @@ import com.artcom.y60.Constants;
 import com.artcom.y60.HttpHelper;
 import com.artcom.y60.TestHelper;
 import com.artcom.y60.Y60Action;
-import com.artcom.y60.Y60ActivityInstrumentationTest;
-import com.artcom.y60.Y60TestActivity;
 import com.artcom.y60.gom.GomTestObserver.Event;
 
-public class GomNotificationHelperIntegrationTest extends
-        Y60ActivityInstrumentationTest<Y60TestActivity> {
+public class GomNotificationHelperIntegrationTest extends GomActivityUnitTestCase {
 
-    private static final String LOG_TAG = "GomNotificationHelperIntegrationTest";
+    private static final String LOG_TAG        = "GomNotificationHelperIntegrationTest";
     private static final String TEST_BASE_PATH = "/test/android/y60/infrastructure_gom/gom_notification_helper_integration_test";
-
-    private GomProxyHelper mGom;
 
     public GomNotificationHelperIntegrationTest() {
 
-        super("com.artcom.y60", Y60TestActivity.class);
     }
 
-    public void setUp() {
-
+    @Override
+    protected void initializeActivity() {
+        super.initializeActivity();
         getActivity().startService(new Intent(Y60Action.SERVICE_DEVICE_CONTROLLER));
-        mGom = new GomProxyHelper(getActivity(), null);
-
-        TestHelper.blockUntilTrue("GOM proxy service wasn't bound", 1000,
-                new TestHelper.Condition() {
-                    @Override
-                    public boolean isSatisfied() {
-                        return mGom.isBound();
-                    }
-                });
     }
 
     public void testCallbackWithOldAttributeDataInProxyAndNewVDataInGom() throws Exception {
+
+        initializeActivity();
+        GomProxyHelper helper = createHelper();
 
         String timestamp = String.valueOf(System.currentTimeMillis());
 
@@ -57,11 +46,11 @@ public class GomNotificationHelperIntegrationTest extends
         String oldAttrValue = "alt_im_proxy";
         String newAttrValue = "neu_im_gom";
 
-        mGom.saveAttribute(attrPath, oldAttrValue);
+        helper.saveAttribute(attrPath, oldAttrValue);
         GomHttpWrapper.updateOrCreateAttribute(attrUrl, newAttrValue);
 
         final GomTestObserver gto = new GomTestObserver();
-        GomNotificationHelper.registerObserver(attrPath, gto, mGom);
+        GomNotificationHelper.registerObserver(attrPath, gto, helper);
 
         TestHelper.blockUntilTrue("update not called", 3000, new TestHelper.Condition() {
 
@@ -81,6 +70,9 @@ public class GomNotificationHelperIntegrationTest extends
 
     public void testCallbackWithoutAttributeInCache() throws Exception {
 
+        initializeActivity();
+        GomProxyHelper helper = createHelper();
+
         String timestamp = String.valueOf(System.currentTimeMillis());
 
         String attrPath = TEST_BASE_PATH + "/test_callback_without_attribute_in_cache" + ":"
@@ -91,7 +83,7 @@ public class GomNotificationHelperIntegrationTest extends
         GomHttpWrapper.updateOrCreateAttribute(attrUrl, attrValue);
 
         final GomTestObserver gto = new GomTestObserver();
-        GomNotificationHelper.registerObserver(attrPath, gto, mGom);
+        GomNotificationHelper.registerObserver(attrPath, gto, helper);
 
         TestHelper.blockUntilTrue("update not called", 3000, new TestHelper.Condition() {
 
@@ -114,6 +106,9 @@ public class GomNotificationHelperIntegrationTest extends
 
     @Suppress
     public void testRegExpConstraintOnObserver() throws Exception {
+
+        initializeActivity();
+        GomProxyHelper helper = createHelper();
 
         String timestamp = String.valueOf(System.currentTimeMillis());
 
@@ -143,7 +138,7 @@ public class GomNotificationHelperIntegrationTest extends
 
         GomTestObserver observer = new GomTestObserver();
         BroadcastReceiver receiver = GomNotificationHelper.registerObserver(observedPath, observer,
-                mGom);
+                helper);
         getActivity().registerReceiver(receiver, Constants.Gom.NOTIFICATION_FILTER);
 
         GomHttpWrapper.deleteAttribute(invisibleAttrUrl);
