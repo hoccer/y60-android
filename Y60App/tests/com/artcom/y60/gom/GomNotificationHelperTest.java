@@ -5,14 +5,15 @@ import java.util.LinkedList;
 import org.json.JSONObject;
 
 import android.content.Intent;
+import android.test.ActivityUnitTestCase;
+import android.test.AssertionFailedError;
 
 import com.artcom.y60.IntentExtraKeys;
 import com.artcom.y60.TestHelper;
 import com.artcom.y60.Y60Action;
-import com.artcom.y60.Y60ActivityInstrumentationTest;
 import com.artcom.y60.Y60TestActivity;
 
-public class GomNotificationHelperTest extends Y60ActivityInstrumentationTest<Y60TestActivity> {
+public class GomNotificationHelperTest extends ActivityUnitTestCase<Y60TestActivity> {
 
     // Constants ---------------------------------------------------------
     private static final String LOG_TAG = "GomNotificationHelperTest";
@@ -23,18 +24,18 @@ public class GomNotificationHelperTest extends Y60ActivityInstrumentationTest<Y6
     private GomObserver mMockGomObserver;
     private JSONObject mJson;
     private GomProxyHelper mGom;
+    private Intent mStartIntent;
 
     // Constructors ------------------------------------------------------
 
     public GomNotificationHelperTest() {
 
-        super("com.artcom.y60", Y60TestActivity.class);
+        super(Y60TestActivity.class);
     }
 
     // Public Instance Methods -------------------------------------------
 
-    @Override
-    public void tearDown() throws Exception {
+    protected void tearDown() throws Exception {
 
         super.tearDown();
     }
@@ -55,18 +56,13 @@ public class GomNotificationHelperTest extends Y60ActivityInstrumentationTest<Y6
         };
         mJson = new JSONObject("{\"hans\":\"wurst\"}");
 
+        mStartIntent = new Intent(Intent.ACTION_MAIN);
     }
 
     public void testCallbackWithAttributeDataFromProxy() throws Exception {
 
-        mGom = new GomProxyHelper(getActivity(), null);
-        TestHelper.blockUntilTrue("GOM proxy service wasn't bound", 1000,
-                new TestHelper.Condition() {
-                    @Override
-                    public boolean isSatisfied() {
-                        return mGom.isBound();
-                    }
-                });
+        initializeActivity();
+        GomProxyHelper helper = createHelper();
 
         String timestamp = String.valueOf(System.currentTimeMillis());
         String testPath = TEST_BASE_PATH + "/test_callback_with_attribute_data_from_proxy";
@@ -75,9 +71,9 @@ public class GomNotificationHelperTest extends Y60ActivityInstrumentationTest<Y6
         final GomTestObserver gto = new GomTestObserver();
 
         String value = "huhu";
-        mGom.saveAttribute(attrPath, value);
+        helper.saveAttribute(attrPath, value);
 
-        GomNotificationHelper.registerObserver(attrPath, gto, mGom);
+        GomNotificationHelper.registerObserver(attrPath, gto, helper);
 
         TestHelper.blockUntilTrue("update not called", 3000, new TestHelper.Condition() {
 
@@ -95,20 +91,13 @@ public class GomNotificationHelperTest extends Y60ActivityInstrumentationTest<Y6
         Thread.sleep(2500);
         assertFalse("Update is called another time", gto.getUpdateCount() > 1);
 
-        mGom.unbind();
+        // mGom.unbind();
     }
 
     public void testCallbackWithNodeDataFromProxy() throws Exception {
 
-        mGom = new GomProxyHelper(getActivity(), null);
-
-        TestHelper.blockUntilTrue("GOM proxy service wasn't bound", 1000,
-                new TestHelper.Condition() {
-                    @Override
-                    public boolean isSatisfied() {
-                        return mGom.isBound();
-                    }
-                });
+        initializeActivity();
+        GomProxyHelper helper = createHelper();
 
         String timestamp = String.valueOf(System.currentTimeMillis());
         String testPath = TEST_BASE_PATH + "/test_callback_with_node_data_from_proxy";
@@ -116,10 +105,10 @@ public class GomNotificationHelperTest extends Y60ActivityInstrumentationTest<Y6
 
         final GomTestObserver gto = new GomTestObserver();
 
-        mGom.saveNode(nodePath, new LinkedList<String>(), new LinkedList<String>());
-        assertNotNull(mGom.getNode(nodePath));
+        helper.saveNode(nodePath, new LinkedList<String>(), new LinkedList<String>());
+        assertNotNull(helper.getNode(nodePath));
 
-        GomNotificationHelper.registerObserver(nodePath, gto, mGom);
+        GomNotificationHelper.registerObserver(nodePath, gto, helper);
 
         TestHelper.blockUntilTrue("update not called", 3000, new TestHelper.Condition() {
 
@@ -136,7 +125,7 @@ public class GomNotificationHelperTest extends Y60ActivityInstrumentationTest<Y6
         // another time
         Thread.sleep(2500);
         assertFalse("Update is called another time", gto.getUpdateCount() > 1);
-        mGom.unbind();
+        // mGom.unbind();
     }
 
     // public void testCreateRegularExpFromPath() {
@@ -387,6 +376,27 @@ public class GomNotificationHelperTest extends Y60ActivityInstrumentationTest<Y6
 
         return gnpIntent;
 
+    }
+
+    private GomProxyHelper createHelper() throws InterruptedException {
+
+        GomProxyHelper helper = new GomProxyHelper(getActivity(), null);
+
+        long requestStartTime = System.currentTimeMillis();
+        while (!helper.isBound()) {
+            if (System.currentTimeMillis() > requestStartTime + 2 * 1000) {
+                throw new AssertionFailedError("Could not bind to gom service");
+            }
+            Thread.sleep(10);
+        }
+
+        return helper;
+    }
+
+    private void initializeActivity() {
+
+        startActivity(mStartIntent, null, null);
+        assertNotNull(getActivity());
     }
 
 }
