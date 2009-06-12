@@ -34,7 +34,7 @@ public class GomNotificationHelper {
      * Register a GOM observer for a given path. Filtering options are currently
      * not supported.
      */
-    public static BroadcastReceiver registerObserver(final String pPath,
+    public static BroadcastReceiver registerObserverAndNotiy(final String pPath,
             final GomObserver pGomObserver, final GomProxyHelper pGom) throws IOException,
             IpAddressNotFoundException {
 
@@ -62,7 +62,9 @@ public class GomNotificationHelper {
 
                         pGom.getProxy().refreshEntry(pPath);
                         GomEntry newEntry = pGom.getEntry(pPath);
-                        Logger.v(LOG_TAG, newEntry.toJson().toString());
+
+                        Logger.v(LOG_TAG, newEntry.toJson().toString(), " old: ", entry.toJson());
+
                         if (!newEntry.equals(entry)) {
                             pGomObserver.onEntryUpdated(pPath, newEntry.toJson());
                         }
@@ -255,6 +257,12 @@ public class GomNotificationHelper {
 
     public static String getObserverId() {
 
-        return DeviceConfiguration.load().getDevicePath().replaceAll("/", "_").toLowerCase();
+        return encodeObserverId(DeviceConfiguration.load().getDevicePath());
+    }
+
+    static String encodeObserverId(String pDevicePath) {
+
+        return "." + pDevicePath.replaceAll("/", "_").toLowerCase();
+
     }
 }
