@@ -4,5 +4,6 @@
 <string name="err_user_general">An internal error occurred. Sorry.</string>
 <string name="err_dev_file_not_found">Could not find file</string>
 <string name="start_Y60_label">Start Y60</string>
+<!-- look for json config file path in Constants.Device -->
 <string name="configFile">/sdcard/device_config.json</string>
 </resources>
