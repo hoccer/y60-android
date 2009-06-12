@@ -1,5 +1,7 @@
 package com.artcom.y60.gom;
 
+import java.util.LinkedList;
+
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -48,7 +50,7 @@ public class GomProxyHelper {
 
     public void bind() {
         Intent proxyIntent = new Intent(IGomProxyService.class.getName());
-        Logger.v(logTag(), "binding to GomProxy");
+        Logger.v(logTag(), "binding to GomProxy (" + toString() + ")");
         if (!mContext.bindService(proxyIntent, mConnection, Context.BIND_AUTO_CREATE)) {
 
             throw new BindingException("bindService failed for GomProxyService");
@@ -56,7 +58,7 @@ public class GomProxyHelper {
     }
 
     public void unbind() {
-        Logger.v(logTag(), "unbinding from GomProxy");
+        Logger.v(logTag(), "unbinding from GomProxy (" + toString() + ")");
         mContext.unbindService(mConnection);
         onUnbound();
     }
@@ -121,6 +123,52 @@ public class GomProxyHelper {
         }
     }
 
+    public boolean hasInCache(String pPath) {
+
+        assertConnected();
+
+        try {
+
+            return mProxy.hasInCache(pPath);
+
+        } catch (Exception x) {
+
+            Logger.e(LOG_TAG, "hasInCache failed", x);
+            throw new RuntimeException(x);
+        }
+    }
+
+    public void saveAttribute(String pPath, String pValue) {
+
+        assertConnected();
+
+        try {
+
+            mProxy.saveAttribute(pPath, pValue);
+
+        } catch (Exception x) {
+
+            Logger.e(LOG_TAG, "saveAttribute failed", x);
+            throw new RuntimeException(x);
+        }
+    }
+
+    public void saveNode(String pNodePath, LinkedList<String> pSubNodeNames,
+            LinkedList<String> pAttributeNames) {
+
+        assertConnected();
+
+        try {
+
+            mProxy.saveNode(pNodePath, pSubNodeNames, pAttributeNames);
+
+        } catch (Exception x) {
+
+            Logger.e(LOG_TAG, "saveNode failed", x);
+            throw new RuntimeException(x);
+        }
+    }
+
     // Package Protected Instance Methods --------------------------------
 
     IGomProxyService getProxy() {
@@ -142,7 +190,7 @@ public class GomProxyHelper {
 
         if (mProxy == null) {
 
-            throw new BindingException("Unable to bind proxy!");
+            throw new BindingException("GomProxyHelper " + toString() + " unable to bind proxy!");
         }
     }
 
@@ -173,4 +221,5 @@ public class GomProxyHelper {
             onUnbound();
         }
     }
+
 }

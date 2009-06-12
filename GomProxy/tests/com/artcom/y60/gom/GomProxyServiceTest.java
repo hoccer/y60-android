@@ -430,6 +430,47 @@ public class GomProxyServiceTest extends ServiceTestCase<GomProxyService> {
         assertFalse("sub node name shouldn't be there", subNodeNames.contains(subNodeName));
     }
 
+    public void testSaveAttribute() throws Exception {
+
+        startService(mIntent);
+
+        GomProxyService service = getService();
+        String timestamp = String.valueOf(System.currentTimeMillis());
+        String attrPath = BASE_TEST_PATH + "/test_save_attribute:" + timestamp;
+        String value = "bananeneis und frikadellen";
+        service.saveAttribute(attrPath, value);
+        assertEquals("Attribute value wasn't as expected", value, service
+                .getAttributeValue(attrPath));
+
+    }
+
+    public void testSaveNode() throws Exception {
+
+        startService(mIntent);
+        GomProxyService service = getService();
+        String timestamp = String.valueOf(System.currentTimeMillis());
+        String nodePath = BASE_TEST_PATH + "/test_save_node/" + timestamp;
+        String subNodeName = "subNode";
+        String attrName = "attribute";
+
+        List<String> subNodeNames = new LinkedList<String>();
+        subNodeNames.add(subNodeName);
+
+        List<String> attributeNames = new LinkedList<String>();
+        attributeNames.add(attrName);
+
+        service.saveNode(nodePath, subNodeNames, attributeNames);
+
+        assertTrue("Node should be in proxycache", service.hasNodeInCache(nodePath));
+
+        List<String> actualSubNodeNames = new LinkedList<String>();
+        List<String> actualAttributeNames = new LinkedList<String>();
+        service.getNodeData(nodePath, actualSubNodeNames, actualAttributeNames);
+        assertEquals("Attribute should be in cache", attributeNames, actualAttributeNames);
+        assertEquals("Subnode should be in cache", subNodeNames, actualSubNodeNames);
+
+    }
+
     // Protected Instance Methods ----------------------------------------
 
     protected void setUp() throws Exception {

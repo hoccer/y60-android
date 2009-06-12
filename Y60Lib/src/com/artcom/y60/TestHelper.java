@@ -94,4 +94,16 @@ public class TestHelper {
         throw new AssertionError(pFailMessage + ": should be <" + pExpected + ">, but was <"
                 + mesuredValue + ">");
     }
+
+    public static void blockUntilBackendAvailable(final Y60Activity pActivity) {
+        blockUntilTrue("Backend is not available", 2000, new TestHelper.Condition() {
+
+            @Override
+            public boolean isSatisfied() {
+                return pActivity.hasBackendAvailableBeenCalled();
+            }
+
+        });
+
+    }
 }

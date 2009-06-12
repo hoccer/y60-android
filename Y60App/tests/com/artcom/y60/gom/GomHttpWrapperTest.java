@@ -8,7 +8,7 @@ import android.net.Uri;
 import com.artcom.y60.Constants;
 import com.artcom.y60.HttpHelper;
 
-public class HttpGomWrapperTest extends TestCase {
+public class GomHttpWrapperTest extends TestCase {
 
     private static final String TEST_BASE_PATH = "/test/android/y60/infrastructure_gom/gom_http_wrapper_test";
 
@@ -17,7 +17,7 @@ public class HttpGomWrapperTest extends TestCase {
 
     private static final String ATTR_VALUE = "tralala";
 
-    public HttpGomWrapperTest() {
+    public GomHttpWrapperTest() {
 
         HttpHelper.putXML(ATTR_URL, "<attribute>" + ATTR_VALUE + "</attribute>");
     }
