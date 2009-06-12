@@ -190,7 +190,7 @@ public class GomProxyHelper {
 
         if (mProxy == null) {
 
-            throw new BindingException("GomProxyHelper " + toString() + " unable to bind proxy!");
+            throw new BindingException("GomProxyHelper " + toString() + " not bound to proxy!");
         }
     }
 

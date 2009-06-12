@@ -1,5 +1,6 @@
 package com.artcom.y60.http;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -15,14 +16,15 @@ public class Cache {
 
     // Constants ---------------------------------------------------------
 
-    public static final String LOG_TAG = Cache.class.getName();
+    public static final String  LOG_TAG   = Cache.class.getName();
+    private static final String CACHE_DIR = "/sdcard/HttpProxyCache/";
     private Map<String, Bundle> mCachedContent;
 
-    private List<String> mPendingResources;
+    private List<String>        mPendingResources;
 
-    private Thread mRefresher;
+    private Thread              mRefresher;
 
-    private boolean mShutdown;
+    private boolean             mShutdown;
 
     // Constructors ------------------------------------------------------
 
@@ -30,6 +32,13 @@ public class Cache {
 
         mCachedContent = new HashMap<String, Bundle>();
         mPendingResources = new LinkedList<String>();
+
+        File dir = new File(CACHE_DIR);
+        if (!dir.exists()) {
+            dir.mkdirs();
+            Logger.e(LOG_TAG, "creating dir " + dir.toString());
+        }
+
     }
 
     // Public Instance Methods -------------------------------------------
@@ -66,18 +75,18 @@ public class Cache {
             return mCachedContent.get(pUri);
         }
     }
-    
+
     public void remove(String pUri) {
         Logger.v(LOG_TAG, "removeFromCache(", pUri, ")");
         synchronized (mCachedContent) {
 
             mCachedContent.remove(pUri);
         }
-        
+
     }
-    
+
     public boolean isInCache(String pUri) {
-        
+
         Logger.v(LOG_TAG, "isInCache(", pUri, ")");
         synchronized (mCachedContent) {
 
@@ -137,7 +146,7 @@ public class Cache {
             synchronized (mCachedContent) {
                 Bundle oldContent = mCachedContent.get(pUri);
 
-                String localResourcePath = "/sdcard/HttpProxyCache/" + pUri.hashCode();
+                String localResourcePath = CACHE_DIR + pUri.hashCode();
 
                 long size = HttpHelper.getSize(pUri);
                 Bundle newContent = new Bundle(2);
@@ -145,7 +154,8 @@ public class Cache {
 
                 if (size > HttpProxyConstants.MAX_IN_MEMORY_SIZE) {
                     HttpHelper.fetchUriToFile(pUri, localResourcePath);
-                    newContent.putString(HttpProxyConstants.LOCAL_RESOURCE_PATH_TAG, localResourcePath);
+                    newContent.putString(HttpProxyConstants.LOCAL_RESOURCE_PATH_TAG,
+                            localResourcePath);
                 } else {
                     byte[] array = HttpHelper.getAsByteArray(Uri.parse(pUri));
                     newContent.putByteArray(HttpProxyConstants.BYTE_ARRY_TAG, array);
@@ -212,6 +222,5 @@ public class Cache {
             Logger.v("ResourceRefresher", "refresher thread STOPS ------------ ");
         }
     }
-
 
 }
