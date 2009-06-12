@@ -17,7 +17,7 @@ public class GomProxyHelper {
 
     // Constants ---------------------------------------------------------
 
-    public static final String LOG_TAG = "GomProxyHelper";
+    public static final String              LOG_TAG = "GomProxyHelper";
 
     // Instance Variables ------------------------------------------------
 
@@ -25,13 +25,13 @@ public class GomProxyHelper {
      * The client for this helperProxyHelper
      */
     // private Context mContext;
-    private IGomProxyService mProxy;
+    private IGomProxyService                mProxy;
 
-    private GomProxyServiceConnection mConnection;
+    private GomProxyServiceConnection       mConnection;
 
     private BindingListener<GomProxyHelper> mBindingListener;
 
-    private Context mContext;
+    private Context                         mContext;
 
     // Constructors ------------------------------------------------------
 
@@ -169,7 +169,7 @@ public class GomProxyHelper {
         public void onServiceDisconnected(ComponentName pName) {
 
             ErrorHandling.signalServiceError("GomProxyServiceConnection", new Exception(
-                    "Service as been unexpetly disconnected"), mContext);
+                    "GOM proxy service has been disconnected unexpectedly!"), mContext);
             onUnbound();
         }
     }
