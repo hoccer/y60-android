@@ -217,7 +217,7 @@ public class GomProxyHelper {
         public void onServiceDisconnected(ComponentName pName) {
 
             ErrorHandling.signalServiceError("GomProxyServiceConnection", new Exception(
-                    "Service as been unexpetly disconnected"), mContext);
+                    "GOM proxy service has been disconnected unexpectedly!"), mContext);
             onUnbound();
         }
     }

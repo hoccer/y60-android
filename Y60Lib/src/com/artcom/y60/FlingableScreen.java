@@ -122,7 +122,7 @@ public class FlingableScreen {
         return getName();
     }
       
-	public void animate( HorizontalDirection p_Direction, Target p_Target ) {
+	public void animate( Direction p_Direction, Target p_Target ) {
 
         mBaseLayout.clearAnimation();
     	
@@ -130,13 +130,13 @@ public class FlingableScreen {
             
             refresh();
             
-            if (p_Direction == HorizontalDirection.LEFT) {
+            if (p_Direction == Direction.LEFT) {
                 mBaseLayout.startAnimation(mInFromRight);
             } else {
                 mBaseLayout.startAnimation(mInFromLeft);
             }
         } else {
-            if (p_Direction == HorizontalDirection.LEFT) {
+            if (p_Direction == Direction.LEFT) {
                 mBaseLayout.startAnimation(mOutToLeft);
             } else {
                 mBaseLayout.startAnimation(mOutToRight);
