@@ -106,4 +106,33 @@ public class TestHelper {
         });
 
     }
+
+    public static void blockUntilResourceAvailable(String pFailMessage, final String pUrl) {
+
+        blockUntilTrue(pFailMessage, 3000, new TestHelper.Condition() {
+            @Override
+            public boolean isSatisfied() {
+                try {
+                    return HttpHelper.get(pUrl) != null;
+                } catch (RuntimeException rex) {
+
+                    if (rex.toString().contains("404")) {
+
+                        try {
+                            Thread.sleep(250);
+                        } catch (InterruptedException e) {
+                            // TODO Auto-generated catch block
+                            e.printStackTrace();
+                        }
+                        return false;
+
+                    } else {
+
+                        throw new RuntimeException(rex);
+                    }
+                }
+            }
+        });
+
+    }
 }
