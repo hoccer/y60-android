@@ -24,24 +24,25 @@ import com.artcom.y60.HttpHelper;
 import com.artcom.y60.IntentExtraKeys;
 import com.artcom.y60.JsonHelper;
 import com.artcom.y60.Logger;
+import com.artcom.y60.RpcStatus;
 
 public class GomProxyService extends Service {
 
     // Constants ---------------------------------------------------------
 
-    private static final String LOG_TAG = "GomProxyService";
+    private static final String              LOG_TAG = "GomProxyService";
 
     // Instance Variables ------------------------------------------------
 
-    private String mId;
+    private String                           mId;
 
-    private GomProxyRemote mRemote;
+    private GomProxyRemote                   mRemote;
 
-    private Map<String, NodeData> mNodes;
+    private Map<String, NodeData>            mNodes;
 
-    private Map<String, String> mAttributes;
+    private Map<String, String>              mAttributes;
 
-    private Uri mBaseUri;
+    private Uri                              mBaseUri;
 
     private GomNotificationBroadcastReceiver mReceiver;
 
@@ -132,31 +133,25 @@ public class GomProxyService extends Service {
         }
     }
 
-    String getAttributeValue(String pPath) {
+    String getAttributeValue(String pPath) throws JSONException {
 
-        try {
-            Logger.v(LOG_TAG, "getAttributeValue(", pPath, ")");
+        Logger.v(LOG_TAG, "getAttributeValue(", pPath, ")");
 
-            synchronized (mAttributes) {
+        synchronized (mAttributes) {
 
-                if (!hasAttributeInCache(pPath)) {
+            if (!hasAttributeInCache(pPath)) {
 
-                    Logger.v(LOG_TAG, "attribute not in cache, load from gom");
-                    loadAttribute(pPath);
+                Logger.v(LOG_TAG, "attribute not in cache, load from gom");
+                loadAttribute(pPath);
 
-                } else {
+            } else {
 
-                    Logger.v(LOG_TAG, "ok, attribute's in cache");
-                }
-
-                String value = mAttributes.get(pPath);
-                // Logger.v(tag(), "attribute value: "+value);
-                return value;
+                Logger.v(LOG_TAG, "ok, attribute's in cache");
             }
-        } catch (Exception ex) {
 
-            Logger.e(LOG_TAG, ex);
-            throw new RuntimeException(ex);
+            String value = mAttributes.get(pPath);
+            // Logger.v(tag(), "attribute value: "+value);
+            return value;
         }
     }
 
@@ -314,39 +309,26 @@ public class GomProxyService extends Service {
         }
     }
 
-    private void loadAttribute(String pPath) {
+    private void loadAttribute(String pPath) throws JSONException {
 
         Logger.v(LOG_TAG, "loadAttribute(", pPath, ")");
 
-        try {
+        String uri = Uri.withAppendedPath(mBaseUri, pPath).toString();
+        JSONObject jsob;
+        jsob = HttpHelper.getJson(uri);
+        // try {
+        // } catch (RuntimeException e) {
+        //
+        // Logger.e(LOG_TAG, "loading attribute failed, showing exception ",
+        // e);
+        // ErrorHandling.signalNetworkError(LOG_TAG, e, this);
+        // return;
+        // }
+        JSONObject attr = jsob.getJSONObject(Constants.Gom.Keywords.ATTRIBUTE);
 
-            String uri = Uri.withAppendedPath(mBaseUri, pPath).toString();
-            JSONObject jsob;
-            try {
-                jsob = HttpHelper.getJson(uri);
-            } catch (RuntimeException e) {
-                ErrorHandling.signalNetworkError(LOG_TAG, e, this);
-                return;
-            }
-            JSONObject attr = jsob.getJSONObject(Constants.Gom.Keywords.ATTRIBUTE);
-            updateAttributeFromJson(pPath, attr);
+        Logger.v(LOG_TAG, "loaded attribute from gom: ", attr);
 
-        } catch (JSONException x) {
-
-            Logger.e(LOG_TAG, "loading attribute for path ", pPath, " failed", x);
-
-            synchronized (mAttributes) {
-
-                if (!mAttributes.containsKey(pPath)) {
-
-                    throw new RuntimeException("loading attribute for path " + pPath + " failed", x);
-
-                } else {
-
-                    Logger.v(LOG_TAG, "previous value is in cache, so I don't throw an exception");
-                }
-            }
-        }
+        updateAttributeFromJson(pPath, attr);
     }
 
     /**
@@ -384,9 +366,16 @@ public class GomProxyService extends Service {
 
     class GomProxyRemote extends IGomProxyService.Stub {
 
-        public String getAttributeValue(String path) throws RemoteException {
+        public String getAttributeValue(String path, RpcStatus pStatus) throws RemoteException {
 
-            return GomProxyService.this.getAttributeValue(path);
+            try {
+                return GomProxyService.this.getAttributeValue(path);
+
+            } catch (Exception ex) {
+
+                pStatus.setError(ex);
+                return null;
+            }
         }
 
         public void getNodeData(String path, List<String> subNodeNames, List<String> attributeNames)

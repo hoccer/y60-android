@@ -34,7 +34,7 @@ public class GomNotificationHelper {
      * Register a GOM observer for a given path. Filtering options are currently
      * not supported.
      */
-    public static BroadcastReceiver registerObserverAndNotiy(final String pPath,
+    public static BroadcastReceiver registerObserverAndNotify(final String pPath,
             final GomObserver pGomObserver, final GomProxyHelper pGom) throws IOException,
             IpAddressNotFoundException {
 
@@ -56,6 +56,7 @@ public class GomNotificationHelper {
                     boolean doRefresh = pGom.hasInCache(pPath);
 
                     GomEntry entry = pGom.getEntry(pPath);
+                    Logger.v(LOG_TAG, "***************** entry " + entry, " ", pPath);
                     pGomObserver.onEntryUpdated(pPath, entry.toJson());
 
                     if (doRefresh) {

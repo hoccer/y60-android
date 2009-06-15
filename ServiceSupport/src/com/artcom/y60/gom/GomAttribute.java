@@ -7,6 +7,7 @@ import android.os.RemoteException;
 
 import com.artcom.y60.Constants;
 import com.artcom.y60.Logger;
+import com.artcom.y60.RpcStatus;
 
 /**
  * Represents the state of an attribute resource in the GOM. Some attributes
@@ -43,8 +44,8 @@ public class GomAttribute extends GomEntry {
 
         super(extractNameFromPath(pPath), pPath, pProxy);
 
-        mValue = getProxy().getAttributeValue(pPath);
         mNodePath = pPath.substring(0, pPath.lastIndexOf(":"));
+        mValue = loadValue();
     }
 
     // Public Instance Methods -------------------------------------------
@@ -52,7 +53,7 @@ public class GomAttribute extends GomEntry {
     @Deprecated
     public void refresh() throws RemoteException {
         getProxy().refreshEntry(getPath());
-        mValue = getProxy().getAttributeValue(getPath());
+        mValue = loadValue();
     }
 
     public String getValue() {
@@ -134,5 +135,19 @@ public class GomAttribute extends GomEntry {
         Logger.v(LOG_TAG, "resolved ", mValue, " to ", entry);
 
         return entry;
+    }
+
+    // Private Instance Methods ------------------------------------------
+
+    private String loadValue() throws RemoteException {
+
+        RpcStatus status = new RpcStatus();
+        String value = getProxy().getAttributeValue(getPath(), status);
+        if (status.hasError()) {
+
+            throw new RuntimeException("Service-side execution failed!", status.getError());
+        }
+
+        return null;
     }
 }
