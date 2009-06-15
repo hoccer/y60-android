@@ -144,8 +144,8 @@ public class GomAttribute extends GomEntry {
         RpcStatus status = new RpcStatus();
         String value = getProxy().getAttributeValue(getPath(), status);
         if (status.hasError()) {
-
-            throw new RuntimeException("Service-side execution failed!", status.getError());
+            Throwable err = status.getError();
+            throw new RuntimeException("Service-side execution failed: " + err.getMessage(), err);
         }
 
         return value;

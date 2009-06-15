@@ -58,6 +58,25 @@ public class GomProxyTest extends GomActivityUnitTestCase {
         assertEquals("nassau", attr.getValue());
     }
 
+    public void testErrorStatusForGetAttribute() throws Exception {
+
+        initializeActivity();
+        GomProxyHelper helper = createHelper();
+
+        long timestamp = System.currentTimeMillis();
+        String path = "/lalalal:" + timestamp;
+
+        try {
+            GomAttribute attr = helper.getAttribute(path);
+            fail("Expected 404 Exception, but got " + attr.getValue());
+        } catch (RuntimeException e) {
+            if (!e.toString().contains("404")) {
+                throw new RuntimeException(e);
+            }
+        }
+
+    }
+
     // Protected Instance Methods ----------------------------------------
 
     protected void setUp() throws Exception {
