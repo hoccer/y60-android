@@ -26,7 +26,7 @@ public abstract class Y60ActivityInstrumentationTest<T extends Activity> extends
      * Horizontal resolution of the display in portrait orientation. To be used
      * for testing only, thus protected.
      */
-    protected final static int SCREEN_WIDTH = 320;
+    protected final static int SCREEN_WIDTH  = 320;
 
     /**
      * Vertical resolution of the display in portrait orientation. To be used
