@@ -54,15 +54,12 @@ public class GomNotificationHelper {
                     boolean doRefresh = pGom.hasInCache(pPath);
 
                     GomEntry entry = pGom.getEntry(pPath);
-                    Logger.v(LOG_TAG, "***************** entry " + entry, " ", pPath);
                     pGomObserver.onEntryUpdated(pPath, entry.toJson());
 
                     if (doRefresh) {
 
                         pGom.getProxy().refreshEntry(pPath);
                         GomEntry newEntry = pGom.getEntry(pPath);
-
-                        Logger.v(LOG_TAG, newEntry.toJson().toString(), " old: ", entry.toJson());
 
                         if (!newEntry.equals(entry)) {
                             pGomObserver.onEntryUpdated(pPath, newEntry.toJson());

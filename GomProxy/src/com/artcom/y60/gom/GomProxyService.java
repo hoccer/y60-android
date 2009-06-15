@@ -150,7 +150,6 @@ public class GomProxyService extends Service {
             }
 
             String value = mAttributes.get(pPath);
-            // Logger.v(tag(), "attribute value: "+value);
             return value;
         }
     }

@@ -148,6 +148,6 @@ public class GomAttribute extends GomEntry {
             throw new RuntimeException("Service-side execution failed!", status.getError());
         }
 
-        return null;
+        return value;
     }
 }

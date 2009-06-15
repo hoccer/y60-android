@@ -17,6 +17,7 @@ import com.artcom.y60.Constants;
 import com.artcom.y60.HttpHelper;
 import com.artcom.y60.IntentExtraKeys;
 import com.artcom.y60.Logger;
+import com.artcom.y60.RpcStatus;
 import com.artcom.y60.TestHelper;
 import com.artcom.y60.Y60Action;
 import com.artcom.y60.gom.GomTestObserver.Event;
@@ -264,6 +265,54 @@ public class GomNotificationHelperTest extends GomActivityUnitTestCase {
 
     // 5. same entry is in gom and proxy
     // -> one callback. done.
+
+    public void testSameAttrInGomAndProxy() throws Exception {
+
+        initializeActivity();
+        GomProxyHelper helper = createHelper();
+
+        String timestamp = String.valueOf(System.currentTimeMillis());
+
+        String attrPath = TEST_BASE_PATH + "/test_same_attr_in_gom_and_proxy" + ":" + timestamp;
+        Uri attrUrl = Uri.parse(Constants.Gom.URI + attrPath);
+        String attrValue = "hans-peter";
+
+        helper.saveAttribute(attrPath, attrValue);
+
+        assertTrue("Attribute should now be in proxy before register Observer", helper
+                .hasInCache(attrPath));
+
+        assertEquals("attr value should be in proxy", attrValue, helper.getProxy()
+                .getAttributeValue(attrPath, new RpcStatus()));
+        Logger.v(LOG_TAG, "attr value from proxy, getatrrvalue()", helper.getProxy()
+                .getAttributeValue(attrPath, new RpcStatus()));
+
+        GomHttpWrapper.updateOrCreateAttribute(attrUrl, attrValue);
+        assertTrue("Value should be in Gom", HttpHelper.getJson(attrUrl.toString()).toString()
+                .contains(attrValue));
+
+        final GomTestObserver gto = new GomTestObserver();
+        GomNotificationHelper.registerObserverAndNotify(attrPath, gto, helper);
+
+        TestHelper.blockUntilTrue("update not called", 3000, new TestHelper.Condition() {
+
+            @Override
+            public boolean isSatisfied() {
+                return gto.getUpdateCount() == 1;
+            }
+
+        });
+
+        List<Event> events = gto.getEvents();
+        Logger.v(LOG_TAG, events.get(0).data);
+        assertTrue("callback should return with value", events.get(0).data.toString().contains(
+                attrValue));
+
+        Thread.sleep(2500);
+        gto.assertCreateNotCalled();
+        gto.assertDeleteNotCalled();
+        assertEquals("Update should be called only once", 1, gto.getUpdateCount());
+    }
 
     // receiver tests for broadcast receiver
     public void testNotificationCreate() throws Exception {
