@@ -40,18 +40,16 @@ public class GomNotificationHelper {
 
         BroadcastReceiver rec = createBroadcastReceiver(pPath, pGomObserver);
 
+        if (!pGom.isBound()) {
+            throw new IllegalStateException("GomProxyHelper " + pGom.toString() + " is not bound!");
+        }
+
         new Thread(new Runnable() {
             public void run() {
 
                 try {
 
                     putObserverToGom(pPath);
-
-                    if (!pGom.isBound()) {
-
-                        throw new IllegalStateException("GomProxyHelper " + pGom.toString()
-                                + " is not bound!");
-                    }
 
                     boolean doRefresh = pGom.hasInCache(pPath);
 
@@ -73,8 +71,13 @@ public class GomNotificationHelper {
                     }
                 } catch (Exception ex) {
 
-                    Logger.e(LOG_TAG, ex);
-                    throw new RuntimeException(ex);
+                    Logger.e(LOG_TAG, "*******" + ex.toString() + ex.getStackTrace().toString());
+                    // TODO we should not throw exceptions in sub-threads of an
+                    // activity. Better pass an error message container to
+                    // registerObserver. This is best be done when implementing
+                    // the Y60Activty.
+
+                    // throw new RuntimeException(ex);
                 }
             }
         }).start();

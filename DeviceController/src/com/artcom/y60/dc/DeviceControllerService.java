@@ -50,18 +50,18 @@ import com.artcom.y60.gom.GomProxyHelper;
 
 public class DeviceControllerService extends Service {
 
-    public static final String DEFAULT_NIONAME = "com.artcom.y60.dc.nio";
-    public static final String DEFAULT_PORTNAME = "com.artcom.y60.dc.port";
-    private static final String LOG_TAG = "DeviceControllerService";
+    public static final String  DEFAULT_NIONAME  = "com.artcom.y60.dc.nio";
+    public static final String  DEFAULT_PORTNAME = "com.artcom.y60.dc.port";
+    private static final String LOG_TAG          = "DeviceControllerService";
 
-    private static Resources sResources;
+    private static Resources    sResources;
 
-    Server mServer;
-    private boolean mUseNio;
-    private SharedPreferences mPreferences;
+    Server                      mServer;
+    private boolean             mUseNio;
+    private SharedPreferences   mPreferences;
 
-    private IBinder mBinder = new DeviceControllerBinder();
-    GomProxyHelper mGom = null;
+    private IBinder             mBinder          = new DeviceControllerBinder();
+    GomProxyHelper              mGom             = null;
 
     public void onCreate() {
         Logger.i(LOG_TAG, "onCreate called");
@@ -166,6 +166,7 @@ public class DeviceControllerService extends Service {
     }
 
     public void onDestroy() {
+
         try {
             if (mServer != null) {
                 stopServer();

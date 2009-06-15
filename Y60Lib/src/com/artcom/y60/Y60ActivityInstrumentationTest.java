@@ -80,12 +80,12 @@ public abstract class Y60ActivityInstrumentationTest<T extends Activity> extends
      * GestureDetector class, it has to consist of a sequence of small move
      * events. This method takes care of generating these events.
      */
-    protected void fling(HorizontalDirection pDirection) {
+    protected void fling(Direction pDirection) {
 
         // fling to next
         int y = SCREEN_HEIGHT - 10;
         int fromX = SCREEN_WIDTH / 2;
-        int deltaX = (pDirection == HorizontalDirection.LEFT ? -4 : 4);
+        int deltaX = (pDirection == Direction.LEFT ? -4 : 4);
 
         long time = SystemClock.uptimeMillis();
 

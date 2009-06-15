@@ -190,7 +190,7 @@ public class GomProxyHelper {
 
         if (mProxy == null) {
 
-            throw new BindingException("GomProxyHelper " + toString() + " unable to bind proxy!");
+            throw new BindingException("GomProxyHelper " + toString() + " not bound to proxy!");
         }
     }
 
@@ -217,7 +217,7 @@ public class GomProxyHelper {
         public void onServiceDisconnected(ComponentName pName) {
 
             ErrorHandling.signalServiceError("GomProxyServiceConnection", new Exception(
-                    "Service as been unexpetly disconnected"), mContext);
+                    "GOM proxy service has been disconnected unexpectedly!"), mContext);
             onUnbound();
         }
     }
