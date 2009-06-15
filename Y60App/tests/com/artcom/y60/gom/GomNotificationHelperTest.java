@@ -73,7 +73,7 @@ public class GomNotificationHelperTest extends GomActivityUnitTestCase {
 
         final GomTestObserver gto = new GomTestObserver();
 
-        GomNotificationHelper.registerObserverAndNotiy(attrPath, gto, helper);
+        GomNotificationHelper.registerObserverAndNotify(attrPath, gto, helper);
 
         TestHelper.blockUntilTrue("delete not called", 3000, new TestHelper.Condition() {
 
@@ -111,7 +111,7 @@ public class GomNotificationHelperTest extends GomActivityUnitTestCase {
         String value = "huhu";
         helper.saveAttribute(attrPath, value);
 
-        GomNotificationHelper.registerObserverAndNotiy(attrPath, gto, helper);
+        GomNotificationHelper.registerObserverAndNotify(attrPath, gto, helper);
 
         TestHelper.blockUntilTrue("delete not called", 3000, new TestHelper.Condition() {
 
@@ -149,7 +149,7 @@ public class GomNotificationHelperTest extends GomActivityUnitTestCase {
         helper.saveNode(nodePath, new LinkedList<String>(), new LinkedList<String>());
         assertNotNull(helper.getNode(nodePath));
 
-        GomNotificationHelper.registerObserverAndNotiy(nodePath, gto, helper);
+        GomNotificationHelper.registerObserverAndNotify(nodePath, gto, helper);
 
         TestHelper.blockUntilTrue("delete not called", 3000, new TestHelper.Condition() {
 
@@ -189,7 +189,7 @@ public class GomNotificationHelperTest extends GomActivityUnitTestCase {
         GomHttpWrapper.updateOrCreateAttribute(attrUrl, attrValue);
 
         final GomTestObserver gto = new GomTestObserver();
-        GomNotificationHelper.registerObserverAndNotiy(attrPath, gto, helper);
+        GomNotificationHelper.registerObserverAndNotify(attrPath, gto, helper);
 
         TestHelper.blockUntilTrue("update not called", 3000, new TestHelper.Condition() {
 
@@ -236,7 +236,7 @@ public class GomNotificationHelperTest extends GomActivityUnitTestCase {
         GomHttpWrapper.updateOrCreateAttribute(attrUrl, newAttrValue);
 
         final GomTestObserver gto = new GomTestObserver();
-        GomNotificationHelper.registerObserverAndNotiy(attrPath, gto, helper);
+        GomNotificationHelper.registerObserverAndNotify(attrPath, gto, helper);
 
         TestHelper.blockUntilTrue("update not called", 3000, new TestHelper.Condition() {
 
@@ -278,7 +278,7 @@ public class GomNotificationHelperTest extends GomActivityUnitTestCase {
         GomTestObserver gomObserver = new GomTestObserver();
 
         BroadcastReceiver br;
-        br = GomNotificationHelper.registerObserverAndNotiy(attrPath, gomObserver, helper);
+        br = GomNotificationHelper.registerObserverAndNotify(attrPath, gomObserver, helper);
 
         Intent bcIntent = createBroadcastIntent(attrPath, "create", mJson);
         br.onReceive(null, bcIntent);
@@ -302,7 +302,7 @@ public class GomNotificationHelperTest extends GomActivityUnitTestCase {
         GomTestObserver gomObserver = new GomTestObserver();
 
         BroadcastReceiver br;
-        br = GomNotificationHelper.registerObserverAndNotiy(attrPath, gomObserver, helper);
+        br = GomNotificationHelper.registerObserverAndNotify(attrPath, gomObserver, helper);
 
         Intent bcIntent = createBroadcastIntent(attrPath, "delete", mJson);
         br.onReceive(null, bcIntent);
@@ -326,7 +326,7 @@ public class GomNotificationHelperTest extends GomActivityUnitTestCase {
         GomTestObserver gomObserver = new GomTestObserver();
 
         BroadcastReceiver br;
-        br = GomNotificationHelper.registerObserverAndNotiy(attrPath, gomObserver, helper);
+        br = GomNotificationHelper.registerObserverAndNotify(attrPath, gomObserver, helper);
 
         Intent bcIntent = createBroadcastIntent(attrPath, "update", mJson);
         br.onReceive(null, bcIntent);
@@ -406,7 +406,7 @@ public class GomNotificationHelperTest extends GomActivityUnitTestCase {
         assertNotNull(content2);
 
         GomTestObserver observer = new GomTestObserver();
-        BroadcastReceiver receiver = GomNotificationHelper.registerObserverAndNotiy(observedPath,
+        BroadcastReceiver receiver = GomNotificationHelper.registerObserverAndNotify(observedPath,
                 observer, helper);
 
         getActivity().registerReceiver(receiver, Constants.Gom.NOTIFICATION_FILTER);
@@ -511,7 +511,7 @@ public class GomNotificationHelperTest extends GomActivityUnitTestCase {
             assertTrue("expected a 404", is404);
         }
 
-        GomNotificationHelper.registerObserverAndNotiy(attrPath, mMockGomObserver, helper);
+        GomNotificationHelper.registerObserverAndNotify(attrPath, mMockGomObserver, helper);
 
         // check that the observer has arrived in gom
         TestHelper.blockUntilResourceAvailable("Observer should now be in GOM", observerUri);
@@ -539,7 +539,7 @@ public class GomNotificationHelperTest extends GomActivityUnitTestCase {
             assertTrue("expected a 404", is404);
         }
 
-        GomNotificationHelper.registerObserverAndNotiy(nodePath, mMockGomObserver, helper);
+        GomNotificationHelper.registerObserverAndNotify(nodePath, mMockGomObserver, helper);
 
         // check that the observer has arrived in gom
         TestHelper.blockUntilResourceAvailable("Observer should now be in GOM", observerUri);
@@ -561,7 +561,7 @@ public class GomNotificationHelperTest extends GomActivityUnitTestCase {
         GomHttpWrapper.createNode(Constants.Gom.URI + nodePath);
         assertNotNull("missing node in GOM", HttpHelper.get(Constants.Gom.URI + nodePath));
 
-        BroadcastReceiver receiver = GomNotificationHelper.registerObserverAndNotiy(nodePath,
+        BroadcastReceiver receiver = GomNotificationHelper.registerObserverAndNotify(nodePath,
                 observer, helper);
         getActivity().registerReceiver(receiver, Constants.Gom.NOTIFICATION_FILTER);
 
@@ -597,7 +597,7 @@ public class GomNotificationHelperTest extends GomActivityUnitTestCase {
         assertEquals("update should be called only once", 1, observer.getUpdateCount());
 
         // register multiple times
-        GomNotificationHelper.registerObserverAndNotiy(nodePath, observer, helper);
+        GomNotificationHelper.registerObserverAndNotify(nodePath, observer, helper);
         TestHelper.blockUntilTrue("update not called", 3000, new TestHelper.Condition() {
             @Override
             public boolean isSatisfied() {
@@ -606,7 +606,7 @@ public class GomNotificationHelperTest extends GomActivityUnitTestCase {
 
         });
 
-        GomNotificationHelper.registerObserverAndNotiy(nodePath, observer, helper);
+        GomNotificationHelper.registerObserverAndNotify(nodePath, observer, helper);
         TestHelper.blockUntilTrue("update not called", 3000, new TestHelper.Condition() {
             @Override
             public boolean isSatisfied() {
