@@ -154,7 +154,6 @@ public class GomProxyService extends Service {
         }
     }
 
-    @Deprecated
     void refreshEntry(String pPath) {
 
         try {
@@ -383,9 +382,14 @@ public class GomProxyService extends Service {
             GomProxyService.this.getNodeData(path, subNodeNames, attributeNames);
         }
 
-        public void refreshEntry(String path) throws RemoteException {
+        public void refreshEntry(String path, RpcStatus pStatus) throws RemoteException {
 
-            GomProxyService.this.refreshEntry(path);
+            try {
+                GomProxyService.this.refreshEntry(path);
+            } catch (Exception ex) {
+
+                pStatus.setError(ex);
+            }
 
         }
 
@@ -411,6 +415,15 @@ public class GomProxyService extends Service {
                 throws RemoteException {
             GomProxyService.this.saveNode(pPath, pSubNodeNames, pAttributeNames);
 
+        }
+
+        public void deleteEntry(String pPath, RpcStatus pStatus) {
+            try {
+                GomProxyService.this.deleteEntry(pPath);
+            } catch (Exception ex) {
+
+                pStatus.setError(ex);
+            }
         }
     }
 
@@ -567,6 +580,32 @@ public class GomProxyService extends Service {
             updateAttributeFromJson(path, attrJson);
         }
 
+    }
+
+    private void deleteAttribute(String pPath) {
+        mAttributes.remove(pPath);
+    }
+
+    private void deleteNode(String pPath) {
+        NodeData nodeData = mNodes.get(pPath);
+        List<String> attrList = nodeData.attributeNames;
+        List<String> nodeList = nodeData.subNodeNames;
+        for (String anAttr : attrList) {
+            deleteAttribute(anAttr);
+        }
+        for (String aNode : nodeList) {
+            deleteNode(aNode);
+        }
+        mNodes.remove(pPath);
+    }
+
+    public void deleteEntry(String pPath) {
+        String lastSegment = pPath.substring(pPath.lastIndexOf("/") + 1);
+        if (lastSegment.contains(":")) {
+            deleteAttribute(pPath);
+        } else {
+            deleteNode(pPath);
+        }
     }
 
 }

@@ -161,11 +161,7 @@ public class GomNode extends GomEntry {
         } catch (NoSuchElementException e) {
             GomHttpWrapper.updateOrCreateAttribute(Uri.parse(getUri() + ":" + pName), "");
             Logger.e(LOG_TAG, "creating nonexistend gom attribute");
-            try {
-                refresh();
-            } catch (RemoteException e1) {
-                Logger.e(LOG_TAG, "could not refresh gom node " + this);
-            }
+
             attribute = getAttribute(pName);
         }
 
@@ -180,12 +176,6 @@ public class GomNode extends GomEntry {
         GomEntry entry = getEntry(pName); // throws no such element if nonexist
 
         return entry.forceNodeOrException();
-    }
-
-    @Deprecated
-    public void refresh() throws RemoteException {
-        getProxy().refreshEntry(getPath());
-        loadData();
     }
 
     public JSONObject toJson() {

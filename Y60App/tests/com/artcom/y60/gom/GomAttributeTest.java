@@ -1,7 +1,5 @@
 package com.artcom.y60.gom;
 
-import android.net.Uri;
-import android.os.RemoteException;
 import android.test.AndroidTestCase;
 
 import com.artcom.y60.Logger;
@@ -10,11 +8,11 @@ public class GomAttributeTest extends AndroidTestCase {
 
     // Constants ---------------------------------------------------------
 
-    static final String NAME = "attribute";
+    static final String  NAME  = "attribute";
 
-    static final String PATH = GomTestConstants.FIXTURES + "gom_attribute_test:" + NAME;
+    static final String  PATH  = GomTestConstants.FIXTURES + "gom_attribute_test:" + NAME;
 
-    static final String VALUE = PATH;
+    static final String  VALUE = PATH;
 
     // Instance Variables ------------------------------------------------
 
@@ -47,28 +45,6 @@ public class GomAttributeTest extends AndroidTestCase {
         assertEquals("changed value", mTestAttr.getValue());
         mTestAttr.putValue(VALUE);
         assertEquals(VALUE, mTestAttr.getValue());
-    }
-
-    public void testPutOrCreateValue() throws RemoteException {
-
-        String attrName = "not_existing_attribute";
-        GomNode parent = mTestAttr.getNode();
-
-        if (parent.hasAttribute(attrName)) {
-            parent.deleteAttribute(attrName);
-        }
-        parent.refresh();
-        assertTrue("attribute should not exist", !parent.hasAttribute(attrName));
-
-        Uri attrUri = Uri.parse(parent.getUri() + ":" + attrName);
-        GomHttpWrapper.updateOrCreateAttribute(attrUri, "the putted value");
-        parent.refresh();
-        assertTrue("attribute should exist", parent.hasAttribute(attrName));
-        assertEquals("the putted value", parent.getAttribute(attrName).getValue());
-
-        parent.deleteAttribute(attrName);
-        parent.refresh();
-        assertTrue("attribute should again not exist", !parent.hasAttribute(attrName));
     }
 
     public void testGetPath() {

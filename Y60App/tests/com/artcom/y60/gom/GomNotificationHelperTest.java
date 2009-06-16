@@ -96,7 +96,8 @@ public class GomNotificationHelperTest extends GomActivityUnitTestCase {
     }
 
     // 2. entry in proxy but not in gom
-    // -> exception |entry deleted callback, delete value from proxy
+    // -> 1. update callback, 2. exception |entry deleted callback, delete value
+    // from proxy
 
     public void testAttrInProxyNotInGom() throws Exception {
 
@@ -114,6 +115,15 @@ public class GomNotificationHelperTest extends GomActivityUnitTestCase {
 
         GomNotificationHelper.registerObserverAndNotify(attrPath, gto, helper);
 
+        TestHelper.blockUntilTrue("update not called", 3000, new TestHelper.Condition() {
+
+            @Override
+            public boolean isSatisfied() {
+                return gto.getUpdateCount() == 1;
+            }
+
+        });
+
         TestHelper.blockUntilTrue("delete not called", 3000, new TestHelper.Condition() {
 
             @Override
@@ -129,7 +139,7 @@ public class GomNotificationHelperTest extends GomActivityUnitTestCase {
         // another time
         Thread.sleep(2500);
         assertEquals("Delete is called another time", 1, gto.getDeleteCount());
-        gto.assertUpdateNotCalled();
+        assertEquals("Update is called another time", 1, gto.getUpdateCount());
         gto.assertCreateNotCalled();
 
         assertFalse("Value should now be deleted in proxy", helper.hasInCache(attrPath));
@@ -152,6 +162,15 @@ public class GomNotificationHelperTest extends GomActivityUnitTestCase {
 
         GomNotificationHelper.registerObserverAndNotify(nodePath, gto, helper);
 
+        TestHelper.blockUntilTrue("update not called", 3000, new TestHelper.Condition() {
+
+            @Override
+            public boolean isSatisfied() {
+                return gto.getUpdateCount() == 1;
+            }
+
+        });
+
         TestHelper.blockUntilTrue("delete not called", 3000, new TestHelper.Condition() {
 
             @Override
@@ -167,7 +186,7 @@ public class GomNotificationHelperTest extends GomActivityUnitTestCase {
         // another time
         Thread.sleep(2500);
         assertEquals("Delete is called another time", 1, gto.getDeleteCount());
-        gto.assertUpdateNotCalled();
+        assertEquals("Update is called another time", 1, gto.getUpdateCount());
         gto.assertCreateNotCalled();
 
         assertFalse("Node should now be deleted in proxy", helper.hasInCache(nodePath));
@@ -595,6 +614,7 @@ public class GomNotificationHelperTest extends GomActivityUnitTestCase {
 
     }
 
+    // initial state: value in gom, NOT in proxy
     public void testRegisterObserverMultipleTimes() throws Exception {
 
         initializeActivity();
@@ -632,7 +652,7 @@ public class GomNotificationHelperTest extends GomActivityUnitTestCase {
         Uri visibleAttrUrl = Uri.parse(Constants.Gom.URI + visibleAttrPath);
         GomHttpWrapper.updateOrCreateAttribute(visibleAttrUrl, "who cares?");
 
-        TestHelper.blockUntilTrue("update not called", 3000, new TestHelper.Condition() {
+        TestHelper.blockUntilTrue("create not called", 3000, new TestHelper.Condition() {
             @Override
             public boolean isSatisfied() {
                 return observer.getCreateCount() == 1;
@@ -665,7 +685,7 @@ public class GomNotificationHelperTest extends GomActivityUnitTestCase {
         });
 
         Thread.sleep(2500);
-        GomHttpWrapper.updateOrCreateAttribute(visibleAttrUrl, "who cares ?");
+        GomHttpWrapper.updateOrCreateAttribute(visibleAttrUrl, "who else cares?");
 
         TestHelper.blockUntilTrue("update not called", 3000, new TestHelper.Condition() {
             @Override
@@ -676,6 +696,7 @@ public class GomNotificationHelperTest extends GomActivityUnitTestCase {
         });
 
         Thread.sleep(2500);
+        Logger.v(LOG_TAG, "ddddddddddddddddddddeeeeeeeeeeeeeeeeeeeel", observer.getDeleteCount());
         observer.assertDeleteNotCalled();
         assertEquals("create should be called only once", 1, observer.getCreateCount());
         assertEquals("update should be called only once", 4, observer.getUpdateCount());

@@ -14,6 +14,7 @@ import com.artcom.y60.BindingException;
 import com.artcom.y60.BindingListener;
 import com.artcom.y60.ErrorHandling;
 import com.artcom.y60.Logger;
+import com.artcom.y60.RpcStatus;
 
 public class GomProxyHelper {
 
@@ -169,11 +170,51 @@ public class GomProxyHelper {
         }
     }
 
+    public void deleteEntry(String pPath) {
+        RpcStatus status = new RpcStatus();
+
+        try {
+            mProxy.deleteEntry(pPath, status);
+
+            if (status.hasError()) {
+                Throwable err = status.getError();
+                throw new RuntimeException("Service-side execution failed: " + err.getMessage(),
+                        err);
+            }
+
+        } catch (RemoteException rex) {
+
+            Logger.e(LOG_TAG, "failed to delete entry", rex);
+            throw new RuntimeException(rex);
+        }
+    }
+
     // Package Protected Instance Methods --------------------------------
 
     IGomProxyService getProxy() {
 
         return mProxy;
+    }
+
+    void refreshEntry(String pPath) {
+
+        RpcStatus status = new RpcStatus();
+
+        try {
+            mProxy.refreshEntry(pPath, status);
+
+            if (status.hasError()) {
+                Throwable err = status.getError();
+                throw new RuntimeException("Service-side execution failed: " + err.getMessage(),
+                        err);
+            }
+
+        } catch (RemoteException rex) {
+
+            Logger.e(LOG_TAG, "failed to refresh entry", rex);
+            throw new RuntimeException(rex);
+        }
+
     }
 
     // Private Instance Methods ------------------------------------------

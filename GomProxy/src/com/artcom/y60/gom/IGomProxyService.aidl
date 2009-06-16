@@ -12,13 +12,15 @@ interface IGomProxyService {
     
     String getAttributeValue(in String pPath, out RpcStatus pStatus);
     
-    void refreshEntry(String pPath);
+    void refreshEntry(String pPath, out RpcStatus pStatus);
     
     String getBaseUri();
     
     void saveAttribute(in String pPath, in String pValue);
     
     void saveNode(in String pPath, out List<String> pSubNodeNames, out List<String> pAttributeNames);
+    
+    void deleteEntry(String pPath, out RpcStatus pStatus);
     
     boolean hasInCache(String pPath);
 }

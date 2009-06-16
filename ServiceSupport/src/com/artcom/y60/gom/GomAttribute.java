@@ -50,12 +50,6 @@ public class GomAttribute extends GomEntry {
 
     // Public Instance Methods -------------------------------------------
 
-    @Deprecated
-    public void refresh() throws RemoteException {
-        getProxy().refreshEntry(getPath());
-        mValue = loadValue();
-    }
-
     public String getValue() {
 
         return mValue;
@@ -69,12 +63,7 @@ public class GomAttribute extends GomEntry {
     public void putValue(String pValue) {
 
         GomHttpWrapper.updateOrCreateAttribute(getUri(), pValue);
-        // update my data
-        try {
-            refresh();
-        } catch (RemoteException e) {
-            throw new RuntimeException("could not refresh gom attribute " + this.toString());
-        }
+
     }
 
     public JSONObject toJson() {
@@ -143,6 +132,7 @@ public class GomAttribute extends GomEntry {
 
         RpcStatus status = new RpcStatus();
         String value = getProxy().getAttributeValue(getPath(), status);
+
         if (status.hasError()) {
             Throwable err = status.getError();
             throw new RuntimeException("Service-side execution failed: " + err.getMessage(), err);

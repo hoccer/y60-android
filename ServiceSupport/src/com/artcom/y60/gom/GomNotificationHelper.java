@@ -58,7 +58,8 @@ public class GomNotificationHelper {
 
                     if (doRefresh) {
 
-                        pGom.getProxy().refreshEntry(pPath);
+                        pGom.refreshEntry(pPath);
+
                         GomEntry newEntry = pGom.getEntry(pPath);
 
                         if (!newEntry.equals(entry)) {
@@ -66,9 +67,16 @@ public class GomNotificationHelper {
                         }
 
                     }
+                } catch (IllegalStateException ex) {
+
+                    Logger.e(LOG_TAG, "*******" + ex.toString() + ex.getStackTrace().toString());
+
                 } catch (Exception ex) {
 
                     Logger.e(LOG_TAG, "*******" + ex.toString() + ex.getStackTrace().toString());
+                    pGom.deleteEntry(pPath);
+                    pGomObserver.onEntryDeleted(pPath, null);
+
                     // TODO we should not throw exceptions in sub-threads of an
                     // activity. Better pass an error message container to
                     // registerObserver. This is best be done when implementing
