@@ -2,21 +2,21 @@ package com.artcom.y60.gom;
 
 import android.test.AndroidTestCase;
 
-import com.artcom.y60.Logger;
+import com.artcom.y60.Constants;
 
 public class GomAttributeTest extends AndroidTestCase {
 
     // Constants ---------------------------------------------------------
 
-    static final String  NAME  = "attribute";
-
-    static final String  PATH  = GomTestConstants.FIXTURES + "gom_attribute_test:" + NAME;
-
-    static final String  VALUE = PATH;
+    static final String  BASE_PATH = GomTestConstants.FIXTURES + "gom_attribute_test";
 
     // Instance Variables ------------------------------------------------
 
     private GomAttribute mTestAttr;
+
+    private GomReference mTestRef;
+
+    private String       mValue;
 
     // Public Instance Methods -------------------------------------------
 
@@ -31,42 +31,43 @@ public class GomAttributeTest extends AndroidTestCase {
             }
         }
 
-        mTestAttr = helper.getAttribute(PATH);
+        mTestRef = new GomReference(Constants.Gom.URI + BASE_PATH + "/" + getName() + ":"
+                + System.currentTimeMillis());
+        mValue = mTestRef.path();
+        GomHttpWrapper.updateOrCreateAttribute(mTestRef.url(), mValue);
+
+        mTestAttr = helper.getAttribute(mTestRef.path());
     }
 
     public void testGetValue() {
 
-        assertEquals(VALUE, mTestAttr.getValue());
+        assertEquals(mValue, mTestAttr.getValue());
     }
 
     public void testPutValue() {
 
         mTestAttr.putValue("changed value");
         assertEquals("changed value", mTestAttr.getValue());
-        mTestAttr.putValue(VALUE);
-        assertEquals(VALUE, mTestAttr.getValue());
+        mTestAttr.putValue(mValue);
+        assertEquals(mValue, mTestAttr.getValue());
     }
 
     public void testGetPath() {
 
-        assertEquals(PATH, mTestAttr.getPath());
+        assertEquals(mTestRef.path(), mTestAttr.getPath());
     }
 
     public void testGetName() {
 
-        assertEquals(NAME, mTestAttr.getName());
+        assertEquals(mTestRef.name(), mTestAttr.getName());
     }
 
     public void testResolveReference() {
 
         GomEntry entry = mTestAttr.resolveReference();
 
-        assertNotNull(entry);
-
-        Logger.v("GomAttributeTest", "resolveReference got entry with path ", entry.getPath());
-
-        assertEquals(VALUE, entry.getPath());
+        assertEquals(mValue, entry.getPath());
         assertTrue(entry instanceof GomAttribute);
-        assertEquals(VALUE, ((GomAttribute) entry).getValue());
+        assertEquals(mValue, ((GomAttribute) entry).getValue());
     }
 }

@@ -482,14 +482,14 @@ public class GomNotificationHelperTest extends GomActivityUnitTestCase {
                 + GomNotificationHelper.getObserverPathFor(observedPath));
 
         GomHttpWrapper.deleteAttribute(invisibleAttrUrl);
-        Thread.sleep(2500);
+        Thread.sleep(4000);
         observer.assertCreateNotCalled();
         observer.assertDeleteNotCalled();
         // observer.assertUpdateNotCalled();
         observer.reset();
 
         GomHttpWrapper.deleteAttribute(visibleAttrUrl);
-        Thread.sleep(2500);
+        Thread.sleep(4000);
         observer.assertCreateNotCalled();
         observer.assertDeleteCalled();
         // observer.assertUpdateCalled();
@@ -503,14 +503,14 @@ public class GomNotificationHelperTest extends GomActivityUnitTestCase {
         observer.reset();
 
         GomHttpWrapper.deleteNode(Uri.parse(Constants.Gom.URI + visibleNodePath));
-        Thread.sleep(2500);
+        Thread.sleep(4000);
         observer.assertCreateNotCalled();
         observer.assertDeleteCalled();
         // observer.assertUpdateCalled();
         observer.reset();
 
         GomHttpWrapper.deleteNode(Uri.parse(Constants.Gom.URI + observedPath));
-        Thread.sleep(2500);
+        Thread.sleep(4000);
         observer.assertCreateNotCalled();
         observer.assertDeleteCalled();
         // observer.assertUpdateCalled();
@@ -634,7 +634,7 @@ public class GomNotificationHelperTest extends GomActivityUnitTestCase {
                 observer, helper);
         getActivity().registerReceiver(receiver, Constants.Gom.NOTIFICATION_FILTER);
 
-        TestHelper.blockUntilTrue("update not called", 3000, new TestHelper.Condition() {
+        TestHelper.blockUntilTrue("update not called", 4000, new TestHelper.Condition() {
             @Override
             public boolean isSatisfied() {
                 return observer.getUpdateCount() == 1;
@@ -652,7 +652,7 @@ public class GomNotificationHelperTest extends GomActivityUnitTestCase {
         Uri visibleAttrUrl = Uri.parse(Constants.Gom.URI + visibleAttrPath);
         GomHttpWrapper.updateOrCreateAttribute(visibleAttrUrl, "who cares?");
 
-        TestHelper.blockUntilTrue("create not called", 3000, new TestHelper.Condition() {
+        TestHelper.blockUntilTrue("create not called", 4000, new TestHelper.Condition() {
             @Override
             public boolean isSatisfied() {
                 return observer.getCreateCount() == 1;

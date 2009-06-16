@@ -63,7 +63,7 @@ public class GomAttribute extends GomEntry {
     public void putValue(String pValue) {
 
         GomHttpWrapper.updateOrCreateAttribute(getUri(), pValue);
-
+        mValue = pValue;
     }
 
     public JSONObject toJson() {
