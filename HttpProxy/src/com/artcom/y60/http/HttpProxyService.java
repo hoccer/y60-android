@@ -11,6 +11,7 @@ import android.os.RemoteException;
 
 import com.artcom.y60.DeviceConfiguration;
 import com.artcom.y60.Logger;
+import com.artcom.y60.RpcStatus;
 
 /**
  * Implementation of client-side caching for HTTP resources.
@@ -22,9 +23,9 @@ public class HttpProxyService extends Service {
 
     // Constants ---------------------------------------------------------
 
-    public static final String LOG_TAG;
+    public static final String           LOG_TAG;
 
-    private static final Cache CACHE;
+    private static final Cache           CACHE;
 
     // Class Variables ---------------------------------------------------
 
@@ -75,7 +76,7 @@ public class HttpProxyService extends Service {
 
     private HttpProxyRemote mRemote;
 
-    private String mId;
+    private String          mId;
 
     // Constructors ------------------------------------------------------
 
@@ -152,8 +153,8 @@ public class HttpProxyService extends Service {
 
         return CACHE.isInCache(pUri);
     }
-    
-    public void removeFromCache(String pUri){
+
+    public void removeFromCache(String pUri) {
         CACHE.remove(pUri);
     }
 
@@ -169,27 +170,42 @@ public class HttpProxyService extends Service {
     class HttpProxyRemote extends IHttpProxyService.Stub {
 
         @Override
-        public Bundle get(String pUri) {
-
-            return HttpProxyService.this.get(pUri);
+        public Bundle get(String pUri, RpcStatus status) {
+            try {
+                return HttpProxyService.this.get(pUri);
+            } catch (Exception e) {
+                status.setError(e);
+                return null;
+            }
         }
 
         @Override
-        public Bundle fetchFromCache(String pUri) {
-
-            return HttpProxyService.this.fetchFromCache(pUri);
+        public Bundle fetchFromCache(String pUri, RpcStatus status) {
+            try {
+                return HttpProxyService.this.fetchFromCache(pUri);
+            } catch (Exception e) {
+                status.setError(e);
+                return null;
+            }
         }
 
         @Override
-        public boolean isInCache(String pUri) throws RemoteException {
-
-            return HttpProxyService.this.isInCache(pUri);
+        public boolean isInCache(String pUri, RpcStatus status) throws RemoteException {
+            try {
+                return HttpProxyService.this.isInCache(pUri);
+            } catch (Exception e) {
+                status.setError(e);
+                return false;
+            }
         }
 
         @Override
-        public void removeFromCache(String pUri) throws RemoteException {
-
-            HttpProxyService.this.removeFromCache(pUri);
+        public void removeFromCache(String pUri, RpcStatus status) throws RemoteException {
+            try {
+                HttpProxyService.this.removeFromCache(pUri);
+            } catch (Exception e) {
+                status.setError(e);
+            }
         }
     }
 

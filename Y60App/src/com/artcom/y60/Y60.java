@@ -65,21 +65,21 @@ import android.widget.AdapterView.OnItemSelectedListener;
 
 public class Y60 extends Activity {
 
-    private static final String LOG_TAG = "Y60 Stargate 108";
+    private static final String                LOG_TAG = "Y60 Stargate 108";
 
-    private EditText mEditText;
-    private Button mSetNameButton;
-    private Button mStartY60Button;
-    private Button mStopY60Button;
-    private Button mWifiCfgButton;
+    private EditText                           mEditText;
+    private Button                             mSetNameButton;
+    private Button                             mStartY60Button;
+    private Button                             mStopY60Button;
+    private Button                             mWifiCfgButton;
 
-    private TextView mHomeTargetTextView;
-    private Spinner mChooseHomeButtonTarget;
+    private TextView                           mHomeTargetTextView;
+    private Spinner                            mChooseHomeButtonTarget;
     private ArrayAdapter<ComponentInformation> mCompInfoArrayAdapter;
 
-    private TextView mLogLevelTextView;
-    private Spinner mChooseLogLevel;
-    private ArrayAdapter<String> mLogLevelArrayAdapter;
+    private TextView                           mLogLevelTextView;
+    private Spinner                            mChooseLogLevel;
+    private ArrayAdapter<String>               mLogLevelArrayAdapter;
 
     /** Called when the activity is first created. */
     @Override
@@ -89,33 +89,7 @@ public class Y60 extends Activity {
         setContentView(R.layout.y60_layout);
 
         mEditText = (EditText) findViewById(R.id.mEditText);
-        // get device id and display in EditText
-        JSONObject configuration = null;
-        String configFile = getResources().getString(R.string.configFile);
-        String labelDeviceId = "device ID not found";
-        try {
-            FileReader fr = new FileReader(configFile);
-            char[] inputBuffer = new char[255];
-            fr.read(inputBuffer);
-            configuration = new JSONObject(new String(inputBuffer));
-            fr.close();
-
-            labelDeviceId = configuration.getString("device-path");
-            
-        } catch (FileNotFoundException e) {
-            Logger.e(LOG_TAG, "Could not find configuration file ", configFile);
-            throw new RuntimeException(e);
-        } catch (UnsupportedEncodingException e) {
-            Logger.e(LOG_TAG, "Configuration file ", configFile, " uses unsupported encoding");
-            throw new RuntimeException(e);
-        } catch (IOException e) {
-            Logger.e(LOG_TAG, "Error while reading configuration file ", configFile);
-            throw new RuntimeException(e);
-        } catch (JSONException e) {
-            Logger.e(LOG_TAG, "Error while parsing configuration file ", configFile);
-            throw new RuntimeException(e);
-        }
-        mEditText.setText(labelDeviceId);
+        mEditText.setText(DeviceConfiguration.load().getDevicePath());
 
         mSetNameButton = (Button) findViewById(R.id.mSetNameButton);
         mSetNameButton.setOnClickListener(new RenameClickListener());
@@ -125,32 +99,31 @@ public class Y60 extends Activity {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent();
-                intent.setClassName("com.android.settings", "com.android.settings.WirelessSettings");
+                intent
+                        .setClassName("com.android.settings",
+                                "com.android.settings.WirelessSettings");
                 startActivity(intent);
             }
         });
 
         mStartY60Button = (Button) findViewById(R.id.mStartY60Button);
         mStartY60Button.setOnClickListener(new OnClickListener() {
-//            @Override
+            // @Override
             public void onClick(View v) {
                 // hide status bar
                 Window win = getWindow();
                 win.setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                         WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
-                
-                
                 Intent broadcastInit = new Intent(Y60Action.INIT_Y60_BC);
                 sendBroadcast(broadcastInit);
-                
 
             }
         });
 
         mStopY60Button = (Button) findViewById(R.id.mStopY60Button);
         mStopY60Button.setOnClickListener(new OnClickListener() {
-//            @Override
+            // @Override
             public void onClick(View v) {
                 Intent stopDcIntent = new Intent("y60.intent.SERVICE_DEVICE_CONTROLLER");
                 stopService(stopDcIntent);
@@ -242,7 +215,7 @@ public class Y60 extends Activity {
 
     class RenameClickListener implements OnClickListener {
 
-//        @Override
+        // @Override
         public void onClick(View v) {
 
             String configFile = getResources().getString(R.string.configFile);
@@ -256,8 +229,7 @@ public class Y60 extends Activity {
                 fr.close();
 
                 FileWriter fw = new FileWriter(configFile);
-                configuration
-                        .put("device-path", mEditText.getText().toString());
+                configuration.put("device-path", mEditText.getText().toString());
                 fw.write(configuration.toString());
                 fw.close();
 
@@ -286,7 +258,7 @@ public class Y60 extends Activity {
     class ComponentInformation {
 
         public ComponentName componentName;
-        public int match;
+        public int           match;
 
         public ComponentInformation(ComponentName pComponentName, int pMatch) {
             componentName = pComponentName;
@@ -298,7 +270,7 @@ public class Y60 extends Activity {
         }
 
     }
-    
+
     class ActivitySelectionListener implements OnItemSelectedListener {
 
         public void onItemSelected(AdapterView<?> arg0, View arg1, int pPos, long arg3) {
@@ -345,26 +317,25 @@ public class Y60 extends Activity {
 
         public void onItemSelected(AdapterView<?> arg0, View arg1, int pPos, long arg3) {
 
-            String selectedLogLevel= "not defined";
-            selectedLogLevel= mLogLevelArrayAdapter.getItem(pPos).toString();
-            
+            String selectedLogLevel = "not defined";
+            selectedLogLevel = mLogLevelArrayAdapter.getItem(pPos).toString();
+
             String configFile = getResources().getString(R.string.configFile);
             JSONObject configuration = null;
             try {
-                
+
                 FileReader fr = new FileReader(configFile);
                 char[] inputBuffer = new char[255];
                 fr.read(inputBuffer);
                 configuration = new JSONObject(new String(inputBuffer));
                 fr.close();
-                
+
                 FileWriter fw = new FileWriter(configFile);
                 configuration.put("log-level", selectedLogLevel);
                 fw.write(configuration.toString());
                 fw.close();
 
-                Toast.makeText(Y60.this,
-                        "Log Level changed to " + selectedLogLevel,
+                Toast.makeText(Y60.this, "Log Level changed to " + selectedLogLevel,
                         Toast.LENGTH_SHORT).show();
 
             } catch (FileNotFoundException e) {
@@ -379,10 +350,10 @@ public class Y60 extends Activity {
             } catch (JSONException e) {
                 Logger.e(LOG_TAG, "Error while parsing configuration file ", configFile);
                 throw new RuntimeException(e);
-            }           
-        
+            }
+
         }
-        
+
         public void onNothingSelected(AdapterView<?> arg0) {
 
             // don't care

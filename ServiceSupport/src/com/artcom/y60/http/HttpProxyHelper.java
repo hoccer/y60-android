@@ -27,6 +27,7 @@ import com.artcom.y60.BindingListener;
 import com.artcom.y60.ErrorHandling;
 import com.artcom.y60.Logger;
 import com.artcom.y60.ResourceBundleHelper;
+import com.artcom.y60.RpcStatus;
 
 /**
  * Helper class for activities which encapsulates the interaction with the
@@ -41,41 +42,41 @@ public class HttpProxyHelper {
 
     // Instance Variables ------------------------------------------------
 
-    private static final String LOG_TAG = "HttpProxyHelper";
+    private static final String              LOG_TAG = "HttpProxyHelper";
 
     /**
      * The client for this HttpProxyHelper
      */
-    private Context mContext;
+    private Context                          mContext;
 
     /**
      * Handler for resource updates, which are received as broadcasts from the
      * HttpProxy
      */
-    private Map<Uri, Set<ResourceListener>> mListeners;
+    private Map<Uri, Set<ResourceListener>>  mListeners;
 
     /**
      * Thread for dispatching incoming broadcasts to the resource update handler
      */
-    private Thread mUpdateThread;
+    private Thread                           mUpdateThread;
 
     /**
      * The queue of URIs of resources which have been updated
      */
-    private List<Uri> mNotificationQueue;
+    private List<Uri>                        mNotificationQueue;
 
     /**
      * Flag indicating if the updater thread should shutdown
      */
-    private boolean mShutdown;
+    private boolean                          mShutdown;
 
-    private IHttpProxyService mProxy;
+    private IHttpProxyService                mProxy;
 
-    private HttpProxyServiceConnection mConnection;
+    private HttpProxyServiceConnection       mConnection;
 
     private BindingListener<HttpProxyHelper> mBindingListener;
 
-    private HttpResourceUpdateReceiver mReceiver;
+    private HttpResourceUpdateReceiver       mReceiver;
 
     // Constructors ------------------------------------------------------
 
@@ -123,11 +124,15 @@ public class HttpProxyHelper {
         String uri = pUri.toString();
 
         Bundle resourceDescription;
+        RpcStatus status = new RpcStatus();
         try {
-            resourceDescription = mProxy.get(uri);
+            resourceDescription = mProxy.get(uri, status);
         } catch (RemoteException rex) {
             Logger.e(logTag(), "get(", pUri, ") failed", rex);
             throw new RuntimeException(rex);
+        }
+        if (status.hasError()) {
+            throw new RuntimeException(status.getError());
         }
         if (resourceDescription == null) {
             return null;
@@ -171,53 +176,77 @@ public class HttpProxyHelper {
 
         return new String(bytes);
     }
-    
+
     public boolean isInCache(Uri pUri) {
-        
+
+        boolean isInCache;
+        RpcStatus status = new RpcStatus();
         try {
-            return mProxy.isInCache(pUri.toString());
+            isInCache = mProxy.isInCache(pUri.toString(), status);
 
         } catch (RemoteException rex) {
 
             Logger.e(logTag(), "isInCache(", pUri, ") failed", rex);
             throw new RuntimeException(rex);
         }
+
+        if (status.hasError()) {
+            throw new RuntimeException(status.getError());
+        }
+
+        return isInCache;
     }
 
     public byte[] fetchFromCache(Uri pUri) {
 
+        RpcStatus status = new RpcStatus();
+        Bundle content;
         try {
-            mProxy.fetchFromCache(pUri.toString());
+            // mProxy.fetchFromCache(pUri.toString(), status);
 
-            Bundle resourceDescription = mProxy.fetchFromCache(pUri.toString());
-            return ResourceBundleHelper.convertResourceBundleToByteArray(resourceDescription);
+            content = mProxy.fetchFromCache(pUri.toString(), status);
 
         } catch (RemoteException rex) {
 
             Logger.e(logTag(), "fetchFromCache(", pUri, ") failed", rex);
             throw new RuntimeException(rex);
         }
-    }
-    
-    public File fetchFromCacheAsFile(Uri pUri) throws IOException {
-        
-        try {
-            Bundle bundle = mProxy.get(pUri.toString());
-            String resourcePath = bundle.getString(HttpProxyConstants.LOCAL_RESOURCE_PATH_TAG);
-            if (resourcePath == null) {
-                ErrorHandling.signalIllegalArgumentError(LOG_TAG, new IllegalArgumentException("Resource for URI "+pUri+" is not available as file!"), mContext);
-            }
 
-            return new File(resourcePath);
-            
+        if (status.hasError()) {
+            throw new RuntimeException(status.getError());
+        }
+
+        return ResourceBundleHelper.convertResourceBundleToByteArray(content);
+    }
+
+    public File fetchFromCacheAsFile(Uri pUri) throws IOException {
+
+        RpcStatus status = new RpcStatus();
+        Bundle bundle;
+
+        try {
+            bundle = mProxy.get(pUri.toString(), status);
+
         } catch (RemoteException rx) {
-            
+
             ErrorHandling.signalServiceError(LOG_TAG, rx, mContext);
-            
+
             // this should never be reached:
             Logger.e(LOG_TAG, "ErrorHandling didn't abort thread after error!");
             throw new IllegalStateException("ErrorHandling didn't abort thread after error", rx);
         }
+        if (status.hasError()) {
+            throw new RuntimeException(status.getError());
+        }
+
+        String resourcePath = bundle.getString(HttpProxyConstants.LOCAL_RESOURCE_PATH_TAG);
+        if (resourcePath == null) {
+            ErrorHandling.signalIllegalArgumentError(LOG_TAG, new IllegalArgumentException(
+                    "Resource for URI " + pUri + " is not available as file!"), mContext);
+        }
+
+        return new File(resourcePath);
+
     }
 
     public Drawable fetchDrawableFromCache(Uri pUri) {
@@ -233,19 +262,23 @@ public class HttpProxyHelper {
         return new String(bytes);
     }
 
-    public void removeFromCache(Uri pUri){
+    public void removeFromCache(Uri pUri) {
 
         removeFromCache(pUri.toString());
     }
-    
-    public void removeFromCache(String pUri){
-        
+
+    public void removeFromCache(String pUri) {
+
+        RpcStatus status = new RpcStatus();
         try {
-            mProxy.removeFromCache(pUri);
+            mProxy.removeFromCache(pUri, status);
         } catch (RemoteException rex) {
 
             Logger.e(logTag(), "removeFromCache(", pUri, ") failed", rex);
             throw new RuntimeException(rex);
+        }
+        if (status.hasError()) {
+            throw new RuntimeException(status.getError());
         }
     }
 
@@ -255,7 +288,7 @@ public class HttpProxyHelper {
         synchronized (listeners) {
 
             listeners.add(pListener);
-            if (isInCache(pUri)){
+            if (isInCache(pUri)) {
                 pListener.onResourceAvailable(pUri);
             }
         }

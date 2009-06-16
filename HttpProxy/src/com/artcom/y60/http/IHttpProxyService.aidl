@@ -1,13 +1,15 @@
 package com.artcom.y60.http;
 
+import com.artcom.y60.RpcStatus;
+
 interface IHttpProxyService {
 
     
-    Bundle get(String pUri);
+    Bundle get(String pUri, out RpcStatus status);
     
-    Bundle fetchFromCache(String pUri);
+    Bundle fetchFromCache(String pUri, out RpcStatus status);
     
-    boolean isInCache(String pUri);
+    boolean isInCache(String pUri, out RpcStatus status);
     
-    void removeFromCache(String pUri);
+    void removeFromCache(String pUri, out RpcStatus status);
 }
