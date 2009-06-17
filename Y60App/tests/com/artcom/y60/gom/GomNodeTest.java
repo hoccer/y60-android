@@ -16,39 +16,39 @@ public class GomNodeTest extends AndroidTestCase {
 
     // Constants ---------------------------------------------------------
 
-    static final String NAME = "node";
+    static final String NAME       = "node";
 
-    static final String PATH = GomTestConstants.FIXTURES + "gom_node_test/" + NAME;
-    
-    static final Uri    NODE_URL = Uri.parse(Constants.Gom.URI+PATH);
+    static final String PATH       = GomTestConstants.FIXTURES + "gom_node_test/" + NAME;
 
-    static final String ATTR_NAME = "attribute";
+    static final Uri    NODE_URL   = Uri.parse(Constants.Gom.URI + PATH);
+
+    static final String ATTR_NAME  = "attribute";
 
     static final String ATTR_VALUE = "value";
 
-    static final String ATTR_PATH = PATH + ":" + ATTR_NAME;
-    
-    static final Uri    ATTR_URL = Uri.parse(Constants.Gom.URI+ATTR_PATH);
+    static final String ATTR_PATH  = PATH + ":" + ATTR_NAME;
+
+    static final Uri    ATTR_URL   = Uri.parse(Constants.Gom.URI + ATTR_PATH);
 
     static final String CHILD_NAME = "child";
 
     static final String CHILD_PATH = PATH + "/" + CHILD_NAME;
-    
-    static final Uri    CHILD_URL = Uri.parse(Constants.Gom.URI+CHILD_PATH);
+
+    static final Uri    CHILD_URL  = Uri.parse(Constants.Gom.URI + CHILD_PATH);
 
     // Instance Variables ------------------------------------------------
 
-    private GomNode mTestNode;
+    private GomNode     mTestNode;
 
     // Constructors ------------------------------------------------------
 
     public GomNodeTest() {
-        
+
         // write fixtures to the GOM:
         HttpHelper.postXML(CHILD_URL.toString(), "<node/>");
-        HttpHelper.putXML(ATTR_URL.toString(), "<attribute>"+ATTR_VALUE+"</attribute>");        
+        HttpHelper.putXML(ATTR_URL.toString(), "<attribute>" + ATTR_VALUE + "</attribute>");
     }
-    
+
     // Public Instance Methods -------------------------------------------
 
     public void setUp() {
@@ -58,7 +58,7 @@ public class GomNodeTest extends AndroidTestCase {
         TestHelper.blockUntilTrue("GOM not bound", 2000, new TestHelper.Condition() {
             @Override
             public boolean isSatisfied() {
-                return helper.getProxy() != null;
+                return helper.isBound();
             }
         });
 
@@ -76,7 +76,7 @@ public class GomNodeTest extends AndroidTestCase {
     }
 
     public void testGetChildNode() throws Exception {
-        
+
         GomEntry entry = mTestNode.getNode(CHILD_NAME);
 
         assertNotNull(entry);

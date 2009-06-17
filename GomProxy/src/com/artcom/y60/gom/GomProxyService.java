@@ -9,7 +9,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -25,8 +24,9 @@ import com.artcom.y60.IntentExtraKeys;
 import com.artcom.y60.JsonHelper;
 import com.artcom.y60.Logger;
 import com.artcom.y60.RpcStatus;
+import com.artcom.y60.Y60Service;
 
-public class GomProxyService extends Service {
+public class GomProxyService extends Y60Service {
 
     // Constants ---------------------------------------------------------
 
@@ -97,39 +97,34 @@ public class GomProxyService extends Service {
 
     // Package Protected Instance Methods --------------------------------
 
-    void getNodeData(String pPath, List<String> pSubNodeNames, List<String> pAttributeNames) {
+    void getNodeData(String pPath, List<String> pSubNodeNames, List<String> pAttributeNames)
+            throws JSONException {
 
-        try {
-            // Logger.v(tag(), "getNodeData("+pPath+")");
+        // Logger.v(tag(), "getNodeData("+pPath+")");
 
-            NodeData node = null;
-            synchronized (mNodes) {
+        NodeData node = null;
+        synchronized (mNodes) {
 
-                if (!hasNodeInCache(pPath)) {
+            if (!hasNodeInCache(pPath)) {
 
-                    Logger.v(LOG_TAG, "node not in cache, load from gom");
-                    loadNode(pPath);
+                Logger.v(LOG_TAG, "node not in cache, load from gom");
+                loadNode(pPath);
 
-                } else {
+            } else {
 
-                    Logger.v(LOG_TAG, "ok, node's in cache");
-                }
-
-                node = mNodes.get(pPath);
+                Logger.v(LOG_TAG, "ok, node's in cache");
             }
 
-            synchronized (node) {
+            node = mNodes.get(pPath);
+        }
 
-                pSubNodeNames.clear();
-                pSubNodeNames.addAll(node.subNodeNames);
+        synchronized (node) {
 
-                pAttributeNames.clear();
-                pAttributeNames.addAll(node.attributeNames);
-            }
-        } catch (Exception ex) {
+            pSubNodeNames.clear();
+            pSubNodeNames.addAll(node.subNodeNames);
 
-            Logger.e(LOG_TAG, ex);
-            throw new RuntimeException(ex);
+            pAttributeNames.clear();
+            pAttributeNames.addAll(node.attributeNames);
         }
     }
 
@@ -154,62 +149,36 @@ public class GomProxyService extends Service {
         }
     }
 
-    void refreshEntry(String pPath) {
+    void refreshEntry(String pPath) throws JSONException {
 
-        try {
-            Logger.v(LOG_TAG, "refreshEntry(", pPath, ")");
-            String lastSegment = pPath.substring(pPath.lastIndexOf("/") + 1);
-            if (lastSegment.contains(":")) {
+        Logger.v(LOG_TAG, "refreshEntry(", pPath, ")");
+        String lastSegment = pPath.substring(pPath.lastIndexOf("/") + 1);
+        if (lastSegment.contains(":")) {
 
-                loadAttribute(pPath);
+            loadAttribute(pPath);
 
-            } else {
+        } else {
 
-                loadNode(pPath);
-            }
-
-        } catch (Exception ex) {
-
-            Logger.e(LOG_TAG, ex);
-            throw new RuntimeException(ex);
+            loadNode(pPath);
         }
     }
 
     String getBaseUri() {
 
-        try {
-            return mBaseUri.toString();
+        return mBaseUri.toString();
 
-        } catch (Exception ex) {
-
-            Logger.e(LOG_TAG, ex);
-            throw new RuntimeException(ex);
-        }
     }
 
     boolean hasAttributeInCache(String pPath) {
 
-        try {
-            return mAttributes.containsKey(pPath);
+        return mAttributes.containsKey(pPath);
 
-        } catch (Exception ex) {
-
-            Logger.e(LOG_TAG, ex);
-            throw new RuntimeException(ex);
-        }
     }
 
     boolean hasNodeInCache(String pPath) {
 
-        try {
+        return mNodes.containsKey(pPath);
 
-            return mNodes.containsKey(pPath);
-
-        } catch (Exception ex) {
-
-            Logger.e(LOG_TAG, ex);
-            throw new RuntimeException(ex);
-        }
     }
 
     void saveAttribute(String pPath, String pValue) {
@@ -236,32 +205,14 @@ public class GomProxyService extends Service {
 
     // Private Instance Methods ------------------------------------------
 
-    private void loadNode(String pPath) {
+    private void loadNode(String pPath) throws JSONException {
 
         Logger.v(LOG_TAG, "loadNode(", pPath, ")");
 
-        try {
+        String uri = Uri.withAppendedPath(mBaseUri, pPath).toString();
+        JSONObject jsob = HttpHelper.getJson(uri);
+        updateNodeFromJson(pPath, jsob);
 
-            String uri = Uri.withAppendedPath(mBaseUri, pPath).toString();
-            JSONObject jsob = HttpHelper.getJson(uri);
-            updateNodeFromJson(pPath, jsob);
-
-        } catch (JSONException x) {
-
-            Logger.e(LOG_TAG, "loading node for path ", pPath, " failed", x);
-
-            synchronized (mNodes) {
-
-                if (!mNodes.containsKey(pPath)) {
-
-                    throw new RuntimeException("loading node for path " + pPath + " failed", x);
-
-                } else {
-
-                    Logger.v(LOG_TAG, "previous value is in cache, so I don't throw an exception");
-                }
-            }
-        }
     }
 
     /**
@@ -314,14 +265,6 @@ public class GomProxyService extends Service {
         String uri = Uri.withAppendedPath(mBaseUri, pPath).toString();
         JSONObject jsob;
         jsob = HttpHelper.getJson(uri);
-        // try {
-        // } catch (RuntimeException e) {
-        //
-        // Logger.e(LOG_TAG, "loading attribute failed, showing exception ",
-        // e);
-        // ErrorHandling.signalNetworkError(LOG_TAG, e, this);
-        // return;
-        // }
         JSONObject attr = jsob.getJSONObject(Constants.Gom.Keywords.ATTRIBUTE);
 
         Logger.v(LOG_TAG, "loaded attribute from gom: ", attr);
@@ -376,10 +319,14 @@ public class GomProxyService extends Service {
             }
         }
 
-        public void getNodeData(String path, List<String> subNodeNames, List<String> attributeNames)
-                throws RemoteException {
+        public void getNodeData(String path, List<String> subNodeNames,
+                List<String> attributeNames, RpcStatus pStatus) throws RemoteException {
+            try {
+                GomProxyService.this.getNodeData(path, subNodeNames, attributeNames);
+            } catch (Exception ex) {
 
-            GomProxyService.this.getNodeData(path, subNodeNames, attributeNames);
+                pStatus.setError(ex);
+            }
         }
 
         public void refreshEntry(String path, RpcStatus pStatus) throws RemoteException {
@@ -393,27 +340,46 @@ public class GomProxyService extends Service {
 
         }
 
-        public String getBaseUri() throws RemoteException {
+        public String getBaseUri(RpcStatus pStatus) throws RemoteException {
+            try {
+                return GomProxyService.this.getBaseUri();
+            } catch (Exception ex) {
 
-            return GomProxyService.this.getBaseUri();
+                pStatus.setError(ex);
+                return null;
+            }
         }
 
         @Override
-        public boolean hasInCache(String pPath) throws RemoteException {
-            return GomProxyService.this.hasAttributeInCache(pPath)
-                    || GomProxyService.this.hasNodeInCache(pPath);
+        public boolean hasInCache(String pPath, RpcStatus pStatus) throws RemoteException {
+            try {
+                return GomProxyService.this.hasAttributeInCache(pPath)
+                        || GomProxyService.this.hasNodeInCache(pPath);
+            } catch (Exception ex) {
+                pStatus.setError(ex);
+                return false;
+            }
         }
 
         @Override
-        public void saveAttribute(String pPath, String pValue) throws RemoteException {
-
-            GomProxyService.this.saveAttribute(pPath, pValue);
-        }
-
-        @Override
-        public void saveNode(String pPath, List<String> pSubNodeNames, List<String> pAttributeNames)
+        public void saveAttribute(String pPath, String pValue, RpcStatus pStatus)
                 throws RemoteException {
-            GomProxyService.this.saveNode(pPath, pSubNodeNames, pAttributeNames);
+            try {
+                GomProxyService.this.saveAttribute(pPath, pValue);
+            } catch (Exception ex) {
+
+                pStatus.setError(ex);
+            }
+        }
+
+        @Override
+        public void saveNode(String pPath, List<String> pSubNodeNames,
+                List<String> pAttributeNames, RpcStatus pStatus) throws RemoteException {
+            try {
+                GomProxyService.this.saveNode(pPath, pSubNodeNames, pAttributeNames);
+            } catch (Exception ex) {
+                pStatus.setError(ex);
+            }
 
         }
 

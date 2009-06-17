@@ -1,6 +1,7 @@
 package com.artcom.y60.gom;
 
 import java.util.LinkedList;
+import java.util.List;
 
 import android.content.ComponentName;
 import android.content.Context;
@@ -74,11 +75,8 @@ public class GomProxyHelper {
 
         String lastSeg = pPath.substring(pPath.lastIndexOf("/") + 1);
         if (lastSeg.contains(":")) {
-
             return getAttribute(pPath);
-
         } else {
-
             return getNode(pPath);
         }
     }
@@ -100,7 +98,15 @@ public class GomProxyHelper {
         assertConnected();
 
         try {
-            return new GomAttribute(pPath, this);
+            RpcStatus status = new RpcStatus();
+            String value = getProxy().getAttributeValue(pPath, status);
+
+            if (status.hasError()) {
+                Throwable err = status.getError();
+                throw new RuntimeException(err);
+            }
+
+            return new GomAttribute(pPath, this, value);
 
         } catch (RemoteException rex) {
 
@@ -112,40 +118,62 @@ public class GomProxyHelper {
     public Uri getBaseUri() {
 
         assertConnected();
+        RpcStatus status = new RpcStatus();
+        Uri uri;
 
         try {
 
-            return Uri.parse(mProxy.getBaseUri());
+            uri = Uri.parse(mProxy.getBaseUri(status));
+            if (status.hasError()) {
+                Throwable err = status.getError();
+                throw new RuntimeException(err);
+            }
 
         } catch (Exception x) {
 
             Logger.e(LOG_TAG, "getBaseUri failed", x);
             throw new RuntimeException(x);
         }
+
+        return uri;
     }
 
     public boolean hasInCache(String pPath) {
 
         assertConnected();
+        RpcStatus status = new RpcStatus();
+        boolean inCache;
 
         try {
 
-            return mProxy.hasInCache(pPath);
+            inCache = mProxy.hasInCache(pPath, status);
+            if (status.hasError()) {
+                Throwable err = status.getError();
+                throw new RuntimeException(err);
+            }
 
         } catch (Exception x) {
 
             Logger.e(LOG_TAG, "hasInCache failed", x);
             throw new RuntimeException(x);
         }
+
+        return inCache;
     }
 
     public void saveAttribute(String pPath, String pValue) {
 
         assertConnected();
 
+        RpcStatus status = new RpcStatus();
         try {
 
-            mProxy.saveAttribute(pPath, pValue);
+            mProxy.saveAttribute(pPath, pValue, status);
+
+            if (status.hasError()) {
+                Throwable err = status.getError();
+                throw new RuntimeException(err);
+            }
 
         } catch (Exception x) {
 
@@ -158,10 +186,16 @@ public class GomProxyHelper {
             LinkedList<String> pAttributeNames) {
 
         assertConnected();
+        RpcStatus status = new RpcStatus();
 
         try {
 
-            mProxy.saveNode(pNodePath, pSubNodeNames, pAttributeNames);
+            mProxy.saveNode(pNodePath, pSubNodeNames, pAttributeNames, status);
+
+            if (status.hasError()) {
+                Throwable err = status.getError();
+                throw new RuntimeException(err);
+            }
 
         } catch (Exception x) {
 
@@ -178,8 +212,7 @@ public class GomProxyHelper {
 
             if (status.hasError()) {
                 Throwable err = status.getError();
-                throw new RuntimeException("Service-side execution failed: " + err.getMessage(),
-                        err);
+                throw new RuntimeException(err);
             }
 
         } catch (RemoteException rex) {
@@ -191,11 +224,6 @@ public class GomProxyHelper {
 
     // Package Protected Instance Methods --------------------------------
 
-    IGomProxyService getProxy() {
-
-        return mProxy;
-    }
-
     void refreshEntry(String pPath) {
 
         RpcStatus status = new RpcStatus();
@@ -205,8 +233,7 @@ public class GomProxyHelper {
 
             if (status.hasError()) {
                 Throwable err = status.getError();
-                throw new RuntimeException("Service-side execution failed: " + err.getMessage(),
-                        err);
+                throw new RuntimeException(err);
             }
 
         } catch (RemoteException rex) {
@@ -217,7 +244,30 @@ public class GomProxyHelper {
 
     }
 
+    void getNodeData(String pPath, List<String> pSubNodeNames, List<String> pAttributeNames) {
+
+        try {
+            RpcStatus status = new RpcStatus();
+            mProxy.getNodeData(pPath, pSubNodeNames, pAttributeNames, status);
+
+            if (status.hasError()) {
+                Throwable err = status.getError();
+                throw new RuntimeException(err);
+            }
+
+        } catch (RemoteException rex) {
+
+            Logger.e(LOG_TAG, "failed to retrieve node data", rex);
+            throw new RuntimeException(rex);
+        }
+    }
+
     // Private Instance Methods ------------------------------------------
+
+    private IGomProxyService getProxy() {
+
+        return mProxy;
+    }
 
     private void onUnbound() {
         mProxy = null;

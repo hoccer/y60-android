@@ -18,27 +18,30 @@ public abstract class GomEntry {
 
     private static Comparator<GomEntry> BY_NAME_COMPARATOR = new Comparator<GomEntry>() {
 
-        public int compare(GomEntry pEntry1, GomEntry pEntry2) {
+                                                               public int compare(GomEntry pEntry1,
+                                                                       GomEntry pEntry2) {
 
-            return pEntry1.getName().compareTo(pEntry2.getName());
-        }
-    };
+                                                                   return pEntry1
+                                                                           .getName()
+                                                                           .compareTo(
+                                                                                   pEntry2
+                                                                                           .getName());
+                                                               }
+                                                           };
 
     // Instance Variables ------------------------------------------------
 
     /** This resources path relative to the repository base URI */
-    private String mPath;
+    private String                      mPath;
 
     /** The name of this resource (the last element of the path) */
-    private String mName;
+    private String                      mName;
 
     /** The complete URI of this resource */
-    private Uri mUri;
+    private Uri                         mUri;
 
     /** The GOM proxy helper this resource was loaded from */
-    private GomProxyHelper mProxyHelper;
-
-    private IGomProxyService mProxy;
+    private GomProxyHelper              mProxyHelper;
 
     // Static Methods ----------------------------------------------------
 
@@ -64,7 +67,6 @@ public abstract class GomEntry {
         mName = pName;
         mPath = pPath;
         mProxyHelper = pProxy;
-        mProxy = mProxyHelper.getProxy();
         mUri = Uri.withAppendedPath(pProxy.getBaseUri(), mPath);
     }
 
@@ -151,12 +153,5 @@ public abstract class GomEntry {
     public int hashCode() {
 
         return mUri.hashCode();
-    }
-
-    // Package Protected Instance Methods --------------------------------
-
-    IGomProxyService getProxy() {
-
-        return mProxy;
     }
 }

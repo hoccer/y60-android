@@ -13,7 +13,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.net.Uri;
-import android.os.RemoteException;
 
 import com.artcom.y60.Constants;
 import com.artcom.y60.HttpHelper;
@@ -266,33 +265,25 @@ public class GomNode extends GomEntry {
     }
 
     private void loadData() {
-        try {
-            mEntries = new HashMap<String, GomEntry>();
+        mEntries = new HashMap<String, GomEntry>();
 
-            List<String> subNodeNames = new LinkedList<String>();
-            List<String> attributeNames = new LinkedList<String>();
-            String path = getPath();
+        List<String> subNodeNames = new LinkedList<String>();
+        List<String> attributeNames = new LinkedList<String>();
+        String path = getPath();
 
-            getProxy().getNodeData(path, subNodeNames, attributeNames);
+        GomProxyHelper helper = getGomProxyHelper();
+        helper.getNodeData(path, subNodeNames, attributeNames);
 
-            GomProxyHelper helper = getGomProxyHelper();
+        for (String name : attributeNames) {
 
-            for (String name : attributeNames) {
+            GomAttribute attr = helper.getAttribute(path + ":" + name);
+            mEntries.put(name, attr);
+        }
 
-                GomAttribute attr = helper.getAttribute(path + ":" + name);
-                mEntries.put(name, attr);
-            }
+        for (String name : subNodeNames) {
 
-            for (String name : subNodeNames) {
-
-                GomNode node = helper.getNode(path + "/" + name);
-                mEntries.put(name, node);
-            }
-
-        } catch (RemoteException rex) {
-
-            Logger.e(LOG_TAG, "failed to retrieve node data", rex);
-            throw new RuntimeException(rex);
+            GomNode node = helper.getNode(path + "/" + name);
+            mEntries.put(name, node);
         }
     }
 
