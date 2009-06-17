@@ -1,7 +1,17 @@
 package com.artcom.y60;
 
-import android.app.Activity;
+public class Y60TestActivity extends Y60Activity {
 
-public class Y60TestActivity extends Activity {
+    @Override
+    public boolean hasBackendAvailableBeenCalled() {
+
+        return true;
+    }
+
+    @Override
+    public boolean hasResumeWithBackendBeenCalled() {
+
+        return true;
+    }
 
 }

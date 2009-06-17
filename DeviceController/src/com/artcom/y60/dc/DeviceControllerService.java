@@ -27,7 +27,6 @@ import org.mortbay.jetty.nio.SelectChannelConnector;
 
 import android.app.Notification;
 import android.app.PendingIntent;
-import android.app.Service;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
@@ -45,10 +44,11 @@ import com.artcom.y60.IpAddressNotFoundException;
 import com.artcom.y60.Logger;
 import com.artcom.y60.NetworkHelper;
 import com.artcom.y60.PreferencesActivity;
+import com.artcom.y60.Y60Service;
 import com.artcom.y60.gom.GomNode;
 import com.artcom.y60.gom.GomProxyHelper;
 
-public class DeviceControllerService extends Service {
+public class DeviceControllerService extends Y60Service {
 
     public static final String  DEFAULT_NIONAME  = "com.artcom.y60.dc.nio";
     public static final String  DEFAULT_PORTNAME = "com.artcom.y60.dc.port";
@@ -64,6 +64,8 @@ public class DeviceControllerService extends Service {
     GomProxyHelper              mGom             = null;
 
     public void onCreate() {
+
+        super.onCreate();
         Logger.i(LOG_TAG, "onCreate called");
         sResources = getResources();
 
@@ -187,6 +189,8 @@ public class DeviceControllerService extends Service {
             ErrorHandling.signalServiceError(LOG_TAG, e, this);
             Toast.makeText(this, getText(R.string.jetty_not_stopped), Toast.LENGTH_SHORT).show();
         }
+
+        super.onDestroy();
     }
 
     public void onLowMemory() {

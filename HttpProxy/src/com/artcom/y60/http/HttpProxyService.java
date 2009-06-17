@@ -3,7 +3,6 @@ package com.artcom.y60.http;
 import java.util.HashSet;
 import java.util.Set;
 
-import android.app.Service;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -12,6 +11,7 @@ import android.os.RemoteException;
 import com.artcom.y60.DeviceConfiguration;
 import com.artcom.y60.Logger;
 import com.artcom.y60.RpcStatus;
+import com.artcom.y60.Y60Service;
 
 /**
  * Implementation of client-side caching for HTTP resources.
@@ -19,7 +19,7 @@ import com.artcom.y60.RpcStatus;
  * @author arne
  * @see HttpProxyHelper
  */
-public class HttpProxyService extends Service {
+public class HttpProxyService extends Y60Service {
 
     // Constants ---------------------------------------------------------
 

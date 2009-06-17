@@ -49,7 +49,7 @@
           android:exported="true"
           android:name="InitReceiver">
             <intent-filter>
-                <action android:name="y60.intent.INIT_Y60_BC" /> 
+                <action android:name="y60.intent.START_SERVICES" /> 
             </intent-filter>
         </receiver>
 

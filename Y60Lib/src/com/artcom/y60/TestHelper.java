@@ -62,6 +62,18 @@ public class TestHelper {
     }
 
     /**
+     * 
+     * @param pFailMessage
+     * @param pTimeout
+     * @param pMeasurement
+     */
+    public static void blockUntilNull(String pFailMessage, long pTimeout,
+            final TestHelper.Mesurement pMeasurement) {
+
+        blockUntilEquals(pFailMessage, pTimeout, null, pMeasurement);
+    }
+
+    /**
      * Compare two objects with equals method.
      * 
      * @param pFailMessage
@@ -71,28 +83,23 @@ public class TestHelper {
      *            the expected object
      * @param pMesurement
      */
-    public static void blockUntilEquals(String pFailMessage, long pTimeout, Object pExpected,
+    public static void blockUntilEquals(String pFailMessage, long pTimeout, final Object pExpected,
             final TestHelper.Mesurement pMesurement) {
 
-        Object mesuredValue = null;
-        long start = System.currentTimeMillis();
-        while (System.currentTimeMillis() - start < pTimeout) {
+        blockUntilTrue(pFailMessage, pTimeout, new Condition() {
 
-            mesuredValue = pMesurement.getActualValue();
-            if (pExpected.equals(mesuredValue)) {
-                return;
+            @Override
+            public boolean isSatisfied() {
+
+                Object mesuredValue = pMesurement.getActualValue();
+                if (mesuredValue == null) {
+                    return pExpected == null;
+                } else {
+                    return mesuredValue.equals(pExpected);
+                }
             }
 
-            try {
-                Thread.sleep(20);
-            } catch (InterruptedException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-        }
-
-        throw new AssertionError(pFailMessage + ": should be <" + pExpected + ">, but was <"
-                + mesuredValue + ">");
+        });
     }
 
     public static void blockUntilBackendAvailable(final Y60Activity pActivity) {

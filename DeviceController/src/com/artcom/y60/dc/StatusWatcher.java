@@ -12,7 +12,6 @@ import java.util.NoSuchElementException;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
-import android.app.Service;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.IBinder;
@@ -21,10 +20,11 @@ import com.artcom.y60.BindingListener;
 import com.artcom.y60.DeviceConfiguration;
 import com.artcom.y60.ErrorHandling;
 import com.artcom.y60.Logger;
+import com.artcom.y60.Y60Service;
 import com.artcom.y60.gom.GomNode;
 import com.artcom.y60.gom.GomProxyHelper;
 
-public class StatusWatcher extends Service {
+public class StatusWatcher extends Y60Service {
 
     private static final String LOG_TAG = "StatusWatcher";
 
@@ -33,18 +33,20 @@ public class StatusWatcher extends Service {
     };
 
     private NotificationManager mNotificationManager;
-    private GomProxyHelper mGom;
-    private boolean mIsHeartbeatLoopRunning;
-    private StatusCollector mStatusCollector;
-    private HeartbeatLoop mHeartbeatLoop;
-    private Thread mHeartbeatThread;
+    private GomProxyHelper      mGom;
+    private boolean             mIsHeartbeatLoopRunning;
+    private StatusCollector     mStatusCollector;
+    private HeartbeatLoop       mHeartbeatLoop;
+    private Thread              mHeartbeatThread;
     private DeviceConfiguration mDeviceConfiguration;
-    private boolean mIsGomAvailable = false;
-    private long mSleepTime = 10 * 1000;
-    private String mHistoryLog;
+    private boolean             mIsGomAvailable = false;
+    private long                mSleepTime      = 10 * 1000;
+    private String              mHistoryLog;
 
     @Override
     public void onCreate() {
+
+        super.onCreate();
 
         mDeviceConfiguration = DeviceConfiguration.load();
         mNotificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
@@ -84,6 +86,7 @@ public class StatusWatcher extends Service {
         }
         mIsHeartbeatLoopRunning = false;
         unbindFromGom();
+
         super.onDestroy();
     }
 
@@ -98,7 +101,7 @@ public class StatusWatcher extends Service {
     class HeartbeatLoop implements Runnable {
 
         private static final int GOM_NOT_ACCESSIBLE_NOTIFICATION_ID = 42;
-        private String mHistoryLog;
+        private String           mHistoryLog;
 
         @Override
         public void run() {
