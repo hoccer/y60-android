@@ -17,7 +17,6 @@ import com.artcom.y60.Constants;
 import com.artcom.y60.HttpHelper;
 import com.artcom.y60.IntentExtraKeys;
 import com.artcom.y60.Logger;
-import com.artcom.y60.RpcStatus;
 import com.artcom.y60.TestHelper;
 import com.artcom.y60.Y60Action;
 import com.artcom.y60.gom.GomTestObserver.Event;
@@ -301,10 +300,10 @@ public class GomNotificationHelperTest extends GomActivityUnitTestCase {
         assertTrue("Attribute should now be in proxy before register Observer", helper
                 .hasInCache(attrPath));
 
-        assertEquals("attr value should be in proxy", attrValue, helper.getProxy()
-                .getAttributeValue(attrPath, new RpcStatus()));
-        Logger.v(LOG_TAG, "attr value from proxy, getatrrvalue()", helper.getProxy()
-                .getAttributeValue(attrPath, new RpcStatus()));
+        assertEquals("attr value should be in proxy", attrValue, helper.getAttribute(attrPath)
+                .getValue());
+        Logger.v(LOG_TAG, "attr value from proxy, getatrrvalue()", helper.getAttribute(attrPath)
+                .getValue());
 
         GomHttpWrapper.updateOrCreateAttribute(attrUrl, attrValue);
         assertTrue("Value should be in Gom", HttpHelper.getJson(attrUrl.toString()).toString()
