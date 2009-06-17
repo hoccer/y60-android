@@ -110,6 +110,15 @@ public class GomProxyServiceTest extends ServiceTestCase<GomProxyService> {
         assertFalse("node should not be in cache", service.hasNodeInCache(nodePath));
     }
 
+    public void testDeleteNonexistingNode() {
+        startService(mIntent);
+        GomProxyService service = getService();
+
+        String nodePath = "/test/android/y60/infrastructure_gom/gom_proxy_service_test/a_nonexisting_node";
+        service.deleteEntry(nodePath);
+        service.deleteEntry(nodePath);
+    }
+
     public void testDeleteNodeWithChilds() throws JSONException {
         startService(mIntent);
         GomProxyService service = getService();
