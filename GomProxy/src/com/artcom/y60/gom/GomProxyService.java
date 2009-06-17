@@ -149,7 +149,7 @@ public class GomProxyService extends Y60Service {
         }
     }
 
-	String getCachedAttributeValue(String pPath) throws GomProxyException {
+    String getCachedAttributeValue(String pPath) throws GomProxyException {
 
         Logger.v(LOG_TAG, "getAttributeValue(", pPath, ")");
 
@@ -581,6 +581,9 @@ public class GomProxyService extends Y60Service {
 
     private void deleteNode(String pPath) {
         NodeData nodeData = mNodes.get(pPath);
+        if (nodeData == null) {
+            return;
+        }
         List<String> attrList = nodeData.attributeNames;
         List<String> nodeList = nodeData.subNodeNames;
         for (String anAttr : attrList) {
