@@ -10,10 +10,12 @@ public class TestHelper {
     /**
      * Mesures current state of an object.
      */
-    public interface Mesurement {
+    public interface Measurement {
 
         public Object getActualValue();
     }
+
+    private static final String LOG_TAG = "TestHelper";
 
     /**
      * 
@@ -72,7 +74,7 @@ public class TestHelper {
      * @param pMesurement
      */
     public static void blockUntilEquals(String pFailMessage, long pTimeout, Object pExpected,
-            final TestHelper.Mesurement pMesurement) {
+            final TestHelper.Measurement pMesurement) {
 
         Object mesuredValue = null;
         long start = System.currentTimeMillis();
@@ -135,29 +137,21 @@ public class TestHelper {
 
     }
 
-    public static void blockUntilDeviceControllerIsRunning() {
+    public static void blockUntilWebServerIsRunning() {
 
         long timeout = 3000;
-        long start = System.currentTimeMillis();
-        while (System.currentTimeMillis() - start < timeout) {
+        TestHelper.blockUntilEquals("device controller should have started withhin" + timeout
+                + " milliseconds", 3000, 404, new TestHelper.Measurement() {
+            @Override
+            public Object getActualValue() {
 
-            try {
-                if (HttpHelper.getStatusCode("http://localhost:4042/") == 404) {
-                    return;
+                try {
+                    return HttpHelper.getStatusCode("http://localhost:4042/");
+                } catch (Exception e) {
+                    return e.getMessage();
                 }
-            } catch (RuntimeException e) {
-
             }
-
-            try {
-                Thread.sleep(20);
-            } catch (InterruptedException e) {
-                throw new AssertionError(e);
-            }
-        }
-
-        throw new AssertionError("device controller should have started withhin " + timeout
-                + " milliseconds");
+        });
 
     }
 }

@@ -357,8 +357,9 @@ public class HttpHelper {
             public URI getLocationURI(HttpResponse response, HttpContext context)
                     throws ProtocolException {
                 URI uri = super.getLocationURI(response, context);
-                // Log.v(LOG_TAG, response.getStatusLine().getStatusCode()
-                // + " redirect to: " + uri);
+                Logger
+                        .v(LOG_TAG, response.getStatusLine().getStatusCode() + " redirect to: "
+                                + uri);
                 return uri;
             }
         });

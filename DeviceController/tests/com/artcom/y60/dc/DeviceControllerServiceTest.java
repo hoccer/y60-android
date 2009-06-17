@@ -12,15 +12,18 @@ import android.test.AssertionFailedError;
 import android.test.ServiceTestCase;
 import android.test.suitebuilder.annotation.Suppress;
 
+import com.artcom.y60.Constants;
 import com.artcom.y60.DeviceConfiguration;
 import com.artcom.y60.HttpHelper;
 import com.artcom.y60.IpAddressNotFoundException;
 import com.artcom.y60.NetworkHelper;
+import com.artcom.y60.TestHelper;
 
 public class DeviceControllerServiceTest extends ServiceTestCase<DeviceControllerService> {
 
     private static final String TEST_PORT = "4042";
-    public static final boolean TEST_NIO = true;
+    public static final boolean TEST_NIO  = true;
+    private static final String LOG_TAG   = "DeviceControllerServiceTest";
 
     public DeviceControllerServiceTest() {
         super(DeviceControllerService.class);
@@ -86,16 +89,41 @@ public class DeviceControllerServiceTest extends ServiceTestCase<DeviceControlle
         ipAddress = NetworkHelper.getDeviceIpAddress();
 
         DeviceConfiguration dc = DeviceConfiguration.load();
-        String rciUri = HttpHelper.get(dc.getGomUrl() + dc.getDevicePath() + ":rci_uri.txt");
+        String rciUri = HttpHelper.get(Constants.Gom.URI + dc.getDevicePath() + ":rci_uri.txt");
 
         // if executed on emulator
         if (ipAddress.startsWith("10.0.2.")) {
             assertTrue("rci_uri should start with 'http://'", rciUri.startsWith("http://"));
             assertTrue("rci_uri should contain a gallery address ", rciUri.contains("192.168.9."));
-            assertTrue("rci_uri should end with ':4042/commands'", rciUri.endsWith(":4042/commands"));
+            assertTrue("rci_uri should end with ':4042/commands'", rciUri
+                    .endsWith(":4042/commands"));
         } else {
             assertEquals("http://" + ipAddress + ":4042/commands", rciUri);
         }
+    }
+
+    public void testStatusCodeOfLocalHost() throws Exception {
+
+        Intent startIntent = new Intent("y60.intent.SERVICE_DEVICE_CONTROLLER");
+        startService(startIntent);
+
+        TestHelper.blockUntilEquals("webserver should present expected status code", 3000, 404,
+                new TestHelper.Measurement() {
+
+                    @Override
+                    public Object getActualValue() {
+
+                        try {
+                            return HttpHelper.getStatusCode("http://localhost:4042/");
+                        } catch (Exception e) {
+                            return e.getMessage();
+                        }
+                    }
+                });
+
+        int code = HttpHelper.getStatusCode("http://localhost:4042/");
+        assertEquals(404, code);
+        assertTrue("Webserver died", getService().mServer.isRunning());
     }
 
     void blockUntilWebserverIsStarted() {

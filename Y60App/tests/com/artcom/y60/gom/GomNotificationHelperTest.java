@@ -62,7 +62,7 @@ public class GomNotificationHelperTest extends GomActivityUnitTestCase {
 
         initializeActivity();
 
-        TestHelper.blockUntilDeviceControllerIsRunning();
+        TestHelper.blockUntilWebServerIsRunning();
 
         GomProxyHelper helper = createHelper();
 
