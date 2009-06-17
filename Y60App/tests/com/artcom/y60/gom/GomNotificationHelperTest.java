@@ -80,7 +80,7 @@ public class GomNotificationHelperTest extends GomActivityUnitTestCase {
         assertEquals("gnp update callback shuld not have been called", 0, gto.getUpdateCount());
 
         getActivity().registerReceiver(receiver, Constants.Gom.GNP_INTENT_FILTER);
-        TestHelper.blockUntilTrue("gnp update callback shuld have been called once", 1000,
+        TestHelper.blockUntilTrue("gnp update callback shuld have been called once", 3000,
                 new TestHelper.Condition() {
 
                     @Override
@@ -114,7 +114,11 @@ public class GomNotificationHelperTest extends GomActivityUnitTestCase {
                 });
 
         Logger.v(LOG_TAG, "data in cache: " + gto.getData());
-        assertEquals("value should have changed", "changed value", gto.getData().get("value"));
+        JSONObject jsonData = gto.getData();
+        assertTrue("json has attribute", jsonData.has("attribute"));
+        assertTrue("json has attribute.value", jsonData.getJSONObject("attribute").has("value"));
+        assertEquals("value should have changed", "changed value", gto.getData().getJSONObject(
+                "attribute").get("value"));
 
     }
 
@@ -502,6 +506,9 @@ public class GomNotificationHelperTest extends GomActivityUnitTestCase {
     public void testRegExpConstraintOnObserver() throws Exception {
 
         initializeActivity();
+
+        TestHelper.blockUntilWebServerIsRunning();
+
         GomProxyHelper helper = createHelper();
 
         String timestamp = String.valueOf(System.currentTimeMillis());
@@ -678,6 +685,7 @@ public class GomNotificationHelperTest extends GomActivityUnitTestCase {
     public void testRegisterObserverMultipleTimes() throws Exception {
 
         initializeActivity();
+        TestHelper.blockUntilWebServerIsRunning();
         GomProxyHelper helper = createHelper();
 
         String timestamp = String.valueOf(System.currentTimeMillis());
