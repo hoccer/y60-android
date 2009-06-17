@@ -14,14 +14,8 @@
         <uses-library android:name="android.test.runner" />  
         <service android:name=".GomProxyService"> <!-- android:process=":remote">  -->
             <intent-filter><action android:name="com.artcom.y60.gom.IGomProxyService"/></intent-filter> 
+            <intent-filter><action android:name="y60.intent.SERVICE_GOM_PROXY"/></intent-filter> 
         </service>
-        <receiver android:enabled="true"
-          android:exported="true"
-          android:name="InitReceiver">
-            <intent-filter>
-                <action android:name="y60.intent.START_SERVICES" /> 
-            </intent-filter>
-        </receiver>
     </application>
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.RUN_INSTRUMENTATION" />

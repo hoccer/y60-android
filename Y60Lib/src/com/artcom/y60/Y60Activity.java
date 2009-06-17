@@ -10,9 +10,11 @@ import android.os.Process;
 
 public abstract class Y60Activity extends Activity {
 
-    private static final String LOG_TAG = "Y60Activity";
+    private static final String LOG_TAG      = "Y60Activity";
 
     private BroadcastReceiver   mReceiver;
+
+    private boolean             mIsDestroyed = false;
 
     public abstract boolean hasBackendAvailableBeenCalled();
 
@@ -22,12 +24,46 @@ public abstract class Y60Activity extends Activity {
 
     void kill() {
 
-        Logger.v(LOG_TAG, "killing activity ", getClass().getName());
-        Process.killProcess(Process.myPid());
+        Logger.v(LOG_TAG, "finishing activity ", getClass().getName());
+        finish();
+
+        new Thread(new Runnable() {
+            public void run() {
+
+                long start = System.currentTimeMillis();
+                while (!mIsDestroyed) {
+
+                    if (System.currentTimeMillis() - start > 7000) {
+                        Logger.w(LOG_TAG, "finishing activity ", getClass(), " took too long");
+                        break;
+                    }
+
+                    try {
+                        Thread.sleep(100);
+                    } catch (Exception e) {
+                        Logger.w(LOG_TAG, e);
+                    }
+                }
+
+                try {
+                    Thread.sleep(250);
+                } catch (Exception e) {
+                    Logger.w(LOG_TAG, e);
+                }
+
+                Logger
+                        .i(LOG_TAG, "killing process ", Process.myPid(), " for activity ",
+                                getClass());
+                Process.killProcess(Process.myPid());
+            }
+        }).start();
     }
 
     @Override
     protected void onCreate(Bundle pSavedInstanceState) {
+
+        Logger.v(LOG_TAG, "onCreate called for activity ", getClass());
+
         super.onCreate(pSavedInstanceState);
         startDeviceController();
 
@@ -47,8 +83,13 @@ public abstract class Y60Activity extends Activity {
 
     @Override
     protected void onDestroy() {
+
+        Logger.d(LOG_TAG, "onDestroy called for activity ", getClass());
+
         unregisterReceiver(mReceiver);
         super.onDestroy();
+
+        mIsDestroyed = true;
     }
 
     protected void startDeviceController() {

@@ -13,7 +13,6 @@ import android.os.RemoteException;
 
 import com.artcom.y60.BindingException;
 import com.artcom.y60.BindingListener;
-import com.artcom.y60.ErrorHandling;
 import com.artcom.y60.Logger;
 import com.artcom.y60.RpcStatus;
 
@@ -249,6 +248,24 @@ public class GomProxyHelper {
         }
     }
 
+    public void clear() {
+        RpcStatus status = new RpcStatus();
+
+        try {
+            mProxy.clear(status);
+
+            if (status.hasError()) {
+                Throwable err = status.getError();
+                throw new RuntimeException(err);
+            }
+
+        } catch (RemoteException rex) {
+
+            Logger.e(LOG_TAG, "failed to delete entry", rex);
+            throw new RuntimeException(rex);
+        }
+    }
+
     // Package Protected Instance Methods --------------------------------
 
     void refreshEntry(String pPath) {
@@ -334,8 +351,11 @@ public class GomProxyHelper {
         @Override
         public void onServiceDisconnected(ComponentName pName) {
 
-            ErrorHandling.signalServiceError("GomProxyServiceConnection", new Exception(
-                    "GOM proxy service has been disconnected unexpectedly!"), mContext);
+            // ErrorHandling.signalServiceError("GomProxyServiceConnection", new
+            // Exception(
+            // "GOM proxy service has been disconnected unexpectedly!"),
+            // mContext);
+            Logger.w(LOG_TAG, "GOM proxy service has been disconnected unexpectedly!");
             onUnbound();
         }
     }

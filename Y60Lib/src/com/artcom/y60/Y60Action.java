@@ -10,9 +10,7 @@ public abstract class Y60Action {
 
     public static final String SHUTDOWN_ACTIVITIES_BC    = "y60.intent.SHUTDOWN_ACTIVITIES";
 
-    public static final String SHUTDOWN_SERVICES_BC      = "y60.intent.SHUTDOWN_SERVICES";
-
-    public static final String START_SERVICES_BC         = "y60.intent.START_SERVICES";
+    public static final String INIT_Y60_BC               = "y60.intent.INIT_Y60";
 
     public static final String SERVICE_DEVICE_CONTROLLER = "y60.intent.SERVICE_DEVICE_CONTROLLER";
 

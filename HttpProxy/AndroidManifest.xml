@@ -12,16 +12,10 @@
             </intent-filter>
         </activity>
         <uses-library android:name="android.test.runner" />
-        <service android:name=".HttpProxyService" android:process=":remote">
+        <service android:name=".HttpProxyService">
             <intent-filter><action android:name="com.artcom.y60.http.IHttpProxyService"/></intent-filter> 
+            <intent-filter><action android:name="y60.intent.SERVICE_HTTP_PROXY"/></intent-filter> 
         </service>
-        <receiver android:enabled="true"
-          android:exported="true"
-          android:name="InitReceiver">
-            <intent-filter>
-                <action android:name="y60.intent.START_SERVICES" /> 
-            </intent-filter>
-        </receiver>
     </application>
     <uses-permission android:name="android.permission.INTERNET" />
     <instrumentation android:name="android.test.InstrumentationTestRunner" 

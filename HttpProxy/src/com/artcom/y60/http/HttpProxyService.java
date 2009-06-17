@@ -122,8 +122,6 @@ public class HttpProxyService extends Y60Service {
 
         Logger.i(tag(), "HttpProxyService.onDestroy");
 
-        super.onDestroy();
-
         synchronized (sInstances) {
             sInstances.remove(this);
 
@@ -132,6 +130,8 @@ public class HttpProxyService extends Y60Service {
             }
             Logger.d(tag(), "instances: " + countInstances());
         }
+
+        super.onDestroy();
     }
 
     public IBinder onBind(Intent pIntent) {

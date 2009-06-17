@@ -403,6 +403,7 @@ public class HttpProxyHelper {
         public void onServiceDisconnected(ComponentName arg0) {
 
             mProxy = null;
+            Logger.w(LOG_TAG, "HTTP proxy service has been disconnected unexpectedly!");
             mBindingListener.unbound(HttpProxyHelper.this);
         }
     }
