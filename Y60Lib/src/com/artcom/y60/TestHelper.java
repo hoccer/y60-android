@@ -86,8 +86,7 @@ public class TestHelper {
             try {
                 Thread.sleep(20);
             } catch (InterruptedException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
+                throw new AssertionError(e);
             }
         }
 
@@ -119,7 +118,7 @@ public class TestHelper {
                     if (rex.toString().contains("404")) {
 
                         try {
-                            Thread.sleep(250);
+                            Thread.sleep(50);
                         } catch (InterruptedException e) {
                             // TODO Auto-generated catch block
                             e.printStackTrace();
@@ -133,6 +132,32 @@ public class TestHelper {
                 }
             }
         });
+
+    }
+
+    public static void blockUntilDeviceControllerIsRunning() {
+
+        long timeout = 3000;
+        long start = System.currentTimeMillis();
+        while (System.currentTimeMillis() - start < timeout) {
+
+            try {
+                if (HttpHelper.getStatusCode("http://localhost:4042/") == 404) {
+                    return;
+                }
+            } catch (RuntimeException e) {
+
+            }
+
+            try {
+                Thread.sleep(20);
+            } catch (InterruptedException e) {
+                throw new AssertionError(e);
+            }
+        }
+
+        throw new AssertionError("device controller should have started withhin " + timeout
+                + " milliseconds");
 
     }
 }

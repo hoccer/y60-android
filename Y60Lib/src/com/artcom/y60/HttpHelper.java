@@ -39,7 +39,7 @@ public class HttpHelper {
 
     // Constants ---------------------------------------------------------
 
-    private static final String LOG_TAG = "HttpHelper";
+    private static final String LOG_TAG           = "HttpHelper";
     private static final String SCRIPT_RUNNER_Uri = "http://t-gom.service.t-gallery.act/gom/script-runner";
 
     // Static Methods ----------------------------------------------------
@@ -213,6 +213,13 @@ public class HttpHelper {
             Logger.e(LOG_TAG, "HTTP response does not contain a Content-Length header");
         }
         throw new RuntimeException("Could not retrive content-length header.");
+    }
+
+    public static int getStatusCode(String url) {
+
+        HttpHead head = new HttpHead(url);
+        HttpResponse response = executeHTTPMethod(head);
+        return response.getStatusLine().getStatusCode();
     }
 
     public static HttpResponse postUrlEncoded(String pUrl, Map<String, String> pData) {

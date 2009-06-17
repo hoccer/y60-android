@@ -58,6 +58,66 @@ public class GomNotificationHelperTest extends GomActivityUnitTestCase {
         mJson = new JSONObject("{\"hans\":\"wurst\"}");
     }
 
+    public void testSimpleGnpRoundtrip() throws Exception {
+
+        initializeActivity();
+
+        TestHelper.blockUntilDeviceControllerIsRunning();
+
+        GomProxyHelper helper = createHelper();
+
+        String timestamp = String.valueOf(System.currentTimeMillis());
+
+        String attrPath = TEST_BASE_PATH + "/test_simple_gnp_roundtrip" + ":" + timestamp;
+        Uri attrUrl = Uri.parse(Constants.Gom.URI + attrPath);
+
+        HttpHelper.putXML(Constants.Gom.URI + attrPath, "<attribute>original value</attribute>");
+        assertEquals("original value", HttpHelper.get(Constants.Gom.URI + attrPath + ".txt"));
+
+        final GomTestObserver gto = new GomTestObserver();
+        BroadcastReceiver receiver = GomNotificationHelper.registerObserverAndNotify(attrPath, gto,
+                helper);
+        assertEquals("gnp update callback shuld not have been called", 0, gto.getUpdateCount());
+
+        getActivity().registerReceiver(receiver, Constants.Gom.GNP_INTENT_FILTER);
+        TestHelper.blockUntilTrue("gnp update callback shuld have been called once", 1000,
+                new TestHelper.Condition() {
+
+                    @Override
+                    public boolean isSatisfied() {
+                        return gto.getUpdateCount() == 1;
+                    }
+
+                });
+
+        assertEquals("cache should have the old value after callback was called once",
+                "original value", helper.getCachedAttributeValue(attrPath));
+
+        TestHelper.blockUntilResourceAvailable("observer should be registered in gom",
+                GomNotificationHelper.getObserverUriFor(attrPath));
+
+        HttpHelper.putXML(Constants.Gom.URI + attrPath, "<attribute>changed value</attribute>");
+        assertEquals("cache should still have the old value", "original value", helper
+                .getCachedAttributeValue(attrPath));
+
+        assertEquals("the value should have changed in gom", "changed value", HttpHelper
+                .get(Constants.Gom.URI + attrPath + ".txt"));
+
+        TestHelper.blockUntilTrue("GNP should notify our observer about the changed value", 2000,
+                new TestHelper.Condition() {
+
+                    @Override
+                    public boolean isSatisfied() {
+                        return gto.getUpdateCount() == 2;
+                    }
+
+                });
+
+        Logger.v(LOG_TAG, "data in cache: " + gto.getData());
+        assertEquals("value should have changed", "changed value", gto.getData().get("value"));
+
+    }
+
     // The 5 different cases of callbacks during registerObserver()
 
     // 1. entry neither in proxy nor in gom
@@ -477,9 +537,9 @@ public class GomNotificationHelperTest extends GomActivityUnitTestCase {
         BroadcastReceiver receiver = GomNotificationHelper.registerObserverAndNotify(observedPath,
                 observer, helper);
 
-        getActivity().registerReceiver(receiver, Constants.Gom.NOTIFICATION_FILTER);
-        TestHelper.blockUntilResourceAvailable("Observer should be in GOM", Constants.Gom.URI
-                + GomNotificationHelper.getObserverPathFor(observedPath));
+        getActivity().registerReceiver(receiver, Constants.Gom.GNP_INTENT_FILTER);
+        TestHelper.blockUntilResourceAvailable("Observer should be in GOM", GomNotificationHelper
+                .getObserverUriFor(observedPath));
 
         GomHttpWrapper.deleteAttribute(invisibleAttrUrl);
         Thread.sleep(4000);
@@ -632,7 +692,7 @@ public class GomNotificationHelperTest extends GomActivityUnitTestCase {
 
         BroadcastReceiver receiver = GomNotificationHelper.registerObserverAndNotify(nodePath,
                 observer, helper);
-        getActivity().registerReceiver(receiver, Constants.Gom.NOTIFICATION_FILTER);
+        getActivity().registerReceiver(receiver, Constants.Gom.GNP_INTENT_FILTER);
 
         TestHelper.blockUntilTrue("update not called", 4000, new TestHelper.Condition() {
             @Override
