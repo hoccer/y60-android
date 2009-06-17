@@ -39,7 +39,7 @@ public class HttpHelper {
 
     // Constants ---------------------------------------------------------
 
-    private static final String LOG_TAG = "HttpHelper";
+    private static final String LOG_TAG           = "HttpHelper";
     private static final String SCRIPT_RUNNER_Uri = "http://t-gom.service.t-gallery.act/gom/script-runner";
 
     // Static Methods ----------------------------------------------------
@@ -215,6 +215,13 @@ public class HttpHelper {
         throw new RuntimeException("Could not retrive content-length header.");
     }
 
+    public static int getStatusCode(String url) {
+
+        HttpHead head = new HttpHead(url);
+        HttpResponse response = executeHTTPMethod(head);
+        return response.getStatusLine().getStatusCode();
+    }
+
     public static HttpResponse postUrlEncoded(String pUrl, Map<String, String> pData) {
 
         String body = urlEncode(pData);
@@ -350,8 +357,9 @@ public class HttpHelper {
             public URI getLocationURI(HttpResponse response, HttpContext context)
                     throws ProtocolException {
                 URI uri = super.getLocationURI(response, context);
-                // Log.v(LOG_TAG, response.getStatusLine().getStatusCode()
-                // + " redirect to: " + uri);
+                Logger
+                        .v(LOG_TAG, response.getStatusLine().getStatusCode() + " redirect to: "
+                                + uri);
                 return uri;
             }
         });

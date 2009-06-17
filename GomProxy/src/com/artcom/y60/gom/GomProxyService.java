@@ -71,7 +71,7 @@ public class GomProxyService extends Y60Service {
         super.onCreate();
 
         mRemote = new GomProxyRemote();
-        registerReceiver(mReceiver, Constants.Gom.NOTIFICATION_FILTER);
+        registerReceiver(mReceiver, Constants.Gom.GNP_INTENT_FILTER);
     }
 
     public void onStart(Intent intent, int startId) {
@@ -147,6 +147,22 @@ public class GomProxyService extends Y60Service {
             String value = mAttributes.get(pPath);
             return value;
         }
+    }
+
+	String getCachedAttributeValue(String pPath) throws GomProxyException {
+
+        Logger.v(LOG_TAG, "getAttributeValue(", pPath, ")");
+
+        synchronized (mAttributes) {
+
+            if (!hasAttributeInCache(pPath)) {
+                throw new GomProxyException("Attribute '" + pPath + "' not found in cache");
+            }
+
+            String value = mAttributes.get(pPath);
+            return value;
+        }
+
     }
 
     void refreshEntry(String pPath) throws JSONException {
@@ -389,6 +405,17 @@ public class GomProxyService extends Y60Service {
             } catch (Exception ex) {
 
                 pStatus.setError(ex);
+            }
+        }
+
+        @Override
+        public String getCachedAttributeValue(String pPath, RpcStatus pStatus) {
+            try {
+                return GomProxyService.this.getCachedAttributeValue(pPath);
+            } catch (Exception ex) {
+
+                pStatus.setError(ex);
+                return null;
             }
         }
     }

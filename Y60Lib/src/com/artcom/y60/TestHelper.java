@@ -10,10 +10,12 @@ public class TestHelper {
     /**
      * Mesures current state of an object.
      */
-    public interface Mesurement {
+    public interface Measurement {
 
         public Object getActualValue();
     }
+
+    private static final String LOG_TAG = "TestHelper";
 
     /**
      * 
@@ -68,7 +70,7 @@ public class TestHelper {
      * @param pMeasurement
      */
     public static void blockUntilNull(String pFailMessage, long pTimeout,
-            final TestHelper.Mesurement pMeasurement) {
+            final TestHelper.Measurement pMeasurement) {
 
         blockUntilEquals(pFailMessage, pTimeout, null, pMeasurement);
     }
@@ -83,23 +85,27 @@ public class TestHelper {
      *            the expected object
      * @param pMesurement
      */
-    public static void blockUntilEquals(String pFailMessage, long pTimeout, final Object pExpected,
-            final TestHelper.Mesurement pMesurement) {
+    public static void blockUntilEquals(String pFailMessage, long pTimeout, Object pExpected,
+            final TestHelper.Measurement pMesurement) {
 
-        blockUntilTrue(pFailMessage, pTimeout, new Condition() {
+        Object mesuredValue = null;
+        long start = System.currentTimeMillis();
+        while (System.currentTimeMillis() - start < pTimeout) {
 
-            @Override
-            public boolean isSatisfied() {
-
-                Object mesuredValue = pMesurement.getActualValue();
-                if (mesuredValue == null) {
-                    return pExpected == null;
-                } else {
-                    return mesuredValue.equals(pExpected);
-                }
+            mesuredValue = pMesurement.getActualValue();
+            if (pExpected.equals(mesuredValue)) {
+                return;
             }
 
-        });
+            try {
+                Thread.sleep(20);
+            } catch (InterruptedException e) {
+                throw new AssertionError(e);
+            }
+        }
+
+        throw new AssertionError(pFailMessage + ": should be <" + pExpected + ">, but was <"
+                + mesuredValue + ">");
     }
 
     public static void blockUntilBackendAvailable(final Y60Activity pActivity) {
@@ -126,7 +132,7 @@ public class TestHelper {
                     if (rex.toString().contains("404")) {
 
                         try {
-                            Thread.sleep(250);
+                            Thread.sleep(50);
                         } catch (InterruptedException e) {
                             // TODO Auto-generated catch block
                             e.printStackTrace();
@@ -137,6 +143,24 @@ public class TestHelper {
 
                         throw new RuntimeException(rex);
                     }
+                }
+            }
+        });
+
+    }
+
+    public static void blockUntilWebServerIsRunning() {
+
+        long timeout = 3000;
+        TestHelper.blockUntilEquals("device controller should have started withhin" + timeout
+                + " milliseconds", 3000, 404, new TestHelper.Measurement() {
+            @Override
+            public Object getActualValue() {
+
+                try {
+                    return HttpHelper.getStatusCode("http://localhost:4042/");
+                } catch (Exception e) {
+                    return e.getMessage();
                 }
             }
         });

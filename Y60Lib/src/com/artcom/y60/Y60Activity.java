@@ -29,6 +29,8 @@ public abstract class Y60Activity extends Activity {
     @Override
     protected void onCreate(Bundle pSavedInstanceState) {
         super.onCreate(pSavedInstanceState);
+        startDeviceController();
+
         mReceiver = new BroadcastReceiver() {
 
             @Override
@@ -49,4 +51,8 @@ public abstract class Y60Activity extends Activity {
         super.onDestroy();
     }
 
+    protected void startDeviceController() {
+        Logger.v(LOG_TAG, "starting device controller");
+        startService(new Intent("y60.intent.SERVICE_DEVICE_CONTROLLER"));
+    }
 }

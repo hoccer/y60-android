@@ -259,6 +259,11 @@ public class GomNotificationHelper {
         }
     }
 
+    public static String getObserverUriFor(String pAttrPath) {
+
+        return Constants.Gom.URI + getObserverPathFor(pAttrPath);
+    }
+
     public static String createRegularExpression(String pPath) {
 
         return "^" + pPath + "([/:]([^/:])*)?$";
@@ -274,4 +279,5 @@ public class GomNotificationHelper {
         return "." + pDevicePath.replaceAll("/", "_").toLowerCase();
 
     }
+
 }

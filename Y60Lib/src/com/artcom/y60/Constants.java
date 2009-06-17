@@ -28,14 +28,14 @@ public class Constants {
 
         public static final String       OBSERVER_BASE_PATH = "/gom/observer";
 
-        public static final IntentFilter NOTIFICATION_FILTER;
+        public static final IntentFilter GNP_INTENT_FILTER;
 
         static {
 
             DeviceConfiguration config = DeviceConfiguration.load();
             URI = config.getGomUrl();
 
-            NOTIFICATION_FILTER = new IntentFilter(Y60Action.GOM_NOTIFICATION_BC);
+            GNP_INTENT_FILTER = new IntentFilter(Y60Action.GOM_NOTIFICATION_BC);
         }
 
     }

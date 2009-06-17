@@ -5,6 +5,7 @@ import android.test.AssertionFailedError;
 
 import com.artcom.y60.Constants;
 import com.artcom.y60.HttpHelper;
+import com.artcom.y60.RpcStatus;
 
 public class GomProxyTest extends GomActivityUnitTestCase {
 
@@ -56,6 +57,27 @@ public class GomProxyTest extends GomActivityUnitTestCase {
         GomAttribute attr = helper
                 .getAttribute("/test/android/y60/infrastructure_gom/gom_proxy_test:attribute");
         assertEquals("nassau", attr.getValue());
+    }
+
+    public void testGetCachedAttribute() throws Exception {
+
+        initializeActivity();
+        GomProxyHelper helper = createHelper();
+
+        String attrPath = "/test/android/y60/infrastructure_gom/gom_proxy_test:cached_attribute";
+
+        RpcStatus rpcStatus = new RpcStatus();
+        helper.getProxy().getCachedAttributeValue(attrPath, rpcStatus);
+
+        assertTrue("cache should return an exception that attribute is not in cache", rpcStatus
+                .getError() instanceof GomProxyException);
+
+        helper.getProxy().saveAttribute(attrPath, "cache this value", rpcStatus);
+        assertTrue("there should be no error", rpcStatus.isOk());
+
+        String value = helper.getProxy().getCachedAttributeValue(attrPath, rpcStatus);
+        assertTrue("cache should have no exception", rpcStatus.isOk());
+        assertEquals("we should get our cached attribute value", "cache this value", value);
     }
 
     public void testErrorStatusForGetAttribute() throws Exception {

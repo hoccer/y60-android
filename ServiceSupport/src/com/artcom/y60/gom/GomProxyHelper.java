@@ -115,6 +115,33 @@ public class GomProxyHelper {
         }
     }
 
+    // TODO test this
+    public String getCachedAttributeValue(String pPath) throws GomProxyException {
+
+        RpcStatus status = new RpcStatus();
+
+        String result = null;
+        try {
+            result = mProxy.getCachedAttributeValue(pPath, status);
+
+            if (status.hasError()) {
+                Throwable err = status.getError();
+                if (err instanceof GomProxyException) {
+                    throw (GomProxyException) err;
+                }
+
+                throw new RuntimeException(err);
+            }
+
+        } catch (RemoteException rex) {
+
+            Logger.e(LOG_TAG, "failed to refresh entry", rex);
+            throw new RuntimeException(rex);
+        }
+
+        return result;
+    }
+
     public Uri getBaseUri() {
 
         assertConnected();
@@ -262,12 +289,12 @@ public class GomProxyHelper {
         }
     }
 
-    // Private Instance Methods ------------------------------------------
-
-    private IGomProxyService getProxy() {
+    IGomProxyService getProxy() {
 
         return mProxy;
     }
+
+    // Private Instance Methods ------------------------------------------
 
     private void onUnbound() {
         mProxy = null;

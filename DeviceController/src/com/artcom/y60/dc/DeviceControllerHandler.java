@@ -25,95 +25,96 @@ import com.artcom.y60.Logger;
 import com.artcom.y60.Y60Action;
 
 public class DeviceControllerHandler extends DefaultHandler {
-    
+
     // Constants ---------------------------------------------------------
 
-    private static final String LOG_TAG = "DeviceControllerHandler";
+    private static final String LOG_TAG          = "DeviceControllerHandler";
 
     /** path prefix for proc requests */
-    public static final String PROC_PATH_PREFIX = "/proc";
-    
+    public static final String  PROC_PATH_PREFIX = "/proc";
+
     /** target for RCA HTTP requests */
-    public static final String RCA_TARGET = "/commands";
-    
+    public static final String  RCA_TARGET       = "/commands";
+
     // Instance Variables ------------------------------------------------
-    
-    private Service mService;
-    
+
+    private Service             mService;
+
     // Constructors ------------------------------------------------------
 
     public DeviceControllerHandler(Service pService) {
         mService = pService;
     }
-    
+
     // Public Instance Methods -------------------------------------------
 
-    public void handle(String pTarget,
-                       HttpServletRequest pRequest,
-                       HttpServletResponse pResponse,
-                       int pDispatch) {
-        
+    public void handle(String pTarget, HttpServletRequest pRequest, HttpServletResponse pResponse,
+            int pDispatch) {
+
         try {
 
             String method = pRequest.getMethod();
-            String path   = pRequest.getPathInfo();
-            
+            String path = pRequest.getPathInfo();
+
             Logger.v(LOG_TAG, "Incoming HTTP request________");
             Logger.v(LOG_TAG, "Method...", method);
             Logger.v(LOG_TAG, "Path.....", path);
             Logger.v(LOG_TAG, "Target...", pTarget);
-    
-    
+
             if (path.startsWith(PROC_PATH_PREFIX)) {
-                
+
                 // Requests directed at the DC's own resources.
                 Logger.v(LOG_TAG, "Handling /proc request");
                 ProcHandler procHandler = new ProcHandler();
                 procHandler.handle(pTarget, pRequest, pResponse, pDispatch);
-                
+
             } else if ("POST".equals(method) && RCA_TARGET.equals(pTarget)) {
-    
+
                 handleCommand(pRequest);
-    
+
             } else if (Constants.Network.GNP_TARGET.equals(pTarget)) {
-                
+
                 handleGomNotification(pRequest);
-                
+
+            } else if ("HEAD".equals(method) || "GET".equals(method)) {
+                Logger.v(LOG_TAG, "Not found");
+                respondNotFound(pResponse);
             } else {
-                
-                respondNotSupported(pResponse);
+                Logger.v(LOG_TAG, "Not supported");
+                respondNotImplemented(pResponse);
             }
-    
+
         } catch (Exception ex) {
-            
+
             ErrorHandling.signalUnspecifiedError(LOG_TAG, ex, mService);
-            
+
         } finally {
-        
+
             if (pRequest instanceof Request) {
-                
+
                 ((Request) pRequest).setHandled(true);
-                
+
             } else {
 
                 HttpConnection connection = HttpConnection.getCurrentConnection();
-                
-                // HACK: if this is called in a test, the request will be mocked and
+
+                // HACK: if this is called in a test, the request will be mocked
+                // and
                 // thus the connection will be null
                 if (connection != null) {
-                    
+
                     connection.getRequest().setHandled(true);
                 }
             }
         }
     }
-    
+
     // Private Instance Methods ------------------------------------------
-    
+
     private void handleCommand(HttpServletRequest pRequest) throws IOException, HandlerException {
-        
+
         Logger.d(LOG_TAG, "handling RCA command");
-        
+
         String paramsStr = "";
         if (pRequest.getContentLength() > 0) { // arguments are supplied in
             // request body
@@ -133,81 +134,86 @@ public class DeviceControllerHandler extends DefaultHandler {
 
         Intent intent;
         Intent broadcastIntent;
-        
-        Object targetParam = parameters.get("target"); 
-        
+
+        Object targetParam = parameters.get("target");
+
         if ("search".equals(targetParam)) {
             intent = new Intent(Y60Action.SEARCH);
             broadcastIntent = new Intent(Y60Action.SEARCH_BC);
-            
+
         } else if ("voice_control".equals(targetParam)) {
             intent = new Intent(Y60Action.VOICE_CONTROL);
             broadcastIntent = new Intent(Y60Action.VOICE_CONTROL_BC);
-            
+
         } else {
             throw new HandlerException("illegal RCA target: " + targetParam + "from: "
-                            + parameters.get("sender"));
+                    + parameters.get("sender"));
         }
 
-        broadcastIntent.putExtra(IntentExtraKeys.KEY_SEARCH_TARGET, (String) parameters.get("target"));
-        broadcastIntent.putExtra(IntentExtraKeys.KEY_SEARCH_SENDER, (String) parameters.get("sender"));
-        broadcastIntent.putExtra(IntentExtraKeys.KEY_SEARCH_RECEIVER, (String) parameters.get("receiver"));
-        broadcastIntent.putExtra(IntentExtraKeys.KEY_SEARCH_ARGUMENTS, (String) parameters.get("arguments"));
+        broadcastIntent.putExtra(IntentExtraKeys.KEY_SEARCH_TARGET, (String) parameters
+                .get("target"));
+        broadcastIntent.putExtra(IntentExtraKeys.KEY_SEARCH_SENDER, (String) parameters
+                .get("sender"));
+        broadcastIntent.putExtra(IntentExtraKeys.KEY_SEARCH_RECEIVER, (String) parameters
+                .get("receiver"));
+        broadcastIntent.putExtra(IntentExtraKeys.KEY_SEARCH_ARGUMENTS, (String) parameters
+                .get("arguments"));
 
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         mService.startActivity(intent);
-        
+
         mService.sendBroadcast(broadcastIntent);
     }
-    
-    private void handleGomNotification(HttpServletRequest pRequest)
-                            throws IOException, HandlerException {
-        
+
+    private void handleGomNotification(HttpServletRequest pRequest) throws IOException,
+            HandlerException {
+
         Logger.d(LOG_TAG, "handling GOM notification");
-        
+
         String content = extractContent(pRequest);
         Logger.v(LOG_TAG, "JSON data of notification: ", content);
-        
+
         try {
             JSONObject notification = new JSONObject(content);
-            Intent     gnpIntent    = new Intent(Y60Action.GOM_NOTIFICATION_BC);
-            
-            //wrong concept - uri is actually a path! see RFC 2396 for details
-            gnpIntent.putExtra(IntentExtraKeys.KEY_NOTIFICATION_PATH, notification.getString("uri"));
-            
+            Intent gnpIntent = new Intent(Y60Action.GOM_NOTIFICATION_BC);
+
+            // wrong concept - uri is actually a path! see RFC 2396 for details
+            gnpIntent
+                    .putExtra(IntentExtraKeys.KEY_NOTIFICATION_PATH, notification.getString("uri"));
+
             String operation = null;
             if (notification.has("create")) {
-                
+
                 operation = "create";
-                
+
             } else if (notification.has("update")) {
-                
+
                 operation = "update";
-                
+
             } else if (notification.has("delete")) {
-                
+
                 operation = "delete";
             }
-            
+
             if (operation == null) {
-                
-                throw new HandlerException("GOM notification malformed:\n"+content);
+
+                throw new HandlerException("GOM notification malformed:\n" + content);
             }
-    
+
             gnpIntent.putExtra(IntentExtraKeys.KEY_NOTIFICATION_OPERATION, operation);
-            
+
             String data = notification.getJSONObject(operation).toString();
             gnpIntent.putExtra(IntentExtraKeys.KEY_NOTIFICATION_DATA_STRING, data);
-            
+
             mService.sendBroadcast(gnpIntent);
-            
+
         } catch (JSONException jsx) {
-            
-            Logger.e(LOG_TAG, "ignoring notification - failed to parse json: \n'", content, "'\n", jsx);
+
+            Logger.e(LOG_TAG, "ignoring notification - failed to parse json: \n'", content, "'\n",
+                    jsx);
         }
     }
 
-    
     // Private Instance Methods ------------------------------------------
 
     /**
@@ -216,22 +222,29 @@ public class DeviceControllerHandler extends DefaultHandler {
      * @throws IOException
      */
     private String extractContent(HttpServletRequest pRequest) throws IOException {
-        
-        BufferedReader reader  = pRequest.getReader();
-        StringBuilder  builder = new StringBuilder();
+
+        BufferedReader reader = pRequest.getReader();
+        StringBuilder builder = new StringBuilder();
         String line = null;
         while ((line = reader.readLine()) != null) {
-            
-            builder.append(line+"\n");
+
+            builder.append(line + "\n");
         }
         return builder.toString();
     }
 
-    private void respondNotSupported(HttpServletResponse response)
-            throws ServletException, IOException {
-        
+    private void respondNotImplemented(HttpServletResponse response) throws ServletException,
+            IOException {
+
         response.setContentType("text/plain");
         response.setStatus(HttpServletResponse.SC_NOT_IMPLEMENTED);
+        response.setContentLength(0);
+    }
+
+    private void respondNotFound(HttpServletResponse response) throws ServletException, IOException {
+
+        response.setContentType("text/plain");
+        response.setStatus(HttpServletResponse.SC_NOT_FOUND);
         response.setContentLength(0);
     }
 
