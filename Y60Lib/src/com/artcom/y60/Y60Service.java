@@ -5,6 +5,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.os.Process;
 
 public abstract class Y60Service extends Service {
 
@@ -28,7 +29,7 @@ public abstract class Y60Service extends Service {
             @Override
             public void onReceive(Context pArg0, Intent pArg1) {
 
-                shutdown();
+                kill();
             }
 
         };
@@ -46,10 +47,10 @@ public abstract class Y60Service extends Service {
 
     // Package Protected Instance Methods --------------------------------
 
-    void shutdown() {
+    void kill() {
 
-        Logger.v(LOG_TAG, "shutting down service ", getClass().getName());
-        stopSelf();
+        Logger.v(LOG_TAG, "killing service ", getClass().getName());
+        Process.killProcess(Process.myPid());
     }
 
 }

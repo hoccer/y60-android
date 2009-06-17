@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
+import android.os.Process;
 
 public abstract class Y60Activity extends Activity {
 
@@ -19,10 +20,10 @@ public abstract class Y60Activity extends Activity {
 
     // Package Protected Instance Methods --------------------------------
 
-    void shutdown() {
+    void kill() {
 
-        Logger.v(LOG_TAG, "shutting down activity ", getClass().getName());
-        finish();
+        Logger.v(LOG_TAG, "killing activity ", getClass().getName());
+        Process.killProcess(Process.myPid());
     }
 
     @Override
@@ -33,7 +34,7 @@ public abstract class Y60Activity extends Activity {
             @Override
             public void onReceive(Context pArg0, Intent pArg1) {
 
-                shutdown();
+                kill();
             }
 
         };
