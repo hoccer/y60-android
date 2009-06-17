@@ -77,7 +77,9 @@ public class DeviceControllerService extends Y60Service {
                 mGom = helper;
 
                 try {
-                    mServer = startServer(Constants.Network.DEFAULT_PORT);
+                    if (mServer == null) {
+                        mServer = startServer(Constants.Network.DEFAULT_PORT);
+                    }
                     updateRciUri(Constants.Network.DEFAULT_PORT);
 
                 } catch (Exception ex) {

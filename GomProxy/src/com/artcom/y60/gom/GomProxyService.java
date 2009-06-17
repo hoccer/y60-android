@@ -203,6 +203,18 @@ public class GomProxyService extends Y60Service {
 
     }
 
+    void clear() {
+
+        synchronized (mAttributes) {
+            synchronized (mNodes) {
+
+                mAttributes.clear();
+                mNodes.clear();
+            }
+
+        }
+    }
+
     // Private Instance Methods ------------------------------------------
 
     private void loadNode(String pPath) throws JSONException {
@@ -383,9 +395,20 @@ public class GomProxyService extends Y60Service {
 
         }
 
+        @Override
         public void deleteEntry(String pPath, RpcStatus pStatus) {
             try {
                 GomProxyService.this.deleteEntry(pPath);
+            } catch (Exception ex) {
+
+                pStatus.setError(ex);
+            }
+        }
+
+        @Override
+        public void clear(RpcStatus pStatus) {
+            try {
+                GomProxyService.this.clear();
             } catch (Exception ex) {
 
                 pStatus.setError(ex);

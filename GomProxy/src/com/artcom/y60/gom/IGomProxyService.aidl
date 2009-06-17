@@ -23,4 +23,6 @@ interface IGomProxyService {
     void deleteEntry(String pPath, out RpcStatus pStatus);
     
     boolean hasInCache(String pPath, out RpcStatus pStatus);
+    
+    void clear(out RpcStatus pStatus);
 }

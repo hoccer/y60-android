@@ -42,9 +42,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.app.Activity;
-import android.content.BroadcastReceiver;
 import android.content.ComponentName;
-import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.ActivityInfo;
@@ -71,7 +69,7 @@ public class Y60 extends Activity {
 
     private EditText                           mEditText;
     private Button                             mSetNameButton;
-    private Button                             mResetY60Button;
+    private Button                             mInitButton;
     private Button                             mStopY60Button;
     private Button                             mWifiCfgButton;
 
@@ -108,8 +106,8 @@ public class Y60 extends Activity {
             }
         });
 
-        mResetY60Button = (Button) findViewById(R.id.mStartY60Button);
-        mResetY60Button.setOnClickListener(new OnClickListener() {
+        mInitButton = (Button) findViewById(R.id.mStartY60Button);
+        mInitButton.setOnClickListener(new OnClickListener() {
             // @Override
             public void onClick(View v) {
                 // hide status bar
@@ -117,31 +115,8 @@ public class Y60 extends Activity {
                 win.setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                         WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
-                Logger.v(LOG_TAG, "broadcasting Y60 reset");
-
-                // first step: shutdown activities
-                Logger.v(LOG_TAG, "shutting down activities");
-                Intent shutdownActivities = new Intent(Y60Action.SHUTDOWN_ACTIVITIES_BC);
-                sendOrderedBroadcast(shutdownActivities, null, new BroadcastReceiver() {
-                    @Override
-                    public void onReceive(Context pContext, Intent pIntent) {
-
-                        // second step: shutdown services
-                        Logger.v(LOG_TAG, "shutting down services");
-                        Intent shutdownServices = new Intent(Y60Action.SHUTDOWN_SERVICES_BC);
-                        sendOrderedBroadcast(shutdownServices, null, new BroadcastReceiver() {
-                            @Override
-                            public void onReceive(Context pContext, Intent pIntent) {
-
-                                // third step: restart services
-                                Logger.v(LOG_TAG, "restarting services");
-                                Intent startServices = new Intent(Y60Action.START_SERVICES_BC);
-                                sendBroadcast(startServices);
-                            }
-                        }, null, Activity.RESULT_OK, null, null);
-                    }
-                }, null, Activity.RESULT_OK, null, null);
-                Logger.v(LOG_TAG, "broadcasting Y60 reset finished");
+                Intent intent = new Intent(Y60Action.INIT_Y60_BC);
+                sendBroadcast(intent);
             }
         });
 
