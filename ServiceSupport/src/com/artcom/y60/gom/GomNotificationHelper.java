@@ -16,6 +16,7 @@ import android.content.Intent;
 
 import com.artcom.y60.Constants;
 import com.artcom.y60.DeviceConfiguration;
+import com.artcom.y60.ErrorHandler;
 import com.artcom.y60.HttpHelper;
 import com.artcom.y60.IntentExtraKeys;
 import com.artcom.y60.IpAddressNotFoundException;
@@ -31,12 +32,41 @@ public class GomNotificationHelper {
     // Static Methods ----------------------------------------------------
 
     /**
-     * Register a GOM observer for a given path. Filtering options are currently
-     * not supported.
+     * @param pPath
+     *            Gom path to observe
+     * @param pGomObserver
+     *            the observer??? Don't know!
      */
     public static BroadcastReceiver registerObserverAndNotify(final String pPath,
             final GomObserver pGomObserver, final GomProxyHelper pGom) throws IOException,
             IpAddressNotFoundException {
+
+        return registerObserverAndNotify(pPath, pGomObserver, pGom, new ErrorHandler() {
+
+            @Override
+            public void handle(Exception pE) {
+                Logger.e(LOG_TAG, "*******", pE);
+            }
+
+        });
+
+    }
+
+    /**
+     * Register a GOM observer for a given path. Filtering options are currently
+     * not supported.
+     * 
+     * @param pPath
+     *            Gom path to observe
+     * @param pGomObserver
+     *            the observer??? Don't know!
+     * @param pErrorHandler
+     *            pass your own error handling code to the registration thread
+     * 
+     */
+    public static BroadcastReceiver registerObserverAndNotify(final String pPath,
+            final GomObserver pGomObserver, final GomProxyHelper pGom,
+            final ErrorHandler pErrorHandler) throws IOException, IpAddressNotFoundException {
 
         BroadcastReceiver rec = createBroadcastReceiver(pPath, pGomObserver);
 
@@ -67,22 +97,8 @@ public class GomNotificationHelper {
                         }
 
                     }
-                } catch (IllegalStateException ex) {
-
-                    Logger.e(LOG_TAG, "*******" + ex.toString() + ex.getStackTrace().toString());
-
                 } catch (Exception ex) {
-
-                    Logger.e(LOG_TAG, "*******" + ex.toString() + ex.getStackTrace().toString());
-                    pGom.deleteEntry(pPath);
-                    pGomObserver.onEntryDeleted(pPath, null);
-
-                    // TODO we should not throw exceptions in sub-threads of an
-                    // activity. Better pass an error message container to
-                    // registerObserver. This is best be done when implementing
-                    // the Y60Activty.
-
-                    // throw new RuntimeException(ex);
+                    pErrorHandler.handle(ex);
                 }
             }
         }).start();
