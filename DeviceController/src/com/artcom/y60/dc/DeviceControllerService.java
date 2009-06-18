@@ -74,11 +74,15 @@ public class DeviceControllerService extends Y60Service {
 
             public void bound(GomProxyHelper helper) {
 
+                Logger.i(LOG_TAG, "bound(): called");
                 mGom = helper;
 
                 try {
                     if (mServer == null) {
                         mServer = startServer(Constants.Network.DEFAULT_PORT);
+                        Logger
+                                .v(LOG_TAG,
+                                        "onCreate(), bound() to GomProxyHelper: Server was null and is started now");
                     }
                     updateRciUri(Constants.Network.DEFAULT_PORT);
 
@@ -89,7 +93,7 @@ public class DeviceControllerService extends Y60Service {
             }
 
             public void unbound(GomProxyHelper helper) {
-
+                Logger.i(LOG_TAG, "unbound(): called");
                 mGom = null;
             }
         });
@@ -100,11 +104,14 @@ public class DeviceControllerService extends Y60Service {
 
     public void onStart(Intent intent, int startId) {
         Logger.i(LOG_TAG, "onStart called");
+
         if (mServer != null) {
             Toast.makeText(DeviceControllerService.this, R.string.jetty_already_started,
                     Toast.LENGTH_SHORT).show();
-            Logger.i(LOG_TAG, "already running");
+            Logger.i(LOG_TAG, "onStart(): Jetty Server already running");
             return;
+        } else {
+            Logger.i(LOG_TAG, "onStart(): Server is null");
         }
 
         try {
@@ -131,7 +138,7 @@ public class DeviceControllerService extends Y60Service {
 
             notification.setLatestEventInfo(this, getText(R.string.app_name), text, contentIntent);
 
-            Logger.i(LOG_TAG, "DeviceControllerService started");
+            Logger.i(LOG_TAG, "onStart(): DeviceControllerService started");
             super.onStart(intent, startId);
         } catch (BindingException e) {
             ErrorHandling.signalServiceError(LOG_TAG, e, this);
@@ -170,6 +177,7 @@ public class DeviceControllerService extends Y60Service {
     }
 
     public void onDestroy() {
+        Logger.v(LOG_TAG, "onDestroy");
 
         try {
             if (mServer != null) {
@@ -177,10 +185,10 @@ public class DeviceControllerService extends Y60Service {
                 // Cancel the persistent notification.
                 // Tell the user we stopped.
                 Toast.makeText(this, getText(R.string.jetty_stopped), Toast.LENGTH_SHORT).show();
-                Logger.i(LOG_TAG, "DeviceControllerService stopped");
+                Logger.i(LOG_TAG, "onDestroy(): Jetty Server stopped");
                 sResources = null;
             } else {
-                Logger.i(LOG_TAG, "DeviceControllerService not running");
+                Logger.i(LOG_TAG, "onDestroy(): Jetty not running, Server is null");
                 Toast.makeText(DeviceControllerService.this, R.string.jetty_not_running,
                         Toast.LENGTH_SHORT).show();
             }
@@ -262,8 +270,9 @@ public class DeviceControllerService extends Y60Service {
     }
 
     private void stopServer() throws Exception {
-        Logger.i(LOG_TAG, "DeviceControllerService stopping");
+        Logger.i(LOG_TAG, "stopServer(): Jetty Server stopping");
         mServer.stop();
+        Logger.i(LOG_TAG, "stopServer(): Jetty Server stopped. done.");
         mServer = null;
     }
 

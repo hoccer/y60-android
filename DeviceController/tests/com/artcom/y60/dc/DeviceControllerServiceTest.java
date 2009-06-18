@@ -16,6 +16,7 @@ import com.artcom.y60.Constants;
 import com.artcom.y60.DeviceConfiguration;
 import com.artcom.y60.HttpHelper;
 import com.artcom.y60.IpAddressNotFoundException;
+import com.artcom.y60.Logger;
 import com.artcom.y60.NetworkHelper;
 import com.artcom.y60.TestHelper;
 
@@ -29,14 +30,62 @@ public class DeviceControllerServiceTest extends ServiceTestCase<DeviceControlle
         super(DeviceControllerService.class);
     }
 
-    public void testAutomaticWebserverStartup() {
+    public void setUp() {
+        Logger.v(LOG_TAG,
+                "------------------------------------------------------------------------------");
+    }
+
+    public void shutdownServiceAndLog() {
+        Logger.v(LOG_TAG, "tearDown: before shutDown ");
+        shutdownService();
+        Logger.v(LOG_TAG, "tearDown: after shutDown ");
+    }
+
+    public void assertNoWebserverIsRunning() {
+        try {
+            HttpHelper.getStatusCode("http://localhost:4042/");
+            fail();
+        } catch (Exception e) {
+            Logger.v(LOG_TAG, "Exception caught: No Webserver is available ");
+        }
+    }
+
+    public void testAJettyRoundtrip() throws Exception {
+
+        Logger.v(LOG_TAG, "testAJettyRoundtrip------------------------------------------");
+
+        assertNoWebserverIsRunning();
 
         assertNull(getService());
         Intent startIntent = new Intent("y60.intent.SERVICE_DEVICE_CONTROLLER");
         startService(startIntent);
+        TestHelper.blockUntilWebServerIsRunning();
         assertNotNull(getService());
 
-        blockUntilWebserverIsStarted();
+        int code = HttpHelper.getStatusCode("http://localhost:4042/");
+        // assertEquals(404, code);
+        assertNotNull("Service should not be null", getService());
+        assertNotNull("Jetty server should not be null", getService().mServer);
+        // assertTrue("Webserver died", getService().mServer.isRunning());
+
+        shutdownServiceAndLog();
+    }
+
+    public void testAutomaticWebserverStartup() throws Exception {
+        Logger
+                .v(
+                        LOG_TAG,
+                        "testAutomaticWebserverStartup------------------------------------------------------------------------------");
+
+        assertNoWebserverIsRunning();
+
+        assertNull(getService());
+        Intent startIntent = new Intent("y60.intent.SERVICE_DEVICE_CONTROLLER");
+        startService(startIntent);
+        TestHelper.blockUntilWebServerIsRunning();
+        assertNotNull(getService());
+
+        // blockUntilWebserverIsStarted();
         assertTrue("webserver does not run", getService().mServer.isRunning());
 
         assertEquals("webserver has unexpected number of connectors", 1, getService().mServer
@@ -48,19 +97,28 @@ public class DeviceControllerServiceTest extends ServiceTestCase<DeviceControlle
 
         assertEquals("local port", 4042, connector.getLocalPort());
 
-    }
+        Thread.sleep(5000);
 
-    public void testShutdownService() throws IOException {
-        Intent startIntent = new Intent("y60.intent.SERVICE_DEVICE_CONTROLLER");
-        startService(startIntent);
+        int code = HttpHelper.getStatusCode("http://localhost:4042/");
+        assertEquals(404, code);
+        assertNotNull("Service should not be null", getService());
+        assertNotNull("Jetty server should not be null", getService().mServer);
+        assertTrue("Webserver died", getService().mServer.isRunning());
 
-        shutdownService();
-        assertNull(getService().mServer);
     }
 
     public void testGetIpAddress() throws IOException, IpAddressNotFoundException {
+
+        Logger
+                .v(LOG_TAG,
+                        "testGetIpAddress------------------------------------------------------------------------------");
+
+        assertNoWebserverIsRunning();
+
         Intent startIntent = new Intent("y60.intent.SERVICE_DEVICE_CONTROLLER");
         startService(startIntent);
+
+        TestHelper.blockUntilWebServerIsRunning();
 
         String addressString = NetworkHelper.getDeviceIpAddress();
         assertNotNull(addressString);
@@ -70,20 +128,18 @@ public class DeviceControllerServiceTest extends ServiceTestCase<DeviceControlle
         assertTrue("local adress " + address + " is not reachable", address.isReachable(100));
     }
 
-    @Suppress
-    public void testStartup() throws NumberFormatException, UnknownHostException, IOException {
-
-        Intent startIntent = new Intent("y60.intent.SERVICE_DEVICE_CONTROLLER");
-        startService(startIntent);
-
-        blockUntilWebserverIsStarted();
-        Socket socket = new Socket("localhost", Integer.parseInt(TEST_PORT));
-        socket.close();
-    }
-
     public void testRciUriInGom() throws IpAddressNotFoundException {
+
+        Logger
+                .v(LOG_TAG,
+                        "testRciUriInGom------------------------------------------------------------------------------");
+
+        assertNoWebserverIsRunning();
+
         Intent startIntent = new Intent("y60.intent.SERVICE_DEVICE_CONTROLLER");
         startService(startIntent);
+
+        TestHelper.blockUntilWebServerIsRunning();
 
         String ipAddress;
         ipAddress = NetworkHelper.getDeviceIpAddress();
@@ -102,8 +158,48 @@ public class DeviceControllerServiceTest extends ServiceTestCase<DeviceControlle
         }
     }
 
-    public void testStatusCodeOfLocalHost() throws Exception {
+    public void testShutdownService() throws Exception {
 
+        Logger
+                .v(LOG_TAG,
+                        "testShutdownService------------------------------------------------------------------------------");
+
+        assertNoWebserverIsRunning();
+
+        Intent startIntent = new Intent("y60.intent.SERVICE_DEVICE_CONTROLLER");
+        startService(startIntent);
+
+        TestHelper.blockUntilWebServerIsRunning();
+
+        Thread.sleep(5000);
+
+        int code = HttpHelper.getStatusCode("http://localhost:4042/");
+        assertEquals(404, code);
+        assertNotNull("Service should not be null", getService());
+        assertNotNull("Jetty server should not be null", getService().mServer);
+        assertTrue("Webserver died", getService().mServer.isRunning());
+
+        // shutdownService();
+        // assertNull(getService().mServer);
+    }
+
+    @Suppress
+    public void testStartup() throws NumberFormatException, UnknownHostException, IOException {
+        assertNoWebserverIsRunning();
+
+        Intent startIntent = new Intent("y60.intent.SERVICE_DEVICE_CONTROLLER");
+        startService(startIntent);
+
+        blockUntilWebserverIsStarted();
+        Socket socket = new Socket("localhost", Integer.parseInt(TEST_PORT));
+        socket.close();
+    }
+
+    @Suppress
+    public void testStatusCodeOfLocalHost() throws Exception {
+        assertNoWebserverIsRunning();
+
+        assertNull(getService());
         Intent startIntent = new Intent("y60.intent.SERVICE_DEVICE_CONTROLLER");
         startService(startIntent);
 
@@ -123,6 +219,8 @@ public class DeviceControllerServiceTest extends ServiceTestCase<DeviceControlle
 
         int code = HttpHelper.getStatusCode("http://localhost:4042/");
         assertEquals(404, code);
+        assertNotNull("Service should not be null", getService());
+        assertNotNull("Jetty server should not be null", getService().mServer);
         assertTrue("Webserver died", getService().mServer.isRunning());
     }
 
