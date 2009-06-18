@@ -4,8 +4,8 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="src" path="tests"/>
 	<classpathentry kind="src" path="gen"/>
-	<classpathentry kind="lib" path="libs/i-jetty-1.2.jar"/>
 	<classpathentry kind="con" path="com.android.ide.eclipse.adt.ANDROID_FRAMEWORK"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/ServiceSupport"/>
+	<classpathentry kind="lib" path="libs/i-jetty-2.0.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

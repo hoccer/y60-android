@@ -15,27 +15,20 @@
 
 package com.artcom.y60.dc;
 
-import java.io.InputStream;
-
 import org.mortbay.ijetty.AndroidLog;
 import org.mortbay.jetty.Connector;
 import org.mortbay.jetty.Handler;
 import org.mortbay.jetty.Server;
 import org.mortbay.jetty.bio.SocketConnector;
 import org.mortbay.jetty.handler.HandlerCollection;
-import org.mortbay.jetty.nio.SelectChannelConnector;
 
-import android.app.Notification;
-import android.app.PendingIntent;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.os.Binder;
 import android.os.IBinder;
-import android.preference.PreferenceManager;
 import android.widget.Toast;
 
-import com.artcom.y60.BindingException;
 import com.artcom.y60.BindingListener;
 import com.artcom.y60.Constants;
 import com.artcom.y60.DeviceConfiguration;
@@ -43,7 +36,6 @@ import com.artcom.y60.ErrorHandling;
 import com.artcom.y60.IpAddressNotFoundException;
 import com.artcom.y60.Logger;
 import com.artcom.y60.NetworkHelper;
-import com.artcom.y60.PreferencesActivity;
 import com.artcom.y60.Y60Service;
 import com.artcom.y60.gom.GomNode;
 import com.artcom.y60.gom.GomProxyHelper;
@@ -67,9 +59,7 @@ public class DeviceControllerService extends Y60Service {
 
         super.onCreate();
         Logger.i(LOG_TAG, "onCreate called");
-        sResources = getResources();
 
-        // Get the gom proxy helper and run watcher thread if gom is available.
         mGom = new GomProxyHelper(this, new BindingListener<GomProxyHelper>() {
 
             public void bound(GomProxyHelper helper) {
@@ -80,9 +70,7 @@ public class DeviceControllerService extends Y60Service {
                 try {
                     if (mServer == null) {
                         mServer = startServer(Constants.Network.DEFAULT_PORT);
-                        Logger
-                                .v(LOG_TAG,
-                                        "onCreate(), bound() to GomProxyHelper: Server was null and is started now");
+                        Logger.v(LOG_TAG, "bound() to GomProxyHelper: Server will be started now");
                     }
                     updateRciUri(Constants.Network.DEFAULT_PORT);
 
@@ -105,47 +93,9 @@ public class DeviceControllerService extends Y60Service {
     public void onStart(Intent intent, int startId) {
         Logger.i(LOG_TAG, "onStart called");
 
-        if (mServer != null) {
-            Toast.makeText(DeviceControllerService.this, R.string.jetty_already_started,
-                    Toast.LENGTH_SHORT).show();
-            Logger.i(LOG_TAG, "onStart(): Jetty Server already running");
-            return;
-        } else {
-            Logger.i(LOG_TAG, "onStart(): Server is null");
-        }
+        Logger.i(LOG_TAG, "onStart(): DeviceControllerService started");
+        super.onStart(intent, startId);
 
-        try {
-            mPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-
-            String nioDefault = getText(R.string.pref_nio_value).toString();
-            String nioKey = getText(R.string.pref_nio_key).toString();
-
-            mUseNio = mPreferences.getBoolean(nioKey, Boolean.valueOf(nioDefault));
-
-            Toast
-                    .makeText(DeviceControllerService.this, R.string.jetty_started,
-                            Toast.LENGTH_SHORT).show();
-
-            // The PendingIntent to launch DeviceControllerActivity activity if
-            // the user selects this notification
-            PendingIntent contentIntent = PendingIntent.getActivity(this, 0, new Intent(this,
-                    DeviceControllerActivity.class), 0);
-
-            CharSequence text = getText(R.string.manage_jetty);
-
-            Notification notification = new Notification(R.drawable.smooth, text, System
-                    .currentTimeMillis());
-
-            notification.setLatestEventInfo(this, getText(R.string.app_name), text, contentIntent);
-
-            Logger.i(LOG_TAG, "onStart(): DeviceControllerService started");
-            super.onStart(intent, startId);
-        } catch (BindingException e) {
-            ErrorHandling.signalServiceError(LOG_TAG, e, this);
-        } catch (Exception e) {
-            Logger.e(LOG_TAG, "Error starting DeviceControllerService: ", e);
-            Toast.makeText(this, getText(R.string.jetty_not_started), Toast.LENGTH_SHORT).show();
-        }
     }
 
     /** Update our rci_uri in the GOM */
@@ -179,19 +129,18 @@ public class DeviceControllerService extends Y60Service {
     public void onDestroy() {
         Logger.v(LOG_TAG, "onDestroy");
 
+        if (mServer == null) {
+            Logger.i(LOG_TAG, "onDestroy(): Jetty not running, Server is null");
+            Toast.makeText(DeviceControllerService.this, R.string.jetty_not_running,
+                    Toast.LENGTH_SHORT).show();
+
+            super.onDestroy();
+            return;
+        }
+
         try {
-            if (mServer != null) {
-                stopServer();
-                // Cancel the persistent notification.
-                // Tell the user we stopped.
-                Toast.makeText(this, getText(R.string.jetty_stopped), Toast.LENGTH_SHORT).show();
-                Logger.i(LOG_TAG, "onDestroy(): Jetty Server stopped");
-                sResources = null;
-            } else {
-                Logger.i(LOG_TAG, "onDestroy(): Jetty not running, Server is null");
-                Toast.makeText(DeviceControllerService.this, R.string.jetty_not_running,
-                        Toast.LENGTH_SHORT).show();
-            }
+            stopServer();
+
             if (mGom != null) {
                 mGom.unbind();
             }
@@ -208,28 +157,38 @@ public class DeviceControllerService extends Y60Service {
         super.onLowMemory();
     }
 
-    /**
-     * Hack to get around bug in ResourceBundles
-     * 
-     * @param id
-     * @return
-     */
-    public static InputStream getStreamToRawResource(int id) {
-        if (sResources != null)
-            return sResources.openRawResource(id);
-        else
-            return null;
+    Server startServer(int pPort) throws Exception {
+        SocketConnector connector = new SocketConnector();
+        connector.setPort(pPort);
+        connector.setHost("0.0.0.0"); // listen on all interfaces
+
+        Server server = new Server();
+
+        server.setConnectors(new Connector[] { connector });
+
+        // Bridge Jetty logging to Android logging
+        System.setProperty("org.mortbay.log.class", "org.mortbay.log.AndroidLog");
+        org.mortbay.log.Log.setLog(new AndroidLog());
+
+        HandlerCollection handlers = new HandlerCollection();
+        handlers.setHandlers(new Handler[] { new DeviceControllerHandler(this) });
+        // server.setHandler(handlers);
+
+        server.start();
+
+        Toast.makeText(DeviceControllerService.this, R.string.jetty_started, Toast.LENGTH_SHORT)
+                .show();
+
+        return server;
     }
 
-    public String getGomLocation() {
+    private void stopServer() throws Exception {
+        Logger.i(LOG_TAG, "stopServer(): Jetty Server stopping");
+        mServer.stop();
+        Logger.i(LOG_TAG, "stopServer(): Jetty Server stopped. done.");
 
-        return mPreferences.getString(PreferencesActivity.KEY_GOM_LOCATION, "");
-    }
-
-    public String getSelfPath() {
-
-        return mPreferences.getString(PreferencesActivity.KEY_DEVICES_PATH, "") + "/"
-                + mPreferences.getString(PreferencesActivity.KEY_DEVICE_ID, "");
+        Toast.makeText(this, getText(R.string.jetty_stopped), Toast.LENGTH_SHORT).show();
+        mServer = null;
     }
 
     @Override
@@ -239,47 +198,9 @@ public class DeviceControllerService extends Y60Service {
         return mBinder;
     }
 
-    Server startServer(int pPort) throws Exception {
-        Connector connector;
-        if (false) {
-            SelectChannelConnector nioConnector = new SelectChannelConnector();
-            nioConnector.setUseDirectBuffers(false);
-            nioConnector.setPort(pPort);
-            nioConnector.setHost("0.0.0.0"); // listen on all interfaces
-            connector = nioConnector;
-        } else {
-            SocketConnector bioConnector = new SocketConnector();
-            bioConnector.setPort(pPort);
-            bioConnector.setHost("0.0.0.0"); // listen on all interfaces
-            connector = bioConnector;
-        }
-
-        Server server = new Server();
-        server.setConnectors(new Connector[] { connector });
-
-        // Bridge Jetty logging to Android logging
-        System.setProperty("org.mortbay.log.class", "org.mortbay.log.AndroidLog");
-        org.mortbay.log.Log.setLog(new AndroidLog());
-
-        HandlerCollection handlers = new HandlerCollection();
-        handlers.setHandlers(new Handler[] { new DeviceControllerHandler(this) });
-        server.setHandler(handlers);
-
-        server.start();
-        return server;
-    }
-
-    private void stopServer() throws Exception {
-        Logger.i(LOG_TAG, "stopServer(): Jetty Server stopping");
-        mServer.stop();
-        Logger.i(LOG_TAG, "stopServer(): Jetty Server stopped. done.");
-        mServer = null;
-    }
-
     public class DeviceControllerBinder extends Binder {
 
         public DeviceControllerService getService() {
-
             return DeviceControllerService.this;
         }
     }

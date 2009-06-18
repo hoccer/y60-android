@@ -54,7 +54,7 @@ public class DeviceControllerServiceTest extends ServiceTestCase<DeviceControlle
 
         Logger.v(LOG_TAG, "testAJettyRoundtrip------------------------------------------");
 
-        assertNoWebserverIsRunning();
+        // assertNoWebserverIsRunning();
 
         assertNull(getService());
         Intent startIntent = new Intent("y60.intent.SERVICE_DEVICE_CONTROLLER");
@@ -68,7 +68,7 @@ public class DeviceControllerServiceTest extends ServiceTestCase<DeviceControlle
         assertNotNull("Jetty server should not be null", getService().mServer);
         // assertTrue("Webserver died", getService().mServer.isRunning());
 
-        shutdownServiceAndLog();
+        // shutdownServiceAndLog();
     }
 
     public void testAutomaticWebserverStartup() throws Exception {
