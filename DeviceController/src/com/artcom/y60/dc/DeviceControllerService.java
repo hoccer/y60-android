@@ -45,7 +45,10 @@ import com.artcom.y60.Logger;
 import com.artcom.y60.NetworkHelper;
 import com.artcom.y60.PreferencesActivity;
 import com.artcom.y60.Y60Service;
+import com.artcom.y60.gom.GomEntryTypeMismatchException;
+import com.artcom.y60.gom.GomException;
 import com.artcom.y60.gom.GomNode;
+import com.artcom.y60.gom.GomNotFoundException;
 import com.artcom.y60.gom.GomProxyHelper;
 
 public class DeviceControllerService extends Y60Service {
@@ -141,8 +144,13 @@ public class DeviceControllerService extends Y60Service {
         }
     }
 
-    /** Update our rci_uri in the GOM */
-    private void updateRciUri(int pPort) {
+    /**
+     * Update our rci_uri in the GOM
+     * 
+     * @throws GomNotFoundException
+     * @throws GomEntryTypeMismatchException
+     */
+    private void updateRciUri(int pPort) throws GomException {
 
         DeviceConfiguration dc = DeviceConfiguration.load();
         String ipAddress;

@@ -68,10 +68,10 @@ public class GomProxyHelper {
         return mProxy != null;
     }
 
-    public GomEntry getEntry(String pPath) {
+    public GomEntry getEntry(String pPath) throws GomEntryTypeMismatchException,
+            GomNotFoundException {
 
         assertConnected();
-
         String lastSeg = pPath.substring(pPath.lastIndexOf("/") + 1);
         if (lastSeg.contains(":")) {
             return getAttribute(pPath);
@@ -83,16 +83,16 @@ public class GomProxyHelper {
     public GomNode getNode(String pPath) throws GomEntryTypeMismatchException {
 
         assertConnected();
-
         return new GomNode(pPath, this);
     }
 
-    public GomNode getNode(Uri uri) {
+    public GomNode getNode(Uri uri) throws GomException {
 
         return getNode(uri.toString());
     }
 
-    public GomAttribute getAttribute(String pPath) throws GomEntryTypeMismatchException {
+    public GomAttribute getAttribute(String pPath) throws GomEntryTypeMismatchException,
+            GomNotFoundException {
 
         assertConnected();
 
@@ -101,8 +101,14 @@ public class GomProxyHelper {
             String value = getProxy().getAttributeValue(pPath, status);
 
             if (status.hasError()) {
+
+                Logger.v(LOG_TAG, status.getError());
                 Throwable err = status.getError();
-                throw new RuntimeException(err);
+                if (err instanceof GomNotFoundException) {
+                    throw new GomNotFoundException(err);
+                } else {
+                    throw new RuntimeException(err);
+                }
             }
 
             return new GomAttribute(pPath, this, value);
@@ -268,7 +274,7 @@ public class GomProxyHelper {
 
     // Package Protected Instance Methods --------------------------------
 
-    void refreshEntry(String pPath) {
+    void refreshEntry(String pPath) throws Throwable {
 
         RpcStatus status = new RpcStatus();
 
@@ -277,7 +283,7 @@ public class GomProxyHelper {
 
             if (status.hasError()) {
                 Throwable err = status.getError();
-                throw new RuntimeException(err);
+                throw err;
             }
 
         } catch (RemoteException rex) {

@@ -60,7 +60,7 @@ public class GomNode extends GomEntry {
 
     // Public Instance Methods -------------------------------------------
 
-    public Set<GomEntry> entries() {
+    public Set<GomEntry> entries() throws GomEntryTypeMismatchException, GomNotFoundException {
 
         loadDataIfNecessary();
 
@@ -70,7 +70,8 @@ public class GomNode extends GomEntry {
         return entries;
     }
 
-    public Set<GomAttribute> attributes() {
+    public Set<GomAttribute> attributes() throws GomEntryTypeMismatchException,
+            GomNotFoundException {
 
         loadDataIfNecessary();
 
@@ -87,7 +88,7 @@ public class GomNode extends GomEntry {
         return attrs;
     }
 
-    public Set<GomNode> nodes() {
+    public Set<GomNode> nodes() throws GomEntryTypeMismatchException, GomNotFoundException {
 
         loadDataIfNecessary();
 
@@ -104,7 +105,7 @@ public class GomNode extends GomEntry {
         return nodes;
     }
 
-    public Set<String> entryNames() {
+    public Set<String> entryNames() throws GomEntryTypeMismatchException, GomNotFoundException {
 
         loadDataIfNecessary();
 
@@ -114,7 +115,8 @@ public class GomNode extends GomEntry {
         return names;
     }
 
-    public GomEntry getEntry(String pName) throws NoSuchElementException {
+    public GomEntry getEntry(String pName) throws NoSuchElementException,
+            GomEntryTypeMismatchException, GomNotFoundException {
 
         loadDataIfNecessary();
 
@@ -129,7 +131,8 @@ public class GomNode extends GomEntry {
         return entry;
     }
 
-    private boolean hasEntry(String pName) {
+    private boolean hasEntry(String pName) throws GomEntryTypeMismatchException,
+            GomNotFoundException {
         loadDataIfNecessary();
         return mEntries.containsKey(pName);
     }
@@ -139,7 +142,7 @@ public class GomNode extends GomEntry {
     }
 
     public GomAttribute getAttribute(String pName) throws NoSuchElementException,
-            GomEntryTypeMismatchException {
+            GomEntryTypeMismatchException, GomNotFoundException {
 
         loadDataIfNecessary();
 
@@ -148,11 +151,13 @@ public class GomNode extends GomEntry {
         return entry.forceAttributeOrException();
     }
 
-    public boolean hasAttribute(String pName) {
+    public boolean hasAttribute(String pName) throws GomEntryTypeMismatchException,
+            GomNotFoundException {
         return hasEntry(pName);
     }
 
-    public GomAttribute getOrCreateAttribute(String pName) {
+    public GomAttribute getOrCreateAttribute(String pName) throws GomEntryTypeMismatchException,
+            GomNotFoundException {
 
         GomAttribute attribute;
         try {
@@ -168,7 +173,7 @@ public class GomNode extends GomEntry {
     }
 
     public GomNode getNode(String pName) throws NoSuchElementException,
-            GomEntryTypeMismatchException {
+            GomEntryTypeMismatchException, GomNotFoundException {
 
         loadDataIfNecessary();
 
@@ -177,7 +182,7 @@ public class GomNode extends GomEntry {
         return entry.forceNodeOrException();
     }
 
-    public JSONObject toJson() {
+    public JSONObject toJson() throws GomEntryTypeMismatchException, GomNotFoundException {
 
         return toJsonFlushEntries(true);
     }
@@ -203,7 +208,8 @@ public class GomNode extends GomEntry {
 
     // Private Instance Methods ------------------------------------------
 
-    private JSONObject toJsonFlushEntries(boolean pFlush) {
+    private JSONObject toJsonFlushEntries(boolean pFlush) throws GomEntryTypeMismatchException,
+            GomNotFoundException {
 
         // { "node": {
         // "uri": <uri>,
@@ -256,7 +262,7 @@ public class GomNode extends GomEntry {
         return (mEntries != null);
     }
 
-    private void loadDataIfNecessary() {
+    private void loadDataIfNecessary() throws GomEntryTypeMismatchException, GomNotFoundException {
 
         if (!isDataLoaded()) {
 
@@ -264,7 +270,7 @@ public class GomNode extends GomEntry {
         }
     }
 
-    private void loadData() {
+    private void loadData() throws GomEntryTypeMismatchException, GomNotFoundException {
         mEntries = new HashMap<String, GomEntry>();
 
         List<String> subNodeNames = new LinkedList<String>();

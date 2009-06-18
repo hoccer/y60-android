@@ -78,27 +78,25 @@ public class GomNotificationHelper {
             public void run() {
 
                 try {
-
                     putObserverToGom(pPath);
-
                     boolean doRefresh = pGom.hasInCache(pPath);
-
                     GomEntry entry = pGom.getEntry(pPath);
                     pGomObserver.onEntryUpdated(pPath, entry.toJson());
 
                     if (doRefresh) {
-
                         pGom.refreshEntry(pPath);
-
                         GomEntry newEntry = pGom.getEntry(pPath);
-
                         if (!newEntry.equals(entry)) {
                             pGomObserver.onEntryUpdated(pPath, newEntry.toJson());
                         }
-
                     }
+                } catch (GomNotFoundException gx) {
+                    pGom.deleteEntry(pPath);
+                    pGomObserver.onEntryDeleted(pPath, null);
                 } catch (Exception ex) {
                     pErrorHandler.handle(ex);
+                } catch (Throwable t) {
+                    Logger.v(LOG_TAG, t.toString());
                 }
             }
         }).start();

@@ -51,7 +51,7 @@ public class GomNodeTest extends AndroidTestCase {
 
     // Public Instance Methods -------------------------------------------
 
-    public void setUp() {
+    public void setUp() throws GomException {
 
         final GomProxyHelper helper = new GomProxyHelper(getContext(), null);
 
@@ -96,7 +96,7 @@ public class GomNodeTest extends AndroidTestCase {
         assertEquals(ATTR_VALUE, ((GomAttribute) entry).getValue());
     }
 
-    public void testGetEntry() {
+    public void testGetEntry() throws GomException {
 
         GomEntry entry = mTestNode.getEntry(CHILD_NAME);
         assertNotNull(entry);
@@ -112,7 +112,7 @@ public class GomNodeTest extends AndroidTestCase {
         assertEquals(ATTR_VALUE, ((GomAttribute) entry).getValue());
     }
 
-    public void testAttributes() {
+    public void testAttributes() throws GomException {
 
         Set<GomAttribute> attrs = mTestNode.attributes();
 
@@ -128,7 +128,7 @@ public class GomNodeTest extends AndroidTestCase {
         }
     }
 
-    public void testEntries() {
+    public void testEntries() throws GomException {
 
         Set<GomEntry> entries = mTestNode.entries();
 
@@ -159,7 +159,7 @@ public class GomNodeTest extends AndroidTestCase {
         }
     }
 
-    public void testKeys() {
+    public void testKeys() throws GomException {
 
         Set<String> keys = mTestNode.entryNames();
 
@@ -175,7 +175,7 @@ public class GomNodeTest extends AndroidTestCase {
         }
     }
 
-    public void testNodes() {
+    public void testNodes() throws GomException {
 
         Set<GomNode> nodes = mTestNode.nodes();
 

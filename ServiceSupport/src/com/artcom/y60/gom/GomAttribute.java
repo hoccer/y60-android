@@ -55,7 +55,7 @@ public class GomAttribute extends GomEntry {
         return mValue;
     }
 
-    public GomNode getNode() {
+    public GomNode getNode() throws GomEntryTypeMismatchException {
 
         return getGomProxyHelper().getNode(mNodePath);
     }
@@ -116,8 +116,11 @@ public class GomAttribute extends GomEntry {
      * @throws GomResolutionFailedException
      *             if the resolution failed, e.g. because this attribute didn't
      *             point a resource
+     * @throws GomNotFoundException
+     * @throws GomEntryTypeMismatchException
      */
-    public GomEntry resolveReference() throws GomResolutionFailedException {
+    public GomEntry resolveReference() throws GomResolutionFailedException,
+            GomEntryTypeMismatchException, GomNotFoundException {
 
         GomEntry entry = getGomProxyHelper().getEntry(mValue);
 

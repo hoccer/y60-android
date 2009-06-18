@@ -72,7 +72,7 @@ public abstract class GomEntry {
 
     // Public Instance Methods -------------------------------------------
 
-    public abstract JSONObject toJson();
+    public abstract JSONObject toJson() throws GomEntryTypeMismatchException, GomNotFoundException;
 
     public String getName() {
 
@@ -84,7 +84,6 @@ public abstract class GomEntry {
     }
 
     public String getPath() {
-
         return mPath;
     }
 
@@ -103,8 +102,9 @@ public abstract class GomEntry {
      * meaningful error message otherwise.
      * 
      * @return
+     * @throws GomEntryTypeMismatchException
      */
-    public GomAttribute forceAttributeOrException() {
+    public GomAttribute forceAttributeOrException() throws GomEntryTypeMismatchException {
 
         if (this instanceof GomAttribute) {
 
@@ -122,8 +122,9 @@ public abstract class GomEntry {
      * meaningful error message otherwise.
      * 
      * @return
+     * @throws GomEntryTypeMismatchException
      */
-    public GomNode forceNodeOrException() {
+    public GomNode forceNodeOrException() throws GomEntryTypeMismatchException {
 
         if (this instanceof GomNode) {
 

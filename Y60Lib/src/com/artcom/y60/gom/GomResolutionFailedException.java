@@ -1,6 +1,6 @@
 package com.artcom.y60.gom;
 
-public class GomResolutionFailedException extends RuntimeException {
+public class GomResolutionFailedException extends GomException {
 
     public GomResolutionFailedException() {
         super();

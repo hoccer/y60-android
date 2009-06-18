@@ -7,7 +7,6 @@ import java.util.Map;
 import java.util.Vector;
 
 import org.apache.http.StatusLine;
-import org.json.JSONException;
 
 import android.content.Intent;
 import android.net.Uri;
@@ -119,7 +118,7 @@ public class GomProxyServiceTest extends ServiceTestCase<GomProxyService> {
         service.deleteEntry(nodePath);
     }
 
-    public void testDeleteNodeWithChilds() throws JSONException {
+    public void testDeleteNodeWithChilds() throws Exception {
         startService(mIntent);
         GomProxyService service = getService();
 

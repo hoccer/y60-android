@@ -20,7 +20,7 @@ public class GomAttributeTest extends AndroidTestCase {
 
     // Public Instance Methods -------------------------------------------
 
-    public void setUp() {
+    public void setUp() throws GomException {
 
         GomProxyHelper helper = new GomProxyHelper(getContext(), null);
 
@@ -62,7 +62,7 @@ public class GomAttributeTest extends AndroidTestCase {
         assertEquals(mTestRef.name(), mTestAttr.getName());
     }
 
-    public void testResolveReference() {
+    public void testResolveReference() throws GomException {
 
         GomEntry entry = mTestAttr.resolveReference();
 

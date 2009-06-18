@@ -1,6 +1,6 @@
 package com.artcom.y60.gom;
 
-public class GomProxyException extends Exception {
+public class GomProxyException extends GomException {
 
     public GomProxyException() {
         super();

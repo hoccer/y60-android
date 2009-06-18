@@ -98,7 +98,7 @@ public class GomProxyService extends Y60Service {
     // Package Protected Instance Methods --------------------------------
 
     void getNodeData(String pPath, List<String> pSubNodeNames, List<String> pAttributeNames)
-            throws JSONException {
+            throws JSONException, GomNotFoundException, GomProxyException {
 
         // Logger.v(tag(), "getNodeData("+pPath+")");
 
@@ -128,7 +128,8 @@ public class GomProxyService extends Y60Service {
         }
     }
 
-    String getAttributeValue(String pPath) throws JSONException {
+    String getAttributeValue(String pPath) throws JSONException, GomNotFoundException,
+            GomProxyException {
 
         Logger.v(LOG_TAG, "getAttributeValue(", pPath, ")");
 
@@ -165,16 +166,12 @@ public class GomProxyService extends Y60Service {
 
     }
 
-    void refreshEntry(String pPath) throws JSONException {
-
+    void refreshEntry(String pPath) throws JSONException, GomNotFoundException, GomProxyException {
         Logger.v(LOG_TAG, "refreshEntry(", pPath, ")");
         String lastSegment = pPath.substring(pPath.lastIndexOf("/") + 1);
         if (lastSegment.contains(":")) {
-
             loadAttribute(pPath);
-
         } else {
-
             loadNode(pPath);
         }
     }
@@ -233,12 +230,21 @@ public class GomProxyService extends Y60Service {
 
     // Private Instance Methods ------------------------------------------
 
-    private void loadNode(String pPath) throws JSONException {
+    private void loadNode(String pPath) throws JSONException, GomNotFoundException,
+            GomProxyException {
 
         Logger.v(LOG_TAG, "loadNode(", pPath, ")");
 
         String uri = Uri.withAppendedPath(mBaseUri, pPath).toString();
-        JSONObject jsob = HttpHelper.getJson(uri);
+        JSONObject jsob;
+        try {
+            jsob = HttpHelper.getJson(uri);
+        } catch (RuntimeException rx) {
+            if (rx.toString().contains("404")) {
+                throw new GomNotFoundException(rx);
+            }
+            throw new GomProxyException(rx);
+        }
         updateNodeFromJson(pPath, jsob);
 
     }
@@ -286,13 +292,21 @@ public class GomProxyService extends Y60Service {
         }
     }
 
-    private void loadAttribute(String pPath) throws JSONException {
+    private void loadAttribute(String pPath) throws JSONException, GomNotFoundException,
+            GomProxyException {
 
         Logger.v(LOG_TAG, "loadAttribute(", pPath, ")");
 
         String uri = Uri.withAppendedPath(mBaseUri, pPath).toString();
         JSONObject jsob;
-        jsob = HttpHelper.getJson(uri);
+        try {
+            jsob = HttpHelper.getJson(uri);
+        } catch (RuntimeException e) {
+            if (e.toString().contains("404")) {
+                throw new GomNotFoundException(e);
+            }
+            throw new GomProxyException(e);
+        }
         JSONObject attr = jsob.getJSONObject(Constants.Gom.Keywords.ATTRIBUTE);
 
         Logger.v(LOG_TAG, "loaded attribute from gom: ", attr);
@@ -341,6 +355,16 @@ public class GomProxyService extends Y60Service {
                 return GomProxyService.this.getAttributeValue(path);
 
             } catch (Exception ex) {
+                pStatus.setError(ex);
+                return null;
+            }
+        }
+
+        @Override
+        public String getCachedAttributeValue(String pPath, RpcStatus pStatus) {
+            try {
+                return GomProxyService.this.getCachedAttributeValue(pPath);
+            } catch (Exception ex) {
 
                 pStatus.setError(ex);
                 return null;
@@ -362,7 +386,6 @@ public class GomProxyService extends Y60Service {
             try {
                 GomProxyService.this.refreshEntry(path);
             } catch (Exception ex) {
-
                 pStatus.setError(ex);
             }
 
@@ -418,17 +441,6 @@ public class GomProxyService extends Y60Service {
             } catch (Exception ex) {
 
                 pStatus.setError(ex);
-            }
-        }
-
-        @Override
-        public String getCachedAttributeValue(String pPath, RpcStatus pStatus) {
-            try {
-                return GomProxyService.this.getCachedAttributeValue(pPath);
-            } catch (Exception ex) {
-
-                pStatus.setError(ex);
-                return null;
             }
         }
 

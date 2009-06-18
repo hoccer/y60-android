@@ -6,7 +6,7 @@ package com.artcom.y60.gom;
  * 
  * @author arne
  */
-public class GomEntryTypeMismatchException extends RuntimeException {
+public class GomEntryTypeMismatchException extends GomException {
 
     public GomEntryTypeMismatchException() {
         super();
