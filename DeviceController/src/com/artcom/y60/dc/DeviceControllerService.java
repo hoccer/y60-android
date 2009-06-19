@@ -1,27 +1,12 @@
-//========================================================================
-//$Id: DeviceControllerService.java 170 2008-10-21 05:37:59Z janb.webtide $
-//Copyright 2008 Mort Bay Consulting Pty. Ltd.
-//------------------------------------------------------------------------
-//Licensed under the Apache License, Version 2.0 (the "License");
-//you may not use this file except in compliance with the License.
-//You may obtain a copy of the License at 
-//http://www.apache.org/licenses/LICENSE-2.0
-//Unless required by applicable law or agreed to in writing, software
-//distributed under the License is distributed on an "AS IS" BASIS,
-//WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-//See the License for the specific language governing permissions and
-//limitations under the License.
-//========================================================================
-
 package com.artcom.y60.dc;
 
-import org.mortbay.ijetty.AndroidLog;
 import org.mortbay.jetty.Connector;
 import org.mortbay.jetty.Handler;
 import org.mortbay.jetty.Server;
 import org.mortbay.jetty.bio.SocketConnector;
 import org.mortbay.jetty.handler.HandlerCollection;
 
+import android.app.Service;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
@@ -36,11 +21,10 @@ import com.artcom.y60.ErrorHandling;
 import com.artcom.y60.IpAddressNotFoundException;
 import com.artcom.y60.Logger;
 import com.artcom.y60.NetworkHelper;
-import com.artcom.y60.Y60Service;
 import com.artcom.y60.gom.GomNode;
 import com.artcom.y60.gom.GomProxyHelper;
 
-public class DeviceControllerService extends Y60Service {
+public class DeviceControllerService extends Service {
 
     public static final String  DEFAULT_NIONAME  = "com.artcom.y60.dc.nio";
     public static final String  DEFAULT_PORTNAME = "com.artcom.y60.dc.port";
@@ -167,8 +151,9 @@ public class DeviceControllerService extends Y60Service {
         server.setConnectors(new Connector[] { connector });
 
         // Bridge Jetty logging to Android logging
-        System.setProperty("org.mortbay.log.class", "org.mortbay.log.AndroidLog");
-        org.mortbay.log.Log.setLog(new AndroidLog());
+        // System.setProperty("org.mortbay.log.class",
+        // "org.mortbay.log.AndroidLog");
+        // org.mortbay.log.Log.setLog(new AndroidLog());
 
         HandlerCollection handlers = new HandlerCollection();
         handlers.setHandlers(new Handler[] { new DeviceControllerHandler(this) });

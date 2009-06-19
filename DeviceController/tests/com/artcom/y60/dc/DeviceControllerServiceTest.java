@@ -62,7 +62,7 @@ public class DeviceControllerServiceTest extends ServiceTestCase<DeviceControlle
         TestHelper.blockUntilWebServerIsRunning();
         assertNotNull(getService());
 
-        int code = HttpHelper.getStatusCode("http://localhost:4042/");
+        // int code = HttpHelper.getStatusCode("http://localhost:4042/");
         // assertEquals(404, code);
         assertNotNull("Service should not be null", getService());
         assertNotNull("Jetty server should not be null", getService().mServer);

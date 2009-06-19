@@ -30,7 +30,6 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.client.DefaultRedirectHandler;
 import org.apache.http.message.BasicHttpResponse;
 import org.apache.http.params.BasicHttpParams;
-import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.HttpContext;
 import org.json.JSONException;
@@ -352,11 +351,13 @@ public class HttpHelper {
     }
 
     private static HttpResponse executeHTTPMethod(HttpRequestBase method) {
+
         int connection_Timeout = 1000;
 
         HttpParams my_httpParams = new BasicHttpParams();
-        HttpConnectionParams.setConnectionTimeout(my_httpParams, connection_Timeout);
-        HttpConnectionParams.setSoTimeout(my_httpParams, connection_Timeout);
+        // HttpConnectionParams.setConnectionTimeout(my_httpParams,
+        // connection_Timeout);
+        // HttpConnectionParams.setSoTimeout(my_httpParams, connection_Timeout);
 
         DefaultHttpClient httpclient = new DefaultHttpClient(my_httpParams);
 

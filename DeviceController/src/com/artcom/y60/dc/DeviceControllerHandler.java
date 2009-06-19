@@ -61,14 +61,7 @@ public class DeviceControllerHandler extends DefaultHandler {
             Logger.v(LOG_TAG, "Path.....", path);
             Logger.v(LOG_TAG, "Target...", pTarget);
 
-            if (path.startsWith(PROC_PATH_PREFIX)) {
-
-                // Requests directed at the DC's own resources.
-                Logger.v(LOG_TAG, "Handling /proc request");
-                ProcHandler procHandler = new ProcHandler();
-                procHandler.handle(pTarget, pRequest, pResponse, pDispatch);
-
-            } else if ("POST".equals(method) && RCA_TARGET.equals(pTarget)) {
+            if ("POST".equals(method) && RCA_TARGET.equals(pTarget)) {
 
                 handleCommand(pRequest);
 
