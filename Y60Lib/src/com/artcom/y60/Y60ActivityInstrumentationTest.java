@@ -71,7 +71,7 @@ public abstract class Y60ActivityInstrumentationTest<T extends Activity> extends
 
         View view = getActivity().findViewById(pViewId);
         assertTrue("view '" + getActivity().getResources().getResourceName(pViewId)
-                + "' sould be visible", view.isShown());
+                + "' should be visible", view.isShown());
 
     }
 
