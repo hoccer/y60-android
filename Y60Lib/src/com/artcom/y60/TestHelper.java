@@ -175,9 +175,9 @@ public class TestHelper {
 
     public static void blockUntilWebServerIsRunning() {
 
-        long timeout = 3000;
-        TestHelper.blockUntilEquals("device controller should have started withhin" + timeout
-                + " milliseconds", 3000, 404, new TestHelper.Measurement() {
+        long timeout = 10000;
+        TestHelper.blockUntilEquals("device controller should have started withhin " + timeout
+                + " milliseconds", timeout, 404, new TestHelper.Measurement() {
             @Override
             public Object getActualValue() {
 

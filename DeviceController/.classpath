@@ -1,11 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry combineaccessrules="false" kind="src" path="/Y60Lib"/>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="src" path="tests"/>
 	<classpathentry kind="src" path="gen"/>
-	<classpathentry kind="lib" path="libs/i-jetty-1.2.jar"/>
-	<classpathentry kind="con" path="com.android.ide.eclipse.adt.ANDROID_FRAMEWORK"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/ServiceSupport"/>
+	<classpathentry kind="lib" path="libs/jetty-6.1.18.jar"/>
+	<classpathentry kind="lib" path="libs/jetty-util-6.1.18.jar"/>
+	<classpathentry kind="lib" path="libs/servlet-api-2.5-20081211.jar"/>
+	<classpathentry kind="con" path="com.android.ide.eclipse.adt.ANDROID_FRAMEWORK"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/Y60Lib"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
