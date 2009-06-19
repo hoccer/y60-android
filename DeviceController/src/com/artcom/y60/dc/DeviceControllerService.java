@@ -5,6 +5,7 @@ import org.mortbay.jetty.Handler;
 import org.mortbay.jetty.Server;
 import org.mortbay.jetty.bio.SocketConnector;
 import org.mortbay.jetty.handler.HandlerCollection;
+import org.mortbay.thread.QueuedThreadPool;
 
 import android.app.Service;
 import android.content.Intent;
@@ -160,6 +161,8 @@ public class DeviceControllerService extends Service {
         // server.setHandler(handlers);
 
         server.start();
+        QueuedThreadPool threadpool = (QueuedThreadPool) server.getThreadPool();
+        threadpool.setMaxStopTimeMs(10);
 
         Toast.makeText(DeviceControllerService.this, R.string.jetty_started, Toast.LENGTH_SHORT)
                 .show();
@@ -170,6 +173,7 @@ public class DeviceControllerService extends Service {
     private void stopServer() throws Exception {
         Logger.i(LOG_TAG, "stopServer(): Jetty Server stopping");
         mServer.stop();
+        mServer.join();
         Logger.i(LOG_TAG, "stopServer(): Jetty Server stopped. done.");
 
         Toast.makeText(this, getText(R.string.jetty_stopped), Toast.LENGTH_SHORT).show();
