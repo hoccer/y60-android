@@ -166,7 +166,7 @@ public class DeviceControllerService extends Y60Service {
 
         HandlerCollection handlers = new HandlerCollection();
         handlers.setHandlers(new Handler[] { new DeviceControllerHandler(this) });
-        // server.setHandler(handlers);
+        server.setHandler(handlers);
 
         server.start();
         QueuedThreadPool threadpool = (QueuedThreadPool) server.getThreadPool();
