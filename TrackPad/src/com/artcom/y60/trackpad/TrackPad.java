@@ -22,7 +22,7 @@ import com.artcom.y60.RemoteMousepointerClient;
 
 public class TrackPad extends Activity {
 
-    // Constants ---------------------------------------------------------
+   // Constants ---------------------------------------------------------
 
     public static final String LOG_TAG = "Trackpad";
 
