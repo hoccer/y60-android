@@ -30,21 +30,19 @@ public class GomProxyService extends Y60Service {
 
     // Constants ---------------------------------------------------------
 
-    private static final String              LOG_TAG = "GomProxyService";
+    private static final String   LOG_TAG = "GomProxyService";
 
     // Instance Variables ------------------------------------------------
 
-    private String                           mId;
+    private String                mId;
 
-    private GomProxyRemote                   mRemote;
+    private GomProxyRemote        mRemote;
 
-    private Map<String, NodeData>            mNodes;
+    private Map<String, NodeData> mNodes;
 
-    private Map<String, String>              mAttributes;
+    private Map<String, String>   mAttributes;
 
-    private Uri                              mBaseUri;
-
-    private GomNotificationBroadcastReceiver mReceiver;
+    private Uri                   mBaseUri;
 
     // Constructors ------------------------------------------------------
 
@@ -56,7 +54,6 @@ public class GomProxyService extends Y60Service {
         Logger.v(LOG_TAG, "HttpProxyService instantiated");
 
         mBaseUri = Uri.parse(Constants.Gom.URI);
-        mReceiver = new GomNotificationBroadcastReceiver();
     }
 
     // Public Instance Methods -------------------------------------------
@@ -71,7 +68,6 @@ public class GomProxyService extends Y60Service {
         super.onCreate();
 
         mRemote = new GomProxyRemote();
-        registerReceiver(mReceiver, Constants.Gom.GNP_INTENT_FILTER);
     }
 
     public void onStart(Intent intent, int startId) {
@@ -84,8 +80,6 @@ public class GomProxyService extends Y60Service {
     public void onDestroy() {
 
         Logger.i(LOG_TAG, "onDestroy");
-
-        unregisterReceiver(mReceiver);
 
         super.onDestroy();
     }

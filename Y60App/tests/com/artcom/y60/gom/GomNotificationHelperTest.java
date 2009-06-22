@@ -73,7 +73,7 @@ public class GomNotificationHelperTest extends GomActivityUnitTestCase {
         HttpHelper.putXML(Constants.Gom.URI + attrPath, "<attribute>original value</attribute>");
         assertEquals("original value", HttpHelper.get(Constants.Gom.URI + attrPath + ".txt"));
 
-        final GomTestObserver gto = new GomTestObserver();
+        final GomTestObserver gto = new GomTestObserver(this);
         BroadcastReceiver receiver = GomNotificationHelper.registerObserverAndNotify(attrPath, gto,
                 helper);
         assertEquals("gnp update callback shuld not have been called", 0, gto.getUpdateCount());
@@ -135,7 +135,7 @@ public class GomNotificationHelperTest extends GomActivityUnitTestCase {
         String testPath = TEST_BASE_PATH + "/test_attr_not_in_proxy_not_in_gom";
         String attrPath = testPath + ":" + timestamp;
 
-        final GomTestObserver gto = new GomTestObserver();
+        final GomTestObserver gto = new GomTestObserver(this);
 
         GomNotificationHelper.registerObserverAndNotify(attrPath, gto, helper);
 
@@ -171,7 +171,7 @@ public class GomNotificationHelperTest extends GomActivityUnitTestCase {
         String testPath = TEST_BASE_PATH + "/test_attr_in_proxy_not_in_gom";
         String attrPath = testPath + ":" + timestamp;
 
-        final GomTestObserver gto = new GomTestObserver();
+        final GomTestObserver gto = new GomTestObserver(this);
 
         String value = "huhu";
         helper.saveAttribute(attrPath, value);
@@ -218,7 +218,7 @@ public class GomNotificationHelperTest extends GomActivityUnitTestCase {
         String testPath = TEST_BASE_PATH + "/test_node_in_proxy_not_in_gom";
         String nodePath = testPath + "/" + timestamp;
 
-        final GomTestObserver gto = new GomTestObserver();
+        final GomTestObserver gto = new GomTestObserver(this);
 
         helper.saveNode(nodePath, new LinkedList<String>(), new LinkedList<String>());
         assertNotNull(helper.getNode(nodePath));
@@ -271,7 +271,7 @@ public class GomNotificationHelperTest extends GomActivityUnitTestCase {
 
         GomHttpWrapper.updateOrCreateAttribute(attrUrl, attrValue);
 
-        final GomTestObserver gto = new GomTestObserver();
+        final GomTestObserver gto = new GomTestObserver(this);
         GomNotificationHelper.registerObserverAndNotify(attrPath, gto, helper);
 
         TestHelper.blockUntilTrue("update not called", 3000, new TestHelper.Condition() {
@@ -318,7 +318,7 @@ public class GomNotificationHelperTest extends GomActivityUnitTestCase {
 
         GomHttpWrapper.updateOrCreateAttribute(attrUrl, newAttrValue);
 
-        final GomTestObserver gto = new GomTestObserver();
+        final GomTestObserver gto = new GomTestObserver(this);
         GomNotificationHelper.registerObserverAndNotify(attrPath, gto, helper);
 
         TestHelper.blockUntilTrue("update not called", 3000, new TestHelper.Condition() {
@@ -373,7 +373,7 @@ public class GomNotificationHelperTest extends GomActivityUnitTestCase {
         assertTrue("Value should be in Gom", HttpHelper.getJson(attrUrl.toString()).toString()
                 .contains(attrValue));
 
-        final GomTestObserver gto = new GomTestObserver();
+        final GomTestObserver gto = new GomTestObserver(this);
         GomNotificationHelper.registerObserverAndNotify(attrPath, gto, helper);
 
         TestHelper.blockUntilTrue("update not called", 3000, new TestHelper.Condition() {
@@ -406,7 +406,7 @@ public class GomNotificationHelperTest extends GomActivityUnitTestCase {
         String testPath = TEST_BASE_PATH + "/test_notification_create";
         String attrPath = testPath + ":" + timestamp;
 
-        GomTestObserver gomObserver = new GomTestObserver();
+        GomTestObserver gomObserver = new GomTestObserver(this);
 
         BroadcastReceiver br;
         br = GomNotificationHelper.registerObserverAndNotify(attrPath, gomObserver, helper);
@@ -430,7 +430,7 @@ public class GomNotificationHelperTest extends GomActivityUnitTestCase {
         String testPath = TEST_BASE_PATH + "/test_notification_delete";
         String attrPath = testPath + ":" + timestamp;
 
-        GomTestObserver gomObserver = new GomTestObserver();
+        GomTestObserver gomObserver = new GomTestObserver(this);
 
         BroadcastReceiver br;
         br = GomNotificationHelper.registerObserverAndNotify(attrPath, gomObserver, helper);
@@ -454,7 +454,7 @@ public class GomNotificationHelperTest extends GomActivityUnitTestCase {
         String testPath = TEST_BASE_PATH + "/test_notification_update";
         String attrPath = testPath + ":" + timestamp;
 
-        GomTestObserver gomObserver = new GomTestObserver();
+        GomTestObserver gomObserver = new GomTestObserver(this);
 
         BroadcastReceiver br;
         br = GomNotificationHelper.registerObserverAndNotify(attrPath, gomObserver, helper);
@@ -539,7 +539,7 @@ public class GomNotificationHelperTest extends GomActivityUnitTestCase {
         String content2 = HttpHelper.get(visibleAttrUrl);
         assertNotNull(content2);
 
-        GomTestObserver observer = new GomTestObserver();
+        GomTestObserver observer = new GomTestObserver(this);
         BroadcastReceiver receiver = GomNotificationHelper.registerObserverAndNotify(observedPath,
                 observer, helper);
 
@@ -691,7 +691,7 @@ public class GomNotificationHelperTest extends GomActivityUnitTestCase {
         String testPath = TEST_BASE_PATH + "/test_register_observer_multiple_times";
         String nodePath = testPath + "/" + timestamp;
 
-        final GomTestObserver observer = new GomTestObserver();
+        final GomTestObserver observer = new GomTestObserver(this);
 
         // create node in gom
         GomHttpWrapper.createNode(Constants.Gom.URI + nodePath);

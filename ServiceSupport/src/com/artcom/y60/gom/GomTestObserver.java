@@ -6,14 +6,22 @@ package com.artcom.y60.gom;
 import java.util.LinkedList;
 import java.util.List;
 
+import junit.framework.TestCase;
+
 import org.json.JSONObject;
 
-class GomTestObserver implements GomObserver {
+public class GomTestObserver implements GomObserver {
 
-    private int mCreateCount = 0;
-    private int mUpdateCount = 0;
-    private int mDeleteCount = 0;
-    public LinkedList<Event> mEvents = new LinkedList<Event>();
+    private int              mCreateCount = 0;
+    private int              mUpdateCount = 0;
+    private int              mDeleteCount = 0;
+    public LinkedList<Event> mEvents      = new LinkedList<Event>();
+    private TestCase         mTest;
+
+    public GomTestObserver(TestCase pTest) {
+
+        mTest = pTest;
+    }
 
     public void reset() {
         mCreateCount = 0;
@@ -45,32 +53,32 @@ class GomTestObserver implements GomObserver {
 
     public void assertCreateCalled() {
 
-        GomNotificationHelperTest.assertTrue("create not called", mCreateCount > 0);
+        mTest.assertTrue("create not called", mCreateCount > 0);
     }
 
     public void assertDeleteCalled() {
 
-        GomNotificationHelperTest.assertTrue("delete not called", mDeleteCount > 0);
+        mTest.assertTrue("delete not called", mDeleteCount > 0);
     }
 
     public void assertUpdateCalled() {
 
-        GomNotificationHelperTest.assertTrue("update not called", mUpdateCount > 0);
+        mTest.assertTrue("update not called", mUpdateCount > 0);
     }
 
     public void assertCreateNotCalled() {
 
-        GomNotificationHelperTest.assertTrue("create called", mCreateCount == 0);
+        mTest.assertTrue("create called", mCreateCount == 0);
     }
 
     public void assertDeleteNotCalled() {
 
-        GomNotificationHelperTest.assertTrue("delete called", mDeleteCount == 0);
+        mTest.assertTrue("delete called", mDeleteCount == 0);
     }
 
     public void assertUpdateNotCalled() {
 
-        GomNotificationHelperTest.assertTrue("update called", mUpdateCount == 0);
+        mTest.assertTrue("update called", mUpdateCount == 0);
     }
 
     public int getUpdateCount() {
@@ -106,7 +114,7 @@ class GomTestObserver implements GomObserver {
     public class Event {
 
         public JSONObject data;
-        public String path;
+        public String     path;
 
         public Event(JSONObject pData, String pPath) {
 
