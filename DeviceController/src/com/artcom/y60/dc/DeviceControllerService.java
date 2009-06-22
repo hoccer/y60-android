@@ -7,7 +7,6 @@ import org.mortbay.jetty.bio.SocketConnector;
 import org.mortbay.jetty.handler.HandlerCollection;
 import org.mortbay.thread.QueuedThreadPool;
 
-import android.app.Service;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
@@ -22,11 +21,14 @@ import com.artcom.y60.ErrorHandling;
 import com.artcom.y60.IpAddressNotFoundException;
 import com.artcom.y60.Logger;
 import com.artcom.y60.NetworkHelper;
+import com.artcom.y60.Y60Service;
 import com.artcom.y60.gom.GomEntryTypeMismatchException;
+import com.artcom.y60.gom.GomException;
 import com.artcom.y60.gom.GomNode;
+import com.artcom.y60.gom.GomNotFoundException;
 import com.artcom.y60.gom.GomProxyHelper;
 
-public class DeviceControllerService extends Service {
+public class DeviceControllerService extends Y60Service {
 
     public static final String  DEFAULT_NIONAME  = "com.artcom.y60.dc.nio";
     public static final String  DEFAULT_PORTNAME = "com.artcom.y60.dc.port";
