@@ -21,6 +21,7 @@ public abstract class Y60ActivityInstrumentationTest<T extends Activity> extends
         ActivityInstrumentationTestCase2<T> {
 
     // Constants ---------------------------------------------------------
+    private static String      LOG_TAG       = "Y60ActivityInstrumentationTest";
 
     /**
      * Horizontal resolution of the display in portrait orientation. To be used
@@ -117,16 +118,31 @@ public abstract class Y60ActivityInstrumentationTest<T extends Activity> extends
     protected void touch(int pX, int pY) {
 
         sendMotionEventAndSync(MotionEvent.ACTION_DOWN, pX, pY);
+        try {
+            Thread.sleep(20);
+        } catch (InterruptedException e) {
+            Logger.e(LOG_TAG, e);
+        }
     }
 
     protected void release(int pX, int pY) {
 
         sendMotionEventAndSync(MotionEvent.ACTION_UP, pX, pY);
+        try {
+            Thread.sleep(20);
+        } catch (InterruptedException e) {
+            Logger.e(LOG_TAG, e);
+        }
     }
 
     protected void move(int pToX, int pToY) {
 
         sendMotionEventAndSync(MotionEvent.ACTION_MOVE, pToX, pToY);
+        try {
+            Thread.sleep(20);
+        } catch (InterruptedException e) {
+            Logger.e(LOG_TAG, e);
+        }
     }
 
     protected void moveAndRelease(int pToX, int pToY) {
