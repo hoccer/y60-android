@@ -15,7 +15,6 @@ import org.json.JSONObject;
 import android.net.Uri;
 
 import com.artcom.y60.Constants;
-import com.artcom.y60.HttpHelper;
 import com.artcom.y60.Logger;
 
 /**
@@ -49,13 +48,16 @@ public class GomNode extends GomEntry {
     /** All entries of this node */
     private Map<String, GomEntry> mEntries;
 
+    private boolean mFullyLoaded;
+
     // Constructors ------------------------------------------------------
 
     protected GomNode(String pPath, GomProxyHelper pHelper) {
 
         super(extractNameFromPath(pPath), pPath, pHelper);
 
-        mEntries = null; // will be loaded lazily
+        mEntries = new HashMap<String, GomEntry>();
+        mFullyLoaded = false;
     }
 
     // Public Instance Methods -------------------------------------------
@@ -71,7 +73,7 @@ public class GomNode extends GomEntry {
     }
 
     public Set<GomAttribute> attributes() throws GomEntryTypeMismatchException,
-            GomNotFoundException {
+                    GomNotFoundException {
 
         loadDataIfNecessary();
 
@@ -115,49 +117,37 @@ public class GomNode extends GomEntry {
         return names;
     }
 
-    public GomEntry getEntry(String pName) throws NoSuchElementException,
-            GomEntryTypeMismatchException, GomNotFoundException {
-
-        loadDataIfNecessary();
-
-        GomEntry entry = mEntries.get(pName);
-
-        if (entry == null) {
-
-            throw new NoSuchElementException("There is no entry for '" + pName + "' in node '"
-                    + getPath() + "'!");
-        }
-
-        return entry;
-    }
-
     private boolean hasEntry(String pName) throws GomEntryTypeMismatchException,
-            GomNotFoundException {
+                    GomNotFoundException {
         loadDataIfNecessary();
+
         return mEntries.containsKey(pName);
     }
 
-    public void deleteAttribute(String pAttrName) {
-        HttpHelper.delete(Uri.parse(getUri() + ":" + pAttrName));
-    }
-
     public GomAttribute getAttribute(String pName) throws NoSuchElementException,
-            GomEntryTypeMismatchException, GomNotFoundException {
+                    GomEntryTypeMismatchException, GomNotFoundException {
 
-        loadDataIfNecessary();
+        if (mEntries.containsKey(pName)) {
 
-        GomEntry entry = getEntry(pName); // throws no such element if nonexist
+            return mEntries.get(pName).forceAttributeOrException();
+        }
 
-        return entry.forceAttributeOrException();
+        String attrPath = getPath() + ":" + pName;
+        GomAttribute attr = getGomProxyHelper().getAttribute(attrPath);
+        mEntries.put(pName, attr);
+        return attr;
     }
 
     public boolean hasAttribute(String pName) throws GomEntryTypeMismatchException,
-            GomNotFoundException {
+                    GomNotFoundException {
+
+        loadDataIfNecessary();
+
         return hasEntry(pName);
     }
 
     public GomAttribute getOrCreateAttribute(String pName) throws GomEntryTypeMismatchException,
-            GomNotFoundException {
+                    GomNotFoundException {
 
         GomAttribute attribute;
         try {
@@ -173,29 +163,35 @@ public class GomNode extends GomEntry {
     }
 
     public GomNode getNode(String pName) throws NoSuchElementException,
-            GomEntryTypeMismatchException, GomNotFoundException {
+                    GomEntryTypeMismatchException, GomNotFoundException {
 
-        loadDataIfNecessary();
+        if (mEntries.containsKey(pName)) {
 
-        GomEntry entry = getEntry(pName); // throws no such element if nonexist
+            return mEntries.get(pName).forceNodeOrException();
+        }
 
-        return entry.forceNodeOrException();
+        String nodePath = getPath() + "/" + pName;
+        GomNode node = getGomProxyHelper().getNode(nodePath);
+        mEntries.put(pName, node);
+        return node;
     }
 
+    @Override
     public JSONObject toJson() throws GomEntryTypeMismatchException, GomNotFoundException {
 
         return toJsonFlushEntries(true);
     }
 
+    @Override
     public boolean equals(Object pObject) {
 
         if (pObject != null && pObject instanceof GomNode && super.equals(pObject)) {
 
             GomNode other = (GomNode) pObject;
-            if (!isDataLoaded() || !other.isDataLoaded()) {
+            if (!isFullyLoaded() || !other.isFullyLoaded()) {
 
                 throw new IllegalStateException(
-                        "Trying to call equals on a GomNode which has not been loaded lazily!");
+                                "Trying to call equals on a GomNode which has not been loaded lazily!");
             }
 
             return mEntries.keySet().equals(other.mEntries.keySet());
@@ -206,10 +202,15 @@ public class GomNode extends GomEntry {
         }
     }
 
+    public int getLazyEntryCount() {
+
+        return mEntries.size();
+    }
+
     // Private Instance Methods ------------------------------------------
 
     private JSONObject toJsonFlushEntries(boolean pFlush) throws GomEntryTypeMismatchException,
-            GomNotFoundException {
+                    GomNotFoundException {
 
         // { "node": {
         // "uri": <uri>,
@@ -232,7 +233,7 @@ public class GomNode extends GomEntry {
                 loadDataIfNecessary();
             }
 
-            if (isDataLoaded()) {
+            if (isFullyLoaded()) {
 
                 JSONArray entries = new JSONArray();
                 for (GomEntry entry : mEntries.values()) {
@@ -257,21 +258,21 @@ public class GomNode extends GomEntry {
         }
     }
 
-    private boolean isDataLoaded() {
+    private boolean isFullyLoaded() {
 
-        return (mEntries != null);
+        return mFullyLoaded;
     }
 
     private void loadDataIfNecessary() throws GomEntryTypeMismatchException, GomNotFoundException {
 
-        if (!isDataLoaded()) {
+        if (!isFullyLoaded()) {
 
             loadData();
         }
     }
 
+    // load all subnodes and all attributes
     private void loadData() throws GomEntryTypeMismatchException, GomNotFoundException {
-        mEntries = new HashMap<String, GomEntry>();
 
         List<String> subNodeNames = new LinkedList<String>();
         List<String> attributeNames = new LinkedList<String>();
@@ -291,6 +292,8 @@ public class GomNode extends GomEntry {
             GomNode node = helper.getNode(path + "/" + name);
             mEntries.put(name, node);
         }
+
+        mFullyLoaded = true;
     }
 
 }

@@ -16,29 +16,29 @@ public class GomNodeTest extends AndroidTestCase {
 
     // Constants ---------------------------------------------------------
 
-    static final String NAME       = "node";
+    static final String NAME = "node";
 
-    static final String PATH       = GomTestConstants.FIXTURES + "gom_node_test/" + NAME;
+    static final String PATH = GomTestConstants.FIXTURES + "gom_node_test/" + NAME;
 
-    static final Uri    NODE_URL   = Uri.parse(Constants.Gom.URI + PATH);
+    static final Uri NODE_URL = Uri.parse(Constants.Gom.URI + PATH);
 
-    static final String ATTR_NAME  = "attribute";
+    static final String ATTR_NAME = "attribute";
 
     static final String ATTR_VALUE = "value";
 
-    static final String ATTR_PATH  = PATH + ":" + ATTR_NAME;
+    static final String ATTR_PATH = PATH + ":" + ATTR_NAME;
 
-    static final Uri    ATTR_URL   = Uri.parse(Constants.Gom.URI + ATTR_PATH);
+    static final Uri ATTR_URL = Uri.parse(Constants.Gom.URI + ATTR_PATH);
 
     static final String CHILD_NAME = "child";
 
     static final String CHILD_PATH = PATH + "/" + CHILD_NAME;
 
-    static final Uri    CHILD_URL  = Uri.parse(Constants.Gom.URI + CHILD_PATH);
+    static final Uri CHILD_URL = Uri.parse(Constants.Gom.URI + CHILD_PATH);
 
     // Instance Variables ------------------------------------------------
 
-    private GomNode     mTestNode;
+    private GomNode mTestNode;
 
     // Constructors ------------------------------------------------------
 
@@ -51,6 +51,7 @@ public class GomNodeTest extends AndroidTestCase {
 
     // Public Instance Methods -------------------------------------------
 
+    @Override
     public void setUp() throws GomException {
 
         final GomProxyHelper helper = new GomProxyHelper(getContext(), null);
@@ -87,24 +88,8 @@ public class GomNodeTest extends AndroidTestCase {
 
     public void testGetAttribute() throws Exception {
 
-        GomEntry entry = mTestNode.getEntry(ATTR_NAME);
+        GomEntry entry = mTestNode.getAttribute(ATTR_NAME);
 
-        assertNotNull(entry);
-        assertEquals(ATTR_NAME, entry.getName());
-        assertEquals(ATTR_PATH, entry.getPath());
-        assertTrue(entry instanceof GomAttribute);
-        assertEquals(ATTR_VALUE, ((GomAttribute) entry).getValue());
-    }
-
-    public void testGetEntry() throws GomException {
-
-        GomEntry entry = mTestNode.getEntry(CHILD_NAME);
-        assertNotNull(entry);
-        assertEquals(CHILD_NAME, entry.getName());
-        assertEquals(CHILD_PATH, entry.getPath());
-        assertTrue(entry instanceof GomNode);
-
-        entry = mTestNode.getEntry(ATTR_NAME);
         assertNotNull(entry);
         assertEquals(ATTR_NAME, entry.getName());
         assertEquals(ATTR_PATH, entry.getPath());
@@ -188,5 +173,15 @@ public class GomNodeTest extends AndroidTestCase {
 
             assertTrue(expected.contains(node.getName()));
         }
+    }
+
+    public void testEvenLazierLoading() throws Exception {
+
+        assertEquals("expected node to be empty initially", 0, mTestNode.getLazyEntryCount());
+        mTestNode.getNode(CHILD_NAME);
+        assertEquals("node should have loaded one node only", 1, mTestNode.getLazyEntryCount());
+        mTestNode.getAttribute(ATTR_NAME);
+        assertEquals("node should have loaded a node and an attribute", 2, mTestNode
+                        .getLazyEntryCount());
     }
 }
