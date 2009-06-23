@@ -19,16 +19,16 @@ public class ErrorHandling {
         FILE_NOT_FOUND, MALFORMED_URI, MALFORMED_DATA, UNSUPPORTED_ENCODING, SAX_ERROR, JSON_ERROR, MISSING_GOM_ENTRY, MISSING_MANDATORY_OBJECT, LOW_ON_MEMORY_ERROR,
 
         // development and environmental errors
-        COMPONENT_NOT_FOUND, NETWORK_ERROR, IO_ERROR, ILLEGAL_ARGUMENT, GOM_ERROR, BACKEND_ERROR, SERVICE_ERROR, DEFECTIVE_CONTENT_ERROR,
+        COMPONENT_NOT_FOUND, NETWORK_ERROR, IO_ERROR, ILLEGAL_ARGUMENT, GOM_ERROR, BACKEND_ERROR, SERVICE_ERROR, DEFECTIVE_CONTENT_ERROR, NOT_IMPLEMENTED,
 
-        UNSPECIFIED,
+        UNSPECIFIED
     }
 
-    private static final String LOG_TAG = "ErrorHandling";
+    private static final String LOG_TAG     = "ErrorHandling";
 
-    public static final String ID_MESSAGE = "error";
-    public static final String ID_LOGTAG = "logtag";
-    public static final String ID_CATEGORY = "category";
+    public static final String  ID_MESSAGE  = "error";
+    public static final String  ID_LOGTAG   = "logtag";
+    public static final String  ID_CATEGORY = "category";
 
     public static void signalError(String logTag, Throwable error, Context context,
             Category category) {
@@ -47,8 +47,9 @@ public class ErrorHandling {
 
         // TODO implement a notification in the statusbar
     }
-    
-    public static void signalFileNotFoundError(String logTag, FileNotFoundException error, Context context) {
+
+    public static void signalFileNotFoundError(String logTag, FileNotFoundException error,
+            Context context) {
         signalError(logTag, error, context, Category.FILE_NOT_FOUND);
     }
 
@@ -81,7 +82,8 @@ public class ErrorHandling {
         signalError(logTag, error, context, Category.NETWORK_ERROR);
     }
 
-    public static void signalIllegalArgumentError(String logTag, IllegalArgumentException error, Context context) {
+    public static void signalIllegalArgumentError(String logTag, IllegalArgumentException error,
+            Context context) {
         signalError(logTag, error, context, Category.ILLEGAL_ARGUMENT);
     }
 
@@ -97,7 +99,8 @@ public class ErrorHandling {
         signalError(logTag, error, context, Category.SERVICE_ERROR);
     }
 
-    public static void signalMissingGomEntryError(String logTag, NoSuchElementException error, Context context) {
+    public static void signalMissingGomEntryError(String logTag, NoSuchElementException error,
+            Context context) {
         signalError(logTag, error, context, Category.MISSING_GOM_ENTRY);
     }
 
@@ -107,7 +110,7 @@ public class ErrorHandling {
     }
 
     public static void signalDefectiveContentError(String logTag, DefectiveContentException error,
-                    Context context) {
+            Context context) {
         signalError(logTag, error, context, Category.DEFECTIVE_CONTENT_ERROR);
     }
 
@@ -126,6 +129,10 @@ public class ErrorHandling {
 
     public static void signalMalformedDataError(String logTag, Throwable error, Context context) {
         signalError(logTag, error, context, Category.MALFORMED_DATA);
+    }
+
+    public static void signalNotImplementedError(String logTag, Throwable error, Context context) {
+        signalError(logTag, error, context, Category.NOT_IMPLEMENTED);
     }
 
 }
