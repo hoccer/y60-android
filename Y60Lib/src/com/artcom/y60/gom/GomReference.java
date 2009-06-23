@@ -16,6 +16,15 @@ public class GomReference {
 
     private static final String LOG_TAG = "GomReference";
 
+    // Static Methods ----------------------------------------------------
+
+    public static boolean isSelfOrAncestorOf(String pAncestorPath, String pDescendantPath) {
+
+        return pDescendantPath.startsWith(pAncestorPath + ":")
+                        || pDescendantPath.startsWith(pAncestorPath + "/")
+                        || pDescendantPath.equals(pAncestorPath);
+    }
+
     // Instance Variables ------------------------------------------------
 
     private String mName;
