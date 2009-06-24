@@ -42,6 +42,7 @@ public class HttpHelper {
 
     // Constants ---------------------------------------------------------
 
+    private static final int    PUT_TIMEOUT       = 10 * 1000;
     private static final String LOG_TAG           = "HttpHelper";
     private static final String SCRIPT_RUNNER_Uri = "http://t-gom.service.t-gallery.act/gom/script-runner";
 
@@ -50,7 +51,7 @@ public class HttpHelper {
     public static String putXML(String uri, String body) {
         HttpPut put = new HttpPut(uri);
         insertXML(body, put);
-        StatusLine statusLine = executeHTTPMethod(put).getStatusLine();
+        StatusLine statusLine = executeHTTPMethod(put, PUT_TIMEOUT).getStatusLine();
         return statusLine.getStatusCode() + " " + statusLine.getReasonPhrase();
     }
 
@@ -79,13 +80,13 @@ public class HttpHelper {
         Logger.v(LOG_TAG, "PUT " + pUrl + " with body " + body);
 
         insertUrlEncoded(body, put);
-        return executeHTTPMethod(put);
+        return executeHTTPMethod(put, PUT_TIMEOUT);
     }
 
     public static String putText(String pUri, String pData) {
         HttpPut put = new HttpPut(pUri);
         insert(pData, "text/xml", "text/xml", put);
-        StatusLine statusLine = executeHTTPMethod(put).getStatusLine();
+        StatusLine statusLine = executeHTTPMethod(put, PUT_TIMEOUT).getStatusLine();
         if (statusLine.getStatusCode() != 200) {
             throw new RuntimeException("Execution of HTTP Method PUT '" + pUri + "' returned "
                     + statusLine);
@@ -94,10 +95,9 @@ public class HttpHelper {
     }
 
     public static String postXML(String uri, String body) {
-        // Logger.v(LOG_TAG, "post('" + uri + "'): " + body);
         HttpPost post = new HttpPost(uri);
         insertXML(body, post);
-        HttpResponse result = executeHTTPMethod(post);
+        HttpResponse result = executeHTTPMethod(post, PUT_TIMEOUT);
 
         if (result.getStatusLine().getStatusCode() != 200) {
             throw new RuntimeException("Execution of HTTP Method POST '" + uri + "' returned "
@@ -111,7 +111,7 @@ public class HttpHelper {
 
         HttpPost post = new HttpPost(uri);
         insert(body, pContentType, pAccept, post);
-        HttpResponse result = executeHTTPMethod(post);
+        HttpResponse result = executeHTTPMethod(post, PUT_TIMEOUT);
 
         if (result.getStatusLine().getStatusCode() != 200) {
             throw new RuntimeException("Execution of HTTP Method POST '" + uri + "' returned "
