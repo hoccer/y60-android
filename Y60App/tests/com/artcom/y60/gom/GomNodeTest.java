@@ -40,19 +40,14 @@ public class GomNodeTest extends AndroidTestCase {
 
     private GomNode mTestNode;
 
-    // Constructors ------------------------------------------------------
-
-    public GomNodeTest() {
-
-        // write fixtures to the GOM:
-        HttpHelper.postXML(CHILD_URL.toString(), "<node/>");
-        HttpHelper.putXML(ATTR_URL.toString(), "<attribute>" + ATTR_VALUE + "</attribute>");
-    }
-
     // Public Instance Methods -------------------------------------------
 
     @Override
     public void setUp() throws GomException {
+
+        // write fixtures to the GOM:
+        HttpHelper.postXML(CHILD_URL.toString(), "<node/>");
+        HttpHelper.putXML(ATTR_URL.toString(), "<attribute>" + ATTR_VALUE + "</attribute>");
 
         final GomProxyHelper helper = new GomProxyHelper(getContext(), null);
 
