@@ -1,8 +1,5 @@
 package com.artcom.y60.gom;
 
-// import com.artcom.y60.gom.GomAttribute;
-// import com.artcom.y60.gom.GomEntry;
-// import com.artcom.y60.gom.GomNode;
 
 import com.artcom.y60.RpcStatus;
 

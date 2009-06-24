@@ -20,9 +20,7 @@ import com.artcom.y60.TestHelper;
 
 public class DeviceControllerServiceTest extends ServiceTestCase<DeviceControllerService> {
 
-    private static final String TEST_PORT = "4042";
-    public static final boolean TEST_NIO  = true;
-    private static final String LOG_TAG   = "DeviceControllerServiceTest";
+    private static final String LOG_TAG = "DeviceControllerServiceTest";
 
     public DeviceControllerServiceTest() {
         super(DeviceControllerService.class);
@@ -38,8 +36,6 @@ public class DeviceControllerServiceTest extends ServiceTestCase<DeviceControlle
     }
 
     public void testAJettyRoundtrip() throws Exception {
-
-        Logger.v(LOG_TAG, "testAJettyRoundtrip------------------------------------------");
 
         assertNoWebserverIsRunning();
 
@@ -59,10 +55,6 @@ public class DeviceControllerServiceTest extends ServiceTestCase<DeviceControlle
     }
 
     public void testAutomaticWebserverStartup() throws Exception {
-        Logger
-                .v(
-                        LOG_TAG,
-                        "testAutomaticWebserverStartup------------------------------------------------------------------------------");
 
         assertNoWebserverIsRunning();
 
@@ -94,10 +86,6 @@ public class DeviceControllerServiceTest extends ServiceTestCase<DeviceControlle
 
     public void testGetIpAddress() throws IOException, IpAddressNotFoundException {
 
-        Logger
-                .v(LOG_TAG,
-                        "testGetIpAddress------------------------------------------------------------------------------");
-
         assertNoWebserverIsRunning();
 
         Intent startIntent = new Intent("y60.intent.SERVICE_DEVICE_CONTROLLER");
@@ -114,10 +102,6 @@ public class DeviceControllerServiceTest extends ServiceTestCase<DeviceControlle
     }
 
     public void testRciUriInGom() throws IpAddressNotFoundException {
-
-        Logger
-                .v(LOG_TAG,
-                        "testRciUriInGom------------------------------------------------------------------------------");
 
         assertNoWebserverIsRunning();
 
@@ -144,10 +128,6 @@ public class DeviceControllerServiceTest extends ServiceTestCase<DeviceControlle
     }
 
     public void testShutdownService() throws Exception {
-
-        Logger
-                .v(LOG_TAG,
-                        "testShutdownService------------------------------------------------------------------------------");
 
         assertNoWebserverIsRunning();
 

@@ -47,7 +47,7 @@ public class TestHelper {
      * @param pCon
      */
     public static void blockUntilFalse(String pFailMessage, long pTimeout,
-                    final TestHelper.Condition pCon) {
+            final TestHelper.Condition pCon) {
 
         blockUntilTrue(pFailMessage, pTimeout, new TestHelper.Condition() {
             public boolean isSatisfied() {
@@ -64,7 +64,7 @@ public class TestHelper {
      * @param pMeasurement
      */
     public static void blockUntilNull(String pFailMessage, long pTimeout,
-                    final TestHelper.Measurement pMeasurement) {
+            final TestHelper.Measurement pMeasurement) {
 
         blockUntilEquals(pFailMessage, pTimeout, null, pMeasurement);
     }
@@ -80,7 +80,7 @@ public class TestHelper {
      * @param pMesurement
      */
     public static void blockUntilEquals(String pFailMessage, long pTimeout, Object pExpected,
-                    final TestHelper.Measurement pMesurement) {
+            final TestHelper.Measurement pMesurement) {
 
         Object mesuredValue = null;
         long start = System.currentTimeMillis();
@@ -99,7 +99,7 @@ public class TestHelper {
         }
 
         throw new AssertionError(pFailMessage + ": should be <" + pExpected + ">, but was <"
-                        + mesuredValue + ">");
+                + mesuredValue + ">");
     }
 
     public static void blockUntilBackendAvailable(final Y60Activity pActivity) {
@@ -169,9 +169,9 @@ public class TestHelper {
 
     public static void blockUntilWebServerIsRunning() {
 
-        long timeout = 10000;
+        long timeout = 20000;
         TestHelper.blockUntilEquals("device controller should have started withhin " + timeout
-                        + " milliseconds", timeout, 404, new TestHelper.Measurement() {
+                + " milliseconds", timeout, 404, new TestHelper.Measurement() {
             @Override
             public Object getActualValue() {
 
@@ -188,19 +188,19 @@ public class TestHelper {
     public static void sendCreateAttributeNotificationBroadcast(String pPath, Context pContext) {
 
         sendNotificationBroadcast(pPath, generateAttributeDummyJsonString(pPath), "create",
-                        pContext);
+                pContext);
     }
 
     public static void sendUpdateAttributeNotificationBroadcast(String pPath, Context pContext) {
 
         sendNotificationBroadcast(pPath, generateAttributeDummyJsonString(pPath), "update",
-                        pContext);
+                pContext);
     }
 
     public static void sendDeleteAttributeNotificationBroadcast(String pPath, Context pContext) {
 
         sendNotificationBroadcast(pPath, generateAttributeDummyJsonString(pPath), "delete",
-                        pContext);
+                pContext);
     }
 
     public static void sendCreateNodeNotificationBroadcast(String pPath, Context pContext) {
@@ -219,7 +219,7 @@ public class TestHelper {
     }
 
     public static void sendNotificationBroadcast(String pPath, String pData, String pOperation,
-                    Context pContext) {
+            Context pContext) {
 
         Intent notification = new Intent();
         notification.setAction(Y60Action.GOM_NOTIFICATION_BC);
@@ -237,8 +237,8 @@ public class TestHelper {
     public static String generateAttributeJsonString(String pPath, String pValue) {
 
         return "{ \"attribute\": { \"name\": \"attribute\", \"node\": \""
-                        + pPath.substring(0, pPath.lastIndexOf(":")) + "\", \"value\": \"" + pValue
-                        + "\", \"type\": \"string\" } }";
+                + pPath.substring(0, pPath.lastIndexOf(":")) + "\", \"value\": \"" + pValue
+                + "\", \"type\": \"string\" } }";
     }
 
     public static String generateNodeDummyJsonString(String pPath) {
