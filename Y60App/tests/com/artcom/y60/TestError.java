@@ -3,6 +3,7 @@ package com.artcom.y60;
 import android.app.Instrumentation.ActivityMonitor;
 import android.content.IntentFilter;
 import android.test.ActivityInstrumentationTestCase;
+import android.test.suitebuilder.annotation.Suppress;
 
 public class TestError extends ActivityInstrumentationTestCase<ErrorPresentationActivity> {
 
@@ -11,6 +12,9 @@ public class TestError extends ActivityInstrumentationTestCase<ErrorPresentation
 
     }
 
+    // currently we show errors as a notification with a "link" to the error
+    // presentation
+    @Suppress
     public void testUserError() {
         assertNotNull(getActivity());
 
@@ -20,7 +24,7 @@ public class TestError extends ActivityInstrumentationTestCase<ErrorPresentation
 
         Exception e = new Exception("Don't panic");
         ErrorHandling.signalError(this.getClass().getSimpleName(), e, getActivity(),
-                ErrorHandling.Category.UNSPECIFIED);
+                        ErrorHandling.Category.UNSPECIFIED);
 
         assertEquals("no activity launced", 1, monitor.getHits());
     }
