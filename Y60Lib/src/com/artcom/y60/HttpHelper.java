@@ -41,7 +41,7 @@ public class HttpHelper {
 
     // Constants ---------------------------------------------------------
 
-    private static final String LOG_TAG           = "HttpHelper";
+    private static final String LOG_TAG = "HttpHelper";
     private static final String SCRIPT_RUNNER_Uri = "http://t-gom.service.t-gallery.act/gom/script-runner";
 
     // Static Methods ----------------------------------------------------
@@ -86,8 +86,8 @@ public class HttpHelper {
         insert(pData, "text/xml", "text/xml", put);
         StatusLine statusLine = executeHTTPMethod(put).getStatusLine();
         if (statusLine.getStatusCode() != 200) {
-            throw new RuntimeException("Execution of HTTP Method PUT '" + pUri + "' returend "
-                    + statusLine);
+            throw new RuntimeException("Execution of HTTP Method PUT '" + pUri + "' returned "
+                            + statusLine);
         }
         return statusLine.getStatusCode() + " " + statusLine.getReasonPhrase();
     }
@@ -99,8 +99,9 @@ public class HttpHelper {
         HttpResponse result = executeHTTPMethod(post);
 
         if (result.getStatusLine().getStatusCode() != 200) {
-            throw new RuntimeException("Execution of HTTP Method POST '" + uri + "' returend "
-                    + result.getStatusLine() + " " + extractBodyAsString(result.getEntity()));
+            throw new RuntimeException("Execution of HTTP Method POST '" + uri + "' returned "
+                            + result.getStatusLine() + " "
+                            + extractBodyAsString(result.getEntity()));
         }
 
         return extractBodyAsString(result.getEntity());
@@ -113,8 +114,8 @@ public class HttpHelper {
         HttpResponse result = executeHTTPMethod(post);
 
         if (result.getStatusLine().getStatusCode() != 200) {
-            throw new RuntimeException("Execution of HTTP Method POST '" + uri + "' returend "
-                    + result.getStatusLine());
+            throw new RuntimeException("Execution of HTTP Method POST '" + uri + "' returned "
+                            + result.getStatusLine());
         }
 
         return extractBodyAsString(result.getEntity());
@@ -138,8 +139,8 @@ public class HttpHelper {
         HttpResponse result = executeHTTPMethod(del);
 
         if (result.getStatusLine().getStatusCode() != 200) {
-            throw new RuntimeException("Execution of HTTP Method DELETE '" + uri + "' returend "
-                    + result.getStatusLine());
+            throw new RuntimeException("Execution of HTTP Method DELETE '" + uri + "' returned "
+                            + result.getStatusLine());
         }
 
         return result;
@@ -236,7 +237,7 @@ public class HttpHelper {
     }
 
     public static JSONObject executeServerScript(String pJsStr, Map<String, String> pParams)
-            throws JSONException {
+                    throws JSONException {
 
         String params = urlEncode(pParams);
         String uri = SCRIPT_RUNNER_Uri + "?" + params;
@@ -283,7 +284,7 @@ public class HttpHelper {
     }
 
     public static byte[] extractBodyAsByteArray(HttpEntity entity) throws IllegalStateException,
-            IOException {
+                    IOException {
 
         return extractBody(entity).toByteArray();
     }
@@ -302,7 +303,7 @@ public class HttpHelper {
         if (statusCode == HttpStatus.SC_INTERNAL_SERVER_ERROR) {
             Logger.w(LOG_TAG, "Request '", uri, "' came back with 501 Internal Server Error");
             throw new RuntimeException("Request '" + uri
-                    + "' came back with 501 Internal Server Error");
+                            + "' came back with 501 Internal Server Error");
         } else if (statusCode == HttpStatus.SC_NOT_FOUND) {
             Logger.w(LOG_TAG, "Request '", uri, "'came back with 404 Not Found");
             throw new RuntimeException("Request '" + uri + "' came back with 404 Not Found");
@@ -330,7 +331,7 @@ public class HttpHelper {
     }
 
     private static void insert(String pBody, String pContentType, String pAccept,
-            HttpEntityEnclosingRequestBase pMethod) {
+                    HttpEntityEnclosingRequestBase pMethod) {
 
         // Logger.v(LOG_TAG, "inserting for content type " + pContentType
         // + ", body is " + pBody);
@@ -365,11 +366,11 @@ public class HttpHelper {
         httpclient.setRedirectHandler(new DefaultRedirectHandler() {
             @Override
             public URI getLocationURI(HttpResponse response, HttpContext context)
-                    throws ProtocolException {
+                            throws ProtocolException {
                 URI uri = super.getLocationURI(response, context);
                 Logger
-                        .v(LOG_TAG, response.getStatusLine().getStatusCode() + " redirect to: "
-                                + uri);
+                                .v(LOG_TAG, response.getStatusLine().getStatusCode()
+                                                + " redirect to: " + uri);
                 return uri;
             }
         });
@@ -397,7 +398,7 @@ public class HttpHelper {
             // an xml uri means that someone is using this method in a wrong way
             // --> fail fast
             throw new IllegalArgumentException("HttpHelper was passed a Uri which explicitly "
-                    + "asked for a different format: '" + pUrl + "'!");
+                            + "asked for a different format: '" + pUrl + "'!");
         }
 
         // remove trailing slashes
