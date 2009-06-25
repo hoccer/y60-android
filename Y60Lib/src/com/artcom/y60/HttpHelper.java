@@ -35,6 +35,8 @@ import org.apache.http.protocol.HttpContext;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 
 public class HttpHelper {
@@ -130,6 +132,11 @@ public class HttpHelper {
 
         ByteArrayInputStream istream = new ByteArrayInputStream(ostream.toByteArray());
         return istream;
+    }
+
+    public static Drawable getAsDrawable(String pUri) throws IOException {
+
+        return new BitmapDrawable(getAsInStream(pUri));
     }
 
     public static HttpResponse delete(Uri uri) {

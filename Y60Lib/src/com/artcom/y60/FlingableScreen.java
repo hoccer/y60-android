@@ -122,8 +122,6 @@ public class FlingableScreen {
 
         if (p_Target == Target.IN) {
 
-            // refresh();
-
             if (p_Direction == Direction.LEFT) {
                 mBaseLayout.startAnimation(mInFromRight);
             } else {
@@ -148,8 +146,6 @@ public class FlingableScreen {
 
     public void clear() {
 
-        // mContentLayout.removeAllViews();
-        // mBaseLayout.removeAllViews();
     }
 
     // Protected Instance Methods ----------------------------------------
@@ -165,9 +161,6 @@ public class FlingableScreen {
 
     protected synchronized void refresh() {
 
-        // clear();
-        // mContentLayout.addView(mContent);
-        // mBaseLayout.addView(mContentLayout);
     }
 
 }
