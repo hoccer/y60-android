@@ -119,6 +119,10 @@ public class HttpProxyHelper {
         }
     }
 
+    public void requestDownload(Uri pUri) {
+        get(pUri);
+    }
+
     public byte[] get(Uri pUri) {
 
         String uri = pUri.toString();

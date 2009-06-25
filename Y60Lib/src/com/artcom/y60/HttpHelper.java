@@ -378,15 +378,8 @@ public class HttpHelper {
 
         HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, 500, "Client Error");
         try {
-
-            try {
-                response = httpclient.execute(pMethod);
-            } catch (IOException e) {
-                throw new RuntimeException("Error while executing HTTP method: " + e.getMessage());
-            }
-
-        } catch (Exception e) {
-            Logger.e(LOG_TAG, "unknown exception:", e.getMessage());
+            response = httpclient.execute(pMethod);
+        } catch (IOException e) {
             throw new RuntimeException("Error while executing HTTP method: " + e.getMessage());
         }
 
