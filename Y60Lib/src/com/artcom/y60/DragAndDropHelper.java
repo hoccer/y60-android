@@ -10,7 +10,6 @@ import android.os.Vibrator;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.GestureDetector.OnGestureListener;
 import android.view.View.OnTouchListener;
 import android.view.animation.Animation;
@@ -45,7 +44,7 @@ public class DragAndDropHelper implements OnTouchListener {
     /** The Layout in which the dragging takes place */
     private AbsoluteLayout       mAbsoluteLayout;
 
-    private ViewGroup            mActivityViewGroup;
+    private View                 mActivityViewGroup;
 
     /** The View to be dragged around */
     private View                 mSourceView;
@@ -82,7 +81,7 @@ public class DragAndDropHelper implements OnTouchListener {
      * default as view for dragging.
      */
     public static DragAndDropHelper enableDragAndDrop(View pView, AbsoluteLayout pLayout,
-            ViewGroup pActivityViewGroup, Activity pActivity, View pDefaultThumbnail) {
+            View pActivityViewGroup, Activity pActivity, View pDefaultThumbnail) {
 
         DragAndDropHelper helper = new DragAndDropHelper(pView, pLayout, pActivityViewGroup,
                 pActivity, pDefaultThumbnail);
@@ -94,14 +93,14 @@ public class DragAndDropHelper implements OnTouchListener {
      * of the draggable view (drawn to a bitmap off-screen) for dragging.
      */
     public static DragAndDropHelper enableDragAndDrop(View pView, AbsoluteLayout pLayout,
-            ViewGroup pActivityViewGroup, Activity pActivity) {
+            View pActivityViewGroup, Activity pActivity) {
 
         return enableDragAndDrop(pView, pLayout, pActivityViewGroup, pActivity, null);
     }
 
     // Constructors ------------------------------------------------------
 
-    public DragAndDropHelper(View pView, AbsoluteLayout pLayout, ViewGroup pActivityViewGroup,
+    public DragAndDropHelper(View pView, AbsoluteLayout pLayout, View pActivityViewGroup,
             Activity pActivity, View pDefaultThumbnail) {
 
         mState = State.NOT_DRAGGING;
