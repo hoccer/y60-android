@@ -16,7 +16,7 @@ public class ResourceBundleHelper {
 
         String resourcePath = resourceDescription.getString(HttpProxyConstants.LOCAL_RESOURCE_PATH_TAG);
         if (resourcePath == null) {
-            return resourceDescription.getByteArray(HttpProxyConstants.BYTE_ARRY_TAG);
+            return resourceDescription.getByteArray(HttpProxyConstants.BYTE_ARRAY_TAG);
         }
 
         byte[] buffer;

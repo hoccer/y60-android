@@ -17,7 +17,7 @@ public class Cache {
     // Constants ---------------------------------------------------------
 
     public static final String  LOG_TAG   = Cache.class.getName();
-    private static final String CACHE_DIR = "/sdcard/HttpProxyCache/";
+    static final String         CACHE_DIR = "/sdcard/HttpProxyCache/";
     private Map<String, Bundle> mCachedContent;
 
     private List<String>        mPendingResources;
@@ -146,19 +146,19 @@ public class Cache {
             synchronized (mCachedContent) {
                 Bundle oldContent = mCachedContent.get(pUri);
 
-                String localResourcePath = CACHE_DIR + pUri.hashCode();
-
                 long size = HttpHelper.getSize(pUri);
                 Bundle newContent = new Bundle(2);
                 newContent.putLong(HttpProxyConstants.SIZE_TAG, size);
 
                 if (size > HttpProxyConstants.MAX_IN_MEMORY_SIZE) {
+                    String localResourcePath = CACHE_DIR + Uri.parse(pUri).getLastPathSegment();
+
                     HttpHelper.fetchUriToFile(pUri, localResourcePath);
                     newContent.putString(HttpProxyConstants.LOCAL_RESOURCE_PATH_TAG,
                             localResourcePath);
                 } else {
                     byte[] array = HttpHelper.getAsByteArray(Uri.parse(pUri));
-                    newContent.putByteArray(HttpProxyConstants.BYTE_ARRY_TAG, array);
+                    newContent.putByteArray(HttpProxyConstants.BYTE_ARRAY_TAG, array);
                 }
 
                 // if resource has changed (TODO get header and check the

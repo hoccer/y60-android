@@ -1,5 +1,6 @@
 package com.artcom.y60.http;
 
+import java.io.File;
 import java.util.Arrays;
 import java.util.concurrent.TimeoutException;
 
@@ -28,6 +29,22 @@ public class HttpProxyServiceTest extends ServiceTestCase<HttpProxyService> {
         super(HttpProxyService.class);
     }
 
+    // Protected Instance Methods ----------------------------------------
+
+    protected void setUp() throws Exception {
+
+        super.setUp();
+        mIntent = new Intent(getContext(), HttpProxyService.class);
+
+        File dir = new File(Cache.CACHE_DIR);
+        dir.delete();
+    }
+
+    protected void tearDown() throws Exception {
+
+        super.tearDown();
+    }
+
     // Public Instance Methods -------------------------------------------
 
     public void testMultipleGet() throws Exception {
@@ -50,14 +67,11 @@ public class HttpProxyServiceTest extends ServiceTestCase<HttpProxyService> {
             if (System.currentTimeMillis() - requestStartTime > 4000) {
                 throw new TimeoutException("Timeout while laoding:" + uri);
             }
-            try {
-                Thread.sleep(10);
-            } catch (InterruptedException ix) {
-                // kthxbye
-            }
+            Thread.sleep(10);
         }
 
-        assertNotNull("resource path from cache was null", cached.getByteArray(HttpProxyConstants.BYTE_ARRY_TAG));
+        assertNotNull("resource path from cache was null", cached
+                .getByteArray(HttpProxyConstants.BYTE_ARRAY_TAG));
 
         byte[] fromHttp = HttpHelper.getAsByteArray(Uri.parse(uri.toString()));
         byte[] cachedArray = ResourceBundleHelper.convertResourceBundleToByteArray(cached);
@@ -66,7 +80,7 @@ public class HttpProxyServiceTest extends ServiceTestCase<HttpProxyService> {
         assertTrue("content doesn't match", Arrays.equals(cachedArray, fromHttp));
     }
 
-    public void testGettingBigData() {
+    public void testGettingBigData() throws InterruptedException {
         startService(mIntent);
         HttpProxyService service = getService();
         long requestStartTime = System.currentTimeMillis();
@@ -77,28 +91,11 @@ public class HttpProxyServiceTest extends ServiceTestCase<HttpProxyService> {
             if (System.currentTimeMillis() > requestStartTime + 30 * 1000) {
                 throw new AssertionFailedError("could not retrive data from uri " + resourceUri);
             }
-            try {
-                Thread.sleep(10);
-            } catch (InterruptedException ix) {
-                // kthxbye
-            }
+            Thread.sleep(10);
         }
-        // assertEquals(resourceDescription.get(Cache.LOCAL_RESOURCE_PATH_TAG).hashCode(),
-        // 3153527);
-        assertEquals("/sdcard/HttpProxyCache/" + resourceUri.hashCode(), resourceDescription
+
+        assertEquals("/sdcard/HttpProxyCache/bmwmuseum_kinetik_d.pdf", resourceDescription
                 .get(HttpProxyConstants.LOCAL_RESOURCE_PATH_TAG));
     }
 
-    // Protected Instance Methods ----------------------------------------
-
-    protected void setUp() throws Exception {
-
-        super.setUp();
-        mIntent = new Intent(getContext(), HttpProxyService.class);
-    }
-
-    protected void tearDown() throws Exception {
-
-        super.tearDown();
-    }
 }
