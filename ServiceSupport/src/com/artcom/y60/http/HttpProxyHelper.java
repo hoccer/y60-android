@@ -187,9 +187,7 @@ public class HttpProxyHelper {
         RpcStatus status = new RpcStatus();
         try {
             isInCache = mProxy.isInCache(pUri.toString(), status);
-
         } catch (RemoteException rex) {
-
             Logger.e(logTag(), "isInCache(", pUri, ") failed", rex);
             throw new RuntimeException(rex);
         }

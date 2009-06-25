@@ -83,8 +83,13 @@ public abstract class Y60ActivityInstrumentationTest<T extends Activity> extends
      */
     protected void fling(Direction pDirection) {
 
+        fling(pDirection, SCREEN_HEIGHT - 10);
+    }
+
+    protected void fling(Direction pDirection, int pY) {
+
         // fling to next
-        int y = SCREEN_HEIGHT - 10;
+        int y = pY;
         int fromX = SCREEN_WIDTH / 2;
         int deltaX = (pDirection == Direction.LEFT ? -4 : 4);
 
