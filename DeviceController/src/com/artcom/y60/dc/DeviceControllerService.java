@@ -25,7 +25,7 @@ import com.artcom.y60.Y60Service;
 import com.artcom.y60.gom.GomEntryTypeMismatchException;
 import com.artcom.y60.gom.GomException;
 import com.artcom.y60.gom.GomNode;
-import com.artcom.y60.gom.GomNotFoundException;
+import com.artcom.y60.gom.GomEntryNotFoundException;
 import com.artcom.y60.gom.GomProxyHelper;
 
 public class DeviceControllerService extends Y60Service {
@@ -89,7 +89,7 @@ public class DeviceControllerService extends Y60Service {
     /**
      * Update our rci_uri in the GOM
      * 
-     * @throws GomNotFoundException
+     * @throws GomEntryNotFoundException
      * @throws GomEntryTypeMismatchException
      */
     private void updateRciUri(int pPort) throws GomException {

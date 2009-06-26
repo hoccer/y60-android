@@ -111,7 +111,7 @@ public class GomNotificationHelper {
                             pGomObserver.onEntryUpdated(pPath, newEntry.toJson());
                         }
                     }
-                } catch (GomNotFoundException gx) {
+                } catch (GomEntryNotFoundException gx) {
                     pGom.deleteEntry(pPath);
                     pGomObserver.onEntryDeleted(pPath, null);
                 } catch (Exception ex) {

@@ -92,7 +92,7 @@ public class GomProxyService extends Y60Service {
     // Package Protected Instance Methods --------------------------------
 
     void getNodeData(String pPath, List<String> pSubNodeNames, List<String> pAttributeNames)
-            throws JSONException, GomNotFoundException, GomProxyException {
+            throws JSONException, GomEntryNotFoundException, GomProxyException {
 
         // Logger.v(tag(), "getNodeData("+pPath+")");
 
@@ -122,7 +122,7 @@ public class GomProxyService extends Y60Service {
         }
     }
 
-    String getAttributeValue(String pPath) throws JSONException, GomNotFoundException,
+    String getAttributeValue(String pPath) throws JSONException, GomEntryNotFoundException,
             GomProxyException {
 
         Logger.v(LOG_TAG, "getAttributeValue(", pPath, ")");
@@ -160,7 +160,7 @@ public class GomProxyService extends Y60Service {
 
     }
 
-    void refreshEntry(String pPath) throws JSONException, GomNotFoundException, GomProxyException {
+    void refreshEntry(String pPath) throws JSONException, GomEntryNotFoundException, GomProxyException {
         Logger.v(LOG_TAG, "refreshEntry(", pPath, ")");
         String lastSegment = pPath.substring(pPath.lastIndexOf("/") + 1);
         if (lastSegment.contains(":")) {
@@ -224,7 +224,7 @@ public class GomProxyService extends Y60Service {
 
     // Private Instance Methods ------------------------------------------
 
-    private void loadNode(String pPath) throws JSONException, GomNotFoundException,
+    private void loadNode(String pPath) throws JSONException, GomEntryNotFoundException,
             GomProxyException {
 
         Logger.v(LOG_TAG, "loadNode(", pPath, ")");
@@ -235,7 +235,7 @@ public class GomProxyService extends Y60Service {
             jsob = HttpHelper.getJson(uri);
         } catch (RuntimeException rx) {
             if (rx.toString().contains("404")) {
-                throw new GomNotFoundException(rx);
+                throw new GomEntryNotFoundException(rx);
             }
             throw new GomProxyException(rx);
         }
@@ -286,7 +286,7 @@ public class GomProxyService extends Y60Service {
         }
     }
 
-    private void loadAttribute(String pPath) throws JSONException, GomNotFoundException,
+    private void loadAttribute(String pPath) throws JSONException, GomEntryNotFoundException,
             GomProxyException {
 
         Logger.v(LOG_TAG, "loadAttribute(", pPath, ")");
@@ -297,7 +297,7 @@ public class GomProxyService extends Y60Service {
             jsob = HttpHelper.getJson(uri);
         } catch (RuntimeException e) {
             if (e.toString().contains("404")) {
-                throw new GomNotFoundException(e);
+                throw new GomEntryNotFoundException(e);
             }
             throw new GomProxyException(e);
         }

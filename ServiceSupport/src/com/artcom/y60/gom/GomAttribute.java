@@ -116,11 +116,11 @@ public class GomAttribute extends GomEntry {
      * @throws GomResolutionFailedException
      *             if the resolution failed, e.g. because this attribute didn't
      *             point a resource
-     * @throws GomNotFoundException
+     * @throws GomEntryNotFoundException
      * @throws GomEntryTypeMismatchException
      */
     public GomEntry resolveReference() throws GomResolutionFailedException,
-            GomEntryTypeMismatchException, GomNotFoundException {
+            GomEntryTypeMismatchException, GomEntryNotFoundException {
 
         GomEntry entry = getGomProxyHelper().getEntry(mValue);
 

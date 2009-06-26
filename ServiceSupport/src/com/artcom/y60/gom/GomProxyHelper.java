@@ -69,7 +69,7 @@ public class GomProxyHelper {
     }
 
     public GomEntry getEntry(String pPath) throws GomEntryTypeMismatchException,
-            GomNotFoundException {
+            GomEntryNotFoundException {
 
         assertConnected();
         String lastSeg = pPath.substring(pPath.lastIndexOf("/") + 1);
@@ -92,7 +92,7 @@ public class GomProxyHelper {
     }
 
     public GomAttribute getAttribute(String pPath) throws GomEntryTypeMismatchException,
-            GomNotFoundException {
+            GomEntryNotFoundException {
 
         assertConnected();
 
@@ -104,8 +104,8 @@ public class GomProxyHelper {
 
                 Logger.v(LOG_TAG, status.getError());
                 Throwable err = status.getError();
-                if (err instanceof GomNotFoundException) {
-                    throw new GomNotFoundException(err);
+                if (err instanceof GomEntryNotFoundException) {
+                    throw new GomEntryNotFoundException(err);
                 } else {
                     throw new RuntimeException(err);
                 }

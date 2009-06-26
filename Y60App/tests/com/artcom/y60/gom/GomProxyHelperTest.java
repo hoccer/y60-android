@@ -14,7 +14,7 @@ public class GomProxyHelperTest extends GomActivityUnitTestCase {
             helper.getAttribute("/this/attribute/does/not:exist");
             fail("expected a 404 exception in the service");
 
-        } catch (GomNotFoundException e) {
+        } catch (GomEntryNotFoundException e) {
 
             Logger.v(LOG_TAG, "ok, caught exception ", e);
 
@@ -47,7 +47,7 @@ public class GomProxyHelperTest extends GomActivityUnitTestCase {
             helper.getEntry("/this/attribute/does/not:exist");
             fail("expected a 404 exception in the service");
 
-        } catch (GomNotFoundException e) {
+        } catch (GomEntryNotFoundException e) {
 
             Logger.v(LOG_TAG, "ok, caught exception ", e);
 

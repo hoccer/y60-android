@@ -72,7 +72,7 @@ public abstract class GomEntry {
 
     // Public Instance Methods -------------------------------------------
 
-    public abstract JSONObject toJson() throws GomEntryTypeMismatchException, GomNotFoundException;
+    public abstract JSONObject toJson() throws GomEntryTypeMismatchException, GomEntryNotFoundException;
 
     public String getName() {
 

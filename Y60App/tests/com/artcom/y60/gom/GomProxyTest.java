@@ -91,7 +91,7 @@ public class GomProxyTest extends GomActivityUnitTestCase {
         try {
             GomAttribute attr = helper.getAttribute(path);
             fail("Expected 404 Exception, but got " + attr.getValue());
-        } catch (GomNotFoundException e) {
+        } catch (GomEntryNotFoundException e) {
             if (!e.toString().contains("404")) {
                 throw new RuntimeException(e);
             }
