@@ -45,6 +45,7 @@ public class HttpHelper {
     // Constants ---------------------------------------------------------
 
     private static final int    PUT_TIMEOUT       = 10 * 1000;
+    private static final int    GET_TIMEOUT       = 2 * 1000;
     private static final String LOG_TAG           = "HttpHelper";
     private static final String SCRIPT_RUNNER_Uri = "http://t-gom.service.t-gallery.act/gom/script-runner";
 
@@ -359,8 +360,7 @@ public class HttpHelper {
     }
 
     private static HttpResponse executeHTTPMethod(HttpRequestBase pMethod) {
-        int timeout = 1000;
-        return executeHTTPMethod(pMethod, timeout);
+        return executeHTTPMethod(pMethod, GET_TIMEOUT);
     }
 
     private static HttpResponse executeHTTPMethod(HttpRequestBase pMethod, int pConnectionTimeout) {
