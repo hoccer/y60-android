@@ -8,9 +8,9 @@ public class DnDTestActivityTest extends Y60ActivityInstrumentationTest<DnDTestA
         DragListener {
 
     protected static final String LOG_TAG = "DnDTestActivityTest";
-    private DraggingStartedEvent mDraggingStarted;
-    private DraggingEndedEvent mDraggingEnded;
-    private DraggedEvent mDragged;
+    private DraggingStartedEvent  mDraggingStarted;
+    private DraggingEndedEvent    mDraggingEnded;
+    private DraggedEvent          mDragged;
 
     public void setUp() throws Exception {
         super.setUp();
@@ -91,7 +91,7 @@ public class DnDTestActivityTest extends Y60ActivityInstrumentationTest<DnDTestA
         touch(getActivity().getDragResource());
         waitForDragStarted(1500);
         moveAndRelease(50, 50);
-        waitForDragEnded(100);       
+        waitForDragEnded(100);
 
         assertTrue("The item was dropped", getActivity().isDroppedOnTarget());
 
@@ -145,11 +145,11 @@ public class DnDTestActivityTest extends Y60ActivityInstrumentationTest<DnDTestA
 
     class DraggedEvent {
 
-        View origin;
-        View draggedView;
+        View           origin;
+        View           draggedView;
         AbsoluteLayout layout;
-        int x;
-        int y;
+        int            x;
+        int            y;
 
         public DraggedEvent(View pOrigin, View pDraggedView, AbsoluteLayout pAbsoluteLayout,
                 int pX, int pY) {
@@ -166,8 +166,8 @@ public class DnDTestActivityTest extends Y60ActivityInstrumentationTest<DnDTestA
 
         View origin;
         View draggedView;
-        int x;
-        int y;
+        int  x;
+        int  y;
 
         public DraggingEndedEvent(View pOrigin, View pDraggedView, int pX, int pY) {
 
@@ -186,5 +186,11 @@ public class DnDTestActivityTest extends Y60ActivityInstrumentationTest<DnDTestA
 
             origin = pOrigin;
         }
+    }
+
+    @Override
+    public void onBeforeDraggingStarted(View pSourceView) {
+        // TODO Auto-generated method stub
+
     }
 }

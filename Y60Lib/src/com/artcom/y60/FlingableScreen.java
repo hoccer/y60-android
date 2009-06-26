@@ -6,12 +6,13 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.view.animation.Animation;
 import android.view.animation.TranslateAnimation;
+import android.view.animation.Animation.AnimationListener;
 import android.widget.AbsoluteLayout;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TableLayout;
 
-public class FlingableScreen {
+public class FlingableScreen implements AnimationListener {
 
     // Enumerations -----------------------------------------------------
 
@@ -21,25 +22,26 @@ public class FlingableScreen {
 
     // Constants ---------------------------------------------------------
 
-    private static final int ANIMATION_DURATION = 500;
+    private static final int    ANIMATION_DURATION = 500;
+    private static final String LOG_TAG            = "FlingableScreen";
 
     // Instance Variables ------------------------------------------------
 
-    private AbsoluteLayout   mBaseLayout;
+    private AbsoluteLayout      mBaseLayout;
 
-    private TableLayout      mContentLayout;
+    private TableLayout         mContentLayout;
 
-    private View             mContent;
+    private View                mContent;
 
-    private Activity         mActivity;
-    private String           mName;
+    private Activity            mActivity;
+    private String              mName;
 
-    private Animation        mOutToLeft;
-    private Animation        mOutToRight;
-    private Animation        mInFromLeft;
-    private Animation        mInFromRight;
+    private Animation           mOutToLeft;
+    private Animation           mOutToRight;
+    private Animation           mInFromLeft;
+    private Animation           mInFromRight;
 
-    private int              mBackgroundResource;
+    private int                 mBackgroundResource;
 
     // Constructors ------------------------------------------------------
 
@@ -65,21 +67,25 @@ public class FlingableScreen {
                 Animation.RELATIVE_TO_SELF, -1, Animation.RELATIVE_TO_SELF, 0,
                 Animation.RELATIVE_TO_SELF, 0);
         mOutToLeft.setDuration(ANIMATION_DURATION);
+        mOutToLeft.setAnimationListener(this);
 
         mInFromLeft = new TranslateAnimation(Animation.RELATIVE_TO_SELF, -1,
                 Animation.RELATIVE_TO_SELF, 0, Animation.RELATIVE_TO_SELF, 0,
                 Animation.RELATIVE_TO_SELF, 0);
         mInFromLeft.setDuration(ANIMATION_DURATION);
+        mInFromLeft.setAnimationListener(this);
 
         mOutToRight = new TranslateAnimation(Animation.RELATIVE_TO_SELF, 0,
                 Animation.RELATIVE_TO_SELF, 1, Animation.RELATIVE_TO_SELF, 0,
                 Animation.RELATIVE_TO_SELF, 0);
         mOutToRight.setDuration(ANIMATION_DURATION);
+        mOutToRight.setAnimationListener(this);
 
         mInFromRight = new TranslateAnimation(Animation.RELATIVE_TO_SELF, 1,
                 Animation.RELATIVE_TO_SELF, 0, Animation.RELATIVE_TO_SELF, 0,
                 Animation.RELATIVE_TO_SELF, 0);
         mInFromRight.setDuration(ANIMATION_DURATION);
+        mInFromRight.setAnimationListener(this);
 
         mBackgroundResource = pBackgroundResource;
     }
@@ -119,6 +125,8 @@ public class FlingableScreen {
     public void animate(Direction p_Direction, Target p_Target) {
 
         mBaseLayout.clearAnimation();
+
+        Logger.v(LOG_TAG, "animating");
 
         if (p_Target == Target.IN) {
 
@@ -162,5 +170,25 @@ public class FlingableScreen {
     protected synchronized void refresh() {
 
     }
+
+    @Override
+    public void onAnimationEnd(Animation pArg0) {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public void onAnimationRepeat(Animation pArg0) {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public void onAnimationStart(Animation pArg0) {
+        // TODO Auto-generated method stub
+
+    }
+
+    // Inner Classes -----------------------------------------------------
 
 }

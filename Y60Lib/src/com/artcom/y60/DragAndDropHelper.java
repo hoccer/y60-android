@@ -285,6 +285,13 @@ public class DragAndDropHelper implements OnTouchListener {
 
             Logger.v(LOG_TAG, "LOOOOOOOOOOOOOOOOOOOOOOOONG PRESS");
 
+            if (mDragListenerList.size() > 0) {
+                Iterator<DragListener> it = mDragListenerList.iterator();
+                while (it.hasNext()) {
+                    it.next().onBeforeDraggingStarted(mSourceView);
+                }
+            }
+
             if (mThumbView == null) {
                 mThumbView = mDefaultThumbnail;
 
