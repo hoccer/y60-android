@@ -196,6 +196,11 @@ public abstract class Y60ActivityInstrumentationTest<T extends Activity> extends
         instrumentation.sendKeySync(new KeyEvent(KeyEvent.ACTION_UP, pKeyCode));
     }
 
+    protected void pressKeySequence(String pText) {
+        Instrumentation instrumentation = getInstrumentation();
+        instrumentation.sendStringSync(pText);
+    }
+
     /**
      * Shorthand for <code>getClass().getName()</code>, to be used for logcat
      * logging.
