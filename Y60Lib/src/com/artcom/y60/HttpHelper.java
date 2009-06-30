@@ -111,10 +111,15 @@ public class HttpHelper {
     }
 
     public static String post(String uri, String body, String pContentType, String pAccept) {
+        return post(uri, body, pContentType, pAccept, PUT_TIMEOUT);
+    }
+
+    public static String post(String uri, String body, String pContentType, String pAccept,
+            int pTimeout) {
 
         HttpPost post = new HttpPost(uri);
         insert(body, pContentType, pAccept, post);
-        HttpResponse result = executeHTTPMethod(post, PUT_TIMEOUT);
+        HttpResponse result = executeHTTPMethod(post, pTimeout);
 
         if (result.getStatusLine().getStatusCode() != 200) {
             throw new RuntimeException("Execution of HTTP Method POST '" + uri + "' returned "
@@ -249,7 +254,7 @@ public class HttpHelper {
 
         String params = urlEncode(pParams);
         String uri = SCRIPT_RUNNER_Uri + "?" + params;
-        String jsonStr = post(uri, pJsStr, "text/javascript", "text/json");
+        String jsonStr = post(uri, pJsStr, "text/javascript", "text/json", 30 * 1000);
 
         return new JSONObject(jsonStr);
     }
