@@ -2,5 +2,6 @@
 <classpath>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="lib" path="libs/android.jar"/>
+	<classpathentry kind="lib" path="libs/toxiclibscore.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
