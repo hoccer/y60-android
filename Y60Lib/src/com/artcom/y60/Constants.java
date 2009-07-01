@@ -25,17 +25,17 @@ public class Constants {
         }
 
         public static final String       URI;
+        public static final String       DEVICE_PATH;
 
         public static final String       OBSERVER_BASE_PATH = "/gom/observer";
 
         public static final IntentFilter GNP_INTENT_FILTER;
 
         static {
-
             DeviceConfiguration config = DeviceConfiguration.load();
             URI = config.getGomUrl();
-
             GNP_INTENT_FILTER = new IntentFilter(Y60Action.GOM_NOTIFICATION_BC);
+            DEVICE_PATH = config.getDevicePath();
         }
 
     }
