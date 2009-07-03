@@ -38,8 +38,8 @@ public class GomNotificationHelper {
      *            the observer??? Don't know!
      */
     public static BroadcastReceiver registerObserverAndNotify(final String pPath,
-                    final GomObserver pGomObserver, final GomProxyHelper pGom) throws IOException,
-                    IpAddressNotFoundException {
+            final GomObserver pGomObserver, final GomProxyHelper pGom) throws IOException,
+            IpAddressNotFoundException {
 
         return registerObserverAndNotify(pPath, pGomObserver, pGom, new ErrorHandler() {
 
@@ -53,9 +53,8 @@ public class GomNotificationHelper {
     }
 
     public static BroadcastReceiver registerObserverAndNotify(final String pPath,
-                    final GomObserver pGomObserver, final GomProxyHelper pGom,
-                    final ErrorHandler pErrorHandler) throws IOException,
-                    IpAddressNotFoundException {
+            final GomObserver pGomObserver, final GomProxyHelper pGom,
+            final ErrorHandler pErrorHandler) throws IOException, IpAddressNotFoundException {
 
         return registerObserverAndNotify(pPath, pGomObserver, pGom, false, pErrorHandler);
     }
@@ -73,9 +72,8 @@ public class GomNotificationHelper {
      * 
      */
     public static BroadcastReceiver registerObserverAndNotify(final String pPath,
-                    final GomObserver pGomObserver, final GomProxyHelper pGom,
-                    final boolean pBubbleUp, final ErrorHandler pErrorHandler) throws IOException,
-                    IpAddressNotFoundException {
+            final GomObserver pGomObserver, final GomProxyHelper pGom, final boolean pBubbleUp,
+            final ErrorHandler pErrorHandler) throws IOException, IpAddressNotFoundException {
 
         BroadcastReceiver rec = createBroadcastReceiver(pPath, pGomObserver, pBubbleUp);
 
@@ -130,13 +128,13 @@ public class GomNotificationHelper {
      * @throws IOException
      */
     public static HttpResponse putObserverToGom(String pPath) throws IOException,
-                    IpAddressNotFoundException {
+            IpAddressNotFoundException {
 
         return putObserverToGom(pPath, false);
     }
 
     public static HttpResponse putObserverToGom(String pPath, boolean pWithBubbleUp)
-                    throws IOException, IpAddressNotFoundException {
+            throws IOException, IpAddressNotFoundException {
 
         String observerId = getObserverId();
 
@@ -147,7 +145,7 @@ public class GomNotificationHelper {
         String ip = myIp.getHostAddress();
         Logger.v(LOG_TAG, "ip: ", ip);
         String callbackUrl = "http://" + ip + ":" + Constants.Network.DEFAULT_PORT
-                        + Constants.Network.GNP_TARGET;
+                + Constants.Network.GNP_TARGET;
         Logger.v(LOG_TAG, "callbackUrl: ", callbackUrl);
         formData.put("callback_url", callbackUrl);
         formData.put("accept", "application/json");
@@ -170,14 +168,14 @@ public class GomNotificationHelper {
         String observerUri = Constants.Gom.URI + observerPath;
 
         Logger.d(LOG_TAG, "posting observer for GOM entry " + pPath + " to " + observerUri
-                        + " for callback " + callbackUrl);
+                + " for callback " + callbackUrl);
         Logger.d(LOG_TAG, "use bubble up? ", pWithBubbleUp);
 
         // Deactivated because the implementation does not unsubscribe registerd
         // observers
 
         HttpResponse response = GomHttpWrapper.putNodeWithAttributes(
-                        observerUri + "/" + observerId, formData);
+                observerUri + "/" + observerId, formData);
         StatusLine status = response.getStatusLine();
         if (status.getStatusCode() >= 300) {
 
@@ -192,7 +190,7 @@ public class GomNotificationHelper {
     }
 
     private static BroadcastReceiver createBroadcastReceiver(final String pPath,
-                    final GomObserver pGomObserver, final boolean pBubbleUp) {
+            final GomObserver pGomObserver, final boolean pBubbleUp) {
         // TODO Auto-generated method stub
 
         if (pPath == null) {
@@ -210,22 +208,22 @@ public class GomNotificationHelper {
 
                 Logger.d(LOG_TAG, "onReceive with intent: ", pArg1.toString());
                 Logger.d(LOG_TAG, "broadcast receiver observing ", pPath, " - with bubble up? ",
-                                pBubbleUp);
+                        pBubbleUp);
                 Logger.v(LOG_TAG, " - path: ", pArg1
-                                .getStringExtra(IntentExtraKeys.KEY_NOTIFICATION_PATH));
+                        .getStringExtra(IntentExtraKeys.KEY_NOTIFICATION_PATH));
 
                 String notificationPath = pArg1
-                                .getStringExtra(IntentExtraKeys.KEY_NOTIFICATION_PATH);
+                        .getStringExtra(IntentExtraKeys.KEY_NOTIFICATION_PATH);
                 if (notificationPathIsObservedByMe(notificationPath)) {
 
                     Logger.d(LOG_TAG, "ok, the path is relevant to me");
                     Logger.v(LOG_TAG, " - operation: ", pArg1
-                                    .getStringExtra(IntentExtraKeys.KEY_NOTIFICATION_OPERATION));
+                            .getStringExtra(IntentExtraKeys.KEY_NOTIFICATION_OPERATION));
                     Logger.v(LOG_TAG, " - data: ", pArg1
-                                    .getStringExtra(IntentExtraKeys.KEY_NOTIFICATION_DATA_STRING));
+                            .getStringExtra(IntentExtraKeys.KEY_NOTIFICATION_DATA_STRING));
 
                     String jsnStr = pArg1
-                                    .getStringExtra(IntentExtraKeys.KEY_NOTIFICATION_DATA_STRING);
+                            .getStringExtra(IntentExtraKeys.KEY_NOTIFICATION_DATA_STRING);
                     JSONObject data;
                     try {
                         data = new JSONObject(jsnStr);
@@ -236,7 +234,7 @@ public class GomNotificationHelper {
                     }
 
                     String operation = pArg1
-                                    .getStringExtra(IntentExtraKeys.KEY_NOTIFICATION_OPERATION);
+                            .getStringExtra(IntentExtraKeys.KEY_NOTIFICATION_OPERATION);
                     if ("create".equals(operation)) {
 
                         Logger.v(LOG_TAG, "it's a CREATE notification");
@@ -265,7 +263,7 @@ public class GomNotificationHelper {
             public boolean notificationPathIsObservedByMe(String pNotificationPath) {
 
                 return (pBubbleUp && GomReference.isSelfOrAncestorOf(pPath, pNotificationPath))
-                                || (Pattern.matches(regEx, pNotificationPath));
+                        || (Pattern.matches(regEx, pNotificationPath));
             }
         };
 

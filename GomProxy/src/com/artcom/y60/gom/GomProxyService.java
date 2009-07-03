@@ -122,6 +122,25 @@ public class GomProxyService extends Y60Service {
         }
     }
 
+    private void getCachedNodeData(String pPath, List<String> pSubNodeNames,
+            List<String> pAttributeNames) throws GomProxyException {
+
+        Logger.v(LOG_TAG, "getCachedNodeData(", pPath, ")");
+
+        synchronized (mAttributes) {
+
+            if (!hasNodeInCache(pPath)) {
+                throw new GomProxyException("Node '" + pPath + "' not found in cache");
+            }
+
+            NodeData data = mNodes.get(pPath);
+            pSubNodeNames = data.subNodeNames;
+            pAttributeNames = data.attributeNames;
+
+        }
+
+    }
+
     String getAttributeValue(String pPath) throws JSONException, GomEntryNotFoundException,
             GomProxyException {
 
@@ -160,7 +179,8 @@ public class GomProxyService extends Y60Service {
 
     }
 
-    void refreshEntry(String pPath) throws JSONException, GomEntryNotFoundException, GomProxyException {
+    void refreshEntry(String pPath) throws JSONException, GomEntryNotFoundException,
+            GomProxyException {
         Logger.v(LOG_TAG, "refreshEntry(", pPath, ")");
         String lastSegment = pPath.substring(pPath.lastIndexOf("/") + 1);
         if (lastSegment.contains(":")) {
@@ -375,6 +395,19 @@ public class GomProxyService extends Y60Service {
             }
         }
 
+        @Override
+        public void getCachedNodeData(String pPath, List<String> pSubNodeNames,
+                List<String> pAttributeNames, RpcStatus pStatus) throws RemoteException {
+
+            try {
+                GomProxyService.this.getCachedNodeData(pPath, pSubNodeNames, pAttributeNames);
+            } catch (Exception ex) {
+
+                pStatus.setError(ex);
+            }
+
+        }
+
         public void refreshEntry(String path, RpcStatus pStatus) throws RemoteException {
 
             try {
@@ -447,6 +480,7 @@ public class GomProxyService extends Y60Service {
                 pStatus.setError(ex);
             }
         }
+
     }
 
     class GomNotificationBroadcastReceiver extends BroadcastReceiver {

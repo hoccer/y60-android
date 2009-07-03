@@ -140,7 +140,7 @@ public class GomProxyHelper {
 
         } catch (RemoteException rex) {
 
-            Logger.e(LOG_TAG, "failed to refresh entry", rex);
+            Logger.e(LOG_TAG, "error: rpcStatus has no error", rex);
             throw new RuntimeException(rex);
         }
 
@@ -308,6 +308,30 @@ public class GomProxyHelper {
         } catch (RemoteException rex) {
 
             Logger.e(LOG_TAG, "failed to retrieve node data", rex);
+            throw new RuntimeException(rex);
+        }
+    }
+
+    public void getCachedNodeData(String pPath, List<String> pSubNodeNames,
+            List<String> pAttributeNames) throws GomProxyException {
+
+        RpcStatus status = new RpcStatus();
+
+        try {
+            mProxy.getCachedNodeData(pPath, pSubNodeNames, pAttributeNames, status);
+
+            if (status.hasError()) {
+                Throwable err = status.getError();
+                if (err instanceof GomProxyException) {
+                    throw (GomProxyException) err;
+                }
+
+                throw new RuntimeException(err);
+            }
+
+        } catch (RemoteException rex) {
+
+            Logger.e(LOG_TAG, "error: rpcStatus has no error", rex);
             throw new RuntimeException(rex);
         }
     }

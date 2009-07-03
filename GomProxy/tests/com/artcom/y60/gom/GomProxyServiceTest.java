@@ -160,8 +160,7 @@ public class GomProxyServiceTest extends ServiceTestCase<GomProxyService> {
         assertFalse("attribute should not be in cache", service.hasAttributeInCache(path));
     }
 
-    @Suppress
-    public void testUpdateAttributeOnNotification() throws Exception {
+    public void testDontGetNotifiedByGnp() throws Exception {
 
         startService(mIntent);
 
@@ -196,7 +195,7 @@ public class GomProxyServiceTest extends ServiceTestCase<GomProxyService> {
 
         // check that the value in the service has been updated as well
         String actualValue = service.getAttributeValue(attrPath);
-        assertEquals("value in GOM is not the updated value", newValue, actualValue);
+        assertEquals("value in GOM is not the updated value", oldValue, actualValue);
     }
 
     @Suppress
