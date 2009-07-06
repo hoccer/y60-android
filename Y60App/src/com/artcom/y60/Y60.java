@@ -35,8 +35,9 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
+import java.util.NoSuchElementException;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -59,27 +60,24 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
-import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.AdapterView.OnItemSelectedListener;
 
 public class Y60 extends Activity {
 
-    private static final String                LOG_TAG = "Y60";
+    private static final String LOG_TAG = "Y60";
 
-    private EditText                           mEditText;
-    private Button                             mSetNameButton;
-    private Button                             mInitButton;
-    private Button                             mStopY60Button;
-    private Button                             mWifiCfgButton;
+    private EditText mDeviceIdEdit;
+    private Button mSetDeviceIdButton;
+    private Button mInitButton;
+    private Button mStopDcButton;
+    private Button mWifiCfgButton;
 
-    private TextView                           mHomeTargetTextView;
-    private Spinner                            mChooseHomeButtonTarget;
+    private Spinner mChooseHomeButtonTarget;
     private ArrayAdapter<ComponentInformation> mCompInfoArrayAdapter;
 
-    private TextView                           mLogLevelTextView;
-    private Spinner                            mChooseLogLevel;
-    private ArrayAdapter<String>               mLogLevelArrayAdapter;
+    private Spinner mChooseLogLevel;
+    private ArrayAdapter<String> mLogLevelArrayAdapter;
 
     /** Called when the activity is first created. */
     @Override
@@ -88,11 +86,11 @@ public class Y60 extends Activity {
 
         setContentView(R.layout.y60_layout);
 
-        mEditText = (EditText) findViewById(R.id.mEditText);
-        mEditText.setText(DeviceConfiguration.load().getDevicePath());
+        mDeviceIdEdit = (EditText) findViewById(R.id.device_path_edit);
+        mDeviceIdEdit.setText(DeviceConfiguration.load().getDevicePath());
 
-        mSetNameButton = (Button) findViewById(R.id.mSetNameButton);
-        mSetNameButton.setOnClickListener(new RenameClickListener());
+        mSetDeviceIdButton = (Button) findViewById(R.id.set_device_path_button);
+        mSetDeviceIdButton.setOnClickListener(new RenameClickListener());
 
         mWifiCfgButton = (Button) findViewById(R.id.wifi_config_button);
         mWifiCfgButton.setOnClickListener(new OnClickListener() {
@@ -100,28 +98,28 @@ public class Y60 extends Activity {
             public void onClick(View v) {
                 Intent intent = new Intent();
                 intent
-                        .setClassName("com.android.settings",
-                                "com.android.settings.WirelessSettings");
+                                .setClassName("com.android.settings",
+                                                "com.android.settings.WirelessSettings");
                 startActivity(intent);
             }
         });
 
-        mInitButton = (Button) findViewById(R.id.mStartY60Button);
+        mInitButton = (Button) findViewById(R.id.init_y60_button);
         mInitButton.setOnClickListener(new OnClickListener() {
             // @Override
             public void onClick(View v) {
                 // hide status bar
                 Window win = getWindow();
                 win.setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
-                        WindowManager.LayoutParams.FLAG_FULLSCREEN);
+                                WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
                 Intent intent = new Intent(Y60Action.INIT_Y60_BC);
                 sendBroadcast(intent);
             }
         });
 
-        mStopY60Button = (Button) findViewById(R.id.mStopY60Button);
-        mStopY60Button.setOnClickListener(new OnClickListener() {
+        mStopDcButton = (Button) findViewById(R.id.stop_dc_button);
+        mStopDcButton.setOnClickListener(new OnClickListener() {
             // @Override
             public void onClick(View v) {
                 Intent stopDcIntent = new Intent("y60.intent.SERVICE_DEVICE_CONTROLLER");
@@ -131,33 +129,57 @@ public class Y60 extends Activity {
             }
         });
 
-        mHomeTargetTextView = (TextView) findViewById(R.id.mHomeTargetTextView);
-
-        mChooseHomeButtonTarget = (Spinner) findViewById(R.id.mChooseHomeButtonTarget);
+        mChooseHomeButtonTarget = (Spinner) findViewById(R.id.home_target_chooser);
         // display possible components:
-        ComponentInformation[] componentNames = getPossibleComponents(Intent.ACTION_MAIN,
-                Intent.CATEGORY_HOME, Intent.CATEGORY_DEFAULT);
+        ComponentInformation[] components = getPossibleComponents(Intent.ACTION_MAIN,
+                        Intent.CATEGORY_HOME, Intent.CATEGORY_DEFAULT);
         mCompInfoArrayAdapter = new ArrayAdapter<ComponentInformation>(this,
-                android.R.layout.simple_spinner_dropdown_item, componentNames);
+                        android.R.layout.simple_spinner_dropdown_item, components);
         mChooseHomeButtonTarget.setAdapter(mCompInfoArrayAdapter);
+
+        mChooseHomeButtonTarget.setSelection(0);
         mChooseHomeButtonTarget.setOnItemSelectedListener(new ActivitySelectionListener());
 
-        mLogLevelTextView = (TextView) findViewById(R.id.mLogLevelTextView);
+        mChooseLogLevel = (Spinner) findViewById(R.id.log_level_chooser);
+        List<Logger.Level> logLevels = Logger.Level.getLogLevels();
+        String[] logLevelNames = new String[logLevels.size()];
+        int selectedLevelIndex = -1;
+        for (int i = 0; i < logLevels.size(); i += 1) {
 
-        mChooseLogLevel = (Spinner) findViewById(R.id.mChooseLogLevel);
-        Set<String> logLevelsSet = Logger.Level.getLogLevels();
-        String[] logLevels = new String[logLevelsSet.size()];
-        logLevelsSet.toArray(logLevels);
+            logLevelNames[i] = logLevels.get(i).name();
+
+            if (logLevels.get(i) == DeviceConfiguration.load().getLogLevel()) {
+                selectedLevelIndex = i;
+            }
+        }
+
+        if (selectedLevelIndex == -1) {
+            selectedLevelIndex = 0;
+            String selectedLevelName = logLevels.get(selectedLevelIndex).name();
+            Logger
+                            .w(
+                                            LOG_TAG,
+                                            "apparantly no log level is configured in the device configuration, using ",
+                                            selectedLevelName);
+
+        } else {
+
+            Logger.v(LOG_TAG, "log level ", logLevelNames[selectedLevelIndex], " selected");
+        }
+
         mLogLevelArrayAdapter = new ArrayAdapter<String>(this,
-                android.R.layout.simple_spinner_dropdown_item, logLevels);
+                        android.R.layout.simple_spinner_dropdown_item, logLevelNames);
         mChooseLogLevel.setAdapter(mLogLevelArrayAdapter);
+        mChooseLogLevel.setSelection(selectedLevelIndex);
         mChooseLogLevel.setOnItemSelectedListener(new LogLevelSelectionListener());
     }
 
+    @Override
     public void onResume() {
         super.onResume();
     }
 
+    @Override
     public boolean onTouchEvent(MotionEvent event) {
 
         return true;
@@ -172,8 +194,6 @@ public class Y60 extends Activity {
 
     private ComponentInformation[] getPossibleComponents(String pAction, String... pCategories) {
 
-        PackageManager pm = getPackageManager();
-
         // create Intent from params
         Intent homeIntent = new Intent(pAction);
         for (String cat : pCategories) {
@@ -181,35 +201,74 @@ public class Y60 extends Activity {
             homeIntent.addCategory(cat);
         }
 
+        HashMap<String, ComponentInformation> activityInfos = queryIntentActivitiesAsMap(homeIntent);
+        ComponentInformation chosen = getPreferredActivity(pAction, activityInfos);
+
+        activityInfos.remove(chosen.componentName.getClassName());
+        ArrayList<ComponentInformation> resultList = new ArrayList<ComponentInformation>(
+                        activityInfos.size());
+        resultList.add(chosen); // default activity should be the 1st element
+        resultList.addAll(activityInfos.values());
+
+        // possible activities to array
+        return resultList.toArray(new ComponentInformation[activityInfos.size()]);
+    }
+
+    private HashMap<String, ComponentInformation> queryIntentActivitiesAsMap(Intent pIntent) {
+
         // ResolveInfo: Information that is returned from resolving an intent
         // against an IntentFilter
-        List<ResolveInfo> homeResolveInfos = pm.queryIntentActivities(homeIntent, 0);
+        List<ResolveInfo> homeResolveInfos = getPackageManager().queryIntentActivities(pIntent, 0);
 
         // Possible Activities
-        List<ComponentInformation> activityNames = new ArrayList<ComponentInformation>(
-                homeResolveInfos.size());
-        int bestScore = 0;
-
+        HashMap<String, ComponentInformation> activityInfos = new HashMap<String, ComponentInformation>(
+                        homeResolveInfos.size());
         // Fills ComponentNames (=activites) for homeResolveInfos and determines
         // bestScore
         for (ResolveInfo currentResolveInfo : homeResolveInfos) {
 
-            if (currentResolveInfo.match > bestScore) {
-                bestScore = currentResolveInfo.match;
-            }
-
             ActivityInfo activityInfo = currentResolveInfo.activityInfo;
             // create ComponentName from current activity.
             ComponentName name = new ComponentName(activityInfo.applicationInfo.packageName,
-                    activityInfo.name);
+                            activityInfo.name);
 
-            activityNames.add(new ComponentInformation(name, currentResolveInfo.match));
-            Logger.v(LOG_TAG, "rival activity: ", name + "for (intent-)action: ", pAction);
+            activityInfos.put(name.getClassName(), new ComponentInformation(name,
+                            currentResolveInfo.match));
+            Logger.v(LOG_TAG, "rival activity: ", name + "for (intent-)action: ", pIntent
+                            .getAction());
         }
 
-        // possible activities to array
-        return activityNames.toArray(new ComponentInformation[activityNames.size()]);
+        return activityInfos;
+    }
 
+    private ComponentInformation getPreferredActivity(String pAction,
+                    HashMap<String, ComponentInformation> pComponents) {
+
+        ArrayList<IntentFilter> filters = new ArrayList<IntentFilter>();
+        ArrayList<ComponentName> activityNames = new ArrayList<ComponentName>();
+        getPackageManager().getPreferredActivities(filters, activityNames, null);
+        Logger.v(LOG_TAG, "found ", filters.size(), "preferred activities");
+
+        ComponentInformation chosen = null;
+
+        for (int i = 0; i < filters.size(); i++) {
+
+            IntentFilter filter = filters.get(i);
+            if (filter.getAction(0).equals(pAction)) {
+
+                String className = activityNames.get(i).getClassName();
+                chosen = pComponents.get(className);
+                break;
+            }
+        }
+
+        if (chosen == null) {
+
+            throw new NoSuchElementException("No preferred activity found for action '" + pAction
+                            + "'!");
+        }
+
+        return chosen;
     }
 
     class RenameClickListener implements OnClickListener {
@@ -228,13 +287,13 @@ public class Y60 extends Activity {
                 fr.close();
 
                 FileWriter fw = new FileWriter(configFile);
-                configuration.put("device-path", mEditText.getText().toString());
+                configuration.put("device-path", mDeviceIdEdit.getText().toString());
                 fw.write(configuration.toString());
                 fw.close();
 
                 Toast.makeText(Y60.this,
-                        "Device name changed to " + mEditText.getText().toString(),
-                        Toast.LENGTH_SHORT).show();
+                                "Device name changed to " + mDeviceIdEdit.getText().toString(),
+                                Toast.LENGTH_SHORT).show();
 
             } catch (FileNotFoundException e) {
                 Logger.e(LOG_TAG, "Could not find configuration file ", configFile);
@@ -257,13 +316,14 @@ public class Y60 extends Activity {
     class ComponentInformation {
 
         public ComponentName componentName;
-        public int           match;
+        public int match;
 
         public ComponentInformation(ComponentName pComponentName, int pMatch) {
             componentName = pComponentName;
             match = pMatch;
         }
 
+        @Override
         public String toString() {
             return componentName.getClassName();
         }
@@ -275,7 +335,7 @@ public class Y60 extends Activity {
         public void onItemSelected(AdapterView<?> arg0, View arg1, int pPos, long arg3) {
 
             ComponentInformation[] componentNames = getPossibleComponents(Intent.ACTION_MAIN,
-                    Intent.CATEGORY_HOME, Intent.CATEGORY_DEFAULT);
+                            Intent.CATEGORY_HOME, Intent.CATEGORY_DEFAULT);
 
             IntentFilter filter = new IntentFilter(Intent.ACTION_MAIN);
             filter.addCategory(Intent.CATEGORY_HOME);
@@ -291,18 +351,19 @@ public class Y60 extends Activity {
                 if (currentComponentInformation.match > bestScore) {
                     bestScore = currentComponentInformation.match;
                 }
-                componentNameArray[i++] = currentComponentInformation.componentName;
+                componentNameArray[i] = currentComponentInformation.componentName;
+                i += 1;
 
                 pm.clearPackagePreferredActivities(currentComponentInformation.componentName
-                        .getPackageName());
+                                .getPackageName());
             }
 
             ComponentInformation preferredComponent = mCompInfoArrayAdapter.getItem(pPos);
             Toast.makeText(Y60.this, "selected item is: " + preferredComponent, Toast.LENGTH_SHORT)
-                    .show();
+                            .show();
 
             pm.addPreferredActivity(filter, preferredComponent.match, componentNameArray,
-                    preferredComponent.componentName);
+                            preferredComponent.componentName);
 
         }
 
@@ -316,40 +377,17 @@ public class Y60 extends Activity {
 
         public void onItemSelected(AdapterView<?> arg0, View arg1, int pPos, long arg3) {
 
-            String selectedLogLevel = "not defined";
-            selectedLogLevel = mLogLevelArrayAdapter.getItem(pPos).toString();
+            DeviceConfiguration config = DeviceConfiguration.load();
+            String logLevelStr = mLogLevelArrayAdapter.getItem(pPos).toString();
+            Logger.Level logLevel = Logger.Level.fromString(logLevelStr);
 
-            String configFile = getResources().getString(R.string.configFile);
-            JSONObject configuration = null;
-            try {
+            Logger.v(LOG_TAG, "saving log level as ", logLevelStr);
 
-                FileReader fr = new FileReader(configFile);
-                char[] inputBuffer = new char[255];
-                fr.read(inputBuffer);
-                configuration = new JSONObject(new String(inputBuffer));
-                fr.close();
+            Logger.setFilterLevel(logLevel);
+            config.saveLogLevel(logLevel);
 
-                FileWriter fw = new FileWriter(configFile);
-                configuration.put("log-level", selectedLogLevel);
-                fw.write(configuration.toString());
-                fw.close();
-
-                Toast.makeText(Y60.this, "Log Level changed to " + selectedLogLevel,
-                        Toast.LENGTH_SHORT).show();
-
-            } catch (FileNotFoundException e) {
-                Logger.e(LOG_TAG, "Could not find configuration file ", configFile);
-                throw new RuntimeException(e);
-            } catch (UnsupportedEncodingException e) {
-                Logger.e(LOG_TAG, "Configuration file ", configFile, " uses unsupported encoding");
-                throw new RuntimeException(e);
-            } catch (IOException e) {
-                Logger.e(LOG_TAG, "Error while reading configuration file ", configFile);
-                throw new RuntimeException(e);
-            } catch (JSONException e) {
-                Logger.e(LOG_TAG, "Error while parsing configuration file ", configFile);
-                throw new RuntimeException(e);
-            }
+            Toast.makeText(Y60.this, "Log Level changed to " + logLevelStr, Toast.LENGTH_SHORT)
+                            .show();
 
         }
 

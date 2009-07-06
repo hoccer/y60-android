@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <TableLayout
-android:id="@+id/y60Screen"
+android:id="@+id/y60_screen"
 android:layout_width="fill_parent"
 android:layout_height="fill_parent"
 xmlns:android="http://schemas.android.com/apk/res/android"
 >
 <EditText
-android:id="@+id/mEditText"
+android:id="@+id/device_path_edit"
 android:layout_width="wrap_content"
 android:layout_height="wrap_content"
 android:text="EditText"
@@ -14,7 +14,7 @@ android:textSize="18sp"
 >
 </EditText>
 <Button
-android:id="@+id/mSetNameButton"
+android:id="@+id/set_device_path_button"
 android:layout_width="wrap_content"
 android:layout_height="wrap_content"
 android:text="Set device ID"
@@ -28,41 +28,41 @@ android:text="Configure WiFi"
 >
 </Button>
 <Button
-android:id="@+id/mStartY60Button"
+android:id="@+id/init_y60_button"
 android:layout_width="wrap_content"
 android:layout_height="wrap_content"
 android:text="Init Y60"
 >
 </Button>
 <Button
-android:id="@+id/mStopY60Button"
+android:id="@+id/stop_dc_button"
 android:layout_width="wrap_content"
 android:layout_height="wrap_content"
 android:text="Stop DeviceController/StatusWatcher"
 >
 </Button>
 <TextView
-    android:id="@+id/mHomeTargetTextView"
+    android:id="@+id/home_target_label"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:layout_marginTop="10dip"
     android:text="Please select a target for the home button:"
 />
 <Spinner 
-    android:id="@+id/mChooseHomeButtonTarget"
+    android:id="@+id/home_target_chooser"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:drawSelectorOnTop="true"
 />
 <TextView
-    android:id="@+id/mLogLevelTextView"
+    android:id="@+id/log_level_label"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:layout_marginTop="10dip"
     android:text="Please select a log level:"
 />
 <Spinner 
-    android:id="@+id/mChooseLogLevel"
+    android:id="@+id/log_level_chooser"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:drawSelectorOnTop="true"

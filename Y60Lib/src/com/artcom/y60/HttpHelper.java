@@ -44,8 +44,9 @@ public class HttpHelper {
 
     // Constants ---------------------------------------------------------
 
-    private static final int    PUT_TIMEOUT       = 10 * 1000;
-    private static final int    GET_TIMEOUT       = 2 * 1000;
+    private static final int    PUT_TIMEOUT       = 15 * 1000;
+    private static final int    POST_TIMEOUT      = 40 * 1000;
+    private static final int    GET_TIMEOUT       = 5 * 1000;
     private static final String LOG_TAG           = "HttpHelper";
     private static final String SCRIPT_RUNNER_Uri = "http://t-gom.service.t-gallery.act/gom/script-runner";
 
@@ -100,7 +101,7 @@ public class HttpHelper {
     public static String postXML(String uri, String body) {
         HttpPost post = new HttpPost(uri);
         insertXML(body, post);
-        HttpResponse result = executeHTTPMethod(post, PUT_TIMEOUT);
+        HttpResponse result = executeHTTPMethod(post, POST_TIMEOUT);
 
         if (result.getStatusLine().getStatusCode() != 200) {
             throw new RuntimeException("Execution of HTTP Method POST '" + uri + "' returned "
@@ -111,7 +112,7 @@ public class HttpHelper {
     }
 
     public static String post(String uri, String body, String pContentType, String pAccept) {
-        return post(uri, body, pContentType, pAccept, PUT_TIMEOUT);
+        return post(uri, body, pContentType, pAccept, POST_TIMEOUT);
     }
 
     public static String post(String uri, String body, String pContentType, String pAccept,

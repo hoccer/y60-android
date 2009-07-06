@@ -164,10 +164,12 @@ public class DeviceControllerHandler extends DefaultHandler {
         Logger.d(LOG_TAG, "handling GOM notification");
 
         String content = extractContent(pRequest);
-        Logger.v(LOG_TAG, "JSON data of notification: ", content);
 
         try {
             JSONObject notification = new JSONObject(content);
+
+            Logger.v(LOG_TAG, "JSON path of notification: ", notification.get("uri"));
+
             Intent gnpIntent = new Intent(Y60Action.GOM_NOTIFICATION_BC);
 
             // wrong concept - uri is actually a path! see RFC 2396 for details
@@ -198,6 +200,7 @@ public class DeviceControllerHandler extends DefaultHandler {
             String data = notification.getJSONObject(operation).toString();
             gnpIntent.putExtra(IntentExtraKeys.KEY_NOTIFICATION_DATA_STRING, data);
 
+            Logger.v(LOG_TAG, "sending Broadcast with intent: ", gnpIntent);
             mService.sendBroadcast(gnpIntent);
 
         } catch (JSONException jsx) {

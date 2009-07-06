@@ -1,22 +1,26 @@
 package com.artcom.y60;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import android.util.Log;
 
 public class Logger {
-
-    public enum Level {
+    public enum Level implements Comparable<Level> {
 
         VERBOSE(0, Log.VERBOSE, "verbose"), DEBUG(1, Log.DEBUG, "debug"), INFO(2, Log.INFO, "info"), WARN(
-                3, Log.WARN, "warn"), ERROR(4, Log.ERROR, "error");
+                        3, Log.WARN, "warn"), ERROR(4, Log.ERROR, "error");
 
         private final static Map<String, Level> BY_NAME;
 
-        public static Set<String> getLogLevels() {
-            return BY_NAME.keySet();
+        public static List<Level> getLogLevels() {
+            ArrayList<Level> levels = new ArrayList<Level>();
+            levels.addAll(BY_NAME.values());
+            Collections.sort(levels);
+            return levels;
         }
 
         static {
@@ -34,8 +38,8 @@ public class Logger {
             return BY_NAME.get(pName.toLowerCase());
         }
 
-        private int    mAsInt;
-        private int    mPriority;
+        private int mAsInt;
+        private int mPriority;
         private String mName;
 
         Level(int pAsInt, int pPriority, String pName) {
@@ -45,6 +49,7 @@ public class Logger {
             mName = pName;
         }
 
+        @Override
         public String toString() {
 
             return mName;
@@ -106,6 +111,11 @@ public class Logger {
 
         Log.i("Logger", "setting filter level to '" + pLevel.toString() + "'");
         sLevel = pLevel;
+    }
+
+    public static Level getFilterLevel() {
+
+        return sLevel;
     }
 
     public static void v(String pTag, Object... pToLog) {

@@ -18,16 +18,16 @@ import android.view.View;
  *            the activity class to be tested
  */
 public abstract class Y60ActivityInstrumentationTest<T extends Activity> extends
-        ActivityInstrumentationTestCase2<T> {
+                ActivityInstrumentationTestCase2<T> {
 
     // Constants ---------------------------------------------------------
-    private static String      LOG_TAG       = "Y60ActivityInstrumentationTest";
+    private static String LOG_TAG = "Y60ActivityInstrumentationTest";
 
     /**
      * Horizontal resolution of the display in portrait orientation. To be used
      * for testing only, thus protected.
      */
-    protected final static int SCREEN_WIDTH  = 320;
+    protected final static int SCREEN_WIDTH = 320;
 
     /**
      * Vertical resolution of the display in portrait orientation. To be used
@@ -38,7 +38,7 @@ public abstract class Y60ActivityInstrumentationTest<T extends Activity> extends
     // Constructors ------------------------------------------------------
 
     public Y60ActivityInstrumentationTest(String pkg, Class<T> activityClass,
-            boolean initialTouchMode) {
+                    boolean initialTouchMode) {
         super(pkg, activityClass);
         // TODO Auto-generated constructor stub
     }
@@ -50,18 +50,24 @@ public abstract class Y60ActivityInstrumentationTest<T extends Activity> extends
 
     // Public Instance Methods -------------------------------------------
 
+    @Override
     public void setUp() throws Exception {
 
         Log.v(tag(), " --- " + getName()
-                + " -- setUp ------------------------------------------------------------");
+                        + " -- setUp ------------------------------------------------------------");
 
         super.setUp();
     }
 
+    @Override
     public void tearDown() throws Exception {
 
-        Log.v(tag(), " --- " + getName()
-                + " -- tearDown ------------------------------------------------------------");
+        Log
+                        .v(
+                                        tag(),
+                                        " --- "
+                                                        + getName()
+                                                        + " -- tearDown ------------------------------------------------------------");
 
         super.tearDown();
     }
@@ -72,7 +78,7 @@ public abstract class Y60ActivityInstrumentationTest<T extends Activity> extends
 
         View view = getActivity().findViewById(pViewId);
         assertTrue("view '" + getActivity().getResources().getResourceName(pViewId)
-                + "' should be visible", view.isShown());
+                        + "' should be visible", view.isShown());
 
     }
 
@@ -194,6 +200,11 @@ public abstract class Y60ActivityInstrumentationTest<T extends Activity> extends
         instrumentation.sendKeySync(new KeyEvent(KeyEvent.ACTION_DOWN, pKeyCode));
         Thread.sleep(pDurationMillis);
         instrumentation.sendKeySync(new KeyEvent(KeyEvent.ACTION_UP, pKeyCode));
+    }
+
+    protected void pressKeySequence(String pText) {
+        Instrumentation instrumentation = getInstrumentation();
+        instrumentation.sendStringSync(pText);
     }
 
     /**
