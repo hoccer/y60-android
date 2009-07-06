@@ -12,6 +12,7 @@ import org.json.JSONObject;
 import android.content.BroadcastReceiver;
 import android.content.Intent;
 import android.net.Uri;
+import android.test.suitebuilder.annotation.Suppress;
 
 import com.artcom.y60.Constants;
 import com.artcom.y60.HttpHelper;
@@ -780,6 +781,7 @@ public class GomNotificationHelperTest extends GomActivityUnitTestCase {
 
     }
 
+    @Suppress
     public void testRegisterOnNodeGetOnAttributeUpdated() throws Exception {
 
         initializeActivity();
@@ -861,6 +863,7 @@ public class GomNotificationHelperTest extends GomActivityUnitTestCase {
 
     }
 
+    @Suppress
     public void testRegisterOnNodeGetOnNodeCreated() throws Exception {
 
         initializeActivity();
