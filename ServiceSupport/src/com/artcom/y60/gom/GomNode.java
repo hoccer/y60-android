@@ -1,5 +1,6 @@
 package com.artcom.y60.gom;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -16,6 +17,8 @@ import android.net.Uri;
 
 import com.artcom.y60.Constants;
 import com.artcom.y60.Logger;
+import com.artcom.y60.http.HttpClientException;
+import com.artcom.y60.http.HttpServerException;
 
 /**
  * Representation of the state of a node resource in the GOM. Instances may (and
@@ -48,7 +51,7 @@ public class GomNode extends GomEntry {
     /** All entries of this node */
     private Map<String, GomEntry> mEntries;
 
-    private boolean               mFullyLoaded;
+    private boolean mFullyLoaded;
 
     // Constructors ------------------------------------------------------
 
@@ -73,7 +76,7 @@ public class GomNode extends GomEntry {
     }
 
     public Set<GomAttribute> attributes() throws GomEntryTypeMismatchException,
-            GomEntryNotFoundException {
+                    GomEntryNotFoundException {
 
         loadDataIfNecessary();
 
@@ -118,14 +121,14 @@ public class GomNode extends GomEntry {
     }
 
     private boolean hasEntry(String pName) throws GomEntryTypeMismatchException,
-            GomEntryNotFoundException {
+                    GomEntryNotFoundException {
         loadDataIfNecessary();
 
         return mEntries.containsKey(pName);
     }
 
     public GomAttribute getAttribute(String pName) throws NoSuchElementException,
-            GomEntryTypeMismatchException, GomEntryNotFoundException {
+                    GomEntryTypeMismatchException, GomEntryNotFoundException {
 
         if (mEntries.containsKey(pName)) {
 
@@ -139,7 +142,7 @@ public class GomNode extends GomEntry {
     }
 
     public boolean hasAttribute(String pName) throws GomEntryTypeMismatchException,
-            GomEntryNotFoundException {
+                    GomEntryNotFoundException {
 
         loadDataIfNecessary();
 
@@ -147,7 +150,8 @@ public class GomNode extends GomEntry {
     }
 
     public GomAttribute getOrCreateAttribute(String pName) throws GomEntryTypeMismatchException,
-            GomEntryNotFoundException {
+                    GomEntryNotFoundException, IOException, HttpServerException,
+                    HttpClientException {
 
         GomAttribute attribute;
         try {
@@ -165,7 +169,7 @@ public class GomNode extends GomEntry {
     }
 
     public GomNode getNode(String pName) throws NoSuchElementException,
-            GomEntryTypeMismatchException, GomEntryNotFoundException {
+                    GomEntryTypeMismatchException, GomEntryNotFoundException {
 
         if (mEntries.containsKey(pName)) {
 
@@ -193,7 +197,7 @@ public class GomNode extends GomEntry {
             if (!isFullyLoaded() || !other.isFullyLoaded()) {
 
                 throw new IllegalStateException(
-                        "Trying to call equals on a GomNode which has not been loaded lazily!");
+                                "Trying to call equals on a GomNode which has not been loaded lazily!");
             }
 
             return mEntries.keySet().equals(other.mEntries.keySet());
@@ -212,7 +216,7 @@ public class GomNode extends GomEntry {
     // Private Instance Methods ------------------------------------------
 
     private JSONObject toJsonFlushEntries(boolean pFlush) throws GomEntryTypeMismatchException,
-            GomEntryNotFoundException {
+                    GomEntryNotFoundException {
 
         // { "node": {
         // "uri": <uri>,
@@ -266,7 +270,7 @@ public class GomNode extends GomEntry {
     }
 
     private void loadDataIfNecessary() throws GomEntryTypeMismatchException,
-            GomEntryNotFoundException {
+                    GomEntryNotFoundException {
 
         if (!isFullyLoaded()) {
 

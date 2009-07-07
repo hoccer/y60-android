@@ -16,34 +16,34 @@ public class GomNodeTest extends AndroidTestCase {
 
     // Constants ---------------------------------------------------------
 
-    static final String NAME       = "node";
+    static final String NAME = "node";
 
-    static final String PATH       = GomTestConstants.FIXTURES + "gom_node_test/" + NAME;
+    static final String PATH = GomTestConstants.FIXTURES + "gom_node_test/" + NAME;
 
-    static final Uri    NODE_URL   = Uri.parse(Constants.Gom.URI + PATH);
+    static final Uri NODE_URL = Uri.parse(Constants.Gom.URI + PATH);
 
-    static final String ATTR_NAME  = "attribute";
+    static final String ATTR_NAME = "attribute";
 
     static final String ATTR_VALUE = "value";
 
-    static final String ATTR_PATH  = PATH + ":" + ATTR_NAME;
+    static final String ATTR_PATH = PATH + ":" + ATTR_NAME;
 
-    static final Uri    ATTR_URL   = Uri.parse(Constants.Gom.URI + ATTR_PATH);
+    static final Uri ATTR_URL = Uri.parse(Constants.Gom.URI + ATTR_PATH);
 
     static final String CHILD_NAME = "child";
 
     static final String CHILD_PATH = PATH + "/" + CHILD_NAME;
 
-    static final Uri    CHILD_URL  = Uri.parse(Constants.Gom.URI + CHILD_PATH);
+    static final Uri CHILD_URL = Uri.parse(Constants.Gom.URI + CHILD_PATH);
 
     // Instance Variables ------------------------------------------------
 
-    private GomNode     mTestNode;
+    private GomNode mTestNode;
 
     // Public Instance Methods -------------------------------------------
 
     @Override
-    public void setUp() throws GomException {
+    public void setUp() throws Exception {
 
         // write fixtures to the GOM:
         HttpHelper.postXML(CHILD_URL.toString(), "<node/>");
@@ -177,6 +177,6 @@ public class GomNodeTest extends AndroidTestCase {
         assertEquals("node should have loaded one node only", 1, mTestNode.getLazyEntryCount());
         mTestNode.getAttribute(ATTR_NAME);
         assertEquals("node should have loaded a node and an attribute", 2, mTestNode
-                .getLazyEntryCount());
+                        .getLazyEntryCount());
     }
 }

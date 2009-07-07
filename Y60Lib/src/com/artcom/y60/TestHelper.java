@@ -3,6 +3,8 @@ package com.artcom.y60;
 import android.content.Context;
 import android.content.Intent;
 
+import com.artcom.y60.http.HttpClientException;
+
 public class TestHelper {
 
     // Constants ---------------------------------------------------------
@@ -18,7 +20,8 @@ public class TestHelper {
      *            in milliseconds
      * @param pCon
      */
-    public static void blockUntilTrue(String pFailMessage, long pTimeout, TestHelper.Condition pCon) {
+    public static void blockUntilTrue(String pFailMessage, long pTimeout, TestHelper.Condition pCon)
+                    throws Exception {
 
         long start = System.currentTimeMillis();
         while (System.currentTimeMillis() - start < pTimeout) {
@@ -47,10 +50,10 @@ public class TestHelper {
      * @param pCon
      */
     public static void blockUntilFalse(String pFailMessage, long pTimeout,
-                    final TestHelper.Condition pCon) {
+                    final TestHelper.Condition pCon) throws Exception {
 
         blockUntilTrue(pFailMessage, pTimeout, new TestHelper.Condition() {
-            public boolean isSatisfied() {
+            public boolean isSatisfied() throws Exception {
 
                 return !pCon.isSatisfied();
             }
@@ -64,18 +67,18 @@ public class TestHelper {
      * @param pMeasurement
      */
     public static void blockUntilNull(String pFailMessage, long pTimeout,
-                    final TestHelper.Measurement pMeasurement) {
+                    final TestHelper.Measurement pMeasurement) throws Exception {
 
         blockUntilEquals(pFailMessage, pTimeout, null, pMeasurement);
     }
 
     public static void blockUntilNotNull(String pFailMessage, long pTimeout,
-                    final TestHelper.Measurement pMeasurement) {
+                    final TestHelper.Measurement pMeasurement) throws Exception {
 
         blockUntilTrue(pFailMessage, pTimeout, new Condition() {
 
             @Override
-            public boolean isSatisfied() {
+            public boolean isSatisfied() throws Exception {
 
                 return pMeasurement.getActualValue() != null;
             }
@@ -94,7 +97,7 @@ public class TestHelper {
      * @param pMesurement
      */
     public static void blockUntilEquals(String pFailMessage, long pTimeout, Object pExpected,
-                    final TestHelper.Measurement pMesurement) {
+                    final TestHelper.Measurement pMesurement) throws Exception {
 
         Object mesuredValue = null;
         long start = System.currentTimeMillis();
@@ -116,7 +119,7 @@ public class TestHelper {
                         + mesuredValue + ">");
     }
 
-    public static void blockUntilBackendAvailable(final Y60Activity pActivity) {
+    public static void blockUntilBackendAvailable(final Y60Activity pActivity) throws Exception {
         blockUntilTrue("Backend is not available", 2000, new TestHelper.Condition() {
 
             @Override
@@ -128,7 +131,8 @@ public class TestHelper {
 
     }
 
-    public static void blockUntilBackendResumed(final Y60Activity pActivity, int pTimeout) {
+    public static void blockUntilBackendResumed(final Y60Activity pActivity, int pTimeout)
+                    throws Exception {
         blockUntilTrue("Backend is not available", pTimeout, new TestHelper.Condition() {
 
             @Override
@@ -140,7 +144,7 @@ public class TestHelper {
 
     }
 
-    public static void blockUntilBackendResumed(final Y60Activity pActivity) {
+    public static void blockUntilBackendResumed(final Y60Activity pActivity) throws Exception {
         blockUntilTrue("Backend is not available", 2000, new TestHelper.Condition() {
 
             @Override
@@ -152,16 +156,17 @@ public class TestHelper {
 
     }
 
-    public static void blockUntilResourceAvailable(String pFailMessage, final String pUrl) {
+    public static void blockUntilResourceAvailable(String pFailMessage, final String pUrl)
+                    throws Exception {
 
         blockUntilTrue(pFailMessage, 3000, new TestHelper.Condition() {
             @Override
             public boolean isSatisfied() {
                 try {
-                    return HttpHelper.get(pUrl) != null;
-                } catch (RuntimeException rex) {
+                    return HttpHelper.getAsString(pUrl) != null;
+                } catch (HttpClientException ex) {
 
-                    if (rex.toString().contains("404")) {
+                    if (ex.getStatusCode() == 404) {
 
                         try {
                             Thread.sleep(50);
@@ -173,21 +178,24 @@ public class TestHelper {
 
                     } else {
 
-                        throw new RuntimeException(rex);
+                        throw new RuntimeException(ex);
                     }
+                } catch (Exception ex) {
+
+                    throw new RuntimeException(ex);
                 }
             }
         });
 
     }
 
-    public static void blockUntilWebServerIsRunning() {
+    public static void blockUntilWebServerIsRunning() throws Exception {
 
         long timeout = 20000;
         TestHelper.blockUntilEquals("device controller should have started withhin " + timeout
                         + " milliseconds", timeout, 404, new TestHelper.Measurement() {
             @Override
-            public Object getActualValue() {
+            public Object getActualValue() throws Exception {
 
                 try {
                     return HttpHelper.getStatusCode("http://localhost:4042/");
@@ -264,7 +272,7 @@ public class TestHelper {
 
     public interface Condition {
 
-        public boolean isSatisfied();
+        public boolean isSatisfied() throws Exception;
     }
 
     /**
@@ -272,7 +280,7 @@ public class TestHelper {
      */
     public interface Measurement {
 
-        public Object getActualValue();
+        public Object getActualValue() throws Exception;
     }
 
 }

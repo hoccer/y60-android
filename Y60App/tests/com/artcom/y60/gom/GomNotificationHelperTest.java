@@ -471,10 +471,10 @@ public class GomNotificationHelperTest extends GomActivityUnitTestCase {
         Uri invisibleAttrUrl = Uri.parse(Constants.Gom.URI + invisibleAttrPath);
         GomHttpWrapper.updateOrCreateAttribute(invisibleAttrUrl, "who else cares?");
 
-        String content = HttpHelper.get(invisibleAttrUrl);
+        String content = HttpHelper.getAsString(invisibleAttrUrl);
         assertNotNull(content);
 
-        String content2 = HttpHelper.get(visibleAttrUrl);
+        String content2 = HttpHelper.getAsString(visibleAttrUrl);
         assertNotNull(content2);
 
         GomTestObserver observer = new GomTestObserver(this);
@@ -574,7 +574,7 @@ public class GomNotificationHelperTest extends GomActivityUnitTestCase {
 
         try {
 
-            HttpHelper.get(observerUri);
+            HttpHelper.getAsString(observerUri);
             fail("Expected a 404 on observer " + observerUri + ", which shouldn't exist");
 
         } catch (Exception ex) {
@@ -602,7 +602,7 @@ public class GomNotificationHelperTest extends GomActivityUnitTestCase {
 
         try {
 
-            String result = HttpHelper.get(observerUri);
+            String result = HttpHelper.getAsString(observerUri);
             fail("Expected a 404 on observer " + observerUri + ", which shouldn't exist");
 
         } catch (Exception ex) {
@@ -633,7 +633,7 @@ public class GomNotificationHelperTest extends GomActivityUnitTestCase {
 
         // create node in gom
         GomHttpWrapper.createNode(Constants.Gom.URI + nodePath);
-        assertNotNull("missing node in GOM", HttpHelper.get(Constants.Gom.URI + nodePath));
+        assertNotNull("missing node in GOM", HttpHelper.getAsString(Constants.Gom.URI + nodePath));
 
         BroadcastReceiver receiver = GomNotificationHelper.registerObserverAndNotify(nodePath,
                 observer, helper);
@@ -731,7 +731,7 @@ public class GomNotificationHelperTest extends GomActivityUnitTestCase {
         String attrPath = TEST_BASE_PATH + "/test_on_attribute_updated" + ":" + timestamp;
 
         HttpHelper.putXML(Constants.Gom.URI + attrPath, "<attribute>original value</attribute>");
-        assertEquals("original value", HttpHelper.get(Constants.Gom.URI + attrPath + ".txt"));
+        assertEquals("original value", HttpHelper.getAsString(Constants.Gom.URI + attrPath + ".txt"));
 
         final GomTestObserver gto = new GomTestObserver(this);
         BroadcastReceiver receiver = GomNotificationHelper.registerObserverAndNotify(attrPath, gto,
@@ -760,7 +760,7 @@ public class GomNotificationHelperTest extends GomActivityUnitTestCase {
                 .getCachedAttributeValue(attrPath));
 
         assertEquals("the value should have changed in gom", "changed value", HttpHelper
-                .get(Constants.Gom.URI + attrPath + ".txt"));
+                .getAsString(Constants.Gom.URI + attrPath + ".txt"));
 
         TestHelper.blockUntilTrue("GNP should notify our observer about the changed value", 2000,
                 new TestHelper.Condition() {
@@ -797,7 +797,7 @@ public class GomNotificationHelperTest extends GomActivityUnitTestCase {
         String attrPath = nodePath + ":attribute";
 
         HttpHelper.putXML(Constants.Gom.URI + attrPath, "<attribute>original value</attribute>");
-        assertEquals("original value", HttpHelper.get(Constants.Gom.URI + attrPath + ".txt"));
+        assertEquals("original value", HttpHelper.getAsString(Constants.Gom.URI + attrPath + ".txt"));
 
         final GomTestObserver gto = new GomTestObserver(this);
         BroadcastReceiver receiver = GomNotificationHelper.registerObserverAndNotify(nodePath, gto,
@@ -832,7 +832,7 @@ public class GomNotificationHelperTest extends GomActivityUnitTestCase {
                 .getCachedAttributeValue(attrPath));
 
         assertEquals("the value should have changed in gom", "changed value", HttpHelper
-                .get(Constants.Gom.URI + attrPath + ".txt"));
+                .getAsString(Constants.Gom.URI + attrPath + ".txt"));
 
         TestHelper.blockUntilTrue("GNP (update attribute notification) "
                 + "should notify our observer about the changed value", 2000,

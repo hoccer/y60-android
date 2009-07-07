@@ -14,8 +14,6 @@ import java.util.Set;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
-import org.apache.http.HttpStatus;
-import org.apache.http.HttpVersion;
 import org.apache.http.ProtocolException;
 import org.apache.http.StatusLine;
 import org.apache.http.client.methods.HttpDelete;
@@ -28,7 +26,6 @@ import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.client.DefaultRedirectHandler;
-import org.apache.http.message.BasicHttpResponse;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
@@ -40,26 +37,31 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 
+import com.artcom.y60.http.HttpClientException;
+import com.artcom.y60.http.HttpException;
+import com.artcom.y60.http.HttpServerException;
+
 public class HttpHelper {
 
     // Constants ---------------------------------------------------------
 
-    private static final int    PUT_TIMEOUT       = 15 * 1000;
-    private static final int    POST_TIMEOUT      = 40 * 1000;
-    private static final int    GET_TIMEOUT       = 5 * 1000;
-    private static final String LOG_TAG           = "HttpHelper";
+    private static final int PUT_TIMEOUT = 15 * 1000;
+    private static final int POST_TIMEOUT = 40 * 1000;
+    private static final int GET_TIMEOUT = 5 * 1000;
+    private static final String LOG_TAG = "HttpHelper";
     private static final String SCRIPT_RUNNER_Uri = "http://t-gom.service.t-gallery.act/gom/script-runner";
 
     // Static Methods ----------------------------------------------------
 
-    public static String putXML(String uri, String body) {
+    public static HttpResponse putXML(String uri, String body) throws IOException,
+                    HttpClientException, HttpServerException {
         HttpPut put = new HttpPut(uri);
         insertXML(body, put);
-        StatusLine statusLine = executeHTTPMethod(put, PUT_TIMEOUT).getStatusLine();
-        return statusLine.getStatusCode() + " " + statusLine.getReasonPhrase();
+        return executeHTTPMethod(put, PUT_TIMEOUT);
     }
 
-    public static HttpResponse putUrlEncoded(String pUrl, Map<String, String> pData) {
+    public static HttpResponse putUrlEncoded(String pUrl, Map<String, String> pData)
+                    throws IOException, HttpClientException, HttpServerException {
 
         StringBuffer tmp = new StringBuffer();
         Set<String> keys = pData.keySet();
@@ -87,50 +89,39 @@ public class HttpHelper {
         return executeHTTPMethod(put, PUT_TIMEOUT);
     }
 
-    public static String putText(String pUri, String pData) {
+    public static String putText(String pUri, String pData) throws IOException,
+                    HttpClientException, HttpServerException {
         HttpPut put = new HttpPut(pUri);
         insert(pData, "text/xml", "text/xml", put);
         StatusLine statusLine = executeHTTPMethod(put, PUT_TIMEOUT).getStatusLine();
-        if (statusLine.getStatusCode() != 200) {
-            throw new RuntimeException("Execution of HTTP Method PUT '" + pUri + "' returned "
-                    + statusLine);
-        }
         return statusLine.getStatusCode() + " " + statusLine.getReasonPhrase();
     }
 
-    public static String postXML(String uri, String body) {
+    public static String postXML(String uri, String body) throws IOException, HttpClientException,
+                    HttpServerException {
         HttpPost post = new HttpPost(uri);
         insertXML(body, post);
         HttpResponse result = executeHTTPMethod(post, POST_TIMEOUT);
-
-        if (result.getStatusLine().getStatusCode() != 200) {
-            throw new RuntimeException("Execution of HTTP Method POST '" + uri + "' returned "
-                    + result.getStatusLine() + " " + extractBodyAsString(result.getEntity()));
-        }
-
         return extractBodyAsString(result.getEntity());
     }
 
-    public static String post(String uri, String body, String pContentType, String pAccept) {
-        return post(uri, body, pContentType, pAccept, POST_TIMEOUT);
+    public static String post(String uri, String body, String pContentType, String pAccept)
+                    throws IOException, HttpClientException, HttpServerException {
+
+        HttpResponse response = post(uri, body, pContentType, pAccept, POST_TIMEOUT);
+        return extractBodyAsString(response.getEntity());
     }
 
-    public static String post(String uri, String body, String pContentType, String pAccept,
-            int pTimeout) {
+    public static HttpResponse post(String uri, String body, String pContentType, String pAccept,
+                    int pTimeout) throws IOException, HttpClientException, HttpServerException {
 
         HttpPost post = new HttpPost(uri);
         insert(body, pContentType, pAccept, post);
-        HttpResponse result = executeHTTPMethod(post, pTimeout);
-
-        if (result.getStatusLine().getStatusCode() != 200) {
-            throw new RuntimeException("Execution of HTTP Method POST '" + uri + "' returned "
-                    + result.getStatusLine());
-        }
-
-        return extractBodyAsString(result.getEntity());
+        return executeHTTPMethod(post, pTimeout);
     }
 
-    public static InputStream getAsInStream(String uri_string) throws IOException {
+    public static InputStream getAsInStream(String uri_string) throws IOException,
+                    HttpClientException, HttpServerException {
 
         HttpGet get = new HttpGet(uri_string);
         HttpEntity entity = executeHTTPMethod(get).getEntity();
@@ -142,104 +133,120 @@ public class HttpHelper {
         return istream;
     }
 
-    public static Drawable getAsDrawable(String pUri) throws IOException {
+    public static Drawable getAsDrawable(String pUri) throws IOException, HttpClientException,
+                    HttpServerException {
 
         return new BitmapDrawable(getAsInStream(pUri));
     }
 
-    public static HttpResponse delete(Uri uri) {
+    public static HttpResponse delete(Uri uri) throws IOException, HttpClientException,
+                    HttpServerException {
 
         HttpDelete del = new HttpDelete(uri.toString());
-        HttpResponse result = executeHTTPMethod(del);
-
-        if (result.getStatusLine().getStatusCode() != 200) {
-            throw new RuntimeException("Execution of HTTP Method DELETE '" + uri + "' returned "
-                    + result.getStatusLine());
-        }
-
-        return result;
+        return executeHTTPMethod(del);
     }
 
-    public static String get(Uri uri) {
+    public static String getAsString(Uri uri) throws IOException, HttpClientException,
+                    HttpServerException {
 
         HttpEntity result = getAsHttpEntity(uri);
         return extractBodyAsString(result);
     }
 
-    public static byte[] getAsByteArray(Uri uri) throws IllegalStateException, IOException {
+    public static byte[] getAsByteArray(Uri uri) throws IllegalStateException, IOException,
+                    HttpClientException, HttpServerException {
 
         HttpEntity result = getAsHttpEntity(uri);
         return extractBodyAsByteArray(result);
     }
 
-    public static String get(String uri) {
-        return get(Uri.parse(uri));
+    public static HttpResponse get(String pUri) throws IOException, HttpClientException,
+                    HttpServerException {
+
+        HttpGet get = new HttpGet(pUri);
+        return executeHTTPMethod(get);
     }
 
-    public static void fetchUriToFile(String uriString, String filename) {
+    public static String getAsString(String uri) throws IOException, HttpClientException,
+                    HttpServerException {
+        return getAsString(Uri.parse(uri));
+    }
+
+    public static HttpResponse fetchUriToFile(String uriString, String filename)
+                    throws IOException, HttpClientException, HttpServerException {
+
         HttpGet get = new HttpGet(uriString);
-        HttpEntity entity = executeHTTPMethod(get).getEntity();
+        HttpResponse response = executeHTTPMethod(get);
+        HttpEntity entity = response.getEntity();
 
-        // Generate a random filename to store the data under
-
+        // Generate a random filename to store the data
         // Logger.v(LOG_TAG, "Storing content under filename " + filename);
 
-        try {
-            FileOutputStream fstream = new FileOutputStream(filename);
-            entity.writeTo(fstream);
-            fstream.flush();
-            fstream.close();
-        } catch (IllegalStateException e) {
-            throw new RuntimeException("illegal state: " + e.getMessage());
-        } catch (IOException e) {
-            throw new RuntimeException("io error: " + e.getMessage());
-        }
+        FileOutputStream fstream = new FileOutputStream(filename);
+        entity.writeTo(fstream);
+        fstream.flush();
+        fstream.close();
+        return response;
     }
 
-    public static JSONObject getJson(String pUrl) throws JSONException {
+    public static JSONObject getJson(String pUrl) throws JSONException, IOException,
+                    HttpClientException, HttpServerException {
 
         String url = toJsonUrl(pUrl);
-        String result = get(url);
+        String result = getAsString(url);
 
         // Log.v(LOG_TAG, "JSON result: " + result);
 
         return new JSONObject(result);
     }
 
-    public static Uri getLocationHeader(String url) {
+    public static Uri getLocationHeader(String url) throws IOException, HttpClientException,
+                    HttpServerException {
 
         HttpHead head = new HttpHead(url);
         HttpResponse response = executeHTTPMethod(head);
-        if (response.containsHeader("Location")) {
-            Header locationHeader = response.getFirstHeader("Location");
-            // Logger.v(LOG_TAG, "Location: " + locationHeader.getValue());
-            return Uri.parse(locationHeader.getValue());
-        } else {
+
+        if (!response.containsHeader("Location")) {
+
             Logger.e(LOG_TAG, "HTTP response does not contain a Location header");
+            throw new RuntimeException("Could not retrieve location header.");
         }
-        throw new RuntimeException("Could not retrive location header.");
+
+        Header locationHeader = response.getFirstHeader("Location");
+        // Logger.v(LOG_TAG, "Location: " + locationHeader.getValue());
+        return Uri.parse(locationHeader.getValue());
     }
 
-    public static long getSize(String url) {
+    public static long getSize(String url) throws IOException, HttpClientException,
+                    HttpServerException {
 
         HttpHead head = new HttpHead(url);
         HttpResponse response = executeHTTPMethod(head);
-        if (response.containsHeader("Content-Length")) {
-            return new Long(response.getFirstHeader("Content-Length").getValue());
-        } else {
+
+        if (!response.containsHeader("Content-Length")) {
             Logger.e(LOG_TAG, "HTTP response does not contain a Content-Length header");
+            throw new RuntimeException("Could not retrieve content-length header.");
         }
-        throw new RuntimeException("Could not retrive content-length header.");
+
+        return new Long(response.getFirstHeader("Content-Length").getValue());
     }
 
-    public static int getStatusCode(String url) {
+    public static int getStatusCode(String url) throws IOException {
 
         HttpHead head = new HttpHead(url);
-        HttpResponse response = executeHTTPMethod(head);
-        return response.getStatusLine().getStatusCode();
+        try {
+
+            HttpResponse response = executeHTTPMethod(head);
+            return response.getStatusLine().getStatusCode();
+
+        } catch (HttpException ex) {
+
+            return ex.getStatusCode();
+        }
     }
 
-    public static HttpResponse postUrlEncoded(String pUrl, Map<String, String> pData) {
+    public static HttpResponse postUrlEncoded(String pUrl, Map<String, String> pData)
+                    throws IOException, HttpClientException, HttpServerException {
 
         String body = urlEncode(pData);
         HttpPost post = new HttpPost(pUrl);
@@ -251,11 +258,12 @@ public class HttpHelper {
     }
 
     public static JSONObject executeServerScript(String pJsStr, Map<String, String> pParams)
-            throws JSONException {
+                    throws JSONException, IOException, HttpClientException, HttpServerException {
 
         String params = urlEncode(pParams);
         String uri = SCRIPT_RUNNER_Uri + "?" + params;
-        String jsonStr = post(uri, pJsStr, "text/javascript", "text/json", 30 * 1000);
+        HttpResponse response = post(uri, pJsStr, "text/javascript", "text/json", 30 * 1000);
+        String jsonStr = extractBodyAsString(response.getEntity());
 
         return new JSONObject(jsonStr);
     }
@@ -282,47 +290,24 @@ public class HttpHelper {
         return tmp.toString();
     }
 
-    public static String extractBodyAsString(HttpEntity entity) {
+    public static String extractBodyAsString(HttpEntity entity) throws IOException {
 
-        try {
-            return extractBody(entity).toString();
-        } catch (IllegalStateException e) {
-            Logger.e(LOG_TAG, "illegal state: " + e.getMessage());
-            e.printStackTrace();
-            return e.getMessage();
-        } catch (IOException e) {
-            Logger.e(LOG_TAG, "io: " + e.getMessage());
-            e.printStackTrace();
-            return e.getMessage();
-        }
+        return extractBody(entity).toString();
     }
 
     public static byte[] extractBodyAsByteArray(HttpEntity entity) throws IllegalStateException,
-            IOException {
+                    IOException {
 
         return extractBody(entity).toByteArray();
     }
 
     // Private Instance Methods ------------------------------------------
 
-    private static HttpEntity getAsHttpEntity(Uri uri) {
+    private static HttpEntity getAsHttpEntity(Uri uri) throws IOException, HttpClientException,
+                    HttpServerException {
 
-        // Logger.v(LOG_TAG, "get('" + uri + "')");
         HttpGet get = new HttpGet(uri.toString());
         HttpResponse response = executeHTTPMethod(get);
-        // Check for some common errors. Consider throwing an exception here?
-        // TODO
-        StatusLine status = response.getStatusLine();
-        int statusCode = status.getStatusCode();
-        if (statusCode == HttpStatus.SC_INTERNAL_SERVER_ERROR) {
-            Logger.w(LOG_TAG, "Request '", uri, "' came back with 501 Internal Server Error");
-            throw new RuntimeException("Request '" + uri
-                    + "' came back with 501 Internal Server Error");
-        } else if (statusCode == HttpStatus.SC_NOT_FOUND) {
-            Logger.w(LOG_TAG, "Request '", uri, "'came back with 404 Not Found");
-            throw new RuntimeException("Request '" + uri + "' came back with 404 Not Found");
-        }
-
         return response.getEntity();
     }
 
@@ -345,7 +330,7 @@ public class HttpHelper {
     }
 
     private static void insert(String pBody, String pContentType, String pAccept,
-            HttpEntityEnclosingRequestBase pMethod) {
+                    HttpEntityEnclosingRequestBase pMethod) {
 
         // Logger.v(LOG_TAG, "inserting for content type " + pContentType
         // + ", body is " + pBody);
@@ -360,16 +345,18 @@ public class HttpHelper {
 
         } catch (UnsupportedEncodingException e) {
 
-            Logger.e(LOG_TAG, "unsupported encoding: " + e.getMessage());
-            e.printStackTrace();
+            Logger.e(LOG_TAG, "unsupported encoding: ", e);
+            throw new RuntimeException(e);
         }
     }
 
-    private static HttpResponse executeHTTPMethod(HttpRequestBase pMethod) {
+    private static HttpResponse executeHTTPMethod(HttpRequestBase pMethod) throws IOException,
+                    HttpClientException, HttpServerException {
         return executeHTTPMethod(pMethod, GET_TIMEOUT);
     }
 
-    private static HttpResponse executeHTTPMethod(HttpRequestBase pMethod, int pConnectionTimeout) {
+    private static HttpResponse executeHTTPMethod(HttpRequestBase pMethod, int pConnectionTimeout)
+                    throws IOException, HttpClientException, HttpServerException {
 
         HttpParams httpParams = new BasicHttpParams();
         HttpConnectionParams.setConnectionTimeout(httpParams, pConnectionTimeout);
@@ -380,22 +367,17 @@ public class HttpHelper {
         httpclient.setRedirectHandler(new DefaultRedirectHandler() {
             @Override
             public URI getLocationURI(HttpResponse response, HttpContext context)
-                    throws ProtocolException {
+                            throws ProtocolException {
                 URI uri = super.getLocationURI(response, context);
                 Logger
-                        .v(LOG_TAG, response.getStatusLine().getStatusCode() + " redirect to: "
-                                + uri);
+                                .v(LOG_TAG, response.getStatusLine().getStatusCode()
+                                                + " redirect to: " + uri);
                 return uri;
             }
         });
 
-        HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, 500, "Client Error");
-        try {
-            response = httpclient.execute(pMethod);
-        } catch (IOException e) {
-            throw new RuntimeException("Error while executing HTTP method: " + e.getMessage());
-        }
-
+        HttpResponse response = httpclient.execute(pMethod);
+        HttpException.throwIfError(response);
         return response;
     }
 
@@ -405,7 +387,7 @@ public class HttpHelper {
             // an xml uri means that someone is using this method in a wrong way
             // --> fail fast
             throw new IllegalArgumentException("HttpHelper was passed a Uri which explicitly "
-                    + "asked for a different format: '" + pUrl + "'!");
+                            + "asked for a different format: '" + pUrl + "'!");
         }
 
         // remove trailing slashes
