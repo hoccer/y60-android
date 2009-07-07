@@ -52,6 +52,10 @@ public class HttpHelper {
 
     // Static Methods ----------------------------------------------------
 
+    public static String putXML(Uri uri, String body) {
+        return putXML(uri.toString(), body);
+    }
+
     public static String putXML(String uri, String body) {
         HttpPut put = new HttpPut(uri);
         insertXML(body, put);
