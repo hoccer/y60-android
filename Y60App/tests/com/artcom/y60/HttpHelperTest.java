@@ -21,6 +21,7 @@ public class HttpHelperTest extends TestCase {
         } catch (HttpClientException ex) {
 
             assertEquals("expected a 404 exception", 404, ex.getStatusCode());
+            Logger.v(LOG_TAG, ex.getMessage());
         }
     }
 }

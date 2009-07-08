@@ -3,22 +3,16 @@ package com.artcom.y60.gom;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.util.HashMap;
-import java.util.regex.Pattern;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.StatusLine;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
 
 import com.artcom.y60.Constants;
 import com.artcom.y60.DeviceConfiguration;
 import com.artcom.y60.ErrorHandler;
 import com.artcom.y60.HttpHelper;
-import com.artcom.y60.IntentExtraKeys;
 import com.artcom.y60.IpAddressNotFoundException;
 import com.artcom.y60.Logger;
 import com.artcom.y60.NetworkHelper;
@@ -253,87 +247,14 @@ public class GomNotificationHelper {
 
     }
 
-    private static BroadcastReceiver createBroadcastReceiver(final String pPath,
-                    final GomObserver pGomObserver, final boolean pBubbleUp) {
-        // TODO Auto-generated method stub
+    private static BroadcastReceiver createBroadcastReceiver(String pPath,
+                    GomObserver pGomObserver, boolean pBubbleUp) {
 
         if (pPath == null) {
             throw new IllegalArgumentException("Path cannot be null");
         }
 
-        // reg ex for paths of entries in which we are interested
-        // i.e. the path we observe or one level below
-        final String regEx = createRegularExpression(pPath);
-
-        BroadcastReceiver br = new BroadcastReceiver() {
-
-            @Override
-            public void onReceive(Context pArg0, Intent pArg1) {
-
-                Logger.d(LOG_TAG, "BroadcastReceiver for ", pPath, " onReceive with intent: ",
-                                pArg1.toString(), " - with bubble up? ", pBubbleUp);
-                Logger.v(LOG_TAG, "BroadcastReceiver for ", pPath, " - getting path: ", pArg1
-                                .getStringExtra(IntentExtraKeys.KEY_NOTIFICATION_PATH));
-
-                String notificationPath = pArg1
-                                .getStringExtra(IntentExtraKeys.KEY_NOTIFICATION_PATH);
-                if (notificationPathIsObservedByMe(notificationPath)) {
-
-                    Logger.d(LOG_TAG, "BroadcastReceiver ", pPath,
-                                    " , ok, the path is relevant to me");
-                    Logger.v(LOG_TAG, "BroadcastReceiver ", pPath, "  - data: ", pArg1
-                                    .getStringExtra(IntentExtraKeys.KEY_NOTIFICATION_DATA_STRING));
-
-                    String jsnStr = pArg1
-                                    .getStringExtra(IntentExtraKeys.KEY_NOTIFICATION_DATA_STRING);
-                    JSONObject data;
-                    try {
-                        data = new JSONObject(jsnStr);
-
-                    } catch (JSONException e) {
-
-                        throw new RuntimeException(e);
-                    }
-
-                    String operation = pArg1
-                                    .getStringExtra(IntentExtraKeys.KEY_NOTIFICATION_OPERATION);
-                    if ("create".equals(operation)) {
-
-                        Logger.v(LOG_TAG, "BroadcastReceiver ", pPath,
-                                        " , it's a CREATE notification");
-                        pGomObserver.onEntryCreated(pPath, data);
-
-                    } else if ("update".equals(operation)) {
-
-                        Logger.v(LOG_TAG, "BroadcastReceiver ", pPath,
-                                        " , it's an UPDATE notification");
-                        pGomObserver.onEntryUpdated(pPath, data);
-
-                    } else if ("delete".equals(operation)) {
-
-                        Logger.v(LOG_TAG, "BroadcastReceiver ", pPath,
-                                        " , it's a DELETE notification");
-                        pGomObserver.onEntryDeleted(pPath, data);
-
-                    } else {
-
-                        Logger.w(LOG_TAG, "BroadcastReceiver ", pPath,
-                                        " , GOM notification with unknown operation: ", operation);
-                    }
-                } else {
-
-                    Logger.d(LOG_TAG, "BroadcastReceiver ", pPath, " , path is not relevant to me");
-                }
-            }
-
-            public boolean notificationPathIsObservedByMe(String pNotificationPath) {
-
-                return (pBubbleUp && GomReference.isSelfOrAncestorOf(pPath, pNotificationPath))
-                                || (Pattern.matches(regEx, pNotificationPath));
-            }
-        };
-
-        return br;
+        return new GomNotificationBroadcastReceiver(pPath, pGomObserver, pBubbleUp);
     }
 
     /**

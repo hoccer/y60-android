@@ -233,6 +233,7 @@ public class HttpHelper {
 
     public static int getStatusCode(String url) throws IOException {
 
+        Logger.v(LOG_TAG, "getStatusCode for ", url);
         HttpHead head = new HttpHead(url);
         try {
 
@@ -241,6 +242,7 @@ public class HttpHelper {
 
         } catch (HttpException ex) {
 
+            Logger.v(LOG_TAG, "getStatusCode caught HTTP exception: ", ex);
             return ex.getStatusCode();
         }
     }

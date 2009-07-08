@@ -197,11 +197,7 @@ public class TestHelper {
             @Override
             public Object getActualValue() throws Exception {
 
-                try {
-                    return HttpHelper.getStatusCode("http://localhost:4042/");
-                } catch (Exception e) {
-                    return e.getMessage();
-                }
+                return HttpHelper.getStatusCode("http://localhost:4042/");
             }
         });
 
