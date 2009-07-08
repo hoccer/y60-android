@@ -1,5 +1,7 @@
 package com.artcom.y60.gom;
 
+import java.io.IOException;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -7,6 +9,8 @@ import android.os.RemoteException;
 
 import com.artcom.y60.Constants;
 import com.artcom.y60.Logger;
+import com.artcom.y60.http.HttpClientException;
+import com.artcom.y60.http.HttpServerException;
 
 /**
  * Represents the state of an attribute resource in the GOM. Some attributes
@@ -40,7 +44,7 @@ public class GomAttribute extends GomEntry {
      * states.
      */
     protected GomAttribute(String pPath, GomProxyHelper pProxy, String pValue)
-            throws RemoteException {
+                    throws RemoteException {
 
         super(extractNameFromPath(pPath), pPath, pProxy);
 
@@ -60,12 +64,14 @@ public class GomAttribute extends GomEntry {
         return getGomProxyHelper().getNode(mNodePath);
     }
 
-    public void putValue(String pValue) {
+    public void putValue(String pValue) throws IOException, HttpClientException,
+                    HttpServerException {
 
         GomHttpWrapper.updateOrCreateAttribute(getUri(), pValue);
         mValue = pValue;
     }
 
+    @Override
     public JSONObject toJson() {
 
         // { "attribute": {
@@ -120,7 +126,7 @@ public class GomAttribute extends GomEntry {
      * @throws GomEntryTypeMismatchException
      */
     public GomEntry resolveReference() throws GomResolutionFailedException,
-            GomEntryTypeMismatchException, GomEntryNotFoundException {
+                    GomEntryTypeMismatchException, GomEntryNotFoundException {
 
         GomEntry entry = getGomProxyHelper().getEntry(mValue);
 

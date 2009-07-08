@@ -148,7 +148,7 @@ public class DeviceControllerUnitTest extends TestCase {
         assertEquals("jetty should return succssful status code", 200, HttpHelper
                 .getStatusCode("http://localhost:8082/"));
         assertEquals("jetty should respond", "hello world", HttpHelper
-                .get("http://localhost:8082/"));
+                .getAsString("http://localhost:8082/"));
         assertEquals("jetty should return succssful status code", 200, HttpHelper
                 .getStatusCode("http://localhost:8082/"));
 
