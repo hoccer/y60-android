@@ -10,7 +10,7 @@ import com.artcom.y60.Y60Action;
 
 public class GnpBroadcastsTest extends GomActivityUnitTestCase {
 
-    protected final String LOG_TAG        = "GomNotificationHelperTest";
+    protected final String LOG_TAG        = "GnpRoundtripTest";
     protected final String TEST_BASE_PATH = "/test/android/y60/infrastructure_gom/" + LOG_TAG;
 
     private JSONObject     mJson;
