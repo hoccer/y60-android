@@ -16,21 +16,25 @@ public class GomNotificationBroadcastReceiver extends BroadcastReceiver {
 
     private static final String LOG_TAG = "GomNotificationBroadcastReceiver";
 
-    private String mPath;
+    private String              mPath;
 
-    private boolean mBubbleUp;
+    private boolean             mBubbleUp;
 
-    private GomObserver mGomObserver;
+    private GomObserver         mGomObserver;
 
-    private String mRegEx;
+    private String              mRegEx;
+
+    private GomProxyHelper      mGomProxy;
 
     // Constructors ------------------------------------------------------
 
-    public GomNotificationBroadcastReceiver(String pPath, GomObserver pObserver, boolean pBubbleUp) {
+    public GomNotificationBroadcastReceiver(String pPath, GomObserver pObserver, boolean pBubbleUp,
+            GomProxyHelper pGomProxy) {
 
         mPath = pPath;
         mGomObserver = pObserver;
         mBubbleUp = pBubbleUp;
+        mGomProxy = pGomProxy;
 
         // reg ex for paths of entries in which we are interested
         // i.e. the path we observe or one level below
@@ -41,16 +45,16 @@ public class GomNotificationBroadcastReceiver extends BroadcastReceiver {
     public void onReceive(Context pContext, Intent pIntent) {
 
         Logger.d(LOG_TAG, "BroadcastReceiver for ", mPath, " onReceive with intent: ", pIntent
-                        .toString(), " - with bubble up? ", mBubbleUp);
+                .toString(), " - with bubble up? ", mBubbleUp);
         Logger.v(LOG_TAG, "BroadcastReceiver for ", mPath, " - getting path: ", pIntent
-                        .getStringExtra(IntentExtraKeys.KEY_NOTIFICATION_PATH));
+                .getStringExtra(IntentExtraKeys.KEY_NOTIFICATION_PATH));
 
         String notificationPath = pIntent.getStringExtra(IntentExtraKeys.KEY_NOTIFICATION_PATH);
         if (notificationPathIsObservedByMe(notificationPath)) {
 
             Logger.d(LOG_TAG, "BroadcastReceiver ", mPath, " , ok, the path is relevant to me");
             Logger.v(LOG_TAG, "BroadcastReceiver ", mPath, "  - data: ", pIntent
-                            .getStringExtra(IntentExtraKeys.KEY_NOTIFICATION_DATA_STRING));
+                    .getStringExtra(IntentExtraKeys.KEY_NOTIFICATION_DATA_STRING));
 
             String jsnStr = pIntent.getStringExtra(IntentExtraKeys.KEY_NOTIFICATION_DATA_STRING);
             JSONObject data;
@@ -81,7 +85,7 @@ public class GomNotificationBroadcastReceiver extends BroadcastReceiver {
             } else {
 
                 Logger.w(LOG_TAG, "BroadcastReceiver ", mPath,
-                                " , GOM notification with unknown operation: ", operation);
+                        " , GOM notification with unknown operation: ", operation);
             }
         } else {
 
@@ -92,7 +96,7 @@ public class GomNotificationBroadcastReceiver extends BroadcastReceiver {
     public boolean notificationPathIsObservedByMe(String pNotificationPath) {
 
         return (mBubbleUp && GomReference.isSelfOrAncestorOf(mPath, pNotificationPath))
-                        || (Pattern.matches(mRegEx, pNotificationPath));
+                || (Pattern.matches(mRegEx, pNotificationPath));
     }
 
 }
