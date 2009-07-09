@@ -40,7 +40,7 @@ public class GnpUpdatesGomProxyTest extends GomActivityUnitTestCase {
     }
 
     @Suppress
-    public void testRegisterOnNodeGetOnAttributeUpdated() throws Exception {
+    public void testGnpUpdatesGomProxyRoundtrip() throws Exception {
 
         initializeActivity();
 
@@ -61,11 +61,13 @@ public class GnpUpdatesGomProxyTest extends GomActivityUnitTestCase {
         final GomTestObserver gto = new GomTestObserver(this);
         BroadcastReceiver receiver = GomNotificationHelper.registerObserverAndNotify(nodePath, gto,
                 helper);
+        getActivity().registerReceiver(receiver, Constants.Gom.GNP_INTENT_FILTER);
+
+        // not in cache, we do not get immediate response
         assertEquals("gnp update callback should not have been called", 0, gto.getUpdateCount());
         assertEquals("gnp create callback should not have been called", 0, gto.getCreateCount());
         assertEquals("gnp delete callback should not have been called", 0, gto.getDeleteCount());
 
-        getActivity().registerReceiver(receiver, Constants.Gom.GNP_INTENT_FILTER);
         TestHelper.blockUntilTrue("gnp update callback should have been called once", 3000,
                 new TestHelper.Condition() {
 
@@ -80,14 +82,14 @@ public class GnpUpdatesGomProxyTest extends GomActivityUnitTestCase {
         assertEquals("gnp create callback should not have been called", 0, gto.getCreateCount());
         assertEquals("gnp delete callback should not have been called", 0, gto.getDeleteCount());
 
-        assertEquals("cache should have the old value after callback was called once",
+        assertEquals("cache should have the same value as in gom after callback was called once",
                 "original value", helper.getCachedAttributeValue(attrPath));
 
         TestHelper.blockUntilResourceAvailable("observer node should be registered in gom",
                 GomNotificationHelper.getObserverUriFor(nodePath));
 
         HttpHelper.putXML(Constants.Gom.URI + attrPath, "<attribute>changed value</attribute>");
-        assertEquals("cache should still have the old value", "original value", helper
+        assertEquals("cache should still have the old gom value", "original value", helper
                 .getCachedAttributeValue(attrPath));
 
         assertEquals("the value should have changed in gom", "changed value", HttpHelper
@@ -104,6 +106,7 @@ public class GnpUpdatesGomProxyTest extends GomActivityUnitTestCase {
 
                 });
 
+        // ensure we do not get any other gom notifications
         Thread.sleep(3000);
 
         assertEquals("gnp update callback should have been called once", 2, gto.getUpdateCount());
@@ -111,15 +114,15 @@ public class GnpUpdatesGomProxyTest extends GomActivityUnitTestCase {
         assertEquals("gnp delete callback should not have been called", 0, gto.getDeleteCount());
 
         Logger.v(LOG_TAG, "data in cache: " + gto.getData());
-        JSONObject jsonData = gto.getData();
-        assertTrue("json has attribute", jsonData.has("attribute"));
-        assertTrue("json has attribute.value", jsonData.getJSONObject("attribute").has("value"));
+        JSONObject receivedJsonData = gto.getData();
+        assertTrue("json has attribute", receivedJsonData.has("attribute"));
+        assertTrue("json has attribute.value", receivedJsonData.getJSONObject("attribute").has(
+                "value"));
         assertEquals("value should have changed", "changed value", gto.getData().getJSONObject(
                 "attribute").get("value"));
 
         assertEquals("the value should have changed in proxy", "changed value", helper
                 .getAttribute(attrPath).getValue());
-
     }
 
     @Suppress
