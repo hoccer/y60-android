@@ -1,5 +1,8 @@
 package com.artcom.y60;
 
+import java.io.IOException;
+import java.net.SocketTimeoutException;
+
 import org.apache.http.conn.HttpHostConnectException;
 
 import android.content.Context;
@@ -197,13 +200,17 @@ public class TestHelper {
         TestHelper.blockUntilEquals("device controller should have started withhin " + timeout
                 + " milliseconds", timeout, "404", new TestHelper.Measurement() {
             @Override
-            public Object getActualValue() throws Exception {
+            public Object getActualValue() {
 
                 String statusCode;
                 try {
                     statusCode = String.valueOf(HttpHelper.getStatusCode("http://localhost:4042/"));
                 } catch (HttpHostConnectException e) {
                     return "HttpHostConnectException";
+                } catch (SocketTimeoutException e) {
+                    return "SocketTimeoutException";
+                } catch (IOException e) {
+                    return "SocketTimeoutException";
                 }
                 return statusCode;
             }
