@@ -43,6 +43,22 @@ public class GomNotificationHelper {
 
     }
 
+    // JUST REGISTER, DO NOT GET NOTIFIED IMMEDIATELY NOTIFY
+    public static BroadcastReceiver registerObserver(final String pPath,
+                    final GomObserver pGomObserver, final GomProxyHelper pGom) throws IOException,
+                    IpAddressNotFoundException {
+
+        return registerObserver(pPath, pGomObserver, pGom, new ErrorHandler() {
+
+            @Override
+            public void handle(Exception pE) {
+                Logger.e(LOG_TAG, "*******", pE);
+            }
+
+        });
+
+    }
+
     public static BroadcastReceiver registerObserverAndNotify(final String pPath,
                     final GomObserver pGomObserver, final GomProxyHelper pGom,
                     final ErrorHandler pErrorHandler) throws IOException,
@@ -119,22 +135,6 @@ public class GomNotificationHelper {
         }).start();
 
         return rec;
-    }
-
-    // JUST REGISTER, DO NOT GET NOTIFIED IMMEDIATELY NOTIFY
-    public static BroadcastReceiver registerObserver(final String pPath,
-                    final GomObserver pGomObserver, final GomProxyHelper pGom) throws IOException,
-                    IpAddressNotFoundException {
-
-        return registerObserverAndNotify(pPath, pGomObserver, pGom, new ErrorHandler() {
-
-            @Override
-            public void handle(Exception pE) {
-                Logger.e(LOG_TAG, "*******", pE);
-            }
-
-        });
-
     }
 
     public static BroadcastReceiver registerObserver(final String pPath,
