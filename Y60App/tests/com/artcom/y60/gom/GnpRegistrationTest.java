@@ -13,15 +13,20 @@ import com.artcom.y60.gom.GomTestObserver.Event;
 
 public class GnpRegistrationTest extends GomActivityUnitTestCase {
 
-    private static final String LOG_TAG        = "GnpRegistrationTest";
-    private static final String TEST_BASE_PATH = "/test/android/y60/infrastructure_gom/gnp_registration_test";
+    protected final String LOG_TAG        = "GnpRegistrationTest";
+    protected final String TEST_BASE_PATH = "/test/android/y60/infrastructure_gom/" + LOG_TAG;
+
+    public void setUp() throws Exception {
+        super.setUp();
+
+    }
 
     // The 5 different cases of callbacks during registerObserver()
 
     // 1. entry neither in proxy nor in gom
     // -> exception | entry deleted callback
 
-    public void testAttrNotInProxyNotInGom() throws Exception {
+    public void testAttributeNotInProxyNotInGom() throws Exception {
 
         initializeActivity();
         GomProxyHelper helper = createHelper();
