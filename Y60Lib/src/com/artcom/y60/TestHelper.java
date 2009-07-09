@@ -1,5 +1,7 @@
 package com.artcom.y60;
 
+import org.apache.http.conn.HttpHostConnectException;
+
 import android.content.Context;
 import android.content.Intent;
 
@@ -21,7 +23,7 @@ public class TestHelper {
      * @param pCon
      */
     public static void blockUntilTrue(String pFailMessage, long pTimeout, TestHelper.Condition pCon)
-                    throws Exception {
+            throws Exception {
 
         long start = System.currentTimeMillis();
         while (System.currentTimeMillis() - start < pTimeout) {
@@ -50,7 +52,7 @@ public class TestHelper {
      * @param pCon
      */
     public static void blockUntilFalse(String pFailMessage, long pTimeout,
-                    final TestHelper.Condition pCon) throws Exception {
+            final TestHelper.Condition pCon) throws Exception {
 
         blockUntilTrue(pFailMessage, pTimeout, new TestHelper.Condition() {
             public boolean isSatisfied() throws Exception {
@@ -67,13 +69,13 @@ public class TestHelper {
      * @param pMeasurement
      */
     public static void blockUntilNull(String pFailMessage, long pTimeout,
-                    final TestHelper.Measurement pMeasurement) throws Exception {
+            final TestHelper.Measurement pMeasurement) throws Exception {
 
         blockUntilEquals(pFailMessage, pTimeout, null, pMeasurement);
     }
 
     public static void blockUntilNotNull(String pFailMessage, long pTimeout,
-                    final TestHelper.Measurement pMeasurement) throws Exception {
+            final TestHelper.Measurement pMeasurement) throws Exception {
 
         blockUntilTrue(pFailMessage, pTimeout, new Condition() {
 
@@ -97,7 +99,7 @@ public class TestHelper {
      * @param pMesurement
      */
     public static void blockUntilEquals(String pFailMessage, long pTimeout, Object pExpected,
-                    final TestHelper.Measurement pMesurement) throws Exception {
+            final TestHelper.Measurement pMesurement) throws Exception {
 
         Object mesuredValue = null;
         long start = System.currentTimeMillis();
@@ -116,7 +118,7 @@ public class TestHelper {
         }
 
         throw new AssertionError(pFailMessage + ": should be <" + pExpected + ">, but was <"
-                        + mesuredValue + ">");
+                + mesuredValue + ">");
     }
 
     public static void blockUntilBackendAvailable(final Y60Activity pActivity) throws Exception {
@@ -132,7 +134,7 @@ public class TestHelper {
     }
 
     public static void blockUntilBackendResumed(final Y60Activity pActivity, int pTimeout)
-                    throws Exception {
+            throws Exception {
         blockUntilTrue("Backend is not available", pTimeout, new TestHelper.Condition() {
 
             @Override
@@ -157,7 +159,7 @@ public class TestHelper {
     }
 
     public static void blockUntilResourceAvailable(String pFailMessage, final String pUrl)
-                    throws Exception {
+            throws Exception {
 
         blockUntilTrue(pFailMessage, 3000, new TestHelper.Condition() {
             @Override
@@ -193,11 +195,17 @@ public class TestHelper {
 
         long timeout = 20000;
         TestHelper.blockUntilEquals("device controller should have started withhin " + timeout
-                        + " milliseconds", timeout, 404, new TestHelper.Measurement() {
+                + " milliseconds", timeout, "404", new TestHelper.Measurement() {
             @Override
             public Object getActualValue() throws Exception {
 
-                return HttpHelper.getStatusCode("http://localhost:4042/");
+                String statusCode;
+                try {
+                    statusCode = String.valueOf(HttpHelper.getStatusCode("http://localhost:4042/"));
+                } catch (HttpHostConnectException e) {
+                    return "HttpHostConnectException";
+                }
+                return statusCode;
             }
         });
 
@@ -206,19 +214,19 @@ public class TestHelper {
     public static void sendCreateAttributeNotificationBroadcast(String pPath, Context pContext) {
 
         sendNotificationBroadcast(pPath, generateAttributeDummyJsonString(pPath), "create",
-                        pContext);
+                pContext);
     }
 
     public static void sendUpdateAttributeNotificationBroadcast(String pPath, Context pContext) {
 
         sendNotificationBroadcast(pPath, generateAttributeDummyJsonString(pPath), "update",
-                        pContext);
+                pContext);
     }
 
     public static void sendDeleteAttributeNotificationBroadcast(String pPath, Context pContext) {
 
         sendNotificationBroadcast(pPath, generateAttributeDummyJsonString(pPath), "delete",
-                        pContext);
+                pContext);
     }
 
     public static void sendCreateNodeNotificationBroadcast(String pPath, Context pContext) {
@@ -237,7 +245,7 @@ public class TestHelper {
     }
 
     public static void sendNotificationBroadcast(String pPath, String pData, String pOperation,
-                    Context pContext) {
+            Context pContext) {
 
         Intent notification = new Intent();
         notification.setAction(Y60Action.GOM_NOTIFICATION_BC);
@@ -255,8 +263,8 @@ public class TestHelper {
     public static String generateAttributeJsonString(String pPath, String pValue) {
 
         return "{ \"attribute\": { \"name\": \"attribute\", \"node\": \""
-                        + pPath.substring(0, pPath.lastIndexOf(":")) + "\", \"value\": \"" + pValue
-                        + "\", \"type\": \"string\" } }";
+                + pPath.substring(0, pPath.lastIndexOf(":")) + "\", \"value\": \"" + pValue
+                + "\", \"type\": \"string\" } }";
     }
 
     public static String generateNodeDummyJsonString(String pPath) {
