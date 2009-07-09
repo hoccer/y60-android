@@ -67,7 +67,6 @@ public class GomNotificationBroadcastReceiver extends BroadcastReceiver {
 
                 Logger.v(LOG_TAG, "BroadcastReceiver ", mPath, " , it's a CREATE notification");
                 mGomObserver.onEntryCreated(mPath, data);
-                mGomProxy.entryCreated(mPath, data);
 
             } else if ("update".equals(operation)) {
 
