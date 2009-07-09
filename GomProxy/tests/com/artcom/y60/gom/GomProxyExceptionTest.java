@@ -29,21 +29,19 @@ public class GomProxyExceptionTest extends ServiceTestCase<GomProxyService> {
 
         startService(mIntent);
 
+        boolean gotExpectedException = false;
         try {
-
             String timestamp = String.valueOf(System.currentTimeMillis());
             String path = "/lalala/das/gibts/gar/nicht/" + timestamp;
             GomReference ref = new GomReference(Uri.parse(Constants.Gom.URI), path);
 
             String value = getService().getAttributeValue(ref.path());
             fail("Expected a 404 exception, but got attribute value " + value);
-        } catch (RuntimeException rex) {
-
-            if (!rex.toString().contains("404")) {
-
-                throw new RuntimeException(rex);
-            }
+        } catch (GomEntryNotFoundException e) {
+            gotExpectedException = true;
         }
+
+        assertTrue("we should have got an GomEntryNotFound exeption", gotExpectedException);
 
     }
 

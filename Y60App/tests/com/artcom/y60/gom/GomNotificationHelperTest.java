@@ -12,6 +12,7 @@ import org.json.JSONObject;
 import android.content.BroadcastReceiver;
 import android.content.Intent;
 import android.net.Uri;
+import android.test.suitebuilder.annotation.Suppress;
 
 import com.artcom.y60.Constants;
 import com.artcom.y60.HttpHelper;
@@ -25,13 +26,13 @@ import com.artcom.y60.gom.GomTestObserver.Event;
 public class GomNotificationHelperTest extends GomActivityUnitTestCase {
 
     // Constants ---------------------------------------------------------
-    private static final String LOG_TAG = "GomNotificationHelperTest";
+    private static final String LOG_TAG        = "GomNotificationHelperTest";
     private static final String TEST_BASE_PATH = "/test/android/y60/infrastructure_gom/gom_notification_helper_test";
 
     // Instance Variables ------------------------------------------------
 
-    private GomObserver mMockGomObserver;
-    private JSONObject mJson;
+    private GomObserver         mMockGomObserver;
+    private JSONObject          mJson;
 
     // Public Instance Methods -------------------------------------------
 
@@ -252,7 +253,7 @@ public class GomNotificationHelperTest extends GomActivityUnitTestCase {
 
         helper.saveAttribute(attrPath, oldAttrValue);
         assertTrue("Attribute should now be in proxy before register Observer", helper
-                        .hasInCache(attrPath));
+                .hasInCache(attrPath));
 
         GomHttpWrapper.updateOrCreateAttribute(attrUrl, newAttrValue);
 
@@ -270,9 +271,9 @@ public class GomNotificationHelperTest extends GomActivityUnitTestCase {
 
         List<Event> events = gto.getEvents();
         assertTrue("first callback should return with old value", events.get(0).data.toString()
-                        .contains(oldAttrValue));
+                .contains(oldAttrValue));
         assertTrue("second callback should return with new value", events.get(1).data.toString()
-                        .contains(newAttrValue));
+                .contains(newAttrValue));
 
         Thread.sleep(2500);
         gto.assertCreateNotCalled();
@@ -280,7 +281,7 @@ public class GomNotificationHelperTest extends GomActivityUnitTestCase {
 
         assertTrue("Attribute should now be in proxy", helper.hasInCache(attrPath));
         assertEquals("Attribute value should be updated", newAttrValue, helper.getEntry(attrPath)
-                        .forceAttributeOrException().getValue());
+                .forceAttributeOrException().getValue());
     }
 
     // 5. same entry is in gom and proxy
@@ -300,16 +301,16 @@ public class GomNotificationHelperTest extends GomActivityUnitTestCase {
         helper.saveAttribute(attrPath, attrValue);
 
         assertTrue("Attribute should now be in proxy before register Observer", helper
-                        .hasInCache(attrPath));
+                .hasInCache(attrPath));
 
         assertEquals("attr value should be in proxy", attrValue, helper.getAttribute(attrPath)
-                        .getValue());
+                .getValue());
         Logger.v(LOG_TAG, "attr value from proxy, getatrrvalue()", helper.getAttribute(attrPath)
-                        .getValue());
+                .getValue());
 
         GomHttpWrapper.updateOrCreateAttribute(attrUrl, attrValue);
         assertTrue("Value should be in Gom", HttpHelper.getJson(attrUrl.toString()).toString()
-                        .contains(attrValue));
+                .contains(attrValue));
 
         final GomTestObserver gto = new GomTestObserver(this);
         GomNotificationHelper.registerObserverAndNotify(attrPath, gto, helper);
@@ -326,7 +327,7 @@ public class GomNotificationHelperTest extends GomActivityUnitTestCase {
         List<Event> events = gto.getEvents();
         Logger.v(LOG_TAG, events.get(0).data);
         assertTrue("callback should return with value", events.get(0).data.toString().contains(
-                        attrValue));
+                attrValue));
 
         Thread.sleep(2500);
         gto.assertCreateNotCalled();
@@ -415,29 +416,29 @@ public class GomNotificationHelperTest extends GomActivityUnitTestCase {
         String regExp = GomNotificationHelper.createRegularExpression(basePath);
 
         assertTrue("Regular expression should have matched the path", Pattern.matches(regExp,
-                        basePath));
+                basePath));
         assertTrue("Regular expression should have matched the path", Pattern.matches(regExp,
-                        basePath + "/subNode"));
+                basePath + "/subNode"));
         assertTrue("Regular expression should have matched the path", Pattern.matches(regExp,
-                        basePath + ":attribute"));
+                basePath + ":attribute"));
         assertFalse("Regular expression shouldnt have matched the path", Pattern.matches(regExp,
-                        basePath + "/subNode/subSubNode"));
+                basePath + "/subNode/subSubNode"));
         assertFalse("Regular expression shouldnt have matched the path", Pattern.matches(regExp,
-                        basePath + "/subNode:attribute"));
+                basePath + "/subNode:attribute"));
 
         assertFalse("Regular expression shouldnt have matched the path", Pattern.matches(regExp,
-                        "/baseNode/otherNode"));
+                "/baseNode/otherNode"));
 
         regExp = GomNotificationHelper
-                        .createRegularExpression("/test/android/y60/infrastructure_gom/gom_notification_helper_test/test_reg_exp_contraint_on_observer/1243951216126/A/B");
+                .createRegularExpression("/test/android/y60/infrastructure_gom/gom_notification_helper_test/test_reg_exp_contraint_on_observer/1243951216126/A/B");
         assertFalse(Pattern
-                        .matches(
-                                        regExp,
-                                        "/test/android/y60/infrastructure_gom/gom_notification_helper_test/test_reg_exp_contraint_on_observer/1243951216126/A/B/X:invalid_attribute"));
+                .matches(
+                        regExp,
+                        "/test/android/y60/infrastructure_gom/gom_notification_helper_test/test_reg_exp_contraint_on_observer/1243951216126/A/B/X:invalid_attribute"));
         assertTrue(Pattern
-                        .matches(
-                                        regExp,
-                                        "/test/android/y60/infrastructure_gom/gom_notification_helper_test/test_reg_exp_contraint_on_observer/1243951216126/A/B:attribute"));
+                .matches(
+                        regExp,
+                        "/test/android/y60/infrastructure_gom/gom_notification_helper_test/test_reg_exp_contraint_on_observer/1243951216126/A/B:attribute"));
     }
 
     public void testRegExpConstraintOnObserver() throws Exception {
@@ -458,10 +459,10 @@ public class GomNotificationHelperTest extends GomActivityUnitTestCase {
         String visibleNodePath = observedPath + "/X";
         String invisibleNodePath = visibleNodePath + "/Y";
         StatusLine statusLine = HttpHelper.putUrlEncoded(Constants.Gom.URI + invisibleNodePath,
-                        formData).getStatusLine();
+                formData).getStatusLine();
         int statusCode = statusLine.getStatusCode();
         assertTrue("something went wrong with the PUT to the GOM - status code is: " + statusCode,
-                        statusCode < 300);
+                statusCode < 300);
 
         String visibleAttrPath = observedPath + ":attribute";
         Uri visibleAttrUrl = Uri.parse(Constants.Gom.URI + visibleAttrPath);
@@ -479,11 +480,11 @@ public class GomNotificationHelperTest extends GomActivityUnitTestCase {
 
         GomTestObserver observer = new GomTestObserver(this);
         BroadcastReceiver receiver = GomNotificationHelper.registerObserverAndNotify(observedPath,
-                        observer, helper);
+                observer, helper);
 
         getActivity().registerReceiver(receiver, Constants.Gom.GNP_INTENT_FILTER);
         TestHelper.blockUntilResourceAvailable("Observer should be in GOM", GomNotificationHelper
-                        .getObserverUriFor(observedPath));
+                .getObserverUriFor(observedPath));
 
         GomHttpWrapper.deleteAttribute(invisibleAttrUrl);
         Thread.sleep(4000);
@@ -570,7 +571,7 @@ public class GomNotificationHelperTest extends GomActivityUnitTestCase {
         String testPath = TEST_BASE_PATH + "/test_observer_for_attribute_appears_in_gom";
         String attrPath = testPath + ":" + timestamp;
         final String observerUri = Constants.Gom.URI
-                        + GomNotificationHelper.getObserverPathFor(attrPath);
+                + GomNotificationHelper.getObserverPathFor(attrPath);
 
         try {
 
@@ -636,7 +637,7 @@ public class GomNotificationHelperTest extends GomActivityUnitTestCase {
         assertNotNull("missing node in GOM", HttpHelper.getAsString(Constants.Gom.URI + nodePath));
 
         BroadcastReceiver receiver = GomNotificationHelper.registerObserverAndNotify(nodePath,
-                        observer, helper);
+                observer, helper);
         getActivity().registerReceiver(receiver, Constants.Gom.GNP_INTENT_FILTER);
 
         TestHelper.blockUntilTrue("update not called", 4000, new TestHelper.Condition() {
@@ -648,7 +649,7 @@ public class GomNotificationHelperTest extends GomActivityUnitTestCase {
         });
 
         assertEquals("update should be called once after getting node from gom and not from proxy",
-                        1, observer.getUpdateCount());
+                1, observer.getUpdateCount());
 
         // Thread.sleep(2500);
 
@@ -732,56 +733,57 @@ public class GomNotificationHelperTest extends GomActivityUnitTestCase {
 
         HttpHelper.putXML(Constants.Gom.URI + attrPath, "<attribute>original value</attribute>");
         assertEquals("original value", HttpHelper
-                        .getAsString(Constants.Gom.URI + attrPath + ".txt"));
+                .getAsString(Constants.Gom.URI + attrPath + ".txt"));
 
         final GomTestObserver gto = new GomTestObserver(this);
         BroadcastReceiver receiver = GomNotificationHelper.registerObserverAndNotify(attrPath, gto,
-                        helper);
+                helper);
         assertEquals("gnp update callback shuld not have been called", 0, gto.getUpdateCount());
 
         getActivity().registerReceiver(receiver, Constants.Gom.GNP_INTENT_FILTER);
         TestHelper.blockUntilTrue("gnp update callback shuld have been called once", 3000,
-                        new TestHelper.Condition() {
+                new TestHelper.Condition() {
 
-                            @Override
-                            public boolean isSatisfied() {
-                                return gto.getUpdateCount() == 1;
-                            }
+                    @Override
+                    public boolean isSatisfied() {
+                        return gto.getUpdateCount() == 1;
+                    }
 
-                        });
+                });
 
         assertEquals("cache should have the old value after callback was called once",
-                        "original value", helper.getCachedAttributeValue(attrPath));
+                "original value", helper.getCachedAttributeValue(attrPath));
 
         TestHelper.blockUntilResourceAvailable("observer should be registered in gom",
-                        GomNotificationHelper.getObserverUriFor(attrPath));
+                GomNotificationHelper.getObserverUriFor(attrPath));
 
         HttpHelper.putXML(Constants.Gom.URI + attrPath, "<attribute>changed value</attribute>");
         assertEquals("cache should still have the old value", "original value", helper
-                        .getCachedAttributeValue(attrPath));
+                .getCachedAttributeValue(attrPath));
 
         assertEquals("the value should have changed in gom", "changed value", HttpHelper
-                        .getAsString(Constants.Gom.URI + attrPath + ".txt"));
+                .getAsString(Constants.Gom.URI + attrPath + ".txt"));
 
         TestHelper.blockUntilTrue("GNP should notify our observer about the changed value", 2000,
-                        new TestHelper.Condition() {
+                new TestHelper.Condition() {
 
-                            @Override
-                            public boolean isSatisfied() {
-                                return gto.getUpdateCount() == 2;
-                            }
+                    @Override
+                    public boolean isSatisfied() {
+                        return gto.getUpdateCount() == 2;
+                    }
 
-                        });
+                });
 
         Logger.v(LOG_TAG, "data in cache: " + gto.getData());
         JSONObject jsonData = gto.getData();
         assertTrue("json has attribute", jsonData.has("attribute"));
         assertTrue("json has attribute.value", jsonData.getJSONObject("attribute").has("value"));
         assertEquals("value should have changed", "changed value", gto.getData().getJSONObject(
-                        "attribute").get("value"));
+                "attribute").get("value"));
 
     }
 
+    @Suppress
     public void testRegisterOnNodeGetOnAttributeUpdated() throws Exception {
 
         initializeActivity();
@@ -793,58 +795,58 @@ public class GomNotificationHelperTest extends GomActivityUnitTestCase {
         String timestamp = String.valueOf(System.currentTimeMillis());
 
         String nodePath = TEST_BASE_PATH + "/test_register_on_node_get_on_attribute_updated" + "/"
-                        + timestamp;
+                + timestamp;
         String attrPath = nodePath + ":attribute";
 
         HttpHelper.putXML(Constants.Gom.URI + attrPath, "<attribute>original value</attribute>");
         assertEquals("original value", HttpHelper
-                        .getAsString(Constants.Gom.URI + attrPath + ".txt"));
+                .getAsString(Constants.Gom.URI + attrPath + ".txt"));
 
         final GomTestObserver gto = new GomTestObserver(this);
         BroadcastReceiver receiver = GomNotificationHelper.registerObserverAndNotify(nodePath, gto,
-                        helper);
+                helper);
         assertEquals("gnp update callback should not have been called", 0, gto.getUpdateCount());
         assertEquals("gnp create callback should not have been called", 0, gto.getCreateCount());
         assertEquals("gnp delete callback should not have been called", 0, gto.getDeleteCount());
 
         getActivity().registerReceiver(receiver, Constants.Gom.GNP_INTENT_FILTER);
         TestHelper.blockUntilTrue("gnp update callback should have been called once", 3000,
-                        new TestHelper.Condition() {
+                new TestHelper.Condition() {
 
-                            @Override
-                            public boolean isSatisfied() {
-                                return gto.getUpdateCount() == 1;
-                            }
+                    @Override
+                    public boolean isSatisfied() {
+                        return gto.getUpdateCount() == 1;
+                    }
 
-                        });
+                });
 
         assertEquals("gnp update callback should have been called once", 1, gto.getUpdateCount());
         assertEquals("gnp create callback should not have been called", 0, gto.getCreateCount());
         assertEquals("gnp delete callback should not have been called", 0, gto.getDeleteCount());
 
         assertEquals("cache should have the old value after callback was called once",
-                        "original value", helper.getCachedAttributeValue(attrPath));
+                "original value", helper.getCachedAttributeValue(attrPath));
 
         TestHelper.blockUntilResourceAvailable("observer node should be registered in gom",
-                        GomNotificationHelper.getObserverUriFor(nodePath));
+                GomNotificationHelper.getObserverUriFor(nodePath));
 
         HttpHelper.putXML(Constants.Gom.URI + attrPath, "<attribute>changed value</attribute>");
         assertEquals("cache should still have the old value", "original value", helper
-                        .getCachedAttributeValue(attrPath));
+                .getCachedAttributeValue(attrPath));
 
         assertEquals("the value should have changed in gom", "changed value", HttpHelper
-                        .getAsString(Constants.Gom.URI + attrPath + ".txt"));
+                .getAsString(Constants.Gom.URI + attrPath + ".txt"));
 
         TestHelper.blockUntilTrue("GNP (update attribute notification) "
-                        + "should notify our observer about the changed value", 2000,
-                        new TestHelper.Condition() {
+                + "should notify our observer about the changed value", 2000,
+                new TestHelper.Condition() {
 
-                            @Override
-                            public boolean isSatisfied() {
-                                return gto.getUpdateCount() == 2;
-                            }
+                    @Override
+                    public boolean isSatisfied() {
+                        return gto.getUpdateCount() == 2;
+                    }
 
-                        });
+                });
 
         Thread.sleep(3000);
 
@@ -857,13 +859,14 @@ public class GomNotificationHelperTest extends GomActivityUnitTestCase {
         assertTrue("json has attribute", jsonData.has("attribute"));
         assertTrue("json has attribute.value", jsonData.getJSONObject("attribute").has("value"));
         assertEquals("value should have changed", "changed value", gto.getData().getJSONObject(
-                        "attribute").get("value"));
+                "attribute").get("value"));
 
         assertEquals("the value should have changed in proxy", "changed value", helper
-                        .getAttribute(attrPath).getValue());
+                .getAttribute(attrPath).getValue());
 
     }
 
+    @Suppress
     public void testRegisterOnNodeGetOnNodeCreated() throws Exception {
 
         initializeActivity();
@@ -875,30 +878,30 @@ public class GomNotificationHelperTest extends GomActivityUnitTestCase {
         String timestamp = String.valueOf(System.currentTimeMillis());
 
         String nodePath = TEST_BASE_PATH + "/test_register_on_node_get_on_node_created" + "/"
-                        + timestamp;
+                + timestamp;
         String subNodePath = nodePath + "/subNode";
 
         HttpHelper.putXML(Constants.Gom.URI + nodePath, "<>");
         TestHelper.blockUntilResourceAvailable("observer node should be registered in gom",
-                        nodePath);
+                nodePath);
 
         final GomTestObserver gto = new GomTestObserver(this);
         BroadcastReceiver receiver = GomNotificationHelper.registerObserverAndNotify(nodePath, gto,
-                        helper);
+                helper);
         assertEquals("gnp update callback should not have been called", 0, gto.getUpdateCount());
         assertEquals("gnp create callback should not have been called", 0, gto.getCreateCount());
         assertEquals("gnp delete callback should not have been called", 0, gto.getDeleteCount());
 
         getActivity().registerReceiver(receiver, Constants.Gom.GNP_INTENT_FILTER);
         TestHelper.blockUntilTrue("gnp update callback should have been called once", 3000,
-                        new TestHelper.Condition() {
+                new TestHelper.Condition() {
 
-                            @Override
-                            public boolean isSatisfied() {
-                                return gto.getUpdateCount() == 1;
-                            }
+                    @Override
+                    public boolean isSatisfied() {
+                        return gto.getUpdateCount() == 1;
+                    }
 
-                        });
+                });
 
         assertEquals("gnp update callback should have been called once", 1, gto.getUpdateCount());
         assertEquals("gnp create callback should not have been called", 0, gto.getCreateCount());
@@ -908,8 +911,8 @@ public class GomNotificationHelperTest extends GomActivityUnitTestCase {
         helper.getCachedNodeData(nodePath, pSubNodeNames, new LinkedList<String>());
 
         assertEquals(
-                        "cache should have the node with zero subNodes after callback was called once",
-                        0, pSubNodeNames.size());
+                "cache should have the node with zero subNodes after callback was called once", 0,
+                pSubNodeNames.size());
 
         // TestHelper.blockUntilResourceAvailable("observer node should be registered in gom",
         // GomNotificationHelper.getObserverUriFor(nodePath));
@@ -959,7 +962,10 @@ public class GomNotificationHelperTest extends GomActivityUnitTestCase {
 
     }
 
+    @Suppress
     public void testDeleteAttributeOnNotification() throws Exception {
+
+        initializeActivity();
 
         String timestamp = String.valueOf(System.currentTimeMillis());
 
@@ -981,7 +987,7 @@ public class GomNotificationHelperTest extends GomActivityUnitTestCase {
 
         GomProxyHelper proxy = createHelper();
         BroadcastReceiver rec = GomNotificationHelper.registerObserver(nodePath, mMockGomObserver,
-                        proxy);
+                proxy);
         boolean isInCache = proxy.hasInCache(attrPath);
         assertTrue("attribute is missing", isInCache);
 
