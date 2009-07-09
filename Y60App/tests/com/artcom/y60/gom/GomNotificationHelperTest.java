@@ -128,64 +128,6 @@ public class GomNotificationHelperTest extends GomActivityUnitTestCase {
 
     }
 
-    // tests for creation of observer nodes in gom
-    public void testObserverForAttributeAppearsInGom() throws Exception {
-
-        initializeActivity();
-        GomProxyHelper helper = createHelper();
-
-        String timestamp = String.valueOf(System.currentTimeMillis());
-        String testPath = TEST_BASE_PATH + "/test_observer_for_attribute_appears_in_gom";
-        String attrPath = testPath + ":" + timestamp;
-        final String observerUri = Constants.Gom.URI
-                + GomNotificationHelper.getObserverPathFor(attrPath);
-
-        try {
-
-            HttpHelper.getAsString(observerUri);
-            fail("Expected a 404 on observer " + observerUri + ", which shouldn't exist");
-
-        } catch (Exception ex) {
-
-            boolean is404 = ex.toString().contains("404");
-            assertTrue("expected a 404", is404);
-        }
-
-        GomNotificationHelper.registerObserverAndNotify(attrPath, mMockGomObserver, helper);
-
-        // check that the observer has arrived in gom
-        TestHelper.blockUntilResourceAvailable("Observer should now be in GOM", observerUri);
-
-    }
-
-    public void testObserverForNodeAppearsInGom() throws Exception {
-
-        initializeActivity();
-        GomProxyHelper helper = createHelper();
-
-        String timestamp = String.valueOf(System.currentTimeMillis());
-        String testPath = TEST_BASE_PATH + "/test_observer_for_node_appears_in_gom";
-        String nodePath = testPath + "/" + timestamp;
-        String observerUri = Constants.Gom.URI + GomNotificationHelper.getObserverPathFor(nodePath);
-
-        try {
-
-            String result = HttpHelper.getAsString(observerUri);
-            fail("Expected a 404 on observer " + observerUri + ", which shouldn't exist");
-
-        } catch (Exception ex) {
-
-            boolean is404 = ex.toString().contains("404");
-            assertTrue("expected a 404", is404);
-        }
-
-        GomNotificationHelper.registerObserverAndNotify(nodePath, mMockGomObserver, helper);
-
-        // check that the observer has arrived in gom
-        TestHelper.blockUntilResourceAvailable("Observer should now be in GOM", observerUri);
-
-    }
-
     // initial state: value in gom, NOT in proxy
     public void testRegisterObserverMultipleTimes() throws Exception {
 
