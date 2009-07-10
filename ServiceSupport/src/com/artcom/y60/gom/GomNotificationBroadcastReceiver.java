@@ -68,20 +68,20 @@ public class GomNotificationBroadcastReceiver extends BroadcastReceiver {
 
             String operation = pIntent.getStringExtra(IntentExtraKeys.KEY_NOTIFICATION_OPERATION);
             if ("create".equals(operation)) {
-
                 Logger.v(LOG_TAG, "BroadcastReceiver ", mPath, " , it's a CREATE notification");
                 mGomObserver.onEntryCreated(mPath, data);
-
+                // update proxy
+                mGomProxy.updateEntry(mPath, data.toString());
             } else if ("update".equals(operation)) {
-
                 Logger.v(LOG_TAG, "BroadcastReceiver ", mPath, " , it's an UPDATE notification");
                 mGomObserver.onEntryUpdated(mPath, data);
-
+                // update proxy
+                mGomProxy.updateEntry(mPath, data.toString());
             } else if ("delete".equals(operation)) {
-
                 Logger.v(LOG_TAG, "BroadcastReceiver ", mPath, " , it's a DELETE notification");
                 mGomObserver.onEntryDeleted(mPath, data);
-
+                // update proxy
+                mGomProxy.deleteEntry(mPath);
             } else {
 
                 Logger.w(LOG_TAG, "BroadcastReceiver ", mPath,

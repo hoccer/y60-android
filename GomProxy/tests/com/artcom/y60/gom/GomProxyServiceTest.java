@@ -20,13 +20,13 @@ public class GomProxyServiceTest extends ServiceTestCase<GomProxyService> {
 
     // Constants ---------------------------------------------------------
 
-    private static final String LOG_TAG = "GomProxyServiceTest";
+    private static final String LOG_TAG        = "GomProxyServiceTest";
 
     private static final String BASE_TEST_PATH = "/test/android/y60/infrastructure_gom/gom_proxy_service_test";
 
     // Instance Variables ------------------------------------------------
 
-    private Intent mIntent;
+    private Intent              mIntent;
 
     // Constructors ------------------------------------------------------
 
@@ -36,6 +36,25 @@ public class GomProxyServiceTest extends ServiceTestCase<GomProxyService> {
     }
 
     // Public Instance Methods -------------------------------------------
+
+    public void testUpdateAttribute() throws Exception {
+        startService(mIntent);
+
+        GomProxyService service = getService();
+        assertNotNull("service must not be null", service);
+
+        String js = "{ \"attribute\": {" + "\"name\": \"state\","
+                + "\"node\": \"/areas/home/light_002\"," + "\"value\": \"174\","
+                + "\"type\": \"string\"," + "\"mtime\": \"2009-07-06T16:01:24+02:00\","
+                + "\"ctime\": \"2009-07-06T16:01:24+02:00\"" + "} }";
+        String timestamp = Long.toString(System.currentTimeMillis());
+        service.updateEntry(timestamp + ":state", js);
+
+        assertTrue("attribute should be in cache", service
+                .hasAttributeInCache(timestamp + ":state"));
+        assertEquals("attribute value should be as in fixture", Integer.toString(174), service
+                .getAttributeValue(timestamp + ":state"));
+    }
 
     public void testGetBaseUri() throws Exception {
 
@@ -76,7 +95,7 @@ public class GomProxyServiceTest extends ServiceTestCase<GomProxyService> {
         HttpHelper.putXML(service.getBaseUri() + nodePath, "<node></node>");
         HttpHelper.putXML(service.getBaseUri() + nodePath + "/a_sub_node", "<node></node>");
         HttpHelper.putXML(service.getBaseUri() + nodePath + ":an_attribute",
-                        "<attribute>honolulu</attribute>");
+                "<attribute>honolulu</attribute>");
 
         service.getNodeData(nodePath, subNodeNames, attributeNames);
 
@@ -89,9 +108,9 @@ public class GomProxyServiceTest extends ServiceTestCase<GomProxyService> {
         assertEquals("an_attribute", attributeNames.get(0));
 
         assertEquals(
-                        "honolulu",
-                        service
-                                        .getAttributeValue("/test/android/y60/infrastructure_gom/gom_proxy_service_test:attribute"));
+                "honolulu",
+                service
+                        .getAttributeValue("/test/android/y60/infrastructure_gom/gom_proxy_service_test:attribute"));
     }
 
     public void testDeleteNode() {
@@ -144,7 +163,7 @@ public class GomProxyServiceTest extends ServiceTestCase<GomProxyService> {
         assertFalse("node should not be in cache", service.hasNodeInCache(nodePath));
         assertFalse("child node should not be in cache", service.hasNodeInCache(childNodePath));
         assertFalse("child attribute should not be in cache", service
-                        .hasNodeInCache(childAttributePath));
+                .hasNodeInCache(childAttributePath));
     }
 
     public void testDeleteAttribute() {
@@ -176,7 +195,7 @@ public class GomProxyServiceTest extends ServiceTestCase<GomProxyService> {
         StatusLine statusLine = HttpHelper.putUrlEncoded(attrUrl, formData).getStatusLine();
         int statusCode = statusLine.getStatusCode();
         assertTrue("something went wrong with the PUT old value to the GOM - status code is: "
-                        + statusCode, statusCode < 300);
+                + statusCode, statusCode < 300);
 
         // make sure the proxy has the attribute cached
         service.getAttributeValue(attrPath);
@@ -186,7 +205,7 @@ public class GomProxyServiceTest extends ServiceTestCase<GomProxyService> {
         formData.put(Constants.Gom.Keywords.ATTRIBUTE, newValue);
         statusLine = HttpHelper.putUrlEncoded(attrUrl, formData).getStatusLine();
         assertTrue("something went wrong with the PUT new value to the GOM", statusLine
-                        .getStatusCode() < 300);
+                .getStatusCode() < 300);
 
         // update may take a while
         Thread.sleep(3000);
@@ -206,7 +225,7 @@ public class GomProxyServiceTest extends ServiceTestCase<GomProxyService> {
         String value = "bananeneis und frikadellen";
         service.saveAttribute(attrPath, value);
         assertEquals("Attribute value wasn't as expected", value, service
-                        .getAttributeValue(attrPath));
+                .getAttributeValue(attrPath));
 
     }
 

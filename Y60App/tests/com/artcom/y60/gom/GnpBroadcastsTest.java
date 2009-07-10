@@ -100,19 +100,22 @@ public class GnpBroadcastsTest extends GomActivityUnitTestCase {
         GomProxyHelper gomProxy = createHelper();
 
         String timestamp = String.valueOf(System.currentTimeMillis());
+        String attrPath = "pathToAttribute:" + timestamp;
 
         BroadcastReceiver br;
-        br = GomNotificationHelper.registerObserverAndNotify(timestamp, new GomTestObserver(this),
+        br = GomNotificationHelper.registerObserverAndNotify(attrPath, new GomTestObserver(this),
                 gomProxy);
         // you will probably get a delete notification
 
-        JSONObject createdAttribute = new JSONObject("{" + timestamp + ":\"keks\"}");
-        Intent bcIntent = createBroadcastIntent(timestamp, "create", createdAttribute);
+        JSONObject createdAttribute = new JSONObject("{\"attribute\": { \"name\":" + timestamp
+                + ", \"value\":\"keks\"}}");
+
+        Intent bcIntent = createBroadcastIntent(attrPath, "create", createdAttribute);
         br.onReceive(null, bcIntent);
 
-        assertTrue("attribute should be in cache", gomProxy.hasInCache(timestamp));
+        assertTrue("attribute should be in cache", gomProxy.hasInCache(attrPath));
         assertEquals("gom proxy should provide the newly created attribute from cache", "keks",
-                gomProxy.getCachedAttributeValue(timestamp));
+                gomProxy.getCachedAttributeValue(attrPath));
     }
 
     public void testUpdateNotificationRefreshesGomProxy() throws Exception {
@@ -121,21 +124,24 @@ public class GnpBroadcastsTest extends GomActivityUnitTestCase {
         GomProxyHelper gomProxy = createHelper();
 
         String timestamp = String.valueOf(System.currentTimeMillis());
-        gomProxy.saveAttribute(timestamp, "old value");
+        String attrPath = "pathToAttribute:" + timestamp;
+        gomProxy.saveAttribute(attrPath, "old value");
         assertEquals("gom proxy should provide the original attribute from cache", "old value",
-                gomProxy.getCachedAttributeValue(timestamp));
+                gomProxy.getCachedAttributeValue(attrPath));
 
         BroadcastReceiver br;
-        br = GomNotificationHelper.registerObserverAndNotify(timestamp, new GomTestObserver(this),
+        br = GomNotificationHelper.registerObserverAndNotify(attrPath, new GomTestObserver(this),
                 gomProxy);
         // you will probably get a delete notification
 
-        JSONObject createdAttribute = new JSONObject("{" + timestamp + ":\"keks\"}");
-        Intent bcIntent = createBroadcastIntent(timestamp, "update", createdAttribute);
+        JSONObject createdAttribute = new JSONObject("{\"attribute\": { \"name\":" + timestamp
+                + ", \"value\":\"keks\"}}");
+
+        Intent bcIntent = createBroadcastIntent(attrPath, "update", createdAttribute);
         br.onReceive(null, bcIntent);
 
         assertEquals("gom proxy should provide the newly created attribute from cache", "keks",
-                gomProxy.getCachedAttributeValue(timestamp));
+                gomProxy.getCachedAttributeValue(attrPath));
     }
 
     public void testDeleteNotificationRefreshesGomProxy() throws Exception {
@@ -144,20 +150,23 @@ public class GnpBroadcastsTest extends GomActivityUnitTestCase {
         GomProxyHelper gomProxy = createHelper();
 
         String timestamp = String.valueOf(System.currentTimeMillis());
-        gomProxy.saveAttribute(timestamp, "keks");
+        String attrPath = "pathToAttribute:" + timestamp;
+        gomProxy.saveAttribute(attrPath, "keks");
         assertEquals("gom proxy should provide the original attribute from cache", "keks", gomProxy
-                .getCachedAttributeValue(timestamp));
+                .getCachedAttributeValue(attrPath));
 
         BroadcastReceiver br;
-        br = GomNotificationHelper.registerObserverAndNotify(timestamp, new GomTestObserver(this),
+        br = GomNotificationHelper.registerObserverAndNotify(attrPath, new GomTestObserver(this),
                 gomProxy);
         // you will probably get a delete notification
 
-        JSONObject createdAttribute = new JSONObject("{" + timestamp + ":\"keks\"}");
-        Intent bcIntent = createBroadcastIntent(timestamp, "delete", createdAttribute);
+        JSONObject createdAttribute = new JSONObject("{\"attribute\": { \"name\":" + timestamp
+                + ", \"value\":\"keks\"}}");
+
+        Intent bcIntent = createBroadcastIntent(attrPath, "delete", createdAttribute);
         br.onReceive(null, bcIntent);
 
-        assertFalse("attribute should be deleted from cache", gomProxy.hasInCache(timestamp));
+        assertFalse("attribute should be deleted from cache", gomProxy.hasInCache(attrPath));
 
     }
 

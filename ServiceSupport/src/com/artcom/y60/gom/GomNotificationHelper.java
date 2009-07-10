@@ -158,7 +158,7 @@ public class GomNotificationHelper {
             final GomObserver pGomObserver, final GomProxyHelper pGom, final boolean pBubbleUp,
             final ErrorHandler pErrorHandler) throws IOException, IpAddressNotFoundException {
 
-        BroadcastReceiver rec = createBroadcastReceiver(pPath, pGomObserver, pBubbleUp);
+        BroadcastReceiver rec = createBroadcastReceiver(pPath, pGomObserver, pBubbleUp, pGom);
 
         if (!pGom.isBound()) {
             throw new IllegalStateException("GomProxyHelper " + pGom.toString() + " is not bound!");
@@ -244,13 +244,13 @@ public class GomNotificationHelper {
     }
 
     private static BroadcastReceiver createBroadcastReceiver(String pPath,
-            GomObserver pGomObserver, boolean pBubbleUp) {
+            GomObserver pGomObserver, boolean pBubbleUp, GomProxyHelper pGom) {
 
         if (pPath == null) {
             throw new IllegalArgumentException("Path cannot be null");
         }
 
-        return new GomNotificationBroadcastReceiver(pPath, pGomObserver, pBubbleUp);
+        return new GomNotificationBroadcastReceiver(pPath, pGomObserver, pBubbleUp, pGom);
     }
 
     /**
