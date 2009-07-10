@@ -19,7 +19,7 @@ public class GnpBroadcastsTest extends GomActivityUnitTestCase {
     public void setUp() throws Exception {
         super.setUp();
 
-        mJson = new JSONObject("{\"hans\":\"wurst\"}");
+        mJson = new JSONObject("{\"attribute\": { \"name\":\"hans\" , \"value\":\"keks\"}}");
     }
 
     public void testNotificationCreate() throws Exception {
