@@ -25,6 +25,21 @@ public class GomReference {
                         || pDescendantPath.equals(pAncestorPath);
     }
 
+    public static String lastSegment(String pPath) {
+
+        int idx = pPath.lastIndexOf(":");
+        if (idx == -1) {
+            idx = pPath.lastIndexOf("/");
+        }
+
+        return pPath.substring(idx + 1);
+    }
+
+    public static String parentPath(String pPath) {
+
+        return pPath.substring(0, pPath.length() - lastSegment(pPath).length() - 1);
+    }
+
     // Instance Variables ------------------------------------------------
 
     private String mName;
@@ -99,6 +114,11 @@ public class GomReference {
         this(UriHelper.join(pBaseUri.toString(), pPathSegments));
     }
 
+    public GomReference(String pBaseUriStr, String... pPathSegments) {
+
+        this(UriHelper.join(pBaseUriStr, pPathSegments));
+    }
+
     // Public Instance Methods -------------------------------------------
 
     public String name() {
@@ -153,6 +173,16 @@ public class GomReference {
     public boolean isNode() {
 
         return !mIsAttr;
+    }
+
+    public GomReference subNode(String pName) {
+
+        if (isAttribute()) {
+            throw new RuntimeException("Can't create reference to sub node " + pName
+                            + " of attribute " + path());
+        }
+
+        return new GomReference(url(), pName);
     }
 
     @Override

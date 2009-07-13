@@ -28,4 +28,6 @@ interface IGomProxyService {
     void clear(out RpcStatus pStatus);
         
     void updateEntry(String pPath, String pJsonData, out RpcStatus pStatus);
+    
+    void createEntry(String pPath, String pJsonData, out RpcStatus pStatus);
 }
