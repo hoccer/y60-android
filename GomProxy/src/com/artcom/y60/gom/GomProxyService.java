@@ -35,8 +35,6 @@ public class GomProxyService extends Y60Service {
 
     // Instance Variables ------------------------------------------------
 
-    private String                mId;
-
     private GomProxyRemote        mRemote;
 
     private Map<String, NodeData> mNodes;
@@ -49,7 +47,6 @@ public class GomProxyService extends Y60Service {
 
     public GomProxyService() {
 
-        mId = String.valueOf(System.currentTimeMillis());
         mNodes = new HashMap<String, NodeData>();
         mAttributes = new HashMap<String, String>();
         Logger.v(LOG_TAG, "HttpProxyService instantiated");
@@ -271,6 +268,15 @@ public class GomProxyService extends Y60Service {
 
     }
 
+    void updateEntry(String pPath, String pJsonData) throws JSONException {
+        JSONObject jo = new JSONObject(pJsonData);
+        if (!jo.has(Constants.Gom.Keywords.ATTRIBUTE)) {
+            updateNodeFromJson(pPath, jo);
+        } else {
+            updateAttributeFromJson(pPath, jo);
+        }
+    }
+
     /**
      * @param pPath
      * @param jsob
@@ -332,11 +338,8 @@ public class GomProxyService extends Y60Service {
 
             throw new GomProxyException(ex);
         }
-        JSONObject attr = jsob.getJSONObject(Constants.Gom.Keywords.ATTRIBUTE);
 
-        Logger.v(LOG_TAG, "loaded attribute from gom: ", attr);
-
-        updateAttributeFromJson(pPath, attr);
+        updateAttributeFromJson(pPath, jsob);
     }
 
     /**
@@ -344,12 +347,14 @@ public class GomProxyService extends Y60Service {
      * @param attr
      * @throws JSONException
      */
-    private void updateAttributeFromJson(String pPath, JSONObject attr) throws JSONException {
+    private void updateAttributeFromJson(String pPath, JSONObject pJso) throws JSONException {
+
+        JSONObject attr = pJso.getJSONObject(Constants.Gom.Keywords.ATTRIBUTE);
+        Logger.v(LOG_TAG, "loaded attribute from gom: ", attr);
 
         String value = attr.getString(Constants.Gom.Keywords.VALUE);
 
         synchronized (mAttributes) {
-
             mAttributes.put(pPath, value);
         }
     }
@@ -487,25 +492,19 @@ public class GomProxyService extends Y60Service {
             try {
                 GomProxyService.this.clear();
             } catch (Exception ex) {
-
                 pStatus.setError(ex);
             }
         }
 
         @Override
-        public void createEntry(String pPath, String pJsonData, RpcStatus pStatus)
-                throws RemoteException {
-            // TODO Auto-generated method stub
-
-        }
-
-        @Override
         public void updateEntry(String pPath, String pJsonData, RpcStatus pStatus)
                 throws RemoteException {
-            // TODO Auto-generated method stub
-
+            try {
+                GomProxyService.this.updateEntry(pPath, pJsonData);
+            } catch (Exception ex) {
+                pStatus.setError(ex);
+            }
         }
-
     }
 
     class GomNotificationBroadcastReceiver extends BroadcastReceiver {
@@ -656,15 +655,18 @@ public class GomProxyService extends Y60Service {
                 throws JSONException {
             Logger.d(LOG_TAG, "notification affects attribute in cache: ", path);
 
-            JSONObject dataJson = new JSONObject(dataStr);
-            JSONObject attrJson = dataJson.getJSONObject(Constants.Gom.Keywords.ATTRIBUTE);
-            updateAttributeFromJson(path, attrJson);
+            updateAttributeFromJson(path, new JSONObject(dataStr));
         }
 
     }
 
     private void deleteAttribute(String pPath) {
+
+        Logger.v(LOG_TAG, mAttributes.keySet().toString(), "\n\n\n\ndelete attribute ", pPath,
+                " size: ", mAttributes.size(), " has in cacche: ", hasAttributeInCache(pPath));
         mAttributes.remove(pPath);
+        Logger.v(LOG_TAG, "delete attribute ", pPath, " size: ", mAttributes.size(),
+                " has in cacche: ", hasAttributeInCache(pPath));
     }
 
     private void deleteNode(String pPath) {
@@ -675,19 +677,29 @@ public class GomProxyService extends Y60Service {
         List<String> attrList = nodeData.attributeNames;
         List<String> nodeList = nodeData.subNodeNames;
         for (String anAttr : attrList) {
-            deleteAttribute(anAttr);
+            Logger.v(LOG_TAG, "delete attribute ", anAttr);
+            deleteAttribute(pPath + ":" + anAttr);
         }
         for (String aNode : nodeList) {
-            deleteNode(aNode);
+            Logger.v(LOG_TAG, "delete node ", aNode);
+
+            deleteNode(pPath + "/" + aNode);
         }
+        Logger.v(LOG_TAG, "delete node ", pPath, " size: ", mNodes.size(), " has in cacche: ",
+                hasNodeInCache(pPath));
         mNodes.remove(pPath);
+        Logger.v(LOG_TAG, "delete node ", pPath, " size: ", mNodes.size(), " has in cacche: ",
+                hasNodeInCache(pPath));
     }
 
     public void deleteEntry(String pPath) {
+        Logger.v(LOG_TAG, pPath);
         String lastSegment = pPath.substring(pPath.lastIndexOf("/") + 1);
         if (lastSegment.contains(":")) {
+            Logger.v(LOG_TAG, "delete attribute " + pPath);
             deleteAttribute(pPath);
         } else {
+            Logger.v(LOG_TAG, "delete node ", pPath);
             deleteNode(pPath);
         }
     }

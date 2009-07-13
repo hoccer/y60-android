@@ -1,14 +1,18 @@
 package com.artcom.y60.gom;
 
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
+import android.content.BroadcastReceiver;
 import android.net.Uri;
 
 import com.artcom.y60.Constants;
 import com.artcom.y60.HttpHelper;
 import com.artcom.y60.Logger;
 import com.artcom.y60.TestHelper;
+import com.artcom.y60.UriHelper;
 import com.artcom.y60.gom.GomTestObserver.Event;
 
 public class GnpRegistrationTest extends GomActivityUnitTestCase {
@@ -82,6 +86,7 @@ public class GnpRegistrationTest extends GomActivityUnitTestCase {
 
             @Override
             public boolean isSatisfied() {
+                Logger.v(LOG_TAG, gto.toString());
                 return gto.getUpdateCount() == 1;
             }
 
@@ -296,4 +301,103 @@ public class GnpRegistrationTest extends GomActivityUnitTestCase {
         assertEquals("Update should be called only once", 1, gto.getUpdateCount());
     }
 
+    public void testAttributeLazyLoadedToCacheWhenRegisteredOnParentNode() throws Exception {
+
+        initializeActivity();
+        TestHelper.blockUntilWebServerIsRunning();
+        GomProxyHelper proxy = createHelper();
+
+        String timestamp = String.valueOf(System.currentTimeMillis());
+        String nodePath = TEST_BASE_PATH + "/test_attr_lazy_loaded/" + timestamp;
+        String nodeUrl = UriHelper.join(Constants.Gom.URI, nodePath);
+
+        // create the node we want to test
+        Map<String, String> formData = new HashMap<String, String>();
+        HttpHelper.putUrlEncoded(nodeUrl, formData);
+
+        // create attribute in the test node
+        String attrName = "test_attribute";
+        String attrPath = nodePath + ":" + attrName;
+        Uri attrUrl = Uri.parse(nodeUrl + ":" + attrName);
+        GomHttpWrapper.updateOrCreateAttribute(attrUrl, "who cares?");
+        assertTrue("Value should be in Gom", HttpHelper.getJson(attrUrl.toString()).toString()
+                .contains("who cares?"));
+
+        assertFalse("node shouldnt be in cache", proxy.hasInCache(nodePath));
+        assertFalse("attribute shouldnt be in cache", proxy.hasInCache(attrPath));
+
+        final GomTestObserver gto = new GomTestObserver(this);
+        BroadcastReceiver rec = GomNotificationHelper.registerObserverAndNotify(nodePath, gto,
+                proxy);
+        getActivity().registerReceiver(rec, Constants.Gom.GNP_INTENT_FILTER);
+
+        TestHelper.blockUntilTrue("gnp update callback should have been called once", 5000,
+                new TestHelper.Condition() {
+                    @Override
+                    public boolean isSatisfied() {
+                        return gto.getUpdateCount() == 1;
+                    }
+                });
+
+        assertTrue("node should be in cache", proxy.hasInCache(nodePath));
+        assertTrue("attribute should be in cache", proxy.hasInCache(attrPath));
+        assertEquals("Attribute value should be in cache", "who cares?", proxy
+                .getCachedAttributeValue(attrPath));
+
+        proxy.deleteEntry(nodePath);
+        assertFalse("node shouldnt be in cache", proxy.hasInCache(nodePath));
+        assertFalse("attribute should be deleted in cache", proxy.hasInCache(attrPath));
+
+    }
+
+    public void testNodeLazyLoadedToCacheWhenRegisteredOnParentNode() throws Exception {
+
+        initializeActivity();
+        TestHelper.blockUntilWebServerIsRunning();
+        GomProxyHelper proxy = createHelper();
+
+        String timestamp = String.valueOf(System.currentTimeMillis());
+        String nodePath = TEST_BASE_PATH + "/test_delete_node_in_node_on_notification/" + timestamp;
+        String nodeUrl = UriHelper.join(Constants.Gom.URI, nodePath);
+
+        Logger.d(LOG_TAG, "node URL: ", nodeUrl);
+
+        // create the node we want to test
+        Map<String, String> formData = new HashMap<String, String>();
+        HttpHelper.putUrlEncoded(nodeUrl, formData);
+
+        // create attribute in the test node
+        String subNodeName = "sub_node";
+        String subNodeUrl = nodeUrl + "/" + subNodeName;
+        String subNodePath = nodePath + "/" + subNodeName;
+        GomHttpWrapper.createNode(subNodeUrl);
+
+        assertTrue("SubNode should be in Gom", HttpHelper.getJson(subNodeUrl.toString()).toString()
+                .contains(subNodeName));
+
+        assertFalse("node shouldnt be in cache", proxy.hasInCache(nodePath));
+        assertFalse("subNode shouldnt be in cache", proxy.hasInCache(subNodeName));
+
+        final GomTestObserver gto = new GomTestObserver(this);
+        BroadcastReceiver rec = GomNotificationHelper.registerObserverAndNotify(nodePath, gto,
+                proxy);
+        getActivity().registerReceiver(rec, Constants.Gom.GNP_INTENT_FILTER);
+
+        TestHelper.blockUntilTrue("gnp update callback should have been called once", 5000,
+                new TestHelper.Condition() {
+                    @Override
+                    public boolean isSatisfied() {
+                        return gto.getUpdateCount() == 1;
+                    }
+                });
+
+        assertTrue("node should be in cache", proxy.hasInCache(nodePath));
+        assertFalse("subnode should NOT be in cache", proxy.hasInCache(subNodePath));
+        //
+        // proxy.deleteEntry(nodePath);
+        // assertFalse("node shouldnt be in cache", proxy.hasInCache(nodePath));
+        // assertFalse("attribute should be deleted in cache",
+        // proxy.hasInCache(attrPath));
+
+    }
 }

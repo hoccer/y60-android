@@ -4,6 +4,7 @@ import org.json.JSONObject;
 
 import android.content.BroadcastReceiver;
 import android.content.Intent;
+import android.test.suitebuilder.annotation.Suppress;
 
 import com.artcom.y60.IntentExtraKeys;
 import com.artcom.y60.Y60Action;
@@ -19,10 +20,9 @@ public class GnpBroadcastsTest extends GomActivityUnitTestCase {
     public void setUp() throws Exception {
         super.setUp();
 
-        mJson = new JSONObject("{\"hans\":\"wurst\"}");
+        mJson = new JSONObject("{\"attribute\": { \"name\":\"hans\" , \"value\":\"keks\"}}");
     }
 
-    // receiver tests for broadcast receiver, offline
     public void testNotificationCreate() throws Exception {
 
         initializeActivity();
@@ -47,6 +47,7 @@ public class GnpBroadcastsTest extends GomActivityUnitTestCase {
         assertEquals("data doesn't match", mJson.toString(), gomObserver.getData().toString());
     }
 
+    @Suppress
     public void testNotificationDelete() throws Exception {
 
         initializeActivity();
@@ -93,6 +94,83 @@ public class GnpBroadcastsTest extends GomActivityUnitTestCase {
         gomObserver.assertDeleteNotCalled();
         assertEquals("path doesn't match", attrPath, gomObserver.getPath());
         assertEquals("data doesn't match", mJson.toString(), gomObserver.getData().toString());
+    }
+
+    public void testCreateNotificationRefreshesGomProxy() throws Exception {
+
+        initializeActivity();
+        GomProxyHelper gomProxy = createHelper();
+
+        String timestamp = String.valueOf(System.currentTimeMillis());
+        String attrPath = "pathToAttribute:" + timestamp;
+
+        BroadcastReceiver br;
+        br = GomNotificationHelper.registerObserverAndNotify(attrPath, new GomTestObserver(this),
+                gomProxy);
+        // you will probably get a delete notification
+
+        JSONObject createdAttribute = new JSONObject("{\"attribute\": { \"name\":" + timestamp
+                + ", \"value\":\"keks\"}}");
+
+        Intent bcIntent = createBroadcastIntent(attrPath, "create", createdAttribute);
+        br.onReceive(null, bcIntent);
+
+        assertTrue("attribute should be in cache", gomProxy.hasInCache(attrPath));
+        assertEquals("gom proxy should provide the newly created attribute from cache", "keks",
+                gomProxy.getCachedAttributeValue(attrPath));
+    }
+
+    public void testUpdateNotificationRefreshesGomProxy() throws Exception {
+
+        initializeActivity();
+        GomProxyHelper gomProxy = createHelper();
+
+        String timestamp = String.valueOf(System.currentTimeMillis());
+        String attrPath = "pathToAttribute:" + timestamp;
+        gomProxy.saveAttribute(attrPath, "old value");
+        assertEquals("gom proxy should provide the original attribute from cache", "old value",
+                gomProxy.getCachedAttributeValue(attrPath));
+
+        BroadcastReceiver br;
+        br = GomNotificationHelper.registerObserverAndNotify(attrPath, new GomTestObserver(this),
+                gomProxy);
+        // you will probably get a delete notification
+
+        JSONObject createdAttribute = new JSONObject("{\"attribute\": { \"name\":" + timestamp
+                + ", \"value\":\"keks\"}}");
+
+        Intent bcIntent = createBroadcastIntent(attrPath, "update", createdAttribute);
+        br.onReceive(null, bcIntent);
+
+        assertEquals("gom proxy should provide the newly created attribute from cache", "keks",
+                gomProxy.getCachedAttributeValue(attrPath));
+    }
+
+    @Suppress
+    public void testDeleteNotificationRefreshesGomProxy() throws Exception {
+
+        initializeActivity();
+        GomProxyHelper gomProxy = createHelper();
+
+        String timestamp = String.valueOf(System.currentTimeMillis());
+        String attrPath = "pathToAttribute:" + timestamp;
+        gomProxy.saveAttribute(attrPath, "keks");
+        assertEquals("gom proxy should provide the original attribute from cache", "keks", gomProxy
+                .getCachedAttributeValue(attrPath));
+
+        BroadcastReceiver br;
+        br = GomNotificationHelper.registerObserverAndNotify(attrPath, new GomTestObserver(this),
+                gomProxy);
+        // you will probably get a delete notification
+
+        JSONObject createdAttribute = new JSONObject("{\"attribute\": { \"name\":" + timestamp
+                + ", \"value\":\"keks\"}}");
+
+        Intent bcIntent = createBroadcastIntent(attrPath, "delete", createdAttribute);
+        br.onReceive(null, bcIntent);
+
+        assertFalse("attribute should be deleted from cache", gomProxy.hasInCache(attrPath));
+
     }
 
     private Intent createBroadcastIntent(String pUri, String pOperation, JSONObject pData) {

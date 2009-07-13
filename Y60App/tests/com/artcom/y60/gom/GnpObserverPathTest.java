@@ -4,6 +4,7 @@ import org.json.JSONObject;
 
 import com.artcom.y60.Constants;
 import com.artcom.y60.HttpHelper;
+import com.artcom.y60.Logger;
 import com.artcom.y60.TestHelper;
 
 public class GnpObserverPathTest extends GomActivityUnitTestCase {
@@ -47,7 +48,7 @@ public class GnpObserverPathTest extends GomActivityUnitTestCase {
             fail("Expected a 404 on observer " + observerUri + ", which shouldn't exist");
 
         } catch (Exception ex) {
-
+            Logger.v(LOG_TAG, "-----------", ex);
             boolean is404 = ex.toString().contains("404");
             assertTrue("expected a 404", is404);
         }

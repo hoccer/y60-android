@@ -59,7 +59,10 @@ public class GnpUpdatesGomProxyTest extends GomActivityUnitTestCase {
 
         final GomTestObserver gto = new GomTestObserver(this);
         BroadcastReceiver receiver = GomNotificationHelper.registerObserverAndNotify(nodePath, gto,
-                        helper);
+                helper);
+        getActivity().registerReceiver(receiver, Constants.Gom.GNP_INTENT_FILTER);
+
+        // not in cache, we do not get immediate response
         assertEquals("gnp update callback should not have been called", 0, gto.getUpdateCount());
         assertEquals("gnp create callback should not have been called", 0, gto.getCreateCount());
         assertEquals("gnp delete callback should not have been called", 0, gto.getDeleteCount());
@@ -79,15 +82,15 @@ public class GnpUpdatesGomProxyTest extends GomActivityUnitTestCase {
         assertEquals("gnp create callback should not have been called", 0, gto.getCreateCount());
         assertEquals("gnp delete callback should not have been called", 0, gto.getDeleteCount());
 
-        assertEquals("cache should have the old value after callback was called once",
-                        "original value", helper.getCachedAttributeValue(attrPath));
+        assertEquals("cache should have the same value as in gom after callback was called once",
+                "original value", helper.getCachedAttributeValue(attrPath));
 
         TestHelper.blockUntilResourceAvailable("observer node should be registered in gom",
                         GomNotificationHelper.getObserverUriFor(nodePath));
 
         HttpHelper.putXML(Constants.Gom.URI + attrPath, "<attribute>changed value</attribute>");
-        assertEquals("cache should still have the old value", "original value", helper
-                        .getCachedAttributeValue(attrPath));
+        assertEquals("cache should still have the old gom value", "original value", helper
+                .getCachedAttributeValue(attrPath));
 
         assertEquals("the value should have changed in gom", "changed value", HttpHelper
                         .getAsString(Constants.Gom.URI + attrPath + ".txt"));
@@ -103,6 +106,7 @@ public class GnpUpdatesGomProxyTest extends GomActivityUnitTestCase {
 
                         });
 
+        // ensure we do not get any other gom notifications
         Thread.sleep(3000);
 
         assertEquals("gnp update callback should have been called once", 2, gto.getUpdateCount());
@@ -110,15 +114,15 @@ public class GnpUpdatesGomProxyTest extends GomActivityUnitTestCase {
         assertEquals("gnp delete callback should not have been called", 0, gto.getDeleteCount());
 
         Logger.v(LOG_TAG, "data in cache: " + gto.getData());
-        JSONObject jsonData = gto.getData();
-        assertTrue("json has attribute", jsonData.has("attribute"));
-        assertTrue("json has attribute.value", jsonData.getJSONObject("attribute").has("value"));
+        JSONObject receivedJsonData = gto.getData();
+        assertTrue("json has attribute", receivedJsonData.has("attribute"));
+        assertTrue("json has attribute.value", receivedJsonData.getJSONObject("attribute").has(
+                "value"));
         assertEquals("value should have changed", "changed value", gto.getData().getJSONObject(
                         "attribute").get("value"));
 
         assertEquals("the value should have changed in proxy", "changed value", helper
-                        .getAttribute(attrPath).getValue());
-
+                .getAttribute(attrPath).getValue());
     }
 
     @Suppress
@@ -218,13 +222,15 @@ public class GnpUpdatesGomProxyTest extends GomActivityUnitTestCase {
     }
 
     @Suppress
-    public void testDeleteAttributeOnNotification() throws Exception {
+    public void testDeleteAttributeInNodeOnNotification() throws Exception {
 
         initializeActivity();
+        TestHelper.blockUntilWebServerIsRunning();
+        GomProxyHelper proxy = createHelper();
 
         String timestamp = String.valueOf(System.currentTimeMillis());
-
-        String nodePath = TEST_BASE_PATH + "/test_delete_attribute_on_notification/" + timestamp;
+        String nodePath = TEST_BASE_PATH + "/test_delete_attribute_in_node_on_notification/"
+                + timestamp;
         String nodeUrl = UriHelper.join(Constants.Gom.URI, nodePath);
 
         Logger.d(LOG_TAG, "node URL: ", nodeUrl);
@@ -240,20 +246,115 @@ public class GnpUpdatesGomProxyTest extends GomActivityUnitTestCase {
 
         String attrPath = nodePath + ":" + attrName;
 
-        GomProxyHelper proxy = createHelper();
-        BroadcastReceiver rec = GomNotificationHelper.registerObserver(nodePath, mMockGomObserver,
-                        proxy);
+        final GomTestObserver gto = new GomTestObserver(this);
+        BroadcastReceiver rec = GomNotificationHelper.registerObserverAndNotify(nodePath, gto,
+                proxy);
+        getActivity().registerReceiver(rec, Constants.Gom.GNP_INTENT_FILTER);
+
+        TestHelper.blockUntilTrue("gnp update callback should have been called once", 5000,
+                new TestHelper.Condition() {
+                    @Override
+                    public boolean isSatisfied() {
+                        return gto.getUpdateCount() == 1;
+                    }
+                });
+
         boolean isInCache = proxy.hasInCache(attrPath);
         assertTrue("attribute is missing", isInCache);
 
         GomHttpWrapper.deleteAttribute(attrUri);
 
         // update may take a while
-        Thread.sleep(3000);
+        TestHelper.blockUntilTrue("gnp delete callback should have been called once", 5000,
+                new TestHelper.Condition() {
+                    @Override
+                    public boolean isSatisfied() {
+                        return gto.getDeleteCount() == 1;
+                    }
+                });
+
+        assertTrue("node should NOT be deleted", proxy.hasInCache(nodePath));
 
         isInCache = proxy.hasInCache(attrPath);
         assertFalse("attribute '" + attrPath + "' shouldn't be there", isInCache);
     }
+
+    @Suppress
+    public void testDeleteNodeInNodeOnNotification() throws Exception {
+
+        initializeActivity();
+        TestHelper.blockUntilWebServerIsRunning();
+        GomProxyHelper proxy = createHelper();
+
+        String timestamp = String.valueOf(System.currentTimeMillis());
+        String nodePath = TEST_BASE_PATH + "/test_delete_node_in_node_on_notification/" + timestamp;
+        String nodeUrl = UriHelper.join(Constants.Gom.URI, nodePath);
+
+        Logger.d(LOG_TAG, "node URL: ", nodeUrl);
+
+        // create the node we want to test
+        Map<String, String> formData = new HashMap<String, String>();
+        HttpHelper.putUrlEncoded(nodeUrl, formData);
+
+        // create attribute in the test node
+        String subNodeName = "sub_node";
+        String subNodeUrl = nodeUrl + "/" + subNodeName;
+        String subNodePath = nodePath + "/" + subNodeName;
+        GomHttpWrapper.createNode(subNodeUrl);
+
+        final GomTestObserver gto = new GomTestObserver(this);
+        BroadcastReceiver rec = GomNotificationHelper.registerObserverAndNotify(nodePath, gto,
+                proxy);
+        getActivity().registerReceiver(rec, Constants.Gom.GNP_INTENT_FILTER);
+
+        TestHelper.blockUntilTrue("gnp update callback should have been called once", 5000,
+                new TestHelper.Condition() {
+                    @Override
+                    public boolean isSatisfied() {
+                        return gto.getUpdateCount() == 1;
+                    }
+                });
+
+        assertTrue("Node should be in cache", proxy.hasInCache(nodePath));
+        assertFalse("Subnode should not be in cache (lazy loading)", proxy.hasInCache(subNodePath));
+
+        // proxy.saveNode(subNodePath, new LinkedList<String>(), new
+        // LinkedList<String>());
+        // proxy.getNodeData(subNodePath, new LinkedList<String>(), new
+        // LinkedList<String>());
+        LinkedList<String> list = new LinkedList<String>();
+        list.add(subNodeName);
+        proxy.saveNode(nodePath, list, new LinkedList<String>());
+        proxy.saveNode(subNodePath, new LinkedList<String>(), new LinkedList<String>());
+        Logger.v(LOG_TAG, subNodePath);
+        Thread.sleep(5000);
+
+        assertTrue("Subnode should be in cache", proxy.hasInCache(subNodePath));
+
+        // GomHttpWrapper.deleteNode(Uri.parse(subNodeUrl));
+
+        //
+        // // update may take a while
+        // TestHelper.blockUntilTrue("gnp delete callback should have been called once",
+        // 5000,
+        // new TestHelper.Condition() {
+        // @Override
+        // public boolean isSatisfied() {
+        // return gto.getDeleteCount() == 1;
+        // }
+        // });
+        //
+        // assertTrue("node should NOT be deleted", proxy.hasInCache(nodePath));
+        // assertFalse("Subnode '" + subNodePath +
+        // "' should be deleted from cache", proxy
+        // .hasInCache(subNodePath));
+    }
+    // Logger.v(LOG_TAG, "ooooooooooooooooooooo",
+    // gto.getCreateCount());
+    // Logger.v(LOG_TAG, "ooooooooooooooooooooo",
+    // gto.getUpdateCount());
+    // Logger.v(LOG_TAG, "ooooooooooooooooooooo",
+    // gto.getDeleteCount());
 
     // public void testDeleteNodeOnNotification() throws Exception {
     //
