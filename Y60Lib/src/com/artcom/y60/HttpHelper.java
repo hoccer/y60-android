@@ -242,7 +242,11 @@ public class HttpHelper {
 
         } catch (HttpException ex) {
 
-            Logger.v(LOG_TAG, "getStatusCode caught HTTP exception: ", ex);
+            Logger
+                            .v(
+                                            LOG_TAG,
+                                            "getStatusCode caught HTTP exception (which might be expected): ",
+                                            ex);
             return ex.getStatusCode();
         }
     }
