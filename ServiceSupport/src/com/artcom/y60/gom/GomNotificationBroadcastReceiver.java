@@ -9,6 +9,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 
+import com.artcom.y60.Constants;
 import com.artcom.y60.IntentExtraKeys;
 import com.artcom.y60.Logger;
 
@@ -61,36 +62,66 @@ public class GomNotificationBroadcastReceiver extends BroadcastReceiver {
             try {
                 data = new JSONObject(jsnStr);
 
+                String operation = pIntent
+                        .getStringExtra(IntentExtraKeys.KEY_NOTIFICATION_OPERATION);
+                if ("create".equals(operation)) {
+                    Logger.v(LOG_TAG, "BroadcastReceiver ", mPath, " , it's a CREATE notification");
+                    Logger.v(LOG_TAG, "DER PFFFFFFFFFFFFFFFFFFFFFFFFFAD: ", mPath);
+                    Logger.v(LOG_TAG, "DER DAAAAAAAAAAAAAAAAAAAAAAATEN: ", data);
+                    mGomProxy.updateEntry(mPath, data.toString());
+                    mGomObserver.onEntryCreated(mPath, data);
+
+                    // update proxy
+                } else if ("update".equals(operation)) {
+                    Logger
+                            .v(LOG_TAG, "BroadcastReceiver ", mPath,
+                                    " , it's an UPDATE notification");
+                    Logger.v(LOG_TAG, "DER PFFFFFFFFFFFFFFFFFFFFFFFFFAD: ", mPath);
+                    Logger.v(LOG_TAG, "DER DAAAAAAAAAAAAAAAAAAAAAAATEN: ", data);
+                    mGomProxy.updateEntry(mPath, data.toString());
+                    mGomObserver.onEntryUpdated(mPath, data);
+
+                    // update proxy
+                } else if ("delete".equals(operation)) {
+                    Logger.v(LOG_TAG, "BroadcastReceiver ", mPath, " , it's a DELETE notification");
+                    Logger.v(LOG_TAG, "DER PFFFFFFFFFFFFFFFFFFFFFFFFFAD: ", mPath);
+                    Logger.v(LOG_TAG, "DER DAAAAAAAAAAAAAAAAAAAAAAATEN: ", data);
+
+                    mGomProxy.deleteEntry(getDeletedEntryPath(data));
+                    mGomObserver.onEntryDeleted(mPath, data);
+                    // update proxy
+                } else {
+
+                    Logger.w(LOG_TAG, "BroadcastReceiver ", mPath,
+                            " , GOM notification with unknown operation: ", operation);
+                }
+
             } catch (JSONException e) {
 
                 throw new RuntimeException(e);
-            }
-
-            String operation = pIntent.getStringExtra(IntentExtraKeys.KEY_NOTIFICATION_OPERATION);
-            if ("create".equals(operation)) {
-                Logger.v(LOG_TAG, "BroadcastReceiver ", mPath, " , it's a CREATE notification");
-                mGomObserver.onEntryCreated(mPath, data);
-                // update proxy
-                mGomProxy.updateEntry(mPath, data.toString());
-            } else if ("update".equals(operation)) {
-                Logger.v(LOG_TAG, "BroadcastReceiver ", mPath, " , it's an UPDATE notification");
-                mGomObserver.onEntryUpdated(mPath, data);
-                // update proxy
-                mGomProxy.updateEntry(mPath, data.toString());
-            } else if ("delete".equals(operation)) {
-                Logger.v(LOG_TAG, "BroadcastReceiver ", mPath, " , it's a DELETE notification");
-                mGomObserver.onEntryDeleted(mPath, data);
-                // update proxy
-                mGomProxy.deleteEntry(mPath);
-            } else {
-
-                Logger.w(LOG_TAG, "BroadcastReceiver ", mPath,
-                        " , GOM notification with unknown operation: ", operation);
             }
         } else {
 
             Logger.d(LOG_TAG, "BroadcastReceiver ", mPath, " , path is not relevant to me");
         }
+    }
+
+    private String getDeletedEntryPath(JSONObject pData) throws JSONException {
+
+        if (pData.has(Constants.Gom.Keywords.ATTRIBUTE)) {
+
+            JSONObject attrJson = pData.getJSONObject(Constants.Gom.Keywords.ATTRIBUTE);
+            return attrJson.getString(Constants.Gom.Keywords.NODE) + ":"
+                    + attrJson.getString(Constants.Gom.Keywords.NAME);
+
+        } else if (pData.has(Constants.Gom.Keywords.NODE)) {
+
+            JSONObject nodeJson = pData.getJSONObject(Constants.Gom.Keywords.NODE);
+            return nodeJson.getString(Constants.Gom.Keywords.NODE) + "/"
+                    + nodeJson.getString(Constants.Gom.Keywords.NAME);
+        }
+
+        return null;
     }
 
     public boolean notificationPathIsObservedByMe(String pNotificationPath) {

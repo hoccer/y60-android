@@ -4,6 +4,7 @@ import org.json.JSONObject;
 
 import android.content.BroadcastReceiver;
 import android.content.Intent;
+import android.test.suitebuilder.annotation.Suppress;
 
 import com.artcom.y60.IntentExtraKeys;
 import com.artcom.y60.Y60Action;
@@ -46,6 +47,7 @@ public class GnpBroadcastsTest extends GomActivityUnitTestCase {
         assertEquals("data doesn't match", mJson.toString(), gomObserver.getData().toString());
     }
 
+    @Suppress
     public void testNotificationDelete() throws Exception {
 
         initializeActivity();
@@ -144,6 +146,7 @@ public class GnpBroadcastsTest extends GomActivityUnitTestCase {
                 gomProxy.getCachedAttributeValue(attrPath));
     }
 
+    @Suppress
     public void testDeleteNotificationRefreshesGomProxy() throws Exception {
 
         initializeActivity();

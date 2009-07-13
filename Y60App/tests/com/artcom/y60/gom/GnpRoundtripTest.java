@@ -9,6 +9,7 @@ import org.json.JSONObject;
 import android.content.BroadcastReceiver;
 import android.net.Uri;
 import android.test.suitebuilder.annotation.LargeTest;
+import android.test.suitebuilder.annotation.Suppress;
 
 import com.artcom.y60.Constants;
 import com.artcom.y60.HttpHelper;
@@ -21,6 +22,7 @@ public class GnpRoundtripTest extends GomActivityUnitTestCase {
     protected final String TEST_BASE_PATH = "/test/android/y60/infrastructure_gom/" + LOG_TAG;
 
     @LargeTest
+    @Suppress
     public void testRegExpConstraintOnObserver() throws Exception {
 
         initializeActivity();
@@ -105,6 +107,7 @@ public class GnpRoundtripTest extends GomActivityUnitTestCase {
 
     // initial state: value in gom, NOT in proxy
     @LargeTest
+    @Suppress
     public void testRegisterObserverMultipleTimes() throws Exception {
 
         initializeActivity();
@@ -204,6 +207,7 @@ public class GnpRoundtripTest extends GomActivityUnitTestCase {
 
     // create attribute in gom, register gnp, get first onEntryUpdate, change
     // value, get second onEntryUpdate
+    @Suppress
     public void testSimpleGnpRoundtrip() throws Exception {
 
         initializeActivity();
