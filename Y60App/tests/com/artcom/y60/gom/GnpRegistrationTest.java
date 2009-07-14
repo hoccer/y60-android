@@ -18,11 +18,6 @@ public class GnpRegistrationTest extends GomActivityUnitTestCase {
     protected final String LOG_TAG        = "GnpRegistrationTest";
     protected final String TEST_BASE_PATH = "/test/android/y60/infrastructure_gom/" + LOG_TAG;
 
-    public void setUp() throws Exception {
-        super.setUp();
-
-    }
-
     // The 5 different cases of callbacks during registerObserver()
 
     // 1. entry neither in proxy nor in gom

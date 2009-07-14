@@ -16,15 +16,6 @@ public class GnpBroadcastsTest extends GomActivityUnitTestCase {
     protected final String LOG_TAG        = "GnpRoundtripTest";
     protected final String TEST_BASE_PATH = "/test/android/y60/infrastructure_gom/" + LOG_TAG;
 
-    private JSONObject     mJson;
-
-    @Override
-    public void setUp() throws Exception {
-        super.setUp();
-
-        mJson = new JSONObject("{\"attribute\": { \"name\":\"hans\" , \"value\":\"keks\"}}");
-    }
-
     public void testNotificationCreate() throws Exception {
 
         initializeActivity();
@@ -194,8 +185,8 @@ public class GnpBroadcastsTest extends GomActivityUnitTestCase {
                 gomProxy);
         // you will probably get a delete notification
 
-        JSONObject createdAttribute =  new JSONObject(TestHelper.createJsonFromAttr("pathToAttribute", timestamp,
-                "keks"));
+        JSONObject createdAttribute = new JSONObject(TestHelper.createJsonFromAttr(
+                "pathToAttribute", timestamp, "keks"));
 
         Intent bcIntent = createBroadcastIntent(attrPath, "delete", createdAttribute);
         br.onReceive(null, bcIntent);
