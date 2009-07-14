@@ -43,6 +43,21 @@ public class GomNotificationHelper {
 
     }
 
+    public static BroadcastReceiver registerObserverAndNotify(final String pPath,
+            final GomObserver pGomObserver, final GomProxyHelper pGom, boolean pBubbleUp)
+            throws IOException, IpAddressNotFoundException {
+
+        return registerObserverAndNotify(pPath, pGomObserver, pGom, pBubbleUp, new ErrorHandler() {
+
+            @Override
+            public void handle(Exception pE) {
+                Logger.e(LOG_TAG, "*******", pE);
+            }
+
+        });
+
+    }
+
     // JUST REGISTER, DO NOT GET NOTIFIED IMMEDIATELY NOTIFY
     public static BroadcastReceiver registerObserver(final String pPath,
             final GomObserver pGomObserver, final GomProxyHelper pGom) throws IOException,

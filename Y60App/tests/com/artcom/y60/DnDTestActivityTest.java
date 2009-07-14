@@ -17,7 +17,6 @@ public class DnDTestActivityTest extends Y60ActivityInstrumentationTest<DnDTestA
         mDraggingStarted = null;
         mDraggingEnded = null;
         mDragged = null;
-        getActivity().getDragAndDropHelper().addDragListener(this);
     }
 
     public DnDTestActivityTest() {
@@ -27,8 +26,9 @@ public class DnDTestActivityTest extends Y60ActivityInstrumentationTest<DnDTestA
 
     public void testDraggedToLocation() throws InterruptedException {
 
+        getActivity().getDragAndDropHelper().addDragListener(this);
         touch(getActivity().getDragResource());
-        waitForDragStarted(1500);
+        waitForDragStarted(2500);
         moveAndRelease(200, 200);
         waitForDragEnded(100);
 
@@ -53,6 +53,7 @@ public class DnDTestActivityTest extends Y60ActivityInstrumentationTest<DnDTestA
 
     public void testReleaseLongPress() throws InterruptedException {
 
+        getActivity().getDragAndDropHelper().addDragListener(this);
         touch(getActivity().getDragResource());
         waitForDragStarted(1500);
         release(getActivity().getDragResource());
@@ -68,6 +69,7 @@ public class DnDTestActivityTest extends Y60ActivityInstrumentationTest<DnDTestA
 
     public void testDropTargetExistence() throws InterruptedException {
 
+        getActivity().getDragAndDropHelper().addDragListener(this);
         assertEquals("AbsoluteLayout has original layout as only child", 1, getActivity()
                 .getAbsoluteLayout().getChildCount());
 
@@ -86,6 +88,7 @@ public class DnDTestActivityTest extends Y60ActivityInstrumentationTest<DnDTestA
 
     public void testDroppingOnTarget() throws InterruptedException {
 
+        getActivity().getDragAndDropHelper().addDragListener(this);
         assertFalse("The item is not dropped yet ", getActivity().isDroppedOnTarget());
 
         touch(getActivity().getDragResource());

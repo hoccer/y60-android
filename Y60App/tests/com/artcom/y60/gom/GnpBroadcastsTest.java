@@ -4,9 +4,11 @@ import org.json.JSONObject;
 
 import android.content.BroadcastReceiver;
 import android.content.Intent;
-import android.test.suitebuilder.annotation.Suppress;
 
+import com.artcom.y60.Constants;
 import com.artcom.y60.IntentExtraKeys;
+import com.artcom.y60.Logger;
+import com.artcom.y60.TestHelper;
 import com.artcom.y60.Y60Action;
 
 public class GnpBroadcastsTest extends GomActivityUnitTestCase {
@@ -37,17 +39,27 @@ public class GnpBroadcastsTest extends GomActivityUnitTestCase {
         BroadcastReceiver br;
         br = GomNotificationHelper.registerObserverAndNotify(attrPath, gomObserver, helper);
 
-        Intent bcIntent = createBroadcastIntent(attrPath, "create", mJson);
+        JSONObject json = new JSONObject(TestHelper.createJsonFromAttr(testPath, timestamp, "keks"));
+
+        Intent bcIntent = createBroadcastIntent(attrPath, "create", json);
         br.onReceive(null, bcIntent);
 
         gomObserver.assertCreateCalled();
         gomObserver.assertDeleteNotCalled();
         gomObserver.assertUpdateNotCalled();
+
         assertEquals("path doesn't match", attrPath, gomObserver.getPath());
-        assertEquals("data doesn't match", mJson.toString(), gomObserver.getData().toString());
+
+        JSONObject attrData = gomObserver.getData().getJSONObject(Constants.Gom.Keywords.ATTRIBUTE);
+        String observedParentPath = attrData.getString(Constants.Gom.Keywords.NODE);
+        String observedAttrName = attrData.getString(Constants.Gom.Keywords.NAME);
+        String observedAttrValue = attrData.getString(Constants.Gom.Keywords.VALUE);
+        assertEquals("Parent path should be equal", testPath, observedParentPath);
+        assertEquals("Attr name should be equal", timestamp, observedAttrName);
+        assertEquals("Attr value should be equal", "keks", observedAttrValue);
+
     }
 
-    @Suppress
     public void testNotificationDelete() throws Exception {
 
         initializeActivity();
@@ -62,14 +74,25 @@ public class GnpBroadcastsTest extends GomActivityUnitTestCase {
         BroadcastReceiver br;
         br = GomNotificationHelper.registerObserverAndNotify(attrPath, gomObserver, helper);
 
-        Intent bcIntent = createBroadcastIntent(attrPath, "delete", mJson);
+        JSONObject json = new JSONObject(TestHelper.createJsonFromAttr(testPath, timestamp, "keks"));
+        Intent bcIntent = createBroadcastIntent(attrPath, "delete", json);
         br.onReceive(null, bcIntent);
 
         gomObserver.assertCreateNotCalled();
         gomObserver.assertUpdateNotCalled();
         gomObserver.assertDeleteCalled();
         assertEquals("path doesn't match", attrPath, gomObserver.getPath());
-        assertEquals("data doesn't match", mJson.toString(), gomObserver.getData().toString());
+
+        Logger.v(LOG_TAG, gomObserver.getPath());
+
+        JSONObject attrData = gomObserver.getData().getJSONObject(Constants.Gom.Keywords.ATTRIBUTE);
+        String observedParentPath = attrData.getString(Constants.Gom.Keywords.NODE);
+        String observedAttrName = attrData.getString(Constants.Gom.Keywords.NAME);
+        String observedAttrValue = attrData.getString(Constants.Gom.Keywords.VALUE);
+        assertEquals("Parent path should be equal", testPath, observedParentPath);
+        assertEquals("Attr name should be equal", timestamp, observedAttrName);
+        assertEquals("Attr value should be equal", "keks", observedAttrValue);
+
     }
 
     public void testNotificationUpdate() throws Exception {
@@ -86,14 +109,23 @@ public class GnpBroadcastsTest extends GomActivityUnitTestCase {
         BroadcastReceiver br;
         br = GomNotificationHelper.registerObserverAndNotify(attrPath, gomObserver, helper);
 
-        Intent bcIntent = createBroadcastIntent(attrPath, "update", mJson);
+        JSONObject json = new JSONObject(TestHelper.createJsonFromAttr(testPath, timestamp, "keks"));
+        Intent bcIntent = createBroadcastIntent(attrPath, "update", json);
         br.onReceive(null, bcIntent);
 
         gomObserver.assertCreateNotCalled();
         gomObserver.assertUpdateCalled();
         gomObserver.assertDeleteNotCalled();
+
         assertEquals("path doesn't match", attrPath, gomObserver.getPath());
-        assertEquals("data doesn't match", mJson.toString(), gomObserver.getData().toString());
+
+        JSONObject attrData = gomObserver.getData().getJSONObject(Constants.Gom.Keywords.ATTRIBUTE);
+        String observedParentPath = attrData.getString(Constants.Gom.Keywords.NODE);
+        String observedAttrName = attrData.getString(Constants.Gom.Keywords.NAME);
+        String observedAttrValue = attrData.getString(Constants.Gom.Keywords.VALUE);
+        assertEquals("Parent path should be equal", testPath, observedParentPath);
+        assertEquals("Attr name should be equal", timestamp, observedAttrName);
+        assertEquals("Attr value should be equal", "keks", observedAttrValue);
     }
 
     public void testCreateNotificationRefreshesGomProxy() throws Exception {
@@ -109,8 +141,8 @@ public class GnpBroadcastsTest extends GomActivityUnitTestCase {
                 gomProxy);
         // you will probably get a delete notification
 
-        JSONObject createdAttribute = new JSONObject("{\"attribute\": { \"name\":" + timestamp
-                + ", \"value\":\"keks\"}}");
+        JSONObject createdAttribute = new JSONObject(TestHelper.createJsonFromAttr(
+                "pathToAttribute", timestamp, "keks"));
 
         Intent bcIntent = createBroadcastIntent(attrPath, "create", createdAttribute);
         br.onReceive(null, bcIntent);
@@ -136,8 +168,8 @@ public class GnpBroadcastsTest extends GomActivityUnitTestCase {
                 gomProxy);
         // you will probably get a delete notification
 
-        JSONObject createdAttribute = new JSONObject("{\"attribute\": { \"name\":" + timestamp
-                + ", \"value\":\"keks\"}}");
+        JSONObject createdAttribute = new JSONObject(TestHelper.createJsonFromAttr(
+                "pathToAttribute", timestamp, "keks"));
 
         Intent bcIntent = createBroadcastIntent(attrPath, "update", createdAttribute);
         br.onReceive(null, bcIntent);
@@ -146,7 +178,6 @@ public class GnpBroadcastsTest extends GomActivityUnitTestCase {
                 gomProxy.getCachedAttributeValue(attrPath));
     }
 
-    @Suppress
     public void testDeleteNotificationRefreshesGomProxy() throws Exception {
 
         initializeActivity();
@@ -163,8 +194,8 @@ public class GnpBroadcastsTest extends GomActivityUnitTestCase {
                 gomProxy);
         // you will probably get a delete notification
 
-        JSONObject createdAttribute = new JSONObject("{\"attribute\": { \"name\":" + timestamp
-                + ", \"value\":\"keks\"}}");
+        JSONObject createdAttribute =  new JSONObject(TestHelper.createJsonFromAttr("pathToAttribute", timestamp,
+                "keks"));
 
         Intent bcIntent = createBroadcastIntent(attrPath, "delete", createdAttribute);
         br.onReceive(null, bcIntent);
@@ -173,14 +204,15 @@ public class GnpBroadcastsTest extends GomActivityUnitTestCase {
 
     }
 
-    private Intent createBroadcastIntent(String pUri, String pOperation, JSONObject pData) {
+    private Intent createBroadcastIntent(String pUri, String pOperation, JSONObject pData)
+            throws Exception {
 
         Intent gnpIntent = new Intent(Y60Action.GOM_NOTIFICATION_BC);
 
         gnpIntent.putExtra(IntentExtraKeys.KEY_NOTIFICATION_PATH, pUri);
         gnpIntent.putExtra(IntentExtraKeys.KEY_NOTIFICATION_OPERATION, pOperation);
-        gnpIntent.putExtra(IntentExtraKeys.KEY_NOTIFICATION_DATA_STRING, pData.toString());
 
+        gnpIntent.putExtra(IntentExtraKeys.KEY_NOTIFICATION_DATA_STRING, pData.toString());
         return gnpIntent;
 
     }
