@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.SocketTimeoutException;
 
 import org.apache.http.conn.HttpHostConnectException;
+import org.json.JSONObject;
 
 import android.content.Context;
 import android.content.Intent;
@@ -63,6 +64,32 @@ public class TestHelper {
                 return !pCon.isSatisfied();
             }
         });
+    }
+
+    public static String createJsonFromAttr(String pParentNode, String pName, String pValue) {
+
+        return "{ \"attribute\": {\"name\": \"" + pName + "\"," + "\"node\": \"" + pParentNode
+                + "\",\"value\": \"" + pValue + "\",\"type\": \"string\","
+                + "\"mtime\": \"2009-07-06T16:01:24+02:00\","
+                + "\"ctime\": \"2009-07-06T16:01:24+02:00\"} }";
+    }
+
+    public static String createFakeJsonFromAttr(String pParentNode, String pName, String pValue) {
+
+        return "{ \"attribute\": {\"name\": \"" + pName + "\"," + "\"node\": \"" + pParentNode
+                + "\"," + "\"value\": \"" + pValue + "\"} }";
+    }
+
+    public static String createFake2JsonFromAttr(String pParentNode, String pName, String pValue) {
+
+        return "{ \"attribute\": {\"value\": \"" + pValue + "\"," + "\"node\": \"" + pParentNode
+                + "\"," + "\"name\": \"" + pName + "\"}}";
+    }
+
+    public static boolean assertJsonEquality(JSONObject pA, JSONObject pB) {
+
+        return false;
+
     }
 
     /**
