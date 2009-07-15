@@ -1,9 +1,7 @@
 package com.artcom.y60.gom;
 
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 
 import android.content.BroadcastReceiver;
 import android.net.Uri;
@@ -19,11 +17,6 @@ public class GnpRegistrationTest extends GomActivityUnitTestCase {
 
     protected final String LOG_TAG        = "GnpRegistrationTest";
     protected final String TEST_BASE_PATH = "/test/android/y60/infrastructure_gom/" + LOG_TAG;
-
-    public void setUp() throws Exception {
-        super.setUp();
-
-    }
 
     // The 5 different cases of callbacks during registerObserver()
 
@@ -301,7 +294,7 @@ public class GnpRegistrationTest extends GomActivityUnitTestCase {
         assertEquals("Update should be called only once", 1, gto.getUpdateCount());
     }
 
-    public void testAttributeLazyLoadedToCacheWhenRegisteredOnParentNode() throws Exception {
+    public void testAttributeLoadedToCacheWhenRegisteredOnParentNode() throws Exception {
 
         initializeActivity();
         TestHelper.blockUntilWebServerIsRunning();
@@ -310,10 +303,7 @@ public class GnpRegistrationTest extends GomActivityUnitTestCase {
         String timestamp = String.valueOf(System.currentTimeMillis());
         String nodePath = TEST_BASE_PATH + "/test_attr_lazy_loaded/" + timestamp;
         String nodeUrl = UriHelper.join(Constants.Gom.URI, nodePath);
-
-        // create the node we want to test
-        Map<String, String> formData = new HashMap<String, String>();
-        HttpHelper.putUrlEncoded(nodeUrl, formData);
+        GomHttpWrapper.createNode(nodeUrl);
 
         // create attribute in the test node
         String attrName = "test_attribute";
@@ -362,11 +352,9 @@ public class GnpRegistrationTest extends GomActivityUnitTestCase {
 
         Logger.d(LOG_TAG, "node URL: ", nodeUrl);
 
-        // create the node we want to test
-        Map<String, String> formData = new HashMap<String, String>();
-        HttpHelper.putUrlEncoded(nodeUrl, formData);
+        GomHttpWrapper.createNode(nodeUrl);
 
-        // create attribute in the test node
+        // create subnode in the test node
         String subNodeName = "sub_node";
         String subNodeUrl = nodeUrl + "/" + subNodeName;
         String subNodePath = nodePath + "/" + subNodeName;
@@ -393,11 +381,9 @@ public class GnpRegistrationTest extends GomActivityUnitTestCase {
 
         assertTrue("node should be in cache", proxy.hasInCache(nodePath));
         assertFalse("subnode should NOT be in cache", proxy.hasInCache(subNodePath));
-        //
-        // proxy.deleteEntry(nodePath);
-        // assertFalse("node shouldnt be in cache", proxy.hasInCache(nodePath));
-        // assertFalse("attribute should be deleted in cache",
-        // proxy.hasInCache(attrPath));
+
+        proxy.deleteEntry(nodePath);
+        assertFalse("node shouldnt be in cache", proxy.hasInCache(nodePath));
 
     }
 }

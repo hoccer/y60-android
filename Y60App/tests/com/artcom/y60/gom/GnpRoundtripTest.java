@@ -9,7 +9,6 @@ import org.json.JSONObject;
 import android.content.BroadcastReceiver;
 import android.net.Uri;
 import android.test.suitebuilder.annotation.LargeTest;
-import android.test.suitebuilder.annotation.Suppress;
 
 import com.artcom.y60.Constants;
 import com.artcom.y60.HttpHelper;
@@ -22,7 +21,6 @@ public class GnpRoundtripTest extends GomActivityUnitTestCase {
     protected final String TEST_BASE_PATH = "/test/android/y60/infrastructure_gom/" + LOG_TAG;
 
     @LargeTest
-    @Suppress
     public void testRegExpConstraintOnObserver() throws Exception {
 
         initializeActivity();
@@ -107,7 +105,6 @@ public class GnpRoundtripTest extends GomActivityUnitTestCase {
 
     // initial state: value in gom, NOT in proxy
     @LargeTest
-    @Suppress
     public void testRegisterObserverMultipleTimes() throws Exception {
 
         initializeActivity();
@@ -139,8 +136,6 @@ public class GnpRoundtripTest extends GomActivityUnitTestCase {
         assertEquals("update should be called once after getting node from gom and not from proxy",
                 1, observer.getUpdateCount());
 
-        // Thread.sleep(2500);
-
         // create attribute in gom
         String visibleAttrPath = nodePath + ":attribute";
         Uri visibleAttrUrl = Uri.parse(Constants.Gom.URI + visibleAttrPath);
@@ -154,16 +149,26 @@ public class GnpRoundtripTest extends GomActivityUnitTestCase {
 
         });
 
-        Thread.sleep(4000);
+        Thread.sleep(3000);
         observer.assertDeleteNotCalled();
         assertEquals("create should be called only once", 1, observer.getCreateCount());
         assertEquals("update should be called only once", 1, observer.getUpdateCount());
-        Thread.sleep(2500);
 
         // register multiple times
-        // this causes two update calls, since the proxy is outdated
         GomNotificationHelper.registerObserverAndNotify(nodePath, observer, helper);
+        TestHelper.blockUntilTrue("update not called", 3000, new TestHelper.Condition() {
+            @Override
+            public boolean isSatisfied() {
+                return observer.getUpdateCount() == 2;
+            }
+
+        });
         Thread.sleep(2500);
+        observer.assertDeleteNotCalled();
+        assertEquals("create should be called only once", 1, observer.getCreateCount());
+        assertEquals("update should be called 2 times", 2, observer.getUpdateCount());
+
+        GomNotificationHelper.registerObserverAndNotify(nodePath, observer, helper);
         TestHelper.blockUntilTrue("update not called", 3000, new TestHelper.Condition() {
             @Override
             public boolean isSatisfied() {
@@ -172,9 +177,12 @@ public class GnpRoundtripTest extends GomActivityUnitTestCase {
 
         });
         Thread.sleep(2500);
-        assertEquals(3, observer.getUpdateCount());
+        observer.assertDeleteNotCalled();
+        assertEquals("create should be called only once", 1, observer.getCreateCount());
+        assertEquals("update should be called 3 times", 3, observer.getUpdateCount());
 
-        GomNotificationHelper.registerObserverAndNotify(nodePath, observer, helper);
+        GomHttpWrapper.updateOrCreateAttribute(visibleAttrUrl, "who else cares?");
+
         TestHelper.blockUntilTrue("update not called", 3000, new TestHelper.Condition() {
             @Override
             public boolean isSatisfied() {
@@ -182,24 +190,11 @@ public class GnpRoundtripTest extends GomActivityUnitTestCase {
             }
 
         });
-        Thread.sleep(2500);
-        assertEquals(4, observer.getUpdateCount());
-
-        Thread.sleep(2500);
-        GomHttpWrapper.updateOrCreateAttribute(visibleAttrUrl, "who else cares?");
-
-        TestHelper.blockUntilTrue("update not called", 3000, new TestHelper.Condition() {
-            @Override
-            public boolean isSatisfied() {
-                return observer.getUpdateCount() == 5;
-            }
-
-        });
 
         Thread.sleep(2500);
         observer.assertDeleteNotCalled();
         assertEquals("create should be called only once", 1, observer.getCreateCount());
-        assertEquals("update should be called only once", 5, observer.getUpdateCount());
+        assertEquals("update should be called only once", 4, observer.getUpdateCount());
 
     }
 
@@ -207,7 +202,6 @@ public class GnpRoundtripTest extends GomActivityUnitTestCase {
 
     // create attribute in gom, register gnp, get first onEntryUpdate, change
     // value, get second onEntryUpdate
-    @Suppress
     public void testSimpleGnpRoundtrip() throws Exception {
 
         initializeActivity();
