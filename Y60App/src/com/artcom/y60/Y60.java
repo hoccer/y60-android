@@ -37,6 +37,7 @@ import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -199,15 +200,17 @@ public class Y60 extends Activity {
         }
 
         HashMap<String, ComponentInformation> activityInfos = queryIntentActivitiesAsMap(homeIntent);
-        ComponentInformation chosen = getPreferredActivity(pAction, activityInfos);
         ArrayList<ComponentInformation> resultList = new ArrayList<ComponentInformation>(
                 activityInfos.size());
-
-        if (chosen != null) {
+        try {
+            ComponentInformation chosen = getPreferredActivity(pAction, activityInfos);
             activityInfos.remove(chosen.componentName.getClassName());
             resultList.add(chosen); // default activity should be the 1st
             // element
+        } catch (NoSuchElementException e) {
+            Logger.e(LOG_TAG, "No preferred activity found");
         }
+
         resultList.addAll(activityInfos.values());
 
         // possible activities to array
@@ -260,6 +263,11 @@ public class Y60 extends Activity {
                 chosen = pComponents.get(className);
                 break;
             }
+        }
+
+        if (chosen == null) {
+            throw new NoSuchElementException("No preferred activity found for action '" + pAction
+                    + "'!");
         }
 
         return chosen;
