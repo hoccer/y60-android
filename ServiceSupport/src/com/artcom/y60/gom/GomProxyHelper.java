@@ -20,7 +20,7 @@ public class GomProxyHelper {
 
     // Constants ---------------------------------------------------------
 
-    public static final String              LOG_TAG = "GomProxyHelper";
+    public static final String LOG_TAG = "GomProxyHelper";
 
     // Instance Variables ------------------------------------------------
 
@@ -28,13 +28,13 @@ public class GomProxyHelper {
      * The client for this helperProxyHelper
      */
     // private Context mContext;
-    private IGomProxyService                mProxy;
+    private IGomProxyService mProxy;
 
-    private GomProxyServiceConnection       mConnection;
+    private GomProxyServiceConnection mConnection;
 
     private BindingListener<GomProxyHelper> mBindingListener;
 
-    private Context                         mContext;
+    private Context mContext;
 
     // Constructors ------------------------------------------------------
 
@@ -69,7 +69,7 @@ public class GomProxyHelper {
     }
 
     public GomEntry getEntry(String pPath) throws GomEntryTypeMismatchException,
-            GomEntryNotFoundException {
+                    GomEntryNotFoundException {
 
         assertConnected();
         String lastSeg = pPath.substring(pPath.lastIndexOf("/") + 1);
@@ -92,7 +92,7 @@ public class GomProxyHelper {
     }
 
     public GomAttribute getAttribute(String pPath) throws GomEntryTypeMismatchException,
-            GomEntryNotFoundException {
+                    GomEntryNotFoundException {
 
         assertConnected();
 
@@ -140,7 +140,7 @@ public class GomProxyHelper {
 
         } catch (RemoteException rex) {
 
-            Logger.e(LOG_TAG, "failed to refresh entry", rex);
+            Logger.e(LOG_TAG, "error: rpcStatus has no error", rex);
             throw new RuntimeException(rex);
         }
 
@@ -215,7 +215,7 @@ public class GomProxyHelper {
     }
 
     public void saveNode(String pNodePath, LinkedList<String> pSubNodeNames,
-            LinkedList<String> pAttributeNames) {
+                    LinkedList<String> pAttributeNames) {
 
         assertConnected();
         RpcStatus status = new RpcStatus();
@@ -267,7 +267,43 @@ public class GomProxyHelper {
 
         } catch (RemoteException rex) {
 
-            Logger.e(LOG_TAG, "failed to delete entry", rex);
+            Logger.e(LOG_TAG, "failed to clear", rex);
+            throw new RuntimeException(rex);
+        }
+    }
+
+    public void updateEntry(String pPath, String pJsonData) {
+        RpcStatus status = new RpcStatus();
+
+        try {
+            mProxy.updateEntry(pPath, pJsonData, status);
+
+            if (status.hasError()) {
+                Throwable err = status.getError();
+                throw new RuntimeException(err);
+            }
+
+        } catch (RemoteException rex) {
+
+            Logger.e(LOG_TAG, "failed to update Entry", rex);
+            throw new RuntimeException(rex);
+        }
+    }
+
+    public void createEntry(String pPath, String pJsonData) {
+        RpcStatus status = new RpcStatus();
+
+        try {
+            mProxy.createEntry(pPath, pJsonData, status);
+
+            if (status.hasError()) {
+                Throwable err = status.getError();
+                throw new RuntimeException(err);
+            }
+
+        } catch (RemoteException rex) {
+
+            Logger.e(LOG_TAG, "failed to create Entry", rex);
             throw new RuntimeException(rex);
         }
     }
@@ -308,6 +344,30 @@ public class GomProxyHelper {
         } catch (RemoteException rex) {
 
             Logger.e(LOG_TAG, "failed to retrieve node data", rex);
+            throw new RuntimeException(rex);
+        }
+    }
+
+    public void getCachedNodeData(String pPath, List<String> pSubNodeNames,
+                    List<String> pAttributeNames) throws GomProxyException {
+
+        RpcStatus status = new RpcStatus();
+
+        try {
+            mProxy.getCachedNodeData(pPath, pSubNodeNames, pAttributeNames, status);
+
+            if (status.hasError()) {
+                Throwable err = status.getError();
+                if (err instanceof GomProxyException) {
+                    throw (GomProxyException) err;
+                }
+
+                throw new RuntimeException(err);
+            }
+
+        } catch (RemoteException rex) {
+
+            Logger.e(LOG_TAG, "error: rpcStatus has no error", rex);
             throw new RuntimeException(rex);
         }
     }

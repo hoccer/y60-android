@@ -13,23 +13,24 @@ public class GomHttpWrapperTest extends TestCase {
     private static final String TEST_BASE_PATH = "/test/android/y60/infrastructure_gom/gom_http_wrapper_test";
 
     private static final String ATTR_URL = Constants.Gom.URI + TEST_BASE_PATH
-            + ":show_me_the_value";
+                    + ":show_me_the_value";
 
     private static final String ATTR_VALUE = "tralala";
 
-    public GomHttpWrapperTest() {
+    @Override
+    public void setUp() throws Exception {
 
         HttpHelper.putXML(ATTR_URL, "<attribute>" + ATTR_VALUE + "</attribute>");
     }
 
-    public void testGetAttributeValue() {
+    public void testGetAttributeValue() throws Exception {
 
         String value = GomHttpWrapper.getAttributeValue(Uri.parse(ATTR_URL));
 
         assertEquals("attribute value wasn't as expected", ATTR_VALUE, value);
     }
 
-    public void testCreateNodeWithAttributes() {
+    public void testCreateNodeWithAttributes() throws Exception {
 
         String timestamp = String.valueOf(System.currentTimeMillis());
         String testPath = TEST_BASE_PATH + "/test_create_node_with_attributes";
@@ -40,7 +41,7 @@ public class GomHttpWrapperTest extends TestCase {
 
         try {
 
-            HttpHelper.get(nodeUrl);
+            HttpHelper.getAsString(nodeUrl);
             fail("Expected a 404 on observer " + nodeUrl + ", which shouldn't exist");
 
         } catch (Exception ex) {
@@ -53,7 +54,7 @@ public class GomHttpWrapperTest extends TestCase {
 
         GomHttpWrapper.putNodeWithAttributes(nodeUrl, data);
 
-        assertNotNull("attribute should be in gom", HttpHelper.get(nodeUrl + ":" + attr1));
+        assertNotNull("attribute should be in gom", HttpHelper.getAsString(nodeUrl + ":" + attr1));
 
     }
 }

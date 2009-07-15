@@ -266,7 +266,6 @@ public class Y60 extends Activity {
         }
 
         if (chosen == null) {
-
             throw new NoSuchElementException("No preferred activity found for action '" + pAction
                     + "'!");
         }

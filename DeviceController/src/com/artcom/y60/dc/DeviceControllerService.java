@@ -1,5 +1,7 @@
 package com.artcom.y60.dc;
 
+import java.io.IOException;
+
 import org.mortbay.jetty.Connector;
 import org.mortbay.jetty.Handler;
 import org.mortbay.jetty.Server;
@@ -22,27 +24,29 @@ import com.artcom.y60.IpAddressNotFoundException;
 import com.artcom.y60.Logger;
 import com.artcom.y60.NetworkHelper;
 import com.artcom.y60.Y60Service;
+import com.artcom.y60.gom.GomEntryNotFoundException;
 import com.artcom.y60.gom.GomEntryTypeMismatchException;
 import com.artcom.y60.gom.GomException;
 import com.artcom.y60.gom.GomNode;
-import com.artcom.y60.gom.GomEntryNotFoundException;
 import com.artcom.y60.gom.GomProxyHelper;
+import com.artcom.y60.http.HttpException;
 
 public class DeviceControllerService extends Y60Service {
 
-    public static final String  DEFAULT_NIONAME  = "com.artcom.y60.dc.nio";
-    public static final String  DEFAULT_PORTNAME = "com.artcom.y60.dc.port";
-    private static final String LOG_TAG          = "DeviceControllerService";
+    public static final String DEFAULT_NIONAME = "com.artcom.y60.dc.nio";
+    public static final String DEFAULT_PORTNAME = "com.artcom.y60.dc.port";
+    private static final String LOG_TAG = "DeviceControllerService";
 
-    private static Resources    sResources;
+    private static Resources sResources;
 
-    Server                      mServer;
-    private boolean             mUseNio;
-    private SharedPreferences   mPreferences;
+    Server mServer;
+    private boolean mUseNio;
+    private SharedPreferences mPreferences;
 
-    private IBinder             mBinder          = new DeviceControllerBinder();
-    GomProxyHelper              mGom             = null;
+    private IBinder mBinder = new DeviceControllerBinder();
+    GomProxyHelper mGom = null;
 
+    @Override
     public void onCreate() {
 
         super.onCreate();
@@ -78,6 +82,7 @@ public class DeviceControllerService extends Y60Service {
         startService(statusWatcherIntent);
     }
 
+    @Override
     public void onStart(Intent intent, int startId) {
         Logger.i(LOG_TAG, "onStart called");
 
@@ -92,7 +97,7 @@ public class DeviceControllerService extends Y60Service {
      * @throws GomEntryNotFoundException
      * @throws GomEntryTypeMismatchException
      */
-    private void updateRciUri(int pPort) throws GomException {
+    private void updateRciUri(int pPort) throws GomException, IOException, HttpException {
 
         DeviceConfiguration dc = DeviceConfiguration.load();
         String ipAddress;
@@ -103,8 +108,8 @@ public class DeviceControllerService extends Y60Service {
             // to take care of this
             if (DeviceConfiguration.isRunningAsEmulator()) {
                 Logger
-                        .i(LOG_TAG,
-                                "I'm running in the emulator. Not publishing Remote Control URI.");
+                                .i(LOG_TAG,
+                                                "I'm running in the emulator. Not publishing Remote Control URI.");
                 return;
             }
 
@@ -119,13 +124,14 @@ public class DeviceControllerService extends Y60Service {
         }
     }
 
+    @Override
     public void onDestroy() {
         Logger.v(LOG_TAG, "onDestroy");
 
         if (mServer == null) {
             Logger.i(LOG_TAG, "onDestroy(): Jetty not running, Server is null");
             Toast.makeText(DeviceControllerService.this, R.string.jetty_not_running,
-                    Toast.LENGTH_SHORT).show();
+                            Toast.LENGTH_SHORT).show();
 
             super.onDestroy();
             return;
@@ -145,6 +151,7 @@ public class DeviceControllerService extends Y60Service {
         super.onDestroy();
     }
 
+    @Override
     public void onLowMemory() {
         ErrorHandling.signalLowOnMemoryError(LOG_TAG, new Exception("Low on memory!"), this);
         super.onLowMemory();
@@ -173,7 +180,7 @@ public class DeviceControllerService extends Y60Service {
         threadpool.setMaxStopTimeMs(10);
 
         Toast.makeText(DeviceControllerService.this, R.string.jetty_started, Toast.LENGTH_SHORT)
-                .show();
+                        .show();
 
         return server;
     }

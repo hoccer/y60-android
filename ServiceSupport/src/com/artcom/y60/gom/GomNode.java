@@ -1,5 +1,6 @@
 package com.artcom.y60.gom;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -16,6 +17,7 @@ import android.net.Uri;
 
 import com.artcom.y60.Constants;
 import com.artcom.y60.Logger;
+import com.artcom.y60.http.HttpException;
 
 /**
  * Representation of the state of a node resource in the GOM. Instances may (and
@@ -147,7 +149,7 @@ public class GomNode extends GomEntry {
     }
 
     public GomAttribute getOrCreateAttribute(String pName) throws GomEntryTypeMismatchException,
-            GomEntryNotFoundException {
+            GomEntryNotFoundException, IOException, HttpException {
 
         GomAttribute attribute;
         try {

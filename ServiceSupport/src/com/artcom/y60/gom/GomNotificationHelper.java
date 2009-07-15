@@ -3,25 +3,21 @@ package com.artcom.y60.gom;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.util.HashMap;
-import java.util.regex.Pattern;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.StatusLine;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
 
 import com.artcom.y60.Constants;
 import com.artcom.y60.DeviceConfiguration;
 import com.artcom.y60.ErrorHandler;
 import com.artcom.y60.HttpHelper;
-import com.artcom.y60.IntentExtraKeys;
 import com.artcom.y60.IpAddressNotFoundException;
 import com.artcom.y60.Logger;
 import com.artcom.y60.NetworkHelper;
+import com.artcom.y60.http.HttpClientException;
+import com.artcom.y60.http.HttpServerException;
 
 public class GomNotificationHelper {
 
@@ -31,15 +27,10 @@ public class GomNotificationHelper {
 
     // Static Methods ----------------------------------------------------
 
-    /**
-     * @param pPath
-     *            Gom path to observe
-     * @param pGomObserver
-     *            the observer??? Don't know!
-     */
+    // REGISTER AND NOTIFY
     public static BroadcastReceiver registerObserverAndNotify(final String pPath,
-                    final GomObserver pGomObserver, final GomProxyHelper pGom) throws IOException,
-                    IpAddressNotFoundException {
+            final GomObserver pGomObserver, final GomProxyHelper pGom) throws IOException,
+            IpAddressNotFoundException {
 
         return registerObserverAndNotify(pPath, pGomObserver, pGom, new ErrorHandler() {
 
@@ -53,9 +44,39 @@ public class GomNotificationHelper {
     }
 
     public static BroadcastReceiver registerObserverAndNotify(final String pPath,
-                    final GomObserver pGomObserver, final GomProxyHelper pGom,
-                    final ErrorHandler pErrorHandler) throws IOException,
-                    IpAddressNotFoundException {
+            final GomObserver pGomObserver, final GomProxyHelper pGom, boolean pBubbleUp)
+            throws IOException, IpAddressNotFoundException {
+
+        return registerObserverAndNotify(pPath, pGomObserver, pGom, pBubbleUp, new ErrorHandler() {
+
+            @Override
+            public void handle(Exception pE) {
+                Logger.e(LOG_TAG, "*******", pE);
+            }
+
+        });
+
+    }
+
+    // JUST REGISTER, DO NOT GET NOTIFIED IMMEDIATELY NOTIFY
+    public static BroadcastReceiver registerObserver(final String pPath,
+            final GomObserver pGomObserver, final GomProxyHelper pGom) throws IOException,
+            IpAddressNotFoundException {
+
+        return registerObserver(pPath, pGomObserver, pGom, new ErrorHandler() {
+
+            @Override
+            public void handle(Exception pE) {
+                Logger.e(LOG_TAG, "*******", pE);
+            }
+
+        });
+
+    }
+
+    public static BroadcastReceiver registerObserverAndNotify(final String pPath,
+            final GomObserver pGomObserver, final GomProxyHelper pGom,
+            final ErrorHandler pErrorHandler) throws IOException, IpAddressNotFoundException {
 
         return registerObserverAndNotify(pPath, pGomObserver, pGom, false, pErrorHandler);
     }
@@ -73,11 +94,10 @@ public class GomNotificationHelper {
      * 
      */
     public static BroadcastReceiver registerObserverAndNotify(final String pPath,
-                    final GomObserver pGomObserver, final GomProxyHelper pGom,
-                    final boolean pBubbleUp, final ErrorHandler pErrorHandler) throws IOException,
-                    IpAddressNotFoundException {
+            final GomObserver pGomObserver, final GomProxyHelper pGom, final boolean pBubbleUp,
+            final ErrorHandler pErrorHandler) throws IOException, IpAddressNotFoundException {
 
-        BroadcastReceiver rec = createBroadcastReceiver(pPath, pGomObserver, pBubbleUp);
+        BroadcastReceiver rec = createBroadcastReceiver(pPath, pGomObserver, pBubbleUp, pGom);
 
         if (!pGom.isBound()) {
             throw new IllegalStateException("GomProxyHelper " + pGom.toString() + " is not bound!");
@@ -90,6 +110,8 @@ public class GomNotificationHelper {
                     putObserverToGom(pPath, pBubbleUp);
                     boolean doRefresh = pGom.hasInCache(pPath);
                     GomEntry entry = pGom.getEntry(pPath);
+                    Logger.v(LOG_TAG, "OLD PROXY ENTRY: pGomObserver.onEntryUpdated( ", pPath,
+                            entry.toJson(), " )");
                     pGomObserver.onEntryUpdated(pPath, entry.toJson());
 
                     if (doRefresh) {
@@ -108,12 +130,60 @@ public class GomNotificationHelper {
                         }
 
                         if (!newEntry.equals(entry)) {
+                            Logger.v(LOG_TAG, "NEW GOM ENTRY: pGomObserver.onEntryUpdated( ",
+                                    pPath, entry.toJson(), " )");
                             pGomObserver.onEntryUpdated(pPath, newEntry.toJson());
                         }
                     }
                 } catch (GomEntryNotFoundException gx) {
                     pGom.deleteEntry(pPath);
+                    Logger.v(LOG_TAG, "pGomObserver.onEntryDeleted( ", pPath, " )");
                     pGomObserver.onEntryDeleted(pPath, null);
+                } catch (Exception ex) {
+                    pErrorHandler.handle(ex);
+                } catch (Throwable t) {
+                    Logger.v(LOG_TAG, t.toString());
+                }
+            }
+        }).start();
+
+        return rec;
+    }
+
+    public static BroadcastReceiver registerObserver(final String pPath,
+            final GomObserver pGomObserver, final GomProxyHelper pGom,
+            final ErrorHandler pErrorHandler) throws IOException, IpAddressNotFoundException {
+
+        return registerObserver(pPath, pGomObserver, pGom, false, pErrorHandler);
+    }
+
+    /**
+     * Use this with care, the callback will not immediately return with the
+     * latest data
+     * 
+     * @param pPath
+     *            Gom path to observe
+     * @param pGomObserver
+     *            the observer??? Don't know!
+     * @param pErrorHandler
+     *            pass your own error handling code to the registration thread
+     * 
+     */
+    public static BroadcastReceiver registerObserver(final String pPath,
+            final GomObserver pGomObserver, final GomProxyHelper pGom, final boolean pBubbleUp,
+            final ErrorHandler pErrorHandler) throws IOException, IpAddressNotFoundException {
+
+        BroadcastReceiver rec = createBroadcastReceiver(pPath, pGomObserver, pBubbleUp, pGom);
+
+        if (!pGom.isBound()) {
+            throw new IllegalStateException("GomProxyHelper " + pGom.toString() + " is not bound!");
+        }
+
+        new Thread(new Runnable() {
+            public void run() {
+
+                try {
+                    putObserverToGom(pPath, pBubbleUp);
                 } catch (Exception ex) {
                     pErrorHandler.handle(ex);
                 } catch (Throwable t) {
@@ -130,25 +200,23 @@ public class GomNotificationHelper {
      * @throws IOException
      */
     public static HttpResponse putObserverToGom(String pPath) throws IOException,
-                    IpAddressNotFoundException {
+            IpAddressNotFoundException, HttpClientException, HttpServerException {
 
         return putObserverToGom(pPath, false);
     }
 
     public static HttpResponse putObserverToGom(String pPath, boolean pWithBubbleUp)
-                    throws IOException, IpAddressNotFoundException {
+            throws IOException, IpAddressNotFoundException, HttpClientException,
+            HttpServerException {
 
         String observerId = getObserverId();
 
         HashMap<String, String> formData = new HashMap<String, String>();
 
         InetAddress myIp = NetworkHelper.getStagingIp();
-        Logger.v(LOG_TAG, "myIp: ", myIp.toString());
         String ip = myIp.getHostAddress();
-        Logger.v(LOG_TAG, "ip: ", ip);
         String callbackUrl = "http://" + ip + ":" + Constants.Network.DEFAULT_PORT
-                        + Constants.Network.GNP_TARGET;
-        Logger.v(LOG_TAG, "callbackUrl: ", callbackUrl);
+                + Constants.Network.GNP_TARGET;
         formData.put("callback_url", callbackUrl);
         formData.put("accept", "application/json");
 
@@ -170,14 +238,13 @@ public class GomNotificationHelper {
         String observerUri = Constants.Gom.URI + observerPath;
 
         Logger.d(LOG_TAG, "posting observer for GOM entry " + pPath + " to " + observerUri
-                        + " for callback " + callbackUrl);
-        Logger.d(LOG_TAG, "use bubble up? ", pWithBubbleUp);
+                + " for callback " + callbackUrl, " use bubble up? ", pWithBubbleUp);
 
         // Deactivated because the implementation does not unsubscribe registerd
         // observers
 
         HttpResponse response = GomHttpWrapper.putNodeWithAttributes(
-                        observerUri + "/" + observerId, formData);
+                observerUri + "/" + observerId, formData);
         StatusLine status = response.getStatusLine();
         if (status.getStatusCode() >= 300) {
 
@@ -185,91 +252,20 @@ public class GomNotificationHelper {
         }
 
         String result = HttpHelper.extractBodyAsString(response.getEntity());
-        Logger.v(LOG_TAG, "result of post to observer: ", result);
+        Logger.v(LOG_TAG, "result of post to observer: ", observerUri, " ", result);
 
         return response;
 
     }
 
-    private static BroadcastReceiver createBroadcastReceiver(final String pPath,
-                    final GomObserver pGomObserver, final boolean pBubbleUp) {
-        // TODO Auto-generated method stub
+    private static BroadcastReceiver createBroadcastReceiver(String pPath,
+            GomObserver pGomObserver, boolean pBubbleUp, GomProxyHelper pGom) {
 
         if (pPath == null) {
             throw new IllegalArgumentException("Path cannot be null");
         }
 
-        // reg ex for paths of entries in which we are interested
-        // i.e. the path we observe or one level below
-        final String regEx = createRegularExpression(pPath);
-
-        BroadcastReceiver br = new BroadcastReceiver() {
-
-            @Override
-            public void onReceive(Context pArg0, Intent pArg1) {
-
-                Logger.d(LOG_TAG, "onReceive with intent: ", pArg1.toString());
-                Logger.d(LOG_TAG, "broadcast receiver observing ", pPath, " - with bubble up? ",
-                                pBubbleUp);
-                Logger.v(LOG_TAG, " - path: ", pArg1
-                                .getStringExtra(IntentExtraKeys.KEY_NOTIFICATION_PATH));
-
-                String notificationPath = pArg1
-                                .getStringExtra(IntentExtraKeys.KEY_NOTIFICATION_PATH);
-                if (notificationPathIsObservedByMe(notificationPath)) {
-
-                    Logger.d(LOG_TAG, "ok, the path is relevant to me");
-                    Logger.v(LOG_TAG, " - operation: ", pArg1
-                                    .getStringExtra(IntentExtraKeys.KEY_NOTIFICATION_OPERATION));
-                    Logger.v(LOG_TAG, " - data: ", pArg1
-                                    .getStringExtra(IntentExtraKeys.KEY_NOTIFICATION_DATA_STRING));
-
-                    String jsnStr = pArg1
-                                    .getStringExtra(IntentExtraKeys.KEY_NOTIFICATION_DATA_STRING);
-                    JSONObject data;
-                    try {
-                        data = new JSONObject(jsnStr);
-
-                    } catch (JSONException e) {
-
-                        throw new RuntimeException(e);
-                    }
-
-                    String operation = pArg1
-                                    .getStringExtra(IntentExtraKeys.KEY_NOTIFICATION_OPERATION);
-                    if ("create".equals(operation)) {
-
-                        Logger.v(LOG_TAG, "it's a CREATE notification");
-                        pGomObserver.onEntryCreated(pPath, data);
-
-                    } else if ("update".equals(operation)) {
-
-                        Logger.v(LOG_TAG, "it's an UPDATE notification");
-                        pGomObserver.onEntryUpdated(pPath, data);
-
-                    } else if ("delete".equals(operation)) {
-
-                        Logger.v(LOG_TAG, "it's a DELETE notification");
-                        pGomObserver.onEntryDeleted(pPath, data);
-
-                    } else {
-
-                        Logger.w(LOG_TAG, "GOM notification with unknown operation: ", operation);
-                    }
-                } else {
-
-                    Logger.d(LOG_TAG, "path is not relevant to me");
-                }
-            }
-
-            public boolean notificationPathIsObservedByMe(String pNotificationPath) {
-
-                return (pBubbleUp && GomReference.isSelfOrAncestorOf(pPath, pNotificationPath))
-                                || (Pattern.matches(regEx, pNotificationPath));
-            }
-        };
-
-        return br;
+        return new GomNotificationBroadcastReceiver(pPath, pGomObserver, pBubbleUp, pGom);
     }
 
     /**

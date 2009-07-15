@@ -9,7 +9,6 @@ import java.util.Map;
 import android.util.Log;
 
 public class Logger {
-
     public enum Level implements Comparable<Level> {
 
         VERBOSE(0, Log.VERBOSE, "verbose"), DEBUG(1, Log.DEBUG, "debug"), INFO(2, Log.INFO, "info"), WARN(
@@ -86,14 +85,16 @@ public class Logger {
 
             if (obj instanceof Throwable) {
 
-                Throwable t = (Throwable) obj;
-                String msg = String.valueOf(t.getMessage());
-                String stack = Log.getStackTraceString(t);
-                StringBuilder builder = new StringBuilder(msg.length() + stack.length() + 1);
-                builder.append(msg);
-                builder.append(" ");
-                builder.append(stack);
-                return builder.toString();
+                // Throwable t = (Throwable) obj;
+                // String msg = String.valueOf(t.getMessage());
+                // String stack = Log.getStackTraceString(t);
+                // StringBuilder builder = new StringBuilder(msg.length() +
+                // stack.length() + 1);
+                // builder.append(msg);
+                // builder.append(" ");
+                // builder.append(stack);
+                // return builder.toString();
+                return Log.getStackTraceString((Throwable) obj);
 
             } else {
 

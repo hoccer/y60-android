@@ -84,12 +84,11 @@ public abstract class Y60Activity extends Activity {
     @Override
     protected void onDestroy() {
 
-        Logger.d(LOG_TAG, "onDestroy called for activity ", getClass());
-
         unregisterReceiver(mReceiver);
         super.onDestroy();
 
         mIsDestroyed = true;
+        Logger.d(LOG_TAG, "onDestroy called for activity ", getClass());
     }
 
     protected void startDeviceController() {

@@ -8,7 +8,7 @@ public class GomAttributeTest extends AndroidTestCase {
 
     // Constants ---------------------------------------------------------
 
-    static final String  BASE_PATH = GomTestConstants.FIXTURES + "gom_attribute_test";
+    static final String BASE_PATH = GomTestConstants.FIXTURES + "gom_attribute_test";
 
     // Instance Variables ------------------------------------------------
 
@@ -16,11 +16,12 @@ public class GomAttributeTest extends AndroidTestCase {
 
     private GomReference mTestRef;
 
-    private String       mValue;
+    private String mValue;
 
     // Public Instance Methods -------------------------------------------
 
-    public void setUp() throws GomException {
+    @Override
+    public void setUp() throws Exception {
 
         GomProxyHelper helper = new GomProxyHelper(getContext(), null);
 
@@ -32,7 +33,7 @@ public class GomAttributeTest extends AndroidTestCase {
         }
 
         mTestRef = new GomReference(Constants.Gom.URI + BASE_PATH + "/" + getName() + ":"
-                + System.currentTimeMillis());
+                        + System.currentTimeMillis());
         mValue = mTestRef.path();
         GomHttpWrapper.updateOrCreateAttribute(mTestRef.url(), mValue);
 
@@ -44,7 +45,7 @@ public class GomAttributeTest extends AndroidTestCase {
         assertEquals(mValue, mTestAttr.getValue());
     }
 
-    public void testPutValue() {
+    public void testPutValue() throws Exception {
 
         mTestAttr.putValue("changed value");
         assertEquals("changed value", mTestAttr.getValue());

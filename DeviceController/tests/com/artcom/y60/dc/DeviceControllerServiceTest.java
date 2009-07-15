@@ -13,7 +13,6 @@ import android.test.ServiceTestCase;
 import com.artcom.y60.Constants;
 import com.artcom.y60.DeviceConfiguration;
 import com.artcom.y60.HttpHelper;
-import com.artcom.y60.IpAddressNotFoundException;
 import com.artcom.y60.Logger;
 import com.artcom.y60.NetworkHelper;
 import com.artcom.y60.TestHelper;
@@ -68,11 +67,11 @@ public class DeviceControllerServiceTest extends ServiceTestCase<DeviceControlle
         assertTrue("webserver does not run", getService().mServer.isRunning());
 
         assertEquals("webserver has unexpected number of connectors", 1, getService().mServer
-                .getConnectors().length);
+                        .getConnectors().length);
 
         Connector connector = getService().mServer.getConnectors()[0];
         assertEquals("webserver has unexpected number of open connections", 0, connector
-                .getConnections());
+                        .getConnections());
 
         assertEquals("local port", 4042, connector.getLocalPort());
 
@@ -84,7 +83,7 @@ public class DeviceControllerServiceTest extends ServiceTestCase<DeviceControlle
 
     }
 
-    public void testGetIpAddress() throws IOException, IpAddressNotFoundException {
+    public void testGetIpAddress() throws Exception {
 
         assertNoWebserverIsRunning();
 
@@ -101,7 +100,7 @@ public class DeviceControllerServiceTest extends ServiceTestCase<DeviceControlle
         assertTrue("local adress " + address + " is not reachable", address.isReachable(100));
     }
 
-    public void testRciUriInGom() throws IpAddressNotFoundException {
+    public void testRciUriInGom() throws Exception {
 
         assertNoWebserverIsRunning();
 
@@ -114,14 +113,14 @@ public class DeviceControllerServiceTest extends ServiceTestCase<DeviceControlle
         ipAddress = NetworkHelper.getDeviceIpAddress();
 
         DeviceConfiguration dc = DeviceConfiguration.load();
-        String rciUri = HttpHelper.get(Constants.Gom.URI + dc.getDevicePath() + ":rci_uri.txt");
+        String rciUri = HttpHelper.getAsString(Constants.Gom.URI + dc.getDevicePath() + ":rci_uri.txt");
 
         // if executed on emulator
         if (ipAddress.startsWith("10.0.2.")) {
             assertTrue("rci_uri should start with 'http://'", rciUri.startsWith("http://"));
             assertTrue("rci_uri should contain a gallery address ", rciUri.contains("192.168.9."));
             assertTrue("rci_uri should end with ':4042/commands'", rciUri
-                    .endsWith(":4042/commands"));
+                            .endsWith(":4042/commands"));
         } else {
             assertEquals("http://" + ipAddress + ":4042/commands", rciUri);
         }
@@ -164,18 +163,18 @@ public class DeviceControllerServiceTest extends ServiceTestCase<DeviceControlle
         startService(startIntent);
 
         TestHelper.blockUntilEquals("webserver should present expected status code", 3000, 404,
-                new TestHelper.Measurement() {
+                        new TestHelper.Measurement() {
 
-                    @Override
-                    public Object getActualValue() {
+                            @Override
+                            public Object getActualValue() {
 
-                        try {
-                            return HttpHelper.getStatusCode("http://localhost:4042/");
-                        } catch (Exception e) {
-                            return e.getMessage();
-                        }
-                    }
-                });
+                                try {
+                                    return HttpHelper.getStatusCode("http://localhost:4042/");
+                                } catch (Exception e) {
+                                    return e.getMessage();
+                                }
+                            }
+                        });
 
         int code = HttpHelper.getStatusCode("http://localhost:4042/");
         assertEquals(404, code);
@@ -210,7 +209,7 @@ public class DeviceControllerServiceTest extends ServiceTestCase<DeviceControlle
 
             if (System.currentTimeMillis() > requestStartTime + 5 * 1000) {
                 throw new AssertionFailedError(
-                        "Timeout while waiting for webserver object creation.");
+                                "Timeout while waiting for webserver object creation.");
             }
             try {
                 Thread.sleep(10);
