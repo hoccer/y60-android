@@ -16,6 +16,7 @@ public class SequenceAnimationViaListener implements AnimationListener {
 
     @Override
     public void onAnimationEnd(Animation pAnimation) {
+        mView.startAnimation(mSequencedAnimation);
     }
 
     @Override
@@ -24,7 +25,6 @@ public class SequenceAnimationViaListener implements AnimationListener {
 
     @Override
     public void onAnimationStart(Animation pAnimation) {
-        mView.startAnimation(mSequencedAnimation);
     }
 
 }
