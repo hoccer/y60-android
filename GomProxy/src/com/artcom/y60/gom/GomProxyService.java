@@ -132,8 +132,10 @@ public class GomProxyService extends Y60Service {
             }
 
             NodeData data = mNodes.get(pPath);
-            pSubNodeNames.addAll(data.subNodeNames);
-            pAttributeNames.addAll(data.attributeNames);
+            synchronized (data) {
+                pSubNodeNames.addAll(data.subNodeNames);
+                pAttributeNames.addAll(data.attributeNames);
+            }
         }
 
     }
@@ -221,8 +223,11 @@ public class GomProxyService extends Y60Service {
                 data = new NodeData();
                 mNodes.put(pNodePath, data);
             }
-            data.attributeNames = pAttributeNames;
-            data.subNodeNames = pSubNodeNames;
+
+            synchronized (data) {
+                data.attributeNames = pAttributeNames;
+                data.subNodeNames = pSubNodeNames;
+            }
         }
 
     }
@@ -294,7 +299,9 @@ public class GomProxyService extends Y60Service {
 
                 synchronized (mNodes) {
                     NodeData parentNodeData = mNodes.get(parentPath);
-                    parentNodeData.attributeNames.add(entryName);
+                    synchronized (parentNodeData) {
+                        parentNodeData.attributeNames.add(entryName);
+                    }
                 }
             }
 
@@ -311,7 +318,9 @@ public class GomProxyService extends Y60Service {
                 Logger.v(LOG_TAG, "updating parent node");
 
                 NodeData parentNodeData = mNodes.get(parentPath);
-                parentNodeData.subNodeNames.add(entryName);
+                synchronized (parentNodeData) {
+                    parentNodeData.subNodeNames.add(entryName);
+                }
             }
         }
     }
@@ -326,33 +335,35 @@ public class GomProxyService extends Y60Service {
         JSONObject jsNode = JsonHelper.getMemberOrSelf(jsob, Constants.Gom.Keywords.NODE);
         NodeData node = new NodeData(new LinkedList<String>(), new LinkedList<String>());
 
-        JSONArray children = jsNode.getJSONArray(Constants.Gom.Keywords.ENTRIES);
-        for (int i = 0; i < children.length(); i++) {
+        synchronized (node) {
+            JSONArray children = jsNode.getJSONArray(Constants.Gom.Keywords.ENTRIES);
+            for (int i = 0; i < children.length(); i++) {
 
-            JSONObject jsChild = children.getJSONObject(i);
+                JSONObject jsChild = children.getJSONObject(i);
 
-            // try subnode
-            if (jsChild.has(Constants.Gom.Keywords.NODE)) {
+                // try subnode
+                if (jsChild.has(Constants.Gom.Keywords.NODE)) {
 
-                String subNodePath = jsChild.getString(Constants.Gom.Keywords.NODE);
-                String subNodeName = subNodePath.substring(subNodePath.lastIndexOf("/") + 1);
-                node.subNodeNames.add(subNodeName);
-                continue;
+                    String subNodePath = jsChild.getString(Constants.Gom.Keywords.NODE);
+                    String subNodeName = subNodePath.substring(subNodePath.lastIndexOf("/") + 1);
+                    node.subNodeNames.add(subNodeName);
+                    continue;
+                }
+
+                // try attribute
+                if (jsChild.has(Constants.Gom.Keywords.ATTRIBUTE)) {
+
+                    JSONObject jsAttr = jsChild.getJSONObject(Constants.Gom.Keywords.ATTRIBUTE);
+                    String attrName = jsAttr.getString(Constants.Gom.Keywords.NAME);
+                    node.attributeNames.add(attrName);
+                    continue;
+                }
+
+                // huh?!
+                Logger.w(LOG_TAG, "got entry as child of a GOM node which I can't decode: ",
+                        jsChild);
             }
-
-            // try attribute
-            if (jsChild.has(Constants.Gom.Keywords.ATTRIBUTE)) {
-
-                JSONObject jsAttr = jsChild.getJSONObject(Constants.Gom.Keywords.ATTRIBUTE);
-                String attrName = jsAttr.getString(Constants.Gom.Keywords.NAME);
-                node.attributeNames.add(attrName);
-                continue;
-            }
-
-            // huh?!
-            Logger.w(LOG_TAG, "got entry as child of a GOM node which I can't decode: ", jsChild);
         }
-
         synchronized (mNodes) {
 
             mNodes.put(pPath, node);
@@ -408,7 +419,9 @@ public class GomProxyService extends Y60Service {
             if (hasNodeInCache(nodePath)) {
 
                 NodeData data = mNodes.get(nodePath);
-                data.attributeNames.remove(GomReference.lastSegment(pPath));
+                synchronized (data) {
+                    data.attributeNames.remove(GomReference.lastSegment(pPath));
+                }
             }
         }
         Logger.v(LOG_TAG, "delete attribute ", pPath, " size: ", mAttributes.size(),
@@ -416,26 +429,32 @@ public class GomProxyService extends Y60Service {
     }
 
     private void deleteNode(String pPath) {
-        NodeData nodeData = mNodes.get(pPath);
-        if (nodeData == null) {
-            return;
-        }
-        List<String> attrList = nodeData.attributeNames;
-        List<String> nodeList = nodeData.subNodeNames;
-        for (String anAttr : attrList) {
-            Logger.v(LOG_TAG, "delete attribute ", anAttr);
-            deleteAttribute(pPath + ":" + anAttr);
-        }
-        for (String aNode : nodeList) {
-            Logger.v(LOG_TAG, "delete node ", aNode);
 
-            deleteNode(pPath + "/" + aNode);
+        synchronized (mNodes) {
+            NodeData nodeData = mNodes.remove(pPath);
+
+            if (nodeData == null) {
+                return;
+            }
+
+            synchronized (nodeData) {
+                List<String> attrList = nodeData.attributeNames;
+                List<String> nodeList = nodeData.subNodeNames;
+                for (String anAttr : attrList) {
+                    Logger.v(LOG_TAG, "delete attribute ", anAttr);
+                    deleteAttribute(pPath + ":" + anAttr);
+                }
+                for (String aNode : nodeList) {
+                    Logger.v(LOG_TAG, "delete node ", aNode);
+
+                    deleteNode(pPath + "/" + aNode);
+                }
+            }
+            Logger.v(LOG_TAG, "delete node ", pPath, " size: ", mNodes.size(), " has in cacche: ",
+                    hasNodeInCache(pPath));
+            Logger.v(LOG_TAG, "delete node ", pPath, " size: ", mNodes.size(), " has in cacche: ",
+                    hasNodeInCache(pPath));
         }
-        Logger.v(LOG_TAG, "delete node ", pPath, " size: ", mNodes.size(), " has in cacche: ",
-                hasNodeInCache(pPath));
-        mNodes.remove(pPath);
-        Logger.v(LOG_TAG, "delete node ", pPath, " size: ", mNodes.size(), " has in cacche: ",
-                hasNodeInCache(pPath));
     }
 
     public void deleteEntry(String pPath) {
