@@ -56,6 +56,7 @@ public class GnpUpdatesGomProxyTest extends GomActivityUnitTestCase {
         GomHttpWrapper.createNode(nodeUrl);
 
         final GomTestObserver gto = new GomTestObserver(this);
+
         BroadcastReceiver rec = GomNotificationHelper.registerObserverAndNotify(nodePath, gto,
                 proxy, true);
         getActivity().registerReceiver(rec, Constants.Gom.GNP_INTENT_FILTER);

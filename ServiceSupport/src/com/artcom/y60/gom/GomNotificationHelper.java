@@ -36,7 +36,7 @@ public class GomNotificationHelper {
 
             @Override
             public void handle(Exception pE) {
-                Logger.e(LOG_TAG, "*******", pE);
+                Logger.e(LOG_TAG, pE);
             }
 
         });
@@ -51,7 +51,7 @@ public class GomNotificationHelper {
 
             @Override
             public void handle(Exception pE) {
-                Logger.e(LOG_TAG, "*******", pE);
+                Logger.e(LOG_TAG, pE);
             }
 
         });
@@ -67,7 +67,7 @@ public class GomNotificationHelper {
 
             @Override
             public void handle(Exception pE) {
-                Logger.e(LOG_TAG, "*******", pE);
+                Logger.e(LOG_TAG, pE);
             }
 
         });
