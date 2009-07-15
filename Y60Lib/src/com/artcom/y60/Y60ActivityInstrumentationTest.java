@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.app.Instrumentation;
 import android.os.SystemClock;
 import android.test.ActivityInstrumentationTestCase2;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
@@ -53,7 +52,7 @@ public abstract class Y60ActivityInstrumentationTest<T extends Activity> extends
     @Override
     public void setUp() throws Exception {
 
-        Log.v(tag(), " --- " + getName()
+        v(" --- " + getName()
                         + " -- setUp ------------------------------------------------------------");
 
         super.setUp();
@@ -62,12 +61,8 @@ public abstract class Y60ActivityInstrumentationTest<T extends Activity> extends
     @Override
     public void tearDown() throws Exception {
 
-        Log
-                        .v(
-                                        tag(),
-                                        " --- "
-                                                        + getName()
-                                                        + " -- tearDown ------------------------------------------------------------");
+        v(" --- " + getName() + " -- tearDown -----"
+                        + "-------------------------------------------------------");
 
         super.tearDown();
     }
@@ -208,11 +203,37 @@ public abstract class Y60ActivityInstrumentationTest<T extends Activity> extends
     }
 
     /**
-     * Shorthand for <code>getClass().getName()</code>, to be used for logcat
-     * logging.
+     * Shorthand for <code>getClass().getSimpleName()</code>, to be used for
+     * logcat logging.
      */
     protected String tag() {
 
-        return getClass().getName();
+        return getClass().getSimpleName();
     }
+
+    protected void v(Object... pToLog) {
+
+        Logger.v(tag(), pToLog);
+    }
+
+    protected void d(Object... pToLog) {
+
+        Logger.d(tag(), pToLog);
+    }
+
+    protected void i(Object... pToLog) {
+
+        Logger.i(tag(), pToLog);
+    }
+
+    protected void w(Object... pToLog) {
+
+        Logger.w(tag(), pToLog);
+    }
+
+    protected void e(Object... pToLog) {
+
+        Logger.e(tag(), pToLog);
+    }
+
 }
