@@ -9,6 +9,9 @@ import java.util.Map;
 import android.util.Log;
 
 public class Logger {
+
+    public static final int MAX_LINE_WIDTH = 500;
+
     public enum Level implements Comparable<Level> {
 
         VERBOSE(0, Log.VERBOSE, "verbose"), DEBUG(1, Log.DEBUG, "debug"), INFO(2, Log.INFO, "info"), WARN(
@@ -64,7 +67,18 @@ public class Logger {
                     builder.append(toString(obj));
                 }
 
-                Log.println(mPriority, pTag, builder.toString());
+                String line = builder.toString();
+                if (line.length() < MAX_LINE_WIDTH) {
+                    Log.println(mPriority, pTag, builder.toString());
+                } else {
+                    int start = 0;
+                    int end = MAX_LINE_WIDTH;
+                    do {
+                        Log.println(mPriority, pTag, line.substring(start, end));
+                        start = end;
+                        end = Math.min(start + MAX_LINE_WIDTH - 1, line.length() - 1);
+                    } while (start < line.length() - 1);
+                }
             }
         }
 
@@ -87,13 +101,17 @@ public class Logger {
 
                 // Throwable t = (Throwable) obj;
                 // String msg = String.valueOf(t.getMessage());
-                // String stack = Log.getStackTraceString(t);
+                // StringWriter sw = new StringWriter();
+                // PrintWriter pw = new PrintWriter(sw);
+                // t.printStackTrace(pw);
+                // String stack = sw.toString();
                 // StringBuilder builder = new StringBuilder(msg.length() +
                 // stack.length() + 1);
                 // builder.append(msg);
                 // builder.append(" ");
                 // builder.append(stack);
                 // return builder.toString();
+
                 return Log.getStackTraceString((Throwable) obj);
 
             } else {

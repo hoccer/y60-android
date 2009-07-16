@@ -45,13 +45,6 @@ public class ErrorHandling {
 
     }
 
-    public static void notifyAboutError(String logTag, Throwable error, Context context,
-                    Category category) {
-        Logger.e(LOG_TAG, "notifiying error: ", error);
-
-        // TODO implement a notification in the statusbar
-    }
-
     public static void signalFileNotFoundError(String logTag, FileNotFoundException error,
                     Context context) {
         signalError(logTag, error, context, Category.FILE_NOT_FOUND);
@@ -132,7 +125,7 @@ public class ErrorHandling {
     }
 
     public static void signalLowOnMemoryError(String logTag, Throwable error, Context context) {
-        notifyAboutError(logTag, error, context, Category.LOW_ON_MEMORY_ERROR);
+        signalError(logTag, error, context, Category.LOW_ON_MEMORY_ERROR);
     }
 
     public static void signalMalformedDataError(String logTag, Throwable error, Context context) {

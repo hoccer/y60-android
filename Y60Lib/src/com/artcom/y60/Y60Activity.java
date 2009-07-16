@@ -10,11 +10,11 @@ import android.os.Process;
 
 public abstract class Y60Activity extends Activity {
 
-    private static final String LOG_TAG      = "Y60Activity";
+    private static final String LOG_TAG = "Y60Activity";
 
-    private BroadcastReceiver   mReceiver;
+    private BroadcastReceiver mReceiver;
 
-    private boolean             mIsDestroyed = false;
+    private boolean mIsDestroyed = false;
 
     public abstract boolean hasBackendAvailableBeenCalled();
 
@@ -24,7 +24,7 @@ public abstract class Y60Activity extends Activity {
 
     void kill() {
 
-        Logger.v(LOG_TAG, "finishing activity ", getClass().getName());
+        Logger.i(LOG_TAG, "finishing activity ", Y60Activity.this.getClass().getName());
         finish();
 
         new Thread(new Runnable() {
@@ -34,7 +34,8 @@ public abstract class Y60Activity extends Activity {
                 while (!mIsDestroyed) {
 
                     if (System.currentTimeMillis() - start > 7000) {
-                        Logger.w(LOG_TAG, "finishing activity ", getClass(), " took too long");
+                        Logger.w(LOG_TAG, "finishing activity ", Y60Activity.this.getClass()
+                                        .getName(), " took too long");
                         break;
                     }
 
@@ -52,8 +53,8 @@ public abstract class Y60Activity extends Activity {
                 }
 
                 Logger
-                        .i(LOG_TAG, "killing process ", Process.myPid(), " for activity ",
-                                getClass());
+                                .i(LOG_TAG, "killing process ", Process.myPid(), " for activity ",
+                                                getClass());
                 Process.killProcess(Process.myPid());
             }
         }).start();
