@@ -2,6 +2,8 @@ package com.artcom.y60;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -30,6 +32,18 @@ public class IoHelper {
             baos.write(in);
         }
         return baos.toByteArray();
+    }
+
+    public static void writeInputStreamToFile(InputStream pInputStream, String pFilename)
+            throws IOException {
+        File tmpFile = new File(pFilename);
+        FileOutputStream fos = new FileOutputStream(tmpFile);
+
+        byte[] buffer = new byte[0xFFFF];
+        for (int len; (len = pInputStream.read(buffer)) != -1;) {
+            fos.write(buffer, 0, len);
+        }
+        fos.close();
     }
 
 }
