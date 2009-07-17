@@ -18,7 +18,7 @@ import com.artcom.y60.http.HttpServerException;
 public class GomHttpWrapper {
 
     public static HttpResponse updateOrCreateAttribute(Uri pUri, String pValue)
-                    throws HttpClientException, HttpServerException, IOException {
+            throws HttpClientException, HttpServerException, IOException {
 
         Map<String, String> formData = new HashMap<String, String>();
         formData.put(Constants.Gom.Keywords.ATTRIBUTE, pValue);
@@ -27,19 +27,19 @@ public class GomHttpWrapper {
     }
 
     public static HttpResponse deleteAttribute(Uri pUri) throws HttpClientException,
-                    HttpServerException, IOException {
+            HttpServerException, IOException {
 
         return HttpHelper.delete(pUri);
     }
 
     public static HttpResponse deleteNode(Uri pUri) throws HttpClientException,
-                    HttpServerException, IOException {
+            HttpServerException, IOException {
 
         return HttpHelper.delete(pUri);
     }
 
     public static String getAttributeValue(Uri pAttrUrl) throws HttpClientException,
-                    HttpServerException, IOException {
+            HttpServerException, IOException {
 
         try {
             JSONObject wrapper = HttpHelper.getJson(pAttrUrl.toString());
@@ -55,13 +55,13 @@ public class GomHttpWrapper {
     }
 
     public static HttpResponse createNode(String pNodeUrl) throws HttpClientException,
-                    HttpServerException, IOException {
+            HttpServerException, IOException {
 
         return HttpHelper.putXML(pNodeUrl, "<node/>");
     }
 
     public static HttpResponse putNodeWithAttributes(String pNodeUrl, HashMap<String, String> pAttrs)
-                    throws HttpClientException, HttpServerException, IOException {
+            throws HttpClientException, HttpServerException, IOException {
 
         HashMap<String, String> formData = new HashMap<String, String>(pAttrs.size());
         for (String attrName : pAttrs.keySet()) {
