@@ -50,7 +50,7 @@ public class HelperServerSideScript {
         return new JSONObject(HttpHelper.getAsString(uri));
     }
 
-    public static void postScriptToGom(String pAttrUri, String pScript, Context pContext) {
+    public static void putScriptToGom(String pAttrUri, String pScript, Context pContext) {
 
         Logger.v(LOG_TAG, "posting script to gom to: ", pAttrUri);
 
