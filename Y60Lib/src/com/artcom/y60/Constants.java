@@ -26,7 +26,8 @@ public class Constants {
 
         public static final String       URI;
         public static final String       DEVICE_PATH;
-        public static final String       SCRIPT_BASE_URI;
+        public static final String       SCRIPT_BASE_PATH;
+        public static final String       SCRIPT_RUNNER_URI  = "http://t-gom.service.t-gallery.act/gom/script-runner";
 
         public static final String       OBSERVER_BASE_PATH = "/gom/observer";
 
@@ -37,7 +38,7 @@ public class Constants {
             URI = config.getGomUrl();
             GNP_INTENT_FILTER = new IntentFilter(Y60Action.GOM_NOTIFICATION_BC);
             DEVICE_PATH = config.getDevicePath();
-            SCRIPT_BASE_URI = URI + DEVICE_PATH + "/scripts";
+            SCRIPT_BASE_PATH = DEVICE_PATH + "/scripts";
         }
 
     }

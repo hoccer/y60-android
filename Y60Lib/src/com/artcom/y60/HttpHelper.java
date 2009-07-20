@@ -49,10 +49,6 @@ public class HttpHelper {
     private static final int    POST_TIMEOUT      = 40 * 1000;
     private static final int    GET_TIMEOUT       = 5 * 1000;
     private static final String LOG_TAG           = "HttpHelper";
-    public static final String SCRIPT_RUNNER_Uri = "http://t-gom.service.t-gallery.act/gom/script-runner";
-
-    // Static Methods ----------------------------------------------------
-
     public static HttpResponse putXML(String uri, String body) throws IOException,
             HttpClientException, HttpServerException {
         HttpPut put = new HttpPut(uri);

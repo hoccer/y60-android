@@ -10,6 +10,7 @@ import org.json.JSONObject;
 import android.content.Context;
 import android.net.Uri;
 
+import com.artcom.y60.Constants;
 import com.artcom.y60.ErrorHandling;
 import com.artcom.y60.HttpHelper;
 import com.artcom.y60.Logger;
@@ -25,7 +26,7 @@ public class HelperServerSideScript {
             throws JSONException, IOException, HttpClientException, HttpServerException {
 
         String params = HttpHelper.urlEncode(pParams);
-        String uri = HttpHelper.SCRIPT_RUNNER_Uri + "?" + params;
+        String uri = Constants.Gom.SCRIPT_RUNNER_URI + "?" + params;
         HttpResponse response = HttpHelper.post(uri, pJsStr, "text/javascript", "text/json",
                 30 * 1000);
         String jsonStr = HttpHelper.extractBodyAsString(response.getEntity());
@@ -33,24 +34,25 @@ public class HelperServerSideScript {
         return new JSONObject(jsonStr);
     }
 
-    public static JSONObject executeServerScriptWithGet(String scriptAttrUri,
+    public static JSONObject executeServerScriptWithGet(String pScriptAttrName,
             Map<String, String> pParams) throws JSONException, IOException, HttpClientException,
             HttpServerException {
 
         String params = HttpHelper.urlEncode(pParams);
-        String uri = scriptAttrUri + "?" + params;
+        String uri = Constants.Gom.SCRIPT_RUNNER_URI + Constants.Gom.SCRIPT_BASE_PATH + ":"
+                + pScriptAttrName + "?" + params;
         Logger
                 .v(
                         LOG_TAG,
-                        "UUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUU\n\n",
+                        "UUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUU\n\n",
                         uri);
 
-        return HttpHelper.getJson(uri);
+        return new JSONObject(HttpHelper.getAsString(uri));
     }
 
     public static void postScriptToGom(String pAttrUri, String pScript, Context pContext) {
 
-        Logger.v(LOG_TAG, "posting script to gom: ", pScript);
+        Logger.v(LOG_TAG, "posting script to gom to: ", pAttrUri);
 
         try {
             GomHttpWrapper.updateOrCreateAttribute(Uri.parse(pAttrUri), pScript);
