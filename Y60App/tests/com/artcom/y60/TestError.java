@@ -24,9 +24,10 @@ public class TestError extends ActivityInstrumentationTestCase<ErrorPresentation
 
         Exception e = new Exception("Don't panic");
         ErrorHandling.signalError(this.getClass().getSimpleName(), e, getActivity(),
-                        ErrorHandling.Category.UNSPECIFIED);
+                ErrorHandling.Category.UNSPECIFIED);
 
         assertEquals("no activity launced", 1, monitor.getHits());
+        getInstrumentation().removeMonitor(monitor);
     }
 
 }

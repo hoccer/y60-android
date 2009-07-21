@@ -5,7 +5,7 @@ import android.content.IntentFilter;
 import android.test.suitebuilder.annotation.Suppress;
 
 public class ErrorPresentationActivityTest extends
-                Y60ActivityInstrumentationTest<ErrorPresentationActivity> {
+        Y60ActivityInstrumentationTest<ErrorPresentationActivity> {
 
     public ErrorPresentationActivityTest() {
         super("com.artcom.y60", ErrorPresentationActivity.class);
@@ -23,9 +23,10 @@ public class ErrorPresentationActivityTest extends
 
         Exception e = new Exception("Don't panic");
         ErrorHandling.signalError(this.getClass().getSimpleName(), e, getActivity(),
-                        ErrorHandling.Category.UNSPECIFIED);
+                ErrorHandling.Category.UNSPECIFIED);
 
         assertEquals("no activity launced", 1, monitor.getHits());
+        getInstrumentation().removeMonitor(monitor);
     }
 
 }
