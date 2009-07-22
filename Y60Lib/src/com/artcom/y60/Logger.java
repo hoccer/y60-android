@@ -67,18 +67,21 @@ public class Logger {
                     builder.append(toString(obj));
                 }
 
-                String line = builder.toString();
-                if (line.length() < MAX_LINE_WIDTH) {
-                    Log.println(mPriority, pTag, builder.toString());
-                } else {
-                    int start = 0;
-                    int end = MAX_LINE_WIDTH;
-                    do {
-                        Log.println(mPriority, pTag, line.substring(start, end));
-                        start = end;
-                        end = Math.min(start + MAX_LINE_WIDTH - 1, line.length() - 1);
-                    } while (start < line.length() - 1);
-                }
+                Log.println(mPriority, pTag, builder.toString());
+
+                // String line = builder.toString();
+                // if (line.length() < MAX_LINE_WIDTH) {
+                // Log.println(mPriority, pTag, builder.toString());
+                // } else {
+                // int start = 0;
+                // int end = MAX_LINE_WIDTH;
+                // do {
+                // Log.println(mPriority, pTag, line.substring(start, end));
+                // start = end;
+                // end = Math.min(start + MAX_LINE_WIDTH - 1, line.length() -
+                // 1);
+                // } while (start < line.length() - 1);
+                // }
             }
         }
 
