@@ -17,11 +17,13 @@ public class ErrorPresentationActivity extends Activity {
     // preferences
     private static final Mode mMode = Mode.DEBUG;
 
-    private TextView mTextView;
+    private TextView          mTextView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        setContentView(R.layout.error_presentation);
 
         mTextView = (TextView) findViewById(R.id.error_text);
         Button okButton = (Button) findViewById(R.id.error_ok_button);
@@ -31,8 +33,6 @@ public class ErrorPresentationActivity extends Activity {
                 finish();
             }
         });
-
-        setContentView(R.layout.error_presentation);
 
         ErrorHandling.cancelErrorNotification(this);
     }
