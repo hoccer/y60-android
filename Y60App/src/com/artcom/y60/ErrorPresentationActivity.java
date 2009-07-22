@@ -5,14 +5,9 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
-import android.widget.TableLayout;
 import android.widget.TextView;
 
 public class ErrorPresentationActivity extends Activity {
-
-    private TableLayout mTableLayout;
-    private TextView mTextView;
-    private Button mOkButton;
 
     enum Mode {
         DEBUG, PRODUCTION
@@ -22,25 +17,22 @@ public class ErrorPresentationActivity extends Activity {
     // preferences
     private static final Mode mMode = Mode.DEBUG;
 
+    private TextView mTextView;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        mTextView = new TextView(this);
-        mTableLayout = new TableLayout(this);
-        mOkButton = new Button(this);
+        mTextView = (TextView) findViewById(R.id.error_text);
+        Button okButton = (Button) findViewById(R.id.error_ok_button);
 
-        mOkButton.setText("OK");
-        mOkButton.setOnClickListener(new View.OnClickListener() {
+        okButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
                 finish();
             }
         });
 
-        mTableLayout.addView(mTextView);
-        mTableLayout.addView(mOkButton);
-
-        setContentView(mTableLayout);
+        setContentView(R.layout.error_presentation);
 
         ErrorHandling.cancelErrorNotification(this);
     }
