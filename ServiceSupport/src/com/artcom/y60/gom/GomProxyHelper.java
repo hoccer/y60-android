@@ -20,7 +20,7 @@ public class GomProxyHelper {
 
     // Constants ---------------------------------------------------------
 
-    public static final String LOG_TAG = "GomProxyHelper";
+    public static final String              LOG_TAG = "GomProxyHelper";
 
     // Instance Variables ------------------------------------------------
 
@@ -28,13 +28,13 @@ public class GomProxyHelper {
      * The client for this helperProxyHelper
      */
     // private Context mContext;
-    private IGomProxyService mProxy;
+    private IGomProxyService                mProxy;
 
-    private GomProxyServiceConnection mConnection;
+    private GomProxyServiceConnection       mConnection;
 
     private BindingListener<GomProxyHelper> mBindingListener;
 
-    private Context mContext;
+    private Context                         mContext;
 
     // Constructors ------------------------------------------------------
 
@@ -69,7 +69,7 @@ public class GomProxyHelper {
     }
 
     public GomEntry getEntry(String pPath) throws GomEntryTypeMismatchException,
-                    GomEntryNotFoundException {
+            GomEntryNotFoundException {
 
         assertConnected();
         String lastSeg = pPath.substring(pPath.lastIndexOf("/") + 1);
@@ -92,7 +92,7 @@ public class GomProxyHelper {
     }
 
     public GomAttribute getAttribute(String pPath) throws GomEntryTypeMismatchException,
-                    GomEntryNotFoundException {
+            GomEntryNotFoundException {
 
         assertConnected();
 
@@ -122,7 +122,7 @@ public class GomProxyHelper {
 
     // TODO test this
     public String getCachedAttributeValue(String pPath) throws GomProxyException {
-
+        assertConnected();
         RpcStatus status = new RpcStatus();
 
         String result = null;
@@ -215,7 +215,7 @@ public class GomProxyHelper {
     }
 
     public void saveNode(String pNodePath, LinkedList<String> pSubNodeNames,
-                    LinkedList<String> pAttributeNames) {
+            LinkedList<String> pAttributeNames) {
 
         assertConnected();
         RpcStatus status = new RpcStatus();
@@ -237,6 +237,7 @@ public class GomProxyHelper {
     }
 
     public void deleteEntry(String pPath) {
+        assertConnected();
         RpcStatus status = new RpcStatus();
 
         try {
@@ -255,6 +256,7 @@ public class GomProxyHelper {
     }
 
     public void clear() {
+        assertConnected();
         RpcStatus status = new RpcStatus();
 
         try {
@@ -273,6 +275,7 @@ public class GomProxyHelper {
     }
 
     public void updateEntry(String pPath, String pJsonData) {
+        assertConnected();
         RpcStatus status = new RpcStatus();
 
         try {
@@ -291,6 +294,7 @@ public class GomProxyHelper {
     }
 
     public void createEntry(String pPath, String pJsonData) {
+        assertConnected();
         RpcStatus status = new RpcStatus();
 
         try {
@@ -311,7 +315,7 @@ public class GomProxyHelper {
     // Package Protected Instance Methods --------------------------------
 
     void refreshEntry(String pPath) throws Throwable {
-
+        assertConnected();
         RpcStatus status = new RpcStatus();
 
         try {
@@ -331,7 +335,7 @@ public class GomProxyHelper {
     }
 
     void getNodeData(String pPath, List<String> pSubNodeNames, List<String> pAttributeNames) {
-
+        assertConnected();
         try {
             RpcStatus status = new RpcStatus();
             mProxy.getNodeData(pPath, pSubNodeNames, pAttributeNames, status);
@@ -349,8 +353,8 @@ public class GomProxyHelper {
     }
 
     public void getCachedNodeData(String pPath, List<String> pSubNodeNames,
-                    List<String> pAttributeNames) throws GomProxyException {
-
+            List<String> pAttributeNames) throws GomProxyException {
+        assertConnected();
         RpcStatus status = new RpcStatus();
 
         try {
