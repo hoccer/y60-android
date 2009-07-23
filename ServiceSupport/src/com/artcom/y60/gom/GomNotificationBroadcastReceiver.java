@@ -17,20 +17,20 @@ public class GomNotificationBroadcastReceiver extends BroadcastReceiver {
 
     private static final String LOG_TAG = "GomNotificationBroadcastReceiver";
 
-    private String mPath;
+    private String              mPath;
 
-    private boolean mBubbleUp;
+    private boolean             mBubbleUp;
 
-    private GomObserver mGomObserver;
+    private GomObserver         mGomObserver;
 
-    private String mRegEx;
+    private String              mRegEx;
 
-    private GomProxyHelper mGomProxy;
+    private GomProxyHelper      mGomProxy;
 
     // Constructors ------------------------------------------------------
 
     public GomNotificationBroadcastReceiver(String pPath, GomObserver pObserver, boolean pBubbleUp,
-                    GomProxyHelper pGomProxy) {
+            GomProxyHelper pGomProxy) {
 
         mPath = pPath;
         mGomObserver = pObserver;
@@ -45,17 +45,17 @@ public class GomNotificationBroadcastReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context pContext, Intent pIntent) {
 
-        Logger.d(LOG_TAG, "BroadcastReceiver for ", mPath, " onReceive with intent: ", pIntent
-                        .toString(), " - with bubble up? ", mBubbleUp);
+        Logger.d(LOG_TAG, "BroadcastReceiver ", this, " for ", mPath, " onReceive with intent: ",
+                pIntent.toString(), " - with bubble up? ", mBubbleUp);
         Logger.v(LOG_TAG, "BroadcastReceiver for ", mPath, " - getting path: ", pIntent
-                        .getStringExtra(IntentExtraKeys.KEY_NOTIFICATION_PATH));
+                .getStringExtra(IntentExtraKeys.KEY_NOTIFICATION_PATH));
 
         String notificationPath = pIntent.getStringExtra(IntentExtraKeys.KEY_NOTIFICATION_PATH);
         if (notificationPathIsObservedByMe(notificationPath)) {
 
             Logger.d(LOG_TAG, "BroadcastReceiver ", mPath, " , ok, the path is relevant to me");
             Logger.v(LOG_TAG, "BroadcastReceiver ", mPath, "  - data: ", pIntent
-                            .getStringExtra(IntentExtraKeys.KEY_NOTIFICATION_DATA_STRING));
+                    .getStringExtra(IntentExtraKeys.KEY_NOTIFICATION_DATA_STRING));
 
             String jsnStr = pIntent.getStringExtra(IntentExtraKeys.KEY_NOTIFICATION_DATA_STRING);
             JSONObject data;
@@ -63,7 +63,7 @@ public class GomNotificationBroadcastReceiver extends BroadcastReceiver {
                 data = new JSONObject(jsnStr);
 
                 String operation = pIntent
-                                .getStringExtra(IntentExtraKeys.KEY_NOTIFICATION_OPERATION);
+                        .getStringExtra(IntentExtraKeys.KEY_NOTIFICATION_OPERATION);
                 String path = getAffectedEntryPath(data);
 
                 if ("create".equals(operation)) {
@@ -77,8 +77,8 @@ public class GomNotificationBroadcastReceiver extends BroadcastReceiver {
                     // update proxy
                 } else if ("update".equals(operation)) {
                     Logger
-                                    .v(LOG_TAG, "BroadcastReceiver ", mPath,
-                                                    " , it's an UPDATE notification");
+                            .v(LOG_TAG, "BroadcastReceiver ", mPath,
+                                    " , it's an UPDATE notification");
                     Logger.v(LOG_TAG, "DER PFFFFFFFFFFFFFFFFFFFFFFFFFAD: ", path);
                     Logger.v(LOG_TAG, "DER DAAAAAAAAAAAAAAAAAAAAAAATEN: ", data);
                     mGomProxy.updateEntry(path, data.toString());
@@ -96,7 +96,7 @@ public class GomNotificationBroadcastReceiver extends BroadcastReceiver {
                 } else {
 
                     Logger.w(LOG_TAG, "BroadcastReceiver ", mPath,
-                                    " , GOM notification with unknown operation: ", operation);
+                            " , GOM notification with unknown operation: ", operation);
                 }
 
             } catch (JSONException e) {
@@ -115,7 +115,7 @@ public class GomNotificationBroadcastReceiver extends BroadcastReceiver {
 
             JSONObject attrJson = pData.getJSONObject(Constants.Gom.Keywords.ATTRIBUTE);
             return attrJson.getString(Constants.Gom.Keywords.NODE) + ":"
-                            + attrJson.getString(Constants.Gom.Keywords.NAME);
+                    + attrJson.getString(Constants.Gom.Keywords.NAME);
 
         } else if (pData.has(Constants.Gom.Keywords.NODE)) {
 
@@ -129,7 +129,7 @@ public class GomNotificationBroadcastReceiver extends BroadcastReceiver {
     public boolean notificationPathIsObservedByMe(String pNotificationPath) {
 
         return (mBubbleUp && GomReference.isSelfOrAncestorOf(mPath, pNotificationPath))
-                        || (Pattern.matches(mRegEx, pNotificationPath));
+                || (Pattern.matches(mRegEx, pNotificationPath));
     }
 
 }
