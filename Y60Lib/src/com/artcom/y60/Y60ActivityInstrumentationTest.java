@@ -2,6 +2,7 @@ package com.artcom.y60;
 
 import android.app.Activity;
 import android.app.Instrumentation;
+import android.content.Intent;
 import android.os.SystemClock;
 import android.test.ActivityInstrumentationTestCase2;
 import android.view.KeyEvent;
@@ -244,6 +245,8 @@ public abstract class Y60ActivityInstrumentationTest<T extends Activity> extends
 
     protected void reset() {
 
+        Intent reset = new Intent(Y60Action.RESET_BC);
+        getActivity().sendBroadcast(reset);
     }
 
 }

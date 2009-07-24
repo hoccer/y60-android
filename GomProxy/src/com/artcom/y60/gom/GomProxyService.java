@@ -9,7 +9,10 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.net.Uri;
 import android.os.IBinder;
 import android.os.RemoteException;
@@ -20,6 +23,7 @@ import com.artcom.y60.HttpHelper;
 import com.artcom.y60.JsonHelper;
 import com.artcom.y60.Logger;
 import com.artcom.y60.RpcStatus;
+import com.artcom.y60.Y60Action;
 import com.artcom.y60.Y60Service;
 import com.artcom.y60.http.HttpClientException;
 
@@ -27,17 +31,19 @@ public class GomProxyService extends Y60Service {
 
     // Constants ---------------------------------------------------------
 
-    private static final String   LOG_TAG = "GomProxyService";
+    private static final String LOG_TAG = "GomProxyService";
 
     // Instance Variables ------------------------------------------------
 
-    private GomProxyRemote        mRemote;
+    private GomProxyRemote mRemote;
 
     private Map<String, NodeData> mNodes;
 
-    private Map<String, String>   mAttributes;
+    private Map<String, String> mAttributes;
 
-    private Uri                   mBaseUri;
+    private Uri mBaseUri;
+
+    private BroadcastReceiver mResetReceiver;
 
     // Constructors ------------------------------------------------------
 
@@ -63,6 +69,10 @@ public class GomProxyService extends Y60Service {
         super.onCreate();
 
         mRemote = new GomProxyRemote();
+
+        IntentFilter filter = new IntentFilter(Y60Action.RESET_BC);
+        mResetReceiver = new ResetReceiver();
+        registerReceiver(mResetReceiver, filter);
     }
 
     @Override
@@ -78,6 +88,7 @@ public class GomProxyService extends Y60Service {
 
         Logger.i(LOG_TAG, "onDestroy");
 
+        unregisterReceiver(mResetReceiver);
         super.onDestroy();
     }
 
@@ -90,7 +101,7 @@ public class GomProxyService extends Y60Service {
     // Package Protected Instance Methods --------------------------------
 
     void getNodeData(String pPath, List<String> pSubNodeNames, List<String> pAttributeNames)
-            throws JSONException, GomEntryNotFoundException, GomProxyException {
+                    throws JSONException, GomEntryNotFoundException, GomProxyException {
 
         // Logger.v(tag(), "getNodeData("+pPath+")");
 
@@ -121,7 +132,7 @@ public class GomProxyService extends Y60Service {
     }
 
     void getCachedNodeData(String pPath, List<String> pSubNodeNames, List<String> pAttributeNames)
-            throws GomProxyException {
+                    throws GomProxyException {
 
         Logger.v(LOG_TAG, "getCachedNodeData(", pPath, ")");
 
@@ -141,7 +152,7 @@ public class GomProxyService extends Y60Service {
     }
 
     String getAttributeValue(String pPath) throws JSONException, GomEntryNotFoundException,
-            GomProxyException {
+                    GomProxyException {
 
         Logger.v(LOG_TAG, "getAttributeValue(", pPath, ")");
 
@@ -179,7 +190,7 @@ public class GomProxyService extends Y60Service {
     }
 
     void refreshEntry(String pPath) throws JSONException, GomEntryNotFoundException,
-            GomProxyException {
+                    GomProxyException {
         Logger.v(LOG_TAG, "refreshEntry(", pPath, ")");
         String lastSegment = pPath.substring(pPath.lastIndexOf("/") + 1);
         if (lastSegment.contains(":")) {
@@ -247,7 +258,7 @@ public class GomProxyService extends Y60Service {
     // Private Instance Methods ------------------------------------------
 
     private void loadNode(String pPath) throws JSONException, GomEntryNotFoundException,
-            GomProxyException {
+                    GomProxyException {
 
         Logger.v(LOG_TAG, "loadNode(", pPath, ")");
 
@@ -361,7 +372,7 @@ public class GomProxyService extends Y60Service {
 
                 // huh?!
                 Logger.w(LOG_TAG, "got entry as child of a GOM node which I can't decode: ",
-                        jsChild);
+                                jsChild);
             }
         }
         synchronized (mNodes) {
@@ -371,7 +382,7 @@ public class GomProxyService extends Y60Service {
     }
 
     private void loadAttribute(String pPath) throws JSONException, GomEntryNotFoundException,
-            GomProxyException {
+                    GomProxyException {
 
         Logger.v(LOG_TAG, "loadAttribute(", pPath, ")");
 
@@ -412,7 +423,8 @@ public class GomProxyService extends Y60Service {
     private void deleteAttribute(String pPath) {
 
         Logger.v(LOG_TAG, mAttributes.keySet().toString(), "\n\n\n\ndelete attribute ", pPath,
-                " size: ", mAttributes.size(), " has in cacche: ", hasAttributeInCache(pPath));
+                        " size: ", mAttributes.size(), " has in cacche: ",
+                        hasAttributeInCache(pPath));
         mAttributes.remove(pPath);
         String nodePath = GomReference.parentPath(pPath);
         synchronized (mNodes) {
@@ -425,7 +437,7 @@ public class GomProxyService extends Y60Service {
             }
         }
         Logger.v(LOG_TAG, "delete attribute ", pPath, " size: ", mAttributes.size(),
-                " has in cacche: ", hasAttributeInCache(pPath));
+                        " has in cacche: ", hasAttributeInCache(pPath));
     }
 
     private void deleteNode(String pPath) {
@@ -451,9 +463,9 @@ public class GomProxyService extends Y60Service {
                 }
             }
             Logger.v(LOG_TAG, "delete node ", pPath, " size: ", mNodes.size(), " has in cacche: ",
-                    hasNodeInCache(pPath));
+                            hasNodeInCache(pPath));
             Logger.v(LOG_TAG, "delete node ", pPath, " size: ", mNodes.size(), " has in cacche: ",
-                    hasNodeInCache(pPath));
+                            hasNodeInCache(pPath));
         }
     }
 
@@ -512,7 +524,7 @@ public class GomProxyService extends Y60Service {
         }
 
         public void getNodeData(String path, List<String> subNodeNames,
-                List<String> attributeNames, RpcStatus pStatus) throws RemoteException {
+                        List<String> attributeNames, RpcStatus pStatus) throws RemoteException {
             try {
                 GomProxyService.this.getNodeData(path, subNodeNames, attributeNames);
             } catch (Exception ex) {
@@ -523,7 +535,7 @@ public class GomProxyService extends Y60Service {
 
         @Override
         public void getCachedNodeData(String pPath, List<String> pSubNodeNames,
-                List<String> pAttributeNames, RpcStatus pStatus) throws RemoteException {
+                        List<String> pAttributeNames, RpcStatus pStatus) throws RemoteException {
 
             try {
                 GomProxyService.this.getCachedNodeData(pPath, pSubNodeNames, pAttributeNames);
@@ -558,7 +570,7 @@ public class GomProxyService extends Y60Service {
         public boolean hasInCache(String pPath, RpcStatus pStatus) throws RemoteException {
             try {
                 return GomProxyService.this.hasAttributeInCache(pPath)
-                        || GomProxyService.this.hasNodeInCache(pPath);
+                                || GomProxyService.this.hasNodeInCache(pPath);
             } catch (Exception ex) {
                 pStatus.setError(ex);
                 return false;
@@ -567,7 +579,7 @@ public class GomProxyService extends Y60Service {
 
         @Override
         public void saveAttribute(String pPath, String pValue, RpcStatus pStatus)
-                throws RemoteException {
+                        throws RemoteException {
             try {
                 GomProxyService.this.saveAttribute(pPath, pValue);
             } catch (Exception ex) {
@@ -578,7 +590,7 @@ public class GomProxyService extends Y60Service {
 
         @Override
         public void saveNode(String pPath, List<String> pSubNodeNames,
-                List<String> pAttributeNames, RpcStatus pStatus) throws RemoteException {
+                        List<String> pAttributeNames, RpcStatus pStatus) throws RemoteException {
             try {
                 GomProxyService.this.saveNode(pPath, pSubNodeNames, pAttributeNames);
             } catch (Exception ex) {
@@ -608,7 +620,7 @@ public class GomProxyService extends Y60Service {
 
         @Override
         public void updateEntry(String pPath, String pJsonData, RpcStatus pStatus)
-                throws RemoteException {
+                        throws RemoteException {
             try {
                 GomProxyService.this.updateEntry(pPath, pJsonData);
             } catch (Exception ex) {
@@ -618,7 +630,7 @@ public class GomProxyService extends Y60Service {
 
         @Override
         public void createEntry(String pPath, String pJsonData, RpcStatus pStatus)
-                throws RemoteException {
+                        throws RemoteException {
             try {
                 GomProxyService.this.createEntry(pPath, pJsonData);
             } catch (Exception ex) {
@@ -628,4 +640,15 @@ public class GomProxyService extends Y60Service {
         }
     }
 
+    class ResetReceiver extends BroadcastReceiver {
+
+        @Override
+        public void onReceive(Context pContext, Intent pIntent) {
+
+            Logger.d(LOG_TAG, "clearing GOM cache");
+            GomProxyService.this.clear();
+            Logger.d(LOG_TAG, "GOM cache cleared");
+        }
+
+    }
 }

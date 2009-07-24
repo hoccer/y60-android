@@ -3,7 +3,10 @@ package com.artcom.y60.http;
 import java.util.HashSet;
 import java.util.Set;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
@@ -11,6 +14,7 @@ import android.os.RemoteException;
 import com.artcom.y60.DeviceConfiguration;
 import com.artcom.y60.Logger;
 import com.artcom.y60.RpcStatus;
+import com.artcom.y60.Y60Action;
 import com.artcom.y60.Y60Service;
 
 /**
@@ -23,9 +27,9 @@ public class HttpProxyService extends Y60Service {
 
     // Constants ---------------------------------------------------------
 
-    public static final String           LOG_TAG;
+    public static final String LOG_TAG;
 
-    private static final Cache           CACHE;
+    private static final Cache CACHE;
 
     // Class Variables ---------------------------------------------------
 
@@ -76,7 +80,9 @@ public class HttpProxyService extends Y60Service {
 
     private HttpProxyRemote mRemote;
 
-    private String          mId;
+    private String mId;
+
+    private ResetReceiver mResetReceiver;
 
     // Constructors ------------------------------------------------------
 
@@ -88,6 +94,7 @@ public class HttpProxyService extends Y60Service {
 
     // Public Instance Methods -------------------------------------------
 
+    @Override
     public void onCreate() {
 
         DeviceConfiguration conf = DeviceConfiguration.load();
@@ -99,6 +106,10 @@ public class HttpProxyService extends Y60Service {
 
         mRemote = new HttpProxyRemote();
 
+        IntentFilter filter = new IntentFilter(Y60Action.RESET_BC);
+        mResetReceiver = new ResetReceiver();
+        registerReceiver(mResetReceiver, filter);
+
         synchronized (sInstances) {
             sInstances.add(this);
             CACHE.resume();
@@ -106,6 +117,7 @@ public class HttpProxyService extends Y60Service {
         }
     }
 
+    @Override
     public void onStart(Intent intent, int startId) {
 
         DeviceConfiguration conf = DeviceConfiguration.load();
@@ -118,6 +130,7 @@ public class HttpProxyService extends Y60Service {
         Logger.d(tag(), "instances: " + countInstances());
     }
 
+    @Override
     public void onDestroy() {
 
         Logger.i(tag(), "HttpProxyService.onDestroy");
@@ -131,9 +144,12 @@ public class HttpProxyService extends Y60Service {
             Logger.d(tag(), "instances: " + countInstances());
         }
 
+        unregisterReceiver(mResetReceiver);
+
         super.onDestroy();
     }
 
+    @Override
     public IBinder onBind(Intent pIntent) {
 
         return mRemote;
@@ -163,6 +179,13 @@ public class HttpProxyService extends Y60Service {
     private String tag() {
 
         return LOG_TAG + "[instance " + mId + "]";
+    }
+
+    private void clear() {
+
+        Logger.d(LOG_TAG, "clearing HTTP cache");
+        CACHE.clear();
+        Logger.d(LOG_TAG, "HTTP cache cleared");
     }
 
     // Inner Classes -----------------------------------------------------
@@ -206,6 +229,15 @@ public class HttpProxyService extends Y60Service {
             } catch (Exception e) {
                 status.setError(e);
             }
+        }
+    }
+
+    class ResetReceiver extends BroadcastReceiver {
+
+        @Override
+        public void onReceive(Context pContext, Intent pIntent) {
+
+            HttpProxyService.this.clear();
         }
     }
 
