@@ -217,6 +217,9 @@ public class HttpProxyHelper {
         if (status.hasError()) {
             throw new RuntimeException(status.getError());
         }
+        if (content == null) {
+            throw new RuntimeException("content bundle is null");
+        }
 
         return ResourceBundleHelper.convertResourceBundleToByteArray(content);
     }
