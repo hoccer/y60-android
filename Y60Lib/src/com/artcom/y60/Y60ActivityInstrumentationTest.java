@@ -55,7 +55,7 @@ public abstract class Y60ActivityInstrumentationTest<T extends Activity> extends
 
         d(" --- " + getName()
                 + " -- setUp ------------------------------------------------------------");
-        Logger.logMemoryInfo(tag(), this.getInstrumentation().getContext());
+        Logger.logMemoryInfo(tag(), getInstrumentation().getContext());
         reset();
 
         super.setUp();
@@ -67,7 +67,7 @@ public abstract class Y60ActivityInstrumentationTest<T extends Activity> extends
         d(" --- " + getName() + " -- tearDown -----"
                 + "-------------------------------------------------------");
         reset();
-        Logger.logMemoryInfo(tag(), this.getInstrumentation().getContext());
+        Logger.logMemoryInfo(tag(), getInstrumentation().getContext());
 
         super.tearDown();
     }
@@ -246,7 +246,7 @@ public abstract class Y60ActivityInstrumentationTest<T extends Activity> extends
     protected void reset() {
 
         Intent reset = new Intent(Y60Action.RESET_BC);
-        getActivity().sendBroadcast(reset);
+        getInstrumentation().getContext().sendBroadcast(reset);
     }
 
 }
