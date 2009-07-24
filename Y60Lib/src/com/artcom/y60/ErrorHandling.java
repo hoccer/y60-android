@@ -167,4 +167,10 @@ public class ErrorHandling {
                         pint);
         notifier.notify(Y60_ERROR_NOTIFICATION_ID, notification);
     }
+
+    public static void signalWarning(String pLogTag, String pMsg, Context pContext) {
+
+        // by now, we just log it as a warning
+        Logger.w(pLogTag, pMsg);
+    }
 }
