@@ -18,7 +18,7 @@ public class Logger {
     public enum Level implements Comparable<Level> {
 
         VERBOSE(0, Log.VERBOSE, "verbose"), DEBUG(1, Log.DEBUG, "debug"), INFO(2, Log.INFO, "info"), WARN(
-                        3, Log.WARN, "warn"), ERROR(4, Log.ERROR, "error");
+                3, Log.WARN, "warn"), ERROR(4, Log.ERROR, "error");
 
         private final static Map<String, Level> BY_NAME;
 
@@ -44,8 +44,8 @@ public class Logger {
             return BY_NAME.get(pName.toLowerCase());
         }
 
-        private int mAsInt;
-        private int mPriority;
+        private int    mAsInt;
+        private int    mPriority;
         private String mName;
 
         Level(int pAsInt, int pPriority, String pName) {
@@ -68,7 +68,7 @@ public class Logger {
                 if (pTag == null) {
 
                     throw new NullPointerException(
-                                    "Log tag is null! This must be some kind of accident?!");
+                            "Log tag is null! This must be some kind of accident?!");
                 }
 
                 StringBuilder builder = new StringBuilder();
@@ -177,7 +177,7 @@ public class Logger {
 
     public static void logMemoryInfo(String pLogTag, Context pContext) {
         ActivityManager actMgr = (ActivityManager) pContext
-                        .getSystemService(pContext.ACTIVITY_SERVICE);
+                .getSystemService(pContext.ACTIVITY_SERVICE);
         MemoryInfo memInfo = new MemoryInfo();
         actMgr.getMemoryInfo(memInfo);
         d(pLogTag, "available memory: ", readable(memInfo.availMem));
