@@ -9,6 +9,8 @@ import org.mortbay.jetty.bio.SocketConnector;
 import org.mortbay.jetty.handler.HandlerCollection;
 import org.mortbay.thread.QueuedThreadPool;
 
+import android.app.ActivityManager;
+import android.app.ActivityManager.MemoryInfo;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
@@ -153,7 +155,11 @@ public class DeviceControllerService extends Y60Service {
 
     @Override
     public void onLowMemory() {
-        ErrorHandling.signalLowOnMemoryError(LOG_TAG, new Exception("Low on memory!"), this);
+        ActivityManager actMgr = (ActivityManager) getSystemService(ACTIVITY_SERVICE);
+        MemoryInfo memInfo = new MemoryInfo();
+        actMgr.getMemoryInfo(memInfo);
+        ErrorHandling.signalWarning(LOG_TAG, "Memory low - " + memInfo.availMem + "!", this);
+        Logger.logMemoryInfo(LOG_TAG, this);
         super.onLowMemory();
     }
 
