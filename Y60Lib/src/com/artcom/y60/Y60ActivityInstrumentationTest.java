@@ -1,5 +1,8 @@
 package com.artcom.y60;
 
+import java.io.File;
+import java.io.FileReader;
+
 import android.app.Activity;
 import android.app.Instrumentation;
 import android.content.Intent;
@@ -52,13 +55,33 @@ public abstract class Y60ActivityInstrumentationTest<T extends Activity> extends
 
     @Override
     public void setUp() throws Exception {
-
         d(" --- " + getName()
                 + " -- setUp ------------------------------------------------------------");
         Logger.logMemoryInfo(tag(), getInstrumentation().getContext());
         reset();
 
         super.setUp();
+        assertNoErrorLogOnSdcard();
+
+    }
+
+    private void assertNoErrorLogOnSdcard() throws Exception {
+
+        File f = new File("/sdcard/error_log.txt");
+        if (!f.exists()) {
+            return;
+        }
+        Logger.v(LOG_TAG, "in assert Error!");
+        FileReader fr;
+        fr = new FileReader("/sdcard/error_log.txt");
+        char[] inputBuffer = new char[(int) f.length()];
+
+        fr.read(inputBuffer);
+        String errorLog = new String(inputBuffer);
+        fr.close();
+        Logger.e(LOG_TAG, "Error log is: '" + errorLog + " '");
+        assertTrue(new File("/sdcard/error_log.txt").delete());
+        fail();
     }
 
     @Override
@@ -70,6 +93,7 @@ public abstract class Y60ActivityInstrumentationTest<T extends Activity> extends
         Logger.logMemoryInfo(tag(), getInstrumentation().getContext());
 
         super.tearDown();
+        assertNoErrorLogOnSdcard();
     }
 
     // Protected Instance Methods ----------------------------------------

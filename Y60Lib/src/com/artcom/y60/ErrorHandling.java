@@ -14,6 +14,7 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.util.Log;
 
 public class ErrorHandling {
 
@@ -53,7 +54,7 @@ public class ErrorHandling {
         try {
             fw = new FileWriter("/sdcard/error_log.txt");
             fw.write(pLogTag + " (" + pCategory + ") " + "\n");
-            fw.write(pError + "\n");
+            fw.write(Log.getStackTraceString(pError));
             fw.close();
         } catch (IOException e) {
             // TODO Auto-generated catch block
