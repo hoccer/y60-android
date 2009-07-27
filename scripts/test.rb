@@ -6,14 +6,13 @@ require 'java_project'
 require 'android_project'
 
 def main pj_names
-  projects = Project.load_in_dependency_order(pj_names)
 
-  # non-y60 runs should only test theireself, not the y60 projects
-  wd = Dir.new(Dir.getwd)
-  if !wd.include? "Y60Lib"
-    puts "non y60 run -- y60 apps will be excluded from testing"
-    projects = projects.select { |p| wd.include? p.name }
-  end
+  projects = [] #Project.load_in_dependency_order("TgHomeScreen")
+
+  Dir["#{Dir.getwd}/*/.project"].each { |dir|
+    pj_name = File.basename(File.dirname dir)
+    projects.push(Project.find_or_create pj_name, Dir.getwd)
+  }
 
   puts "testing #{projects.map {|p| p.name}.join(' ')}"
   

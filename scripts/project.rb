@@ -49,10 +49,14 @@ class Project
     sorted_pjs
   end
   
-  def self.find_or_create name
+  def self.find_or_create name, base_path = nil
+  
+    puts "#{base_path}"
+    @@project_paths[name] = "#{base_path}/#{name}" if base_path != nil
+    
     pj = @@projects[name]
     if pj.nil?
-      pj_xml = REXML::Document.new(File.new(@@project_paths[name]+"/.project"))
+      pj_xml = REXML::Document.new(File.new(@@project_paths[name] + "/.project"))
       nature = nil
       pj_xml.elements.each("*//nature") do |e| 
         nature = :android if e.text.include? "com.android.ide.eclipse.adt.AndroidNature"
@@ -84,10 +88,6 @@ class Project
     @parent_dir = path_list.join('/') 
     @parent_dir += "/" if @parent_dir != ""
     
-    puts "loading dependencies:"
-    resolve_dependencies
-    puts "loaded dependencies for #{name}"
-
     puts "created #{to_s}"
   end
 
@@ -112,6 +112,10 @@ class Project
   def create_build_env
     puts "creating build environment for #{name}"
   
+    puts "loading dependencies:"
+    resolve_dependencies
+    puts "loaded dependencies for #{name}"
+
     build_template = self.class.name.underscore.split("_")[0] + "_build.xml.erb"
   
     generate_from_template "build.xml", build_template

@@ -70,7 +70,7 @@ class AndroidProject < Project
     install device_id
   end
 
-    # run adroid instumentation tests; returns true if succsessfull
+  # run adroid instumentation tests; returns true if succsessfull
   def test
     puts "testing #{name}"    
    
