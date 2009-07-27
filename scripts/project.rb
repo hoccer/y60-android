@@ -32,9 +32,14 @@ class Project
     @@project_paths.each_key do |name|
       unsorted_pjs << self.find_or_create(name) if load_all or pj_names.member? name
     end
+    
     sorted_pjs = []
     while !unsorted_pjs.empty? 
       project = unsorted_pjs.delete_at 0
+      puts "loading dependencies:"
+      project.resolve_dependencies
+      puts "loaded dependencies for #{name}"
+
       unless sorted_pjs.member? project 
         copy_to_front = (project.dependencies - sorted_pjs)
         if !copy_to_front.empty?
@@ -112,10 +117,6 @@ class Project
   def create_build_env
     puts "creating build environment for #{name}"
   
-    puts "loading dependencies:"
-    resolve_dependencies
-    puts "loaded dependencies for #{name}"
-
     build_template = self.class.name.underscore.split("_")[0] + "_build.xml.erb"
   
     generate_from_template "build.xml", build_template
