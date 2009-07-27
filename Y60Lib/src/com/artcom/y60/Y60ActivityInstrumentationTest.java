@@ -8,6 +8,7 @@ import android.app.Instrumentation;
 import android.content.Intent;
 import android.os.SystemClock;
 import android.test.ActivityInstrumentationTestCase2;
+import android.test.AssertionFailedError;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
@@ -65,12 +66,13 @@ public abstract class Y60ActivityInstrumentationTest<T extends Activity> extends
 
     }
 
-    private void assertNoErrorLogOnSdcard() throws Exception {
+    void assertNoErrorLogOnSdcard() throws Exception {
 
         File f = new File("/sdcard/error_log.txt");
         if (!f.exists()) {
             return;
         }
+
         Logger.v(LOG_TAG, "in assert Error!");
         FileReader fr;
         fr = new FileReader("/sdcard/error_log.txt");
@@ -80,8 +82,8 @@ public abstract class Y60ActivityInstrumentationTest<T extends Activity> extends
         String errorLog = new String(inputBuffer);
         fr.close();
         Logger.e(LOG_TAG, "Error log is: '" + errorLog + " '");
-        assertTrue(new File("/sdcard/error_log.txt").delete());
-        fail();
+        f.delete();
+        throw new AssertionFailedError();
     }
 
     @Override

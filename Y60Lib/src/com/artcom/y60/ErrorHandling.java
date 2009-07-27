@@ -1,6 +1,8 @@
 package com.artcom.y60;
 
+import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.NoSuchElementException;
@@ -50,9 +52,24 @@ public class ErrorHandling {
 
     private static void saveErrorOnSdcard(String pLogTag, Throwable pError, Category pCategory) {
 
-        FileWriter fw;
         try {
+            String errorLog = null;
+
+            File f = new File("/sdcard/error_log.txt");
+            if (f.exists()) {
+                FileReader fr;
+                fr = new FileReader("/sdcard/error_log.txt");
+                char[] inputBuffer = new char[(int) f.length()];
+                fr.read(inputBuffer);
+                errorLog = new String(inputBuffer);
+            }
+
+            FileWriter fw;
+
             fw = new FileWriter("/sdcard/error_log.txt");
+            if (errorLog != null) {
+                fw.write(errorLog + "\n");
+            }
             fw.write(pLogTag + " (" + pCategory + ") " + "\n");
             fw.write(Log.getStackTraceString(pError));
             fw.close();
