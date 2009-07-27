@@ -5,7 +5,6 @@
 	<classpathentry kind="con" path="com.android.ide.eclipse.adt.ANDROID_FRAMEWORK"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/Y60Lib"/>
 	<classpathentry kind="lib" path="libs/NetUtil.jar"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/TgCommonLib"/>
 	<classpathentry kind="src" path="gen"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
