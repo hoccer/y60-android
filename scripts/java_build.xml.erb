@@ -1,0 +1,41 @@
+<project name="<%= name %>" default="debug" basedir=".">
+	
+	<!-- properties ============================================================ -->
+	
+	<path id="classpath.build">
+		<fileset dir="libs">
+			<include name="**/*.jar"/>
+			<include name="**/*.zip"/>
+		</fileset>
+	</path>
+
+	<!-- targets =============================================================== -->
+	
+	<target name="cleanup">
+		<delete dir="bin"/>
+	</target>
+		
+	<target name="prepare" depends="cleanup">
+		<mkdir dir="bin"/>
+		<mkdir dir="bin/classes"/>
+	</target>
+	
+	<target name="compile" depends="prepare">
+		<javac destdir="bin/classes" srcdir="src" source="1.6"
+			   debug="on">
+			<classpath refid="classpath.build"/>
+		</javac>
+	</target>
+		
+	<target name="jar">
+		<jar jarfile="bin/<%= name %>.jar">
+			<fileset dir="bin/classes">
+				<include name="**/*"/>
+			</fileset>
+		</jar>
+	</target>
+		
+	<target name="debug" depends="prepare, compile, jar">
+	</target>
+	
+</project>
