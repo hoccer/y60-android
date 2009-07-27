@@ -9,8 +9,6 @@ def main pj_names
   projects = Project.load_in_dependency_order(pj_names)
   puts "building #{projects.map {|p| p.name}.join(' ')}"
  
-#  return
- 
   # build all projects
   projects.each do |project| 
     puts "--- doing project #{project.name}"

@@ -97,7 +97,8 @@ class Project
   def depends_on project
     @dependencies.member? project
   end
-
+ 
+ 
   # remove all generated files to start a fresh build
   def cleanup
     puts "cleaning up #{name}"
@@ -176,6 +177,7 @@ class Project
     script_path = File.join(File.dirname(__FILE__))
     File.expand_path("#{script_path}/../")
   end
+  
   
   # two ways to call this:
   # - 'find_project_paths :all' finds all project paths
