@@ -32,9 +32,14 @@ class Project
     @@project_paths.each_key do |name|
       unsorted_pjs << self.find_or_create(name) if load_all or pj_names.member? name
     end
+    
     sorted_pjs = []
     while !unsorted_pjs.empty? 
       project = unsorted_pjs.delete_at 0
+      puts "loading dependencies:"
+      project.resolve_dependencies
+      puts "loaded dependencies for #{name}"
+
       unless sorted_pjs.member? project 
         copy_to_front = (project.dependencies - sorted_pjs)
         if !copy_to_front.empty?
@@ -112,10 +117,6 @@ class Project
   def create_build_env
     puts "creating build environment for #{name}"
   
-    puts "loading dependencies:"
-    resolve_dependencies
-    puts "loaded dependencies for #{name}"
-
     build_template = self.class.name.underscore.split("_")[0] + "_build.xml.erb"
   
     generate_from_template "build.xml", build_template
@@ -173,6 +174,26 @@ class Project
     File.open("#{path}/#{target_file_name}", "w") { |fd| fd.write txt }
   end
   
+  # load's the list of project names this project depends on from the eclipse classpath
+  def resolve_dependencies
+    classpath = File.new "#{path}/.classpath"
+    cp_xml = REXML::Document.new classpath
+    cp_xml.elements.each("*/classpathentry | */*[local-name()='hidden-build-dependency']") do |path_entry| 
+      if path_entry.attributes["kind"] == "src" then
+        dep_name = path_entry.attributes["path"]
+        puts ".....#{dep_name}  #{dep_name[0]}"
+        
+        # it's a project only if it's a path starting with a slash
+        if dep_name[0] == "/"[0] then
+          n = dep_name[1..-1]
+          puts name + " depends on " + n
+          dep_pj = Project.find_or_create(n)
+          @dependencies << dep_pj
+        end
+      end
+    end
+  end
+
   
   private # --------------------------------------------------------------
   
@@ -210,27 +231,7 @@ class Project
       @@project_paths[pj_name] = pj_path if (all_or_names == :all) or all_or_names.member? pj_name
     end
   end
-  
-  # load's the list of project names this project depends on from the eclipse classpath
-  def resolve_dependencies
-    classpath = File.new "#{path}/.classpath"
-    cp_xml = REXML::Document.new classpath
-    cp_xml.elements.each("*/classpathentry | */*[local-name()='hidden-build-dependency']") do |path_entry| 
-      if path_entry.attributes["kind"] == "src" then
-        dep_name = path_entry.attributes["path"]
-        puts ".....#{dep_name}  #{dep_name[0]}"
-        
-        # it's a project only if it's a path starting with a slash
-        if dep_name[0] == "/"[0] then
-          n = dep_name[1..-1]
-          puts name + " depends on " + n
-          dep_pj = Project.find_or_create(n)
-          @dependencies << dep_pj
-        end
-      end
-    end
-  end
-  
+    
   def run message, cmdline
     if $project_test
       puts "executing #{cmdline.split.join(" ")}"
