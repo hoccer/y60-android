@@ -102,6 +102,26 @@ class Project
   def depends_on project
     @dependencies.member? project
   end
+
+  # load's the list of project names this project depends on from the eclipse classpath
+  def resolve_dependencies
+    classpath = File.new "#{path}/.classpath"
+    cp_xml = REXML::Document.new classpath
+    cp_xml.elements.each("*/classpathentry | */*[local-name()='hidden-build-dependency']") do |path_entry| 
+      if path_entry.attributes["kind"] == "src" then
+        dep_name = path_entry.attributes["path"]
+        puts ".....#{dep_name}  #{dep_name[0]}"
+        
+        # it's a project only if it's a path starting with a slash
+        if dep_name[0] == "/"[0] then
+          n = dep_name[1..-1]
+          puts name + " depends on " + n
+          dep_pj = Project.find_or_create(n)
+          @dependencies << dep_pj
+        end
+      end
+    end
+  end
  
  
   # remove all generated files to start a fresh build
@@ -173,27 +193,6 @@ class Project
     txt = template.result binding
     File.open("#{path}/#{target_file_name}", "w") { |fd| fd.write txt }
   end
-  
-  # load's the list of project names this project depends on from the eclipse classpath
-  def resolve_dependencies
-    classpath = File.new "#{path}/.classpath"
-    cp_xml = REXML::Document.new classpath
-    cp_xml.elements.each("*/classpathentry | */*[local-name()='hidden-build-dependency']") do |path_entry| 
-      if path_entry.attributes["kind"] == "src" then
-        dep_name = path_entry.attributes["path"]
-        puts ".....#{dep_name}  #{dep_name[0]}"
-        
-        # it's a project only if it's a path starting with a slash
-        if dep_name[0] == "/"[0] then
-          n = dep_name[1..-1]
-          puts name + " depends on " + n
-          dep_pj = Project.find_or_create(n)
-          @dependencies << dep_pj
-        end
-      end
-    end
-  end
-
   
   private # --------------------------------------------------------------
   
