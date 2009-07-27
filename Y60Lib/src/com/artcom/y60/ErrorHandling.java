@@ -1,6 +1,7 @@
 package com.artcom.y60;
 
 import java.io.FileNotFoundException;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.NoSuchElementException;
 
@@ -27,26 +28,42 @@ public class ErrorHandling {
         UNSPECIFIED
     }
 
-    public static final int Y60_ERROR_NOTIFICATION_ID = 2342;
+    public static final int     Y60_ERROR_NOTIFICATION_ID = 2342;
 
-    private static final String LOG_TAG = "ErrorHandling";
+    private static final String LOG_TAG                   = "ErrorHandling";
 
-    public static final String ID_MESSAGE = "error";
-    public static final String ID_LOGTAG = "logtag";
-    public static final String ID_CATEGORY = "category";
+    public static final String  ID_MESSAGE                = "error";
+    public static final String  ID_LOGTAG                 = "logtag";
+    public static final String  ID_CATEGORY               = "category";
 
     public static void signalError(String logTag, Throwable error, Context context,
-                    Category category) {
+            Category category) {
         Logger.e(LOG_TAG, "signaling error: ", error);
 
         Intent intent = createErrorPresentationIntent(logTag, error, category);
         // context.startActivity(intent);
         sendErrorNotification(logTag, error, context, intent);
+        saveErrorOnSdcard(logTag, error, category);
+
+    }
+
+    private static void saveErrorOnSdcard(String pLogTag, Throwable pError, Category pCategory) {
+
+        FileWriter fw;
+        try {
+            fw = new FileWriter("/sdcard/error_log.txt");
+            fw.write(pLogTag + " (" + pCategory + ") " + "\n");
+            fw.write(pError + "\n");
+            fw.close();
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
 
     }
 
     public static void signalFileNotFoundError(String logTag, FileNotFoundException error,
-                    Context context) {
+            Context context) {
         signalError(logTag, error, context, Category.FILE_NOT_FOUND);
     }
 
@@ -55,7 +72,7 @@ public class ErrorHandling {
     }
 
     public static void signalUnsupportedEncodingError(String logTag, Throwable error,
-                    Context context) {
+            Context context) {
         signalError(logTag, error, context, Category.UNSUPPORTED_ENCODING);
     }
 
@@ -84,7 +101,7 @@ public class ErrorHandling {
     }
 
     public static void signalIllegalArgumentError(String logTag, IllegalArgumentException error,
-                    Context context) {
+            Context context) {
         signalError(logTag, error, context, Category.ILLEGAL_ARGUMENT);
     }
 
@@ -101,17 +118,17 @@ public class ErrorHandling {
     }
 
     public static void signalMissingGomEntryError(String logTag, NoSuchElementException error,
-                    Context context) {
+            Context context) {
         signalError(logTag, error, context, Category.MISSING_GOM_ENTRY);
     }
 
     public static void signalMissingMandatoryObjectError(String logTag, Throwable error,
-                    Context context) {
+            Context context) {
         signalError(logTag, error, context, Category.MISSING_MANDATORY_OBJECT);
     }
 
     public static void signalDefectiveContentError(String logTag, DefectiveContentException error,
-                    Context context) {
+            Context context) {
         signalError(logTag, error, context, Category.DEFECTIVE_CONTENT_ERROR);
     }
 
@@ -139,12 +156,12 @@ public class ErrorHandling {
     static void cancelErrorNotification(Context pContext) {
 
         NotificationManager notifier = (NotificationManager) pContext
-                        .getSystemService(pContext.NOTIFICATION_SERVICE);
+                .getSystemService(pContext.NOTIFICATION_SERVICE);
         notifier.cancel(Y60_ERROR_NOTIFICATION_ID);
     }
 
     private static Intent createErrorPresentationIntent(String pLogTag, Throwable pError,
-                    Category pCategory) {
+            Category pCategory) {
         Intent intent = new Intent("y60.intent.ERROR_PRESENTATION");
         intent.putExtra(ID_MESSAGE, pError.toString());
         intent.putExtra(ID_LOGTAG, pLogTag);
@@ -155,16 +172,16 @@ public class ErrorHandling {
     }
 
     private static void sendErrorNotification(String pLogTag, Throwable pError, Context pContext,
-                    Intent pErrorPresentationIntent) {
+            Intent pErrorPresentationIntent) {
 
         NotificationManager notifier = (NotificationManager) pContext
-                        .getSystemService(pContext.NOTIFICATION_SERVICE);
+                .getSystemService(pContext.NOTIFICATION_SERVICE);
         PendingIntent pint = PendingIntent.getActivity(pContext, 0, pErrorPresentationIntent,
-                        PendingIntent.FLAG_ONE_SHOT);
+                PendingIntent.FLAG_ONE_SHOT);
         Notification notification = new Notification(android.R.drawable.stat_notify_error, "Error",
-                        System.currentTimeMillis());
+                System.currentTimeMillis());
         notification.setLatestEventInfo(pContext, "Error", pLogTag + ": " + pError.getMessage(),
-                        pint);
+                pint);
         notifier.notify(Y60_ERROR_NOTIFICATION_ID, notification);
     }
 
