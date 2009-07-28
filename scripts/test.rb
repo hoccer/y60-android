@@ -78,7 +78,7 @@ def main pj_names
     test_result[:was_succsessful] and yet    
   end
   
-  
+  system "adb shell rm /sdcard/error_log.txt"
   
   puts "
   tests run: #{tests_run},

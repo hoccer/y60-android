@@ -33,15 +33,15 @@ public class StatusWatcher extends Y60Service {
     };
 
     private NotificationManager mNotificationManager;
-    private GomProxyHelper mGom;
-    private boolean mIsHeartbeatLoopRunning;
-    private StatusCollector mStatusCollector;
-    private HeartbeatLoop mHeartbeatLoop;
-    private Thread mHeartbeatThread;
+    private GomProxyHelper      mGom;
+    private boolean             mIsHeartbeatLoopRunning;
+    private StatusCollector     mStatusCollector;
+    private HeartbeatLoop       mHeartbeatLoop;
+    private Thread              mHeartbeatThread;
     private DeviceConfiguration mDeviceConfiguration;
-    private boolean mIsGomAvailable = false;
-    private long mSleepTime = 10 * 1000;
-    private String mHistoryLog;
+    private boolean             mIsGomAvailable = false;
+    private long                mSleepTime      = 10 * 1000;
+    private String              mHistoryLog;
 
     @Override
     public void onCreate() {
@@ -93,15 +93,15 @@ public class StatusWatcher extends Y60Service {
     @Override
     public IBinder onBind(Intent pIntent) {
         Logger
-                        .w(LOG_TAG,
-                                        "This service is not currently intended to be bound to. Are you sure you know what you're doing?");
+                .w(LOG_TAG,
+                        "This service is not currently intended to be bound to. Are you sure you know what you're doing?");
         return null;
     }
 
     class HeartbeatLoop implements Runnable {
 
         private static final int GOM_NOT_ACCESSIBLE_NOTIFICATION_ID = 42;
-        private String mHistoryLog;
+        private String           mHistoryLog;
 
         @Override
         public void run() {
@@ -119,9 +119,9 @@ public class StatusWatcher extends Y60Service {
                         mIsGomAvailable = true;
 
                         GomNode device = mGom.getNode(mDeviceConfiguration.getDevicePath());
-                        Logger.v(LOG_TAG, "putting timestamp");
-                        device.getOrCreateAttribute("last_alive_update").putValue(timestamp);
-                        Logger.v(LOG_TAG, "putted timestamp");
+                        // Logger.v(LOG_TAG, "putting timestamp");
+                        // device.getOrCreateAttribute("last_alive_update").putValue(timestamp);
+                        // Logger.v(LOG_TAG, "putted timestamp");
 
                         // append current ping statistic to the history_log in
                         // gom
@@ -154,12 +154,12 @@ public class StatusWatcher extends Y60Service {
             Intent configureDC = new Intent("y60.intent.CONFIGURE_DEVICE_CONTROLLER");
             configureDC.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             Notification notification = new Notification(R.drawable.network_down_status_icon,
-                            "Y60's GOM not accessible.", System.currentTimeMillis());
+                    "Y60's GOM not accessible.", System.currentTimeMillis());
             PendingIntent pint = PendingIntent.getActivity(StatusWatcher.this, 0, configureDC,
-                            PendingIntent.FLAG_ONE_SHOT);
+                    PendingIntent.FLAG_ONE_SHOT);
 
             notification.setLatestEventInfo(StatusWatcher.this, "GOM not accessible",
-                            "network might be down", pint);
+                    "network might be down", pint);
             mNotificationManager.notify(GOM_NOT_ACCESSIBLE_NOTIFICATION_ID, notification);
 
             appendToLog(pTimestamp + ": network failure");
@@ -170,7 +170,7 @@ public class StatusWatcher extends Y60Service {
             Process process = null;
             try {
                 process = runtime.exec("ping -q -c 20 -i 0.1 "
-                                + Uri.parse(mDeviceConfiguration.getGomUrl()).getHost());
+                        + Uri.parse(mDeviceConfiguration.getGomUrl()).getHost());
             } catch (IOException e) {
                 ErrorHandling.signalNetworkError(LOG_TAG, e, StatusWatcher.this);
             }
