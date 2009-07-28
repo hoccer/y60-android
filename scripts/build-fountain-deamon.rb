@@ -6,22 +6,30 @@ require 'open-uri'
 
 $socket_number = 1
 
-
-def fetch_build_state
-  uri = "http://tg-svn.t-gallery.act/job/T-Gallery%20Android%20Projects/lastBuild/"
-
+def fetch_build_state_from uri
   doc = Hpricot(open(uri))
   status_img = doc.at("//img[@src='buildStatus']")
   
-  status_img.attributes['alt']
+  tg_buid_state = status_img.attributes['alt']
+end
+
+def fetch_build_states
+
+  tg_buid_state = fetch_build_state_from "http://tg-svn.t-gallery.act/job/T-Gallery%20Android%20Projects/lastBuild/"
+
+  y60_buid_state = fetch_build_state_from "http://tg-svn.t-gallery.act/job/Y60%20Android%20Projects/lastBuild/"
+
+  [tg_build_state, y60_build_state]
 end
 
 def build_in_progress?
-  fetch_build_state == "In progress"    
+  states = fetch_build_states
+  states[0] == "In progress" || states[0] == "In progress"
 end
 
 def build_succsessful?
-  fetch_build_state == "Success"
+  states = fetch_build_states
+  states[0] == "Success" && states[0] == "Success"
 end
 
 def build_not_succsessful?
