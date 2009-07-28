@@ -78,7 +78,12 @@ def main pj_names
     test_result[:was_succsessful] and yet    
   end
   
-  system "adb shell rm /sdcard/error_log.txt"
+  system "adb pull /sdcard/error_log.txt /tmp/error_log.txt"
+  if File.exists? "/tmp/error_log.txt" then
+    success = false
+    puts "noticed an error on sdcard:"
+    puts File.new("/tmp/error_log.txt").read
+  end
   
   puts "
   tests run: #{tests_run},
