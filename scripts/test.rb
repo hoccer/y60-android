@@ -48,9 +48,37 @@ def main pj_names
   puts "testing #{projects.map {|p| p.name}.join(' ')}"
   puts "testing #{projects.size}"
   
-  success = true
+  success = projects.inject(true) do |yet, project|
+    starttime = Time.new
 
+    test_result = project.test
+    
+    if !test_result[:was_succsessful] then 
+      failing_projects.push project.name
+    end
+    
+    if test_result.has_key? :tests_run then 
+      tests_run += test_result[:tests_run]
+    end
+    
+    if test_result.has_key? :broken_instrumentation then 
+      broken_instrumentations += 1
+    end
+    
+    if test_result.has_key? :tests_failed then 
+      tests_failed += test_result[:tests_failed]
+    end
+    
+    if test_result.has_key? :tests_with_exception then 
+      tests_with_exception += test_result[:tests_with_exception]
+    end
+    
+    elapsedSeconds = Time.new - starttime
+    puts "test duration: #{elapsedSeconds} seconds"
+    test_result[:was_succsessful] and yet    
+  end
   
+   
   system "adb pull /sdcard/error_log.txt /tmp/error_log.txt"
   if File.exists? "/tmp/error_log.txt" then
     success = false
@@ -58,7 +86,7 @@ def main pj_names
     puts File.new("/tmp/error_log.txt").read
     system "adb shell rm /sdcard/error_log.txt"
   end
-  
+ 
   puts "
   tests run: #{tests_run},
   tests failed: #{tests_failed}, 
