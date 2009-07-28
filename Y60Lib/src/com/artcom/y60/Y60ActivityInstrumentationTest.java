@@ -272,7 +272,7 @@ public abstract class Y60ActivityInstrumentationTest<T extends Activity> extends
     protected void reset() {
 
         Intent reset = new Intent(Y60Action.RESET_BC);
-        getInstrumentation().getContext().sendBroadcast(reset);
+        // getInstrumentation().getContext().sendBroadcast(reset);
     }
 
 }
