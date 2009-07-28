@@ -39,20 +39,18 @@ def main pj_names
     name = File.basename(File.dirname dir)
     projects.push(Project.find_or_create name, Dir.getwd)
   }
-
-  puts "testing #{projects.map {|p| p.name}.join(' ')}"
-  
   
   failing_projects = []
   tests_run = tests_failed = tests_with_exception = broken_instrumentations = 0
 
  
   projects = projects.select { |p| p.respond_to? :test }
-
-  success = projects.inject do |yet, project|
+  puts "testing #{projects.map {|p| p.name}.join(' ')}"
+  puts "testing #{projects.size}"
+  
+  success = projects.inject(true) do |yet, project|
     starttime = Time.new
 
-    puts "#{Time.now.to_s}--- running test for project #{project.name}"
     test_result = project.test
     
     if !test_result[:was_succsessful] then 
