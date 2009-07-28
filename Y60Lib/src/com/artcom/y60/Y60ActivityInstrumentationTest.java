@@ -83,7 +83,7 @@ public abstract class Y60ActivityInstrumentationTest<T extends Activity> extends
         fr.close();
         Logger.e(LOG_TAG, "Error log is: '" + errorLog + " '");
         f.delete();
-        throw new AssertionFailedError(errorLog);
+        throw new AssertionFailedError("This test stumbled upon an error from " + errorLog);
     }
 
     @Override
