@@ -18,6 +18,7 @@ import android.os.Binder;
 import android.os.IBinder;
 import android.widget.Toast;
 
+import com.artcom.y60.BindingException;
 import com.artcom.y60.BindingListener;
 import com.artcom.y60.Constants;
 import com.artcom.y60.DeviceConfiguration;
@@ -52,7 +53,7 @@ public class DeviceControllerService extends Y60Service {
         super.onCreate();
         Logger.i(LOG_TAG, "onCreate called");
 
-        mGom = new GomProxyHelper(this, new BindingListener<GomProxyHelper>() {
+        new GomProxyHelper(this, new BindingListener<GomProxyHelper>() {
 
             public void bound(GomProxyHelper helper) {
 
@@ -64,7 +65,12 @@ public class DeviceControllerService extends Y60Service {
                         mServer = startServer(Constants.Network.DEFAULT_PORT);
                         Logger.v(LOG_TAG, "bound() to GomProxyHelper: Server will be started now");
                     }
-                    updateDeviceAddresses();
+                    try {
+                        updateDeviceAddresses();
+                    } catch (BindingException e) {
+                        Logger.w(LOG_TAG,
+                                "GomProxy was unbound while processing asynchronous thread");
+                    }
 
                 } catch (Exception ex) {
 
@@ -91,6 +97,13 @@ public class DeviceControllerService extends Y60Service {
 
     }
 
+    private GomProxyHelper getGom() {
+        if (mGom == null || !mGom.isBound()) {
+            throw new BindingException("requested gom, but it is not bound");
+        }
+        return mGom;
+    }
+
     /**
      * Update our ip and rci_uri in the GOM
      */
@@ -104,7 +117,7 @@ public class DeviceControllerService extends Y60Service {
             // to take care of this
             if (!DeviceConfiguration.isRunningAsEmulator()) {
                 ipAddress = NetworkHelper.getDeviceIpAddress();
-                GomNode device = mGom.getNode(dc.getDevicePath());
+                GomNode device = getGom().getNode(dc.getDevicePath());
                 device.getOrCreateAttribute("ip_address").putValue(ipAddress);
             } else {
                 Logger.i(LOG_TAG, "I'm running in the emulator. Not publishing my ip address.");
@@ -120,7 +133,7 @@ public class DeviceControllerService extends Y60Service {
                     + "/commands";
             Logger.v(LOG_TAG, "command_uri of local device controller is ", command_uri);
 
-            GomNode device = mGom.getNode(dc.getDevicePath());
+            GomNode device = getGom().getNode(dc.getDevicePath());
             device.getOrCreateAttribute("rci_uri").putValue(command_uri);
 
         } catch (IpAddressNotFoundException e) {

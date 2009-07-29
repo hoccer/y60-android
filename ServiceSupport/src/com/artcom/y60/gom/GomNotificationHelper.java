@@ -141,7 +141,7 @@ public class GomNotificationHelper {
                     Logger.v(LOG_TAG, "pGomObserver.onEntryDeleted( ", pPath, " )");
                     pGomObserver.onEntryDeleted(pPath, null);
                 } catch (BindingException be) {
-                    Logger.w(LOG_TAG, "Gomproxy was unbound while processing asynchronous thread");
+                    Logger.w(LOG_TAG, "GomProxy was unbound while processing asynchronous thread");
                 } catch (Exception ex) {
                     pErrorHandler.handle(ex);
                 } catch (Throwable t) {
