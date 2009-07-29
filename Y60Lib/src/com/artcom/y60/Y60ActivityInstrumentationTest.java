@@ -81,7 +81,6 @@ public abstract class Y60ActivityInstrumentationTest<T extends Activity> extends
         fr.read(inputBuffer);
         String errorLog = new String(inputBuffer);
         fr.close();
-        Logger.e(LOG_TAG, "Error log is: '" + errorLog + " '");
         f.delete();
         throw new AssertionFailedError("This test stumbled upon an error from " + errorLog);
     }
