@@ -16,15 +16,13 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.IBinder;
 
-import com.artcom.y60.BindingListener;
 import com.artcom.y60.DeviceConfiguration;
 import com.artcom.y60.ErrorHandling;
 import com.artcom.y60.Logger;
-import com.artcom.y60.Y60Service;
 import com.artcom.y60.gom.GomNode;
-import com.artcom.y60.gom.GomProxyHelper;
+import com.artcom.y60.gom.Y60GomService;
 
-public class StatusWatcher extends Y60Service {
+public class StatusWatcher extends Y60GomService {
 
     private static final String LOG_TAG = "StatusWatcher";
 
@@ -33,9 +31,7 @@ public class StatusWatcher extends Y60Service {
     };
 
     private NotificationManager mNotificationManager;
-    private GomProxyHelper      mGom;
     private boolean             mIsHeartbeatLoopRunning;
-    private StatusCollector     mStatusCollector;
     private HeartbeatLoop       mHeartbeatLoop;
     private Thread              mHeartbeatThread;
     private DeviceConfiguration mDeviceConfiguration;
@@ -57,17 +53,6 @@ public class StatusWatcher extends Y60Service {
         mHeartbeatThread.start();
 
         mHistoryLog = "";
-
-        bindToGom();
-
-        /*
-         * mStatusCollector = new StatusCollector(mGom, mDeviceConfiguration);
-         * IntentFilter fltScreenOn = new IntentFilter(Intent.ACTION_SCREEN_ON);
-         * IntentFilter fltScreenOff = new
-         * IntentFilter(Intent.ACTION_SCREEN_OFF);
-         * registerReceiver(mStatusCollector, fltScreenOn);
-         * registerReceiver(mStatusCollector, fltScreenOff);
-         */
     }
 
     String getHistoryLog() {
@@ -81,11 +66,7 @@ public class StatusWatcher extends Y60Service {
 
     @Override
     public void onDestroy() {
-        if (mStatusCollector != null) {
-            unregisterReceiver(mStatusCollector);
-        }
         mIsHeartbeatLoopRunning = false;
-        unbindFromGom();
 
         super.onDestroy();
     }
@@ -114,11 +95,11 @@ public class StatusWatcher extends Y60Service {
 
                     timestamp = (new SimpleDateFormat("MM/dd/yyyy HH:mm:ss")).format(new Date());
 
-                    if (mGom != null) {
+                    if (isBoundToGom()) {
 
                         mIsGomAvailable = true;
 
-                        GomNode device = mGom.getNode(mDeviceConfiguration.getDevicePath());
+                        GomNode device = getGom().getNode(mDeviceConfiguration.getDevicePath());
                         // Logger.v(LOG_TAG, "putting timestamp");
                         // device.getOrCreateAttribute("last_alive_update").putValue(timestamp);
                         // Logger.v(LOG_TAG, "putted timestamp");
@@ -217,27 +198,4 @@ public class StatusWatcher extends Y60Service {
         return mIsGomAvailable;
     }
 
-    void bindToGom() {
-
-        new GomProxyHelper(this, new BindingListener<GomProxyHelper>() {
-
-            public void bound(GomProxyHelper phelper) {
-                Logger.v(LOG_TAG, "GomProxy bound");
-                mGom = phelper;
-            }
-
-            public void unbound(GomProxyHelper helper) {
-                Logger.v(LOG_TAG, "GomProxy unbound");
-                mStatusCollector = null;
-                mGom = null;
-            }
-        });
-    }
-
-    void unbindFromGom() {
-
-        if (mGom != null) {
-            mGom.unbind();
-        }
-    }
 }
