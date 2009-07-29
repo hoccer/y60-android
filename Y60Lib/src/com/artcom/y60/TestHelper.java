@@ -177,7 +177,12 @@ public class TestHelper {
     }
 
     public static void blockUntilBackendResumed(final Y60Activity pActivity) throws Exception {
-        blockUntilTrue("Backend is not available", 2000, new TestHelper.Condition() {
+        blockUntilBackendResumed(pActivity, 2000);
+    }
+
+    public static void blockUntilBackendResumed(final Y60Activity pActivity, final long pTimeout)
+            throws Exception {
+        blockUntilTrue("Backend is not available", pTimeout, new TestHelper.Condition() {
 
             @Override
             public boolean isSatisfied() {
