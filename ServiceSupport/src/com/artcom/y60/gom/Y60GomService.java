@@ -2,7 +2,9 @@ package com.artcom.y60.gom;
 
 import com.artcom.y60.BindingException;
 import com.artcom.y60.BindingListener;
+import com.artcom.y60.ErrorHandling;
 import com.artcom.y60.Logger;
+import com.artcom.y60.TestHelper;
 import com.artcom.y60.Y60Service;
 
 public abstract class Y60GomService extends Y60Service {
@@ -33,8 +35,24 @@ public abstract class Y60GomService extends Y60Service {
         return mGom;
     }
 
-    protected boolean isBoundToGom() {
+    public boolean isBoundToGom() {
         return mGom != null && mGom.isBound();
+    }
+
+    public void blockUntilBoundToGom() {
+        try {
+            TestHelper.blockUntilTrue("Y60GomService could not bind to gom proxy", 2000,
+                    new TestHelper.Condition() {
+
+                        @Override
+                        public boolean isSatisfied() {
+                            return Y60GomService.this.isBoundToGom();
+                        }
+
+                    });
+        } catch (Exception e) {
+            ErrorHandling.signalBackendError(LOG_TAG, e, Y60GomService.this);
+        }
     }
 
     public void bindToGom() {
