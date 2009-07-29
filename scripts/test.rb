@@ -24,13 +24,10 @@ def main pj_names
   last_project_sorting.each { |name|
     
     index = project_paths.index{|p| p.include? name}
-    puts "#################### #{name} #{index} ----"
     if index != nil then
       puts "adding #{name} to projects (was at index #{index})"
       projects.push(Project.find_or_create name, Dir.getwd)
       project_paths.delete_at index
-    else
-      puts "#{name} is not included in list of project_path's"
     end
   }
   
