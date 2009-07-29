@@ -82,6 +82,7 @@ def main pj_names
     puts "\n\nnoticed an error on sdcard:"
     puts File.new("/tmp/error_log.txt").read
     system "adb shell rm /sdcard/error_log.txt"
+    FileUtils.rm "/tmp/error_log.txt"
   end
  
   puts "
