@@ -9,6 +9,7 @@ import org.apache.http.StatusLine;
 
 import android.content.BroadcastReceiver;
 
+import com.artcom.y60.BindingException;
 import com.artcom.y60.Constants;
 import com.artcom.y60.DeviceConfiguration;
 import com.artcom.y60.ErrorHandler;
@@ -99,7 +100,7 @@ public class GomNotificationHelper {
 
         BroadcastReceiver rec = createBroadcastReceiver(pPath, pGomObserver, pBubbleUp, pGom);
 
-        if (!pGom.isBound()) {
+        if (!pGom.isBound() || pGom == null) {
             throw new IllegalStateException("GomProxyHelper " + pGom.toString() + " is not bound!");
         }
 
@@ -139,6 +140,8 @@ public class GomNotificationHelper {
                     pGom.deleteEntry(pPath);
                     Logger.v(LOG_TAG, "pGomObserver.onEntryDeleted( ", pPath, " )");
                     pGomObserver.onEntryDeleted(pPath, null);
+                } catch (BindingException be) {
+                    Logger.w(LOG_TAG, "Gomproxy was unbound while processing asynchronous thread");
                 } catch (Exception ex) {
                     pErrorHandler.handle(ex);
                 } catch (Throwable t) {
