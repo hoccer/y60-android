@@ -26,8 +26,6 @@ import com.artcom.y60.IpAddressNotFoundException;
 import com.artcom.y60.Logger;
 import com.artcom.y60.NetworkHelper;
 import com.artcom.y60.Y60Service;
-import com.artcom.y60.gom.GomEntryNotFoundException;
-import com.artcom.y60.gom.GomEntryTypeMismatchException;
 import com.artcom.y60.gom.GomException;
 import com.artcom.y60.gom.GomNode;
 import com.artcom.y60.gom.GomProxyHelper;
@@ -35,18 +33,18 @@ import com.artcom.y60.http.HttpException;
 
 public class DeviceControllerService extends Y60Service {
 
-    public static final String DEFAULT_NIONAME = "com.artcom.y60.dc.nio";
-    public static final String DEFAULT_PORTNAME = "com.artcom.y60.dc.port";
-    private static final String LOG_TAG = "DeviceControllerService";
+    public static final String  DEFAULT_NIONAME  = "com.artcom.y60.dc.nio";
+    public static final String  DEFAULT_PORTNAME = "com.artcom.y60.dc.port";
+    private static final String LOG_TAG          = "DeviceControllerService";
 
-    private static Resources sResources;
+    private static Resources    sResources;
 
-    Server mServer;
-    private boolean mUseNio;
-    private SharedPreferences mPreferences;
+    Server                      mServer;
+    private boolean             mUseNio;
+    private SharedPreferences   mPreferences;
 
-    private IBinder mBinder = new DeviceControllerBinder();
-    GomProxyHelper mGom = null;
+    private IBinder             mBinder          = new DeviceControllerBinder();
+    GomProxyHelper              mGom             = null;
 
     @Override
     public void onCreate() {
@@ -66,7 +64,7 @@ public class DeviceControllerService extends Y60Service {
                         mServer = startServer(Constants.Network.DEFAULT_PORT);
                         Logger.v(LOG_TAG, "bound() to GomProxyHelper: Server will be started now");
                     }
-                    updateRciUri(Constants.Network.DEFAULT_PORT);
+                    updateDeviceAddresses();
 
                 } catch (Exception ex) {
 
@@ -94,28 +92,32 @@ public class DeviceControllerService extends Y60Service {
     }
 
     /**
-     * Update our rci_uri in the GOM
-     * 
-     * @throws GomEntryNotFoundException
-     * @throws GomEntryTypeMismatchException
+     * Update our ip and rci_uri in the GOM
      */
-    private void updateRciUri(int pPort) throws GomException, IOException, HttpException {
+    private void updateDeviceAddresses() throws GomException, IOException, HttpException {
 
         DeviceConfiguration dc = DeviceConfiguration.load();
         String ipAddress;
-        try {
-            ipAddress = NetworkHelper.getDeviceIpAddress();
 
+        try {
             // do not update uri if executed in the emulator; the host will need
             // to take care of this
-            if (DeviceConfiguration.isRunningAsEmulator()) {
-                Logger
-                                .i(LOG_TAG,
-                                                "I'm running in the emulator. Not publishing Remote Control URI.");
-                return;
+            if (!DeviceConfiguration.isRunningAsEmulator()) {
+                ipAddress = NetworkHelper.getDeviceIpAddress();
+                GomNode device = mGom.getNode(dc.getDevicePath());
+                device.getOrCreateAttribute("ip_address").putValue(ipAddress);
+            } else {
+                Logger.i(LOG_TAG, "I'm running in the emulator. Not publishing my ip address.");
             }
+        } catch (IpAddressNotFoundException e) {
+            ErrorHandling.signalNetworkError(LOG_TAG, e, this);
+        }
 
-            String command_uri = "http://" + ipAddress + ":" + pPort + "/commands";
+        try {
+            ipAddress = NetworkHelper.getStagingIp().getHostAddress();
+
+            String command_uri = "http://" + ipAddress + ":" + Constants.Network.DEFAULT_PORT
+                    + "/commands";
             Logger.v(LOG_TAG, "command_uri of local device controller is ", command_uri);
 
             GomNode device = mGom.getNode(dc.getDevicePath());
@@ -133,7 +135,7 @@ public class DeviceControllerService extends Y60Service {
         if (mServer == null) {
             Logger.i(LOG_TAG, "onDestroy(): Jetty not running, Server is null");
             Toast.makeText(DeviceControllerService.this, R.string.jetty_not_running,
-                            Toast.LENGTH_SHORT).show();
+                    Toast.LENGTH_SHORT).show();
 
             super.onDestroy();
             return;
@@ -186,7 +188,7 @@ public class DeviceControllerService extends Y60Service {
         threadpool.setMaxStopTimeMs(10);
 
         Toast.makeText(DeviceControllerService.this, R.string.jetty_started, Toast.LENGTH_SHORT)
-                        .show();
+                .show();
 
         return server;
     }
