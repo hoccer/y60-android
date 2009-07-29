@@ -13,6 +13,7 @@ public abstract class Y60GomService extends Y60Service {
 
     private static final String LOG_TAG = "Y60GomService";
     private GomProxyHelper      mGom;
+    private Runnable            mNotificationCallbackForBindToGom;
 
     @Override
     public void onCreate() {
@@ -39,6 +40,14 @@ public abstract class Y60GomService extends Y60Service {
         return mGom != null && mGom.isBound();
     }
 
+    public void callOnBoundToGom(Runnable pRunnable) {
+        mNotificationCallbackForBindToGom = pRunnable;
+
+        if (isBoundToGom()) {
+            mNotificationCallbackForBindToGom.run();
+        }
+    }
+
     public void blockUntilBoundToGom() {
         try {
             TestHelper.blockUntilTrue("Y60GomService could not bind to gom proxy", 2000,
@@ -62,6 +71,9 @@ public abstract class Y60GomService extends Y60Service {
             public void bound(GomProxyHelper phelper) {
                 Logger.v(LOG_TAG, "GomProxy bound");
                 mGom = phelper;
+                if (mNotificationCallbackForBindToGom != null) {
+                    mNotificationCallbackForBindToGom.run();
+                }
             }
 
             public void unbound(GomProxyHelper helper) {
