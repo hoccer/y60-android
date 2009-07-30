@@ -3,11 +3,8 @@ package com.artcom.y60.dc;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
-import java.util.NoSuchElementException;
 
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -19,7 +16,7 @@ import android.os.IBinder;
 import com.artcom.y60.DeviceConfiguration;
 import com.artcom.y60.ErrorHandling;
 import com.artcom.y60.Logger;
-import com.artcom.y60.gom.GomNode;
+import com.artcom.y60.gom.GomEntryTypeMismatchException;
 import com.artcom.y60.gom.Y60GomService;
 
 public class StatusWatcher extends Y60GomService {
@@ -86,52 +83,36 @@ public class StatusWatcher extends Y60GomService {
         @Override
         public void run() {
 
-            String timestamp = "";
             while (mIsHeartbeatLoopRunning) {
+
                 try {
-
                     Thread.sleep(mSleepTime);
-
-                    timestamp = (new SimpleDateFormat("MM/dd/yyyy HH:mm:ss")).format(new Date());
-
-                    if (isBoundToGom()) {
-
-                        GomNode device = getGom().getNode(mDeviceConfiguration.getDevicePath());
-                        // Logger.v(LOG_TAG, "putting timestamp");
-                        // device.getOrCreateAttribute("last_alive_update").putValue(timestamp);
-                        // Logger.v(LOG_TAG, "putted timestamp");
-
-                        // append current ping statistic to the history_log in
-                        // gom
-                        if (!DeviceConfiguration.isRunningAsEmulator()) {
-                            updatePingStatistics();
-                        }
-
-                        mNotificationManager.cancel(GOM_NOT_ACCESSIBLE_NOTIFICATION_ID);
-
-                        continue;
-                    }
-
-                    Logger.w(LOG_TAG, "StatusWatcher isn't (yet?) bound to GomProxy");
-
-                } catch (NoSuchElementException e) {
-                    ErrorHandling.signalMissingGomEntryError(LOG_TAG, e, StatusWatcher.this);
-                } catch (RuntimeException e) {
-                    ErrorHandling.signalUnspecifiedError(LOG_TAG, e, StatusWatcher.this);
-                } catch (Exception e) {
+                } catch (InterruptedException e) {
                     ErrorHandling.signalServiceError(LOG_TAG, e, StatusWatcher.this);
                 }
 
-                showWestWindNotification(timestamp);
+                if (!isBoundToGom()) {
+                    showWestWindNotification("Can not bind to Y60's GOM.");
+                    Logger.w(LOG_TAG, "StatusWatcher isn't (yet?) bound to GomProxy");
+                }
+
+                try {
+                    getGom().getNode(mDeviceConfiguration.getDevicePath());
+                } catch (GomEntryTypeMismatchException e) {
+                    showWestWindNotification("Y60's GOM is not accessable");
+                }
+
+                // everything is fine... disable notification
+                mNotificationManager.cancel(GOM_NOT_ACCESSIBLE_NOTIFICATION_ID);
             }
         }
 
-        private void showWestWindNotification(String pTimestamp) {
+        private void showWestWindNotification(String pMessage) {
 
             Intent configureDC = new Intent("y60.intent.CONFIGURE_DEVICE_CONTROLLER");
             configureDC.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             Notification notification = new Notification(R.drawable.network_down_status_icon,
-                    "Y60's GOM not accessible.", System.currentTimeMillis());
+                    pMessage, System.currentTimeMillis());
             PendingIntent pint = PendingIntent.getActivity(StatusWatcher.this, 0, configureDC,
                     PendingIntent.FLAG_ONE_SHOT);
 
@@ -139,7 +120,7 @@ public class StatusWatcher extends Y60GomService {
                     "network might be down", pint);
             mNotificationManager.notify(GOM_NOT_ACCESSIBLE_NOTIFICATION_ID, notification);
 
-            appendToLog(pTimestamp + ": network failure");
+            // appendToLog(pTimestamp + ": network failure");
         }
 
         private void updatePingStatistics() {
