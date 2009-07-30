@@ -180,7 +180,7 @@ public class TestHelper {
     }
 
     public static void blockUntilBackendResumed(final Y60Activity pActivity) throws Exception {
-        blockUntilBackendResumed(pActivity, 2000);
+        blockUntilBackendResumed(pActivity, 10000);
     }
 
     public static void blockUntilResourceAvailable(String pFailMessage, final String pUrl)
