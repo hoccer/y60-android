@@ -27,7 +27,13 @@ public class HelperForServerSideScript {
             throws JSONException, IOException, HttpClientException, HttpServerException {
 
         String params = HttpHelper.urlEncode(pParams);
-        String uri = Constants.Gom.SCRIPT_RUNNER_URI + "?" + params;
+        return executeServerScript(pJsStr, params);
+    }
+
+    public static JSONObject executeServerScript(String pJsStr, String pParams)
+            throws JSONException, IOException, HttpClientException, HttpServerException {
+
+        String uri = Constants.Gom.SCRIPT_RUNNER_URI + "?" + pParams;
         HttpResponse response = HttpHelper.post(uri, pJsStr, "text/javascript", "text/json",
                 30 * 1000);
         String jsonStr = HttpHelper.extractBodyAsString(response.getEntity());
