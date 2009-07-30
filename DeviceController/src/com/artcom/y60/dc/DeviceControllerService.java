@@ -17,20 +17,18 @@ import android.os.IBinder;
 import android.widget.Toast;
 
 import com.artcom.y60.BindingException;
-import com.artcom.y60.BindingListener;
 import com.artcom.y60.Constants;
 import com.artcom.y60.DeviceConfiguration;
 import com.artcom.y60.ErrorHandling;
 import com.artcom.y60.IpAddressNotFoundException;
 import com.artcom.y60.Logger;
 import com.artcom.y60.NetworkHelper;
-import com.artcom.y60.Y60Service;
 import com.artcom.y60.gom.GomException;
 import com.artcom.y60.gom.GomNode;
-import com.artcom.y60.gom.GomProxyHelper;
+import com.artcom.y60.gom.Y60GomService;
 import com.artcom.y60.http.HttpException;
 
-public class DeviceControllerService extends Y60Service {
+public class DeviceControllerService extends Y60GomService {
 
     public static final String  DEFAULT_NIONAME  = "com.artcom.y60.dc.nio";
     public static final String  DEFAULT_PORTNAME = "com.artcom.y60.dc.port";
@@ -39,7 +37,6 @@ public class DeviceControllerService extends Y60Service {
     Server                      mServer;
 
     private IBinder             mBinder          = new DeviceControllerBinder();
-    GomProxyHelper              mGom             = null;
 
     @Override
     public void onCreate() {
@@ -47,13 +44,9 @@ public class DeviceControllerService extends Y60Service {
         super.onCreate();
         Logger.i(LOG_TAG, "onCreate called");
 
-        new GomProxyHelper(this, new BindingListener<GomProxyHelper>() {
+        callOnBoundToGom(new Runnable() {
 
-            public void bound(GomProxyHelper helper) {
-
-                Logger.i(LOG_TAG, "bound(): called");
-                mGom = helper;
-
+            public void run() {
                 try {
                     if (mServer == null) {
                         mServer = startServer(Constants.Network.DEFAULT_PORT);
@@ -71,11 +64,6 @@ public class DeviceControllerService extends Y60Service {
                     ErrorHandling.signalUnspecifiedError(LOG_TAG, ex, DeviceControllerService.this);
                 }
             }
-
-            public void unbound(GomProxyHelper helper) {
-                Logger.i(LOG_TAG, "unbound(): called");
-                mGom = null;
-            }
         });
 
         Intent statusWatcherIntent = new Intent("y60.intent.SERVICE_STATUS_WATCHER");
@@ -89,13 +77,6 @@ public class DeviceControllerService extends Y60Service {
         Logger.i(LOG_TAG, "onStart(): DeviceControllerService started");
         super.onStart(intent, startId);
 
-    }
-
-    private GomProxyHelper getGom() {
-        if (mGom == null || !mGom.isBound()) {
-            throw new BindingException("requested gom, but it is not bound");
-        }
-        return mGom;
     }
 
     /**
@@ -151,9 +132,6 @@ public class DeviceControllerService extends Y60Service {
         try {
             stopServer();
 
-            if (mGom != null) {
-                mGom.unbind();
-            }
         } catch (Exception e) {
             ErrorHandling.signalServiceError(LOG_TAG, e, this);
             Toast.makeText(this, getText(R.string.jetty_not_stopped), Toast.LENGTH_SHORT).show();

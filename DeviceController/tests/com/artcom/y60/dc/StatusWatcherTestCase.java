@@ -16,7 +16,7 @@ import com.artcom.y60.Y60Action;
 public class StatusWatcherTestCase extends ServiceTestCase<StatusWatcher> {
 
     private static final String LOG_TAG = "StatusWatcherTestCase";
-    private Intent mIntent;
+    private Intent              mIntent;
     private DeviceConfiguration mDeviceConfiguration;
 
     public StatusWatcherTestCase() {
@@ -44,7 +44,7 @@ public class StatusWatcherTestCase extends ServiceTestCase<StatusWatcher> {
                 }
                 try {
                     String uri = mDeviceConfiguration.getGomUrl() + "/"
-                                    + mDeviceConfiguration.getDevicePath() + ":history_log.txt";
+                            + mDeviceConfiguration.getDevicePath() + ":history_log.txt";
                     String historyLog = HttpHelper.getAsString(uri);
                     String lastLine = historyLog.substring(historyLog.lastIndexOf("\n") + 1);
                     String timestamp = lastLine.substring(0, lastLine.indexOf(": "));
@@ -52,17 +52,17 @@ public class StatusWatcherTestCase extends ServiceTestCase<StatusWatcher> {
                     long historyUpdated;
                     try {
                         historyUpdated = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss").parse(
-                                        timestamp).getTime();
+                                timestamp).getTime();
                     } catch (ParseException e) {
                         throw new RuntimeException(e.getMessage());
                     }
                     final long TIME_DELTA_TOLERANCE = 11 * 1000; // in
-                                                                 // milliseconds
+                    // milliseconds
                     long delta = Math.abs(historyUpdated - now);
                     assertTrue("Timestamp in GOM (" + timestamp
-                                    + ") is older than expected. Expected a difference of at most "
-                                    + (TIME_DELTA_TOLERANCE / 1000) + " seconds, found "
-                                    + (delta / 1000) + " seconds.", delta < TIME_DELTA_TOLERANCE);
+                            + ") is older than expected. Expected a difference of at most "
+                            + (TIME_DELTA_TOLERANCE / 1000) + " seconds, found " + (delta / 1000)
+                            + " seconds.", delta < TIME_DELTA_TOLERANCE);
                 } catch (Exception ex) {
 
                     throw new RuntimeException(ex);
@@ -100,10 +100,10 @@ public class StatusWatcherTestCase extends ServiceTestCase<StatusWatcher> {
 
         // wait some time to let the service load the data
         long requestStartTime = System.currentTimeMillis();
-        while (!getService().isGomAvailable()) {
+        while (!getService().isBoundToGom()) {
             if (System.currentTimeMillis() > requestStartTime + 20 * 1000) {
                 throw new AssertionFailedError(
-                                "Expected the StatusWatcher to see the GOM right after starting up, but it doesn't.");
+                        "Expected the StatusWatcher to see the GOM right after starting up, but it doesn't.");
             }
             Thread thread = getService().getWatcherThread();
             assertTrue("Watcher thread died", thread.isAlive());
@@ -116,10 +116,10 @@ public class StatusWatcherTestCase extends ServiceTestCase<StatusWatcher> {
         getService().unbindFromGom();
 
         requestStartTime = System.currentTimeMillis();
-        while (getService().isGomAvailable()) {
+        while (getService().isBoundToGom()) {
             if (System.currentTimeMillis() > requestStartTime + 10 * 1000) {
                 throw new AssertionFailedError(
-                                "Forced StatusWatcher to unbind from GOM, but StatusWatcher reports that it can still see the GOM");
+                        "Forced StatusWatcher to unbind from GOM, but StatusWatcher reports that it can still see the GOM");
             }
             Thread thread = getService().getWatcherThread();
             assertTrue("Watcher thread died", thread.isAlive());
@@ -131,10 +131,10 @@ public class StatusWatcherTestCase extends ServiceTestCase<StatusWatcher> {
         getService().bindToGom();
 
         requestStartTime = System.currentTimeMillis();
-        while (!getService().isGomAvailable()) {
+        while (!getService().isBoundToGom()) {
             if (System.currentTimeMillis() > requestStartTime + 15 * 1000) {
                 throw new AssertionFailedError(
-                                "Expected the StatusWatcher to see the GOM after telling it to re-bind, but it doesn't.");
+                        "Expected the StatusWatcher to see the GOM after telling it to re-bind, but it doesn't.");
             }
             Thread thread = getService().getWatcherThread();
             assertTrue("Watcher thread died", thread.isAlive());
