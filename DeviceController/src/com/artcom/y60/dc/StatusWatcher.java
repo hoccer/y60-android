@@ -35,8 +35,7 @@ public class StatusWatcher extends Y60GomService {
     private HeartbeatLoop       mHeartbeatLoop;
     private Thread              mHeartbeatThread;
     private DeviceConfiguration mDeviceConfiguration;
-    private boolean             mIsGomAvailable = false;
-    private long                mSleepTime      = 10 * 1000;
+    private long                mSleepTime = 10 * 1000;
     private String              mHistoryLog;
 
     @Override
@@ -97,8 +96,6 @@ public class StatusWatcher extends Y60GomService {
 
                     if (isBoundToGom()) {
 
-                        mIsGomAvailable = true;
-
                         GomNode device = getGom().getNode(mDeviceConfiguration.getDevicePath());
                         // Logger.v(LOG_TAG, "putting timestamp");
                         // device.getOrCreateAttribute("last_alive_update").putValue(timestamp);
@@ -115,7 +112,7 @@ public class StatusWatcher extends Y60GomService {
                         continue;
                     }
 
-                    Logger.w(LOG_TAG, "StatusWatcher isn't (yet?) bound to GomProxyService");
+                    Logger.w(LOG_TAG, "StatusWatcher isn't (yet?) bound to GomProxy");
 
                 } catch (NoSuchElementException e) {
                     ErrorHandling.signalMissingGomEntryError(LOG_TAG, e, StatusWatcher.this);
@@ -126,7 +123,6 @@ public class StatusWatcher extends Y60GomService {
                 }
 
                 showWestWindNotification(timestamp);
-                mIsGomAvailable = false;
             }
         }
 
@@ -192,10 +188,6 @@ public class StatusWatcher extends Y60GomService {
 
     void setSleepTime(long pSleepTime) {
         mSleepTime = pSleepTime;
-    }
-
-    boolean isGomAvailable() {
-        return mIsGomAvailable;
     }
 
 }

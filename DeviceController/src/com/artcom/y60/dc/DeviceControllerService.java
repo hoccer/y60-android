@@ -12,8 +12,6 @@ import org.mortbay.thread.QueuedThreadPool;
 import android.app.ActivityManager;
 import android.app.ActivityManager.MemoryInfo;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.content.res.Resources;
 import android.os.Binder;
 import android.os.IBinder;
 import android.widget.Toast;
@@ -38,11 +36,7 @@ public class DeviceControllerService extends Y60Service {
     public static final String  DEFAULT_PORTNAME = "com.artcom.y60.dc.port";
     private static final String LOG_TAG          = "DeviceControllerService";
 
-    private static Resources    sResources;
-
     Server                      mServer;
-    private boolean             mUseNio;
-    private SharedPreferences   mPreferences;
 
     private IBinder             mBinder          = new DeviceControllerBinder();
     GomProxyHelper              mGom             = null;
