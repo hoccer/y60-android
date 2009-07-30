@@ -152,7 +152,7 @@ public class TestHelper {
     }
 
     public static void blockUntilBackendAvailable(final Y60Activity pActivity) throws Exception {
-        blockUntilTrue("Backend is not available", 2000, new TestHelper.Condition() {
+        blockUntilTrue("Backend is not available", 10000, new TestHelper.Condition() {
 
             @Override
             public boolean isSatisfied() {
