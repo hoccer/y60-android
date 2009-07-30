@@ -165,14 +165,17 @@ public class TestHelper {
 
     public static void blockUntilBackendResumed(final Y60Activity pActivity, int pTimeout)
             throws Exception {
-        blockUntilTrue("Backend is not available", pTimeout, new TestHelper.Condition() {
+        blockUntilBackendAvailable(pActivity);
 
-            @Override
-            public boolean isSatisfied() {
-                return pActivity.hasResumeWithBackendBeenCalled();
-            }
+        blockUntilTrue("ResumeWithBackend should have been called", pTimeout,
+                new TestHelper.Condition() {
 
-        });
+                    @Override
+                    public boolean isSatisfied() {
+                        return pActivity.hasResumeWithBackendBeenCalled();
+                    }
+
+                });
 
     }
 
