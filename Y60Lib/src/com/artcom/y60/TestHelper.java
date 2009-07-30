@@ -183,19 +183,6 @@ public class TestHelper {
         blockUntilBackendResumed(pActivity, 2000);
     }
 
-    public static void blockUntilBackendResumed(final Y60Activity pActivity, final long pTimeout)
-            throws Exception {
-        blockUntilTrue("Backend is not available", pTimeout, new TestHelper.Condition() {
-
-            @Override
-            public boolean isSatisfied() {
-                return pActivity.hasResumeWithBackendBeenCalled();
-            }
-
-        });
-
-    }
-
     public static void blockUntilResourceAvailable(String pFailMessage, final String pUrl)
             throws Exception {
 
