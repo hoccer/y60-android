@@ -94,12 +94,14 @@ public class StatusWatcher extends Y60GomService {
                 if (!isBoundToGom()) {
                     showWestWindNotification("Can not bind to Y60's GOM.");
                     Logger.w(LOG_TAG, "StatusWatcher isn't (yet?) bound to GomProxy");
+                    return;
                 }
 
                 try {
                     getGom().getNode(mDeviceConfiguration.getDevicePath());
                 } catch (GomEntryTypeMismatchException e) {
                     showWestWindNotification("Y60's GOM is not accessable");
+                    return;
                 }
 
                 // everything is fine... disable notification
