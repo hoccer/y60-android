@@ -25,7 +25,7 @@ public class GnpRoundtripTest extends GomActivityUnitTestCase {
 
         initializeActivity();
 
-        TestHelper.blockUntilWebServerIsRunning();
+        TestHelper.blockUntilDeviceControllerIsRunning();
 
         GomProxyHelper helper = createHelper();
 
@@ -108,7 +108,7 @@ public class GnpRoundtripTest extends GomActivityUnitTestCase {
     public void testRegisterObserverMultipleTimes() throws Exception {
 
         initializeActivity();
-        TestHelper.blockUntilWebServerIsRunning();
+        TestHelper.blockUntilDeviceControllerIsRunning();
         GomProxyHelper helper = createHelper();
 
         String timestamp = String.valueOf(System.currentTimeMillis());
@@ -206,7 +206,7 @@ public class GnpRoundtripTest extends GomActivityUnitTestCase {
 
         initializeActivity();
 
-        TestHelper.blockUntilWebServerIsRunning();
+        TestHelper.blockUntilDeviceControllerIsRunning();
 
         GomProxyHelper helper = createHelper();
 

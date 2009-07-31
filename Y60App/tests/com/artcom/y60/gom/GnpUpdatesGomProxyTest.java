@@ -43,7 +43,7 @@ public class GnpUpdatesGomProxyTest extends GomActivityUnitTestCase {
     public void testAttributeCreatedOnObservedNode() throws Exception {
 
         initializeActivity();
-        TestHelper.blockUntilWebServerIsRunning();
+        TestHelper.blockUntilDeviceControllerIsRunning();
         GomProxyHelper proxy = createHelper();
 
         String timestamp = String.valueOf(System.currentTimeMillis());
@@ -94,7 +94,7 @@ public class GnpUpdatesGomProxyTest extends GomActivityUnitTestCase {
 
         initializeActivity();
 
-        TestHelper.blockUntilWebServerIsRunning();
+        TestHelper.blockUntilDeviceControllerIsRunning();
 
         GomProxyHelper helper = createHelper();
 
@@ -181,7 +181,7 @@ public class GnpUpdatesGomProxyTest extends GomActivityUnitTestCase {
     public void testAttributeDeletedOnObservedNode() throws Exception {
 
         initializeActivity();
-        TestHelper.blockUntilWebServerIsRunning();
+        TestHelper.blockUntilDeviceControllerIsRunning();
         GomProxyHelper proxy = createHelper();
 
         String timestamp = String.valueOf(System.currentTimeMillis());
@@ -240,7 +240,7 @@ public class GnpUpdatesGomProxyTest extends GomActivityUnitTestCase {
 
         initializeActivity();
 
-        TestHelper.blockUntilWebServerIsRunning();
+        TestHelper.blockUntilDeviceControllerIsRunning();
 
         GomProxyHelper helper = createHelper();
 
@@ -327,7 +327,7 @@ public class GnpUpdatesGomProxyTest extends GomActivityUnitTestCase {
     public void testSubnodeDeletedOnObservedNode() throws Exception {
 
         initializeActivity();
-        TestHelper.blockUntilWebServerIsRunning();
+        TestHelper.blockUntilDeviceControllerIsRunning();
         GomProxyHelper proxy = createHelper();
 
         String timestamp = String.valueOf(System.currentTimeMillis());
@@ -389,7 +389,7 @@ public class GnpUpdatesGomProxyTest extends GomActivityUnitTestCase {
     public void testSubnodeWithNodeDeletedOnObservedNode() throws Exception {
 
         initializeActivity();
-        TestHelper.blockUntilWebServerIsRunning();
+        TestHelper.blockUntilDeviceControllerIsRunning();
         GomProxyHelper proxy = createHelper();
 
         String timestamp = String.valueOf(System.currentTimeMillis());
@@ -450,7 +450,7 @@ public class GnpUpdatesGomProxyTest extends GomActivityUnitTestCase {
     public void testObservedNodeDeleted() throws Exception {
 
         initializeActivity();
-        TestHelper.blockUntilWebServerIsRunning();
+        TestHelper.blockUntilDeviceControllerIsRunning();
         GomProxyHelper proxy = createHelper();
 
         String timestamp = String.valueOf(System.currentTimeMillis());
@@ -497,7 +497,7 @@ public class GnpUpdatesGomProxyTest extends GomActivityUnitTestCase {
     public void testObservedNodeWithSubnodeAndAttributeDeleted() throws Exception {
 
         initializeActivity();
-        TestHelper.blockUntilWebServerIsRunning();
+        TestHelper.blockUntilDeviceControllerIsRunning();
         GomProxyHelper proxy = createHelper();
 
         String timestamp = String.valueOf(System.currentTimeMillis());
@@ -566,7 +566,7 @@ public class GnpUpdatesGomProxyTest extends GomActivityUnitTestCase {
     public void testObservedAttributeDeleted() throws Exception {
 
         initializeActivity();
-        TestHelper.blockUntilWebServerIsRunning();
+        TestHelper.blockUntilDeviceControllerIsRunning();
         GomProxyHelper proxy = createHelper();
 
         String timestamp = String.valueOf(System.currentTimeMillis());
@@ -611,7 +611,7 @@ public class GnpUpdatesGomProxyTest extends GomActivityUnitTestCase {
     public void testObservedAttributeUpdated() throws Exception {
 
         initializeActivity();
-        TestHelper.blockUntilWebServerIsRunning();
+        TestHelper.blockUntilDeviceControllerIsRunning();
         GomProxyHelper proxy = createHelper();
 
         String timestamp = String.valueOf(System.currentTimeMillis());

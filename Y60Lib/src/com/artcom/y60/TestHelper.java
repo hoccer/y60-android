@@ -216,11 +216,22 @@ public class TestHelper {
 
     }
 
-    public static void blockUntilWebServerIsRunning() throws Exception {
+    public static void assertDeviceControlerIsRunning(Context pContext) throws Exception {
 
-        long timeout = 20000;
-        TestHelper.blockUntilEquals("device controller should have started withhin " + timeout
-                + " milliseconds", timeout, "404", new TestHelper.Measurement() {
+        Intent startIntent = new Intent("y60.intent.SERVICE_DEVICE_CONTROLLER");
+        pContext.startService(startIntent);
+        TestHelper.blockUntilDeviceControllerIsRunning();
+
+    }
+
+    public static void blockUntilDeviceControllerIsRunning() throws Exception {
+        blockUntilDeviceControllerIsRunning(5000);
+    }
+
+    public static void blockUntilDeviceControllerIsRunning(long pTimeout) throws Exception {
+
+        TestHelper.blockUntilEquals("device controller should have started withhin " + pTimeout
+                + " milliseconds", pTimeout, "404", new TestHelper.Measurement() {
             @Override
             public Object getActualValue() {
 

@@ -13,11 +13,11 @@ public class Y60ActivityTest extends Y60ActivityInstrumentationTest<Y60TestActiv
         Intent startIntent = new Intent(Y60Action.SERVICE_DEVICE_CONTROLLER);
 
         getActivity().startService(startIntent);
-        TestHelper.blockUntilWebServerIsRunning();
+        TestHelper.blockUntilDeviceControllerIsRunning();
         assertEquals(404, HttpHelper.getStatusCode("http://localhost:4042"));
 
         getActivity().startService(startIntent);
-        TestHelper.blockUntilWebServerIsRunning();
+        TestHelper.blockUntilDeviceControllerIsRunning();
         assertEquals(404, HttpHelper.getStatusCode("http://localhost:4042"));
 
     }

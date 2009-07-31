@@ -297,7 +297,7 @@ public class GnpRegistrationTest extends GomActivityUnitTestCase {
     public void testAttributeLoadedToCacheWhenRegisteredOnParentNode() throws Exception {
 
         initializeActivity();
-        TestHelper.blockUntilWebServerIsRunning();
+        TestHelper.blockUntilDeviceControllerIsRunning();
         GomProxyHelper proxy = createHelper();
 
         String timestamp = String.valueOf(System.currentTimeMillis());
@@ -343,7 +343,7 @@ public class GnpRegistrationTest extends GomActivityUnitTestCase {
     public void testNodeLazyLoadedToCacheWhenRegisteredOnParentNode() throws Exception {
 
         initializeActivity();
-        TestHelper.blockUntilWebServerIsRunning();
+        TestHelper.blockUntilDeviceControllerIsRunning();
         GomProxyHelper proxy = createHelper();
 
         String timestamp = String.valueOf(System.currentTimeMillis());

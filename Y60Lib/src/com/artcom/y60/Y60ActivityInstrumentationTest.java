@@ -5,7 +5,6 @@ import java.io.FileReader;
 
 import android.app.Activity;
 import android.app.Instrumentation;
-import android.content.Intent;
 import android.os.SystemClock;
 import android.test.ActivityInstrumentationTestCase2;
 import android.test.AssertionFailedError;
@@ -59,11 +58,10 @@ public abstract class Y60ActivityInstrumentationTest<T extends Activity> extends
         d(" --- " + getName()
                 + " -- setUp ------------------------------------------------------------");
         Logger.logMemoryInfo(tag(), getInstrumentation().getContext());
-        reset();
+        TestHelper.assertDeviceControlerIsRunning(getInstrumentation().getContext());
 
         super.setUp();
         assertNoErrorLogOnSdcard();
-
     }
 
     void assertNoErrorLogOnSdcard() throws Exception {
@@ -90,7 +88,6 @@ public abstract class Y60ActivityInstrumentationTest<T extends Activity> extends
 
         d(" --- " + getName() + " -- tearDown -----"
                 + "-------------------------------------------------------");
-        reset();
         Logger.logMemoryInfo(tag(), getInstrumentation().getContext());
 
         super.tearDown();
@@ -267,11 +264,4 @@ public abstract class Y60ActivityInstrumentationTest<T extends Activity> extends
 
         Logger.e(tag(), pToLog);
     }
-
-    protected void reset() {
-
-        Intent reset = new Intent(Y60Action.RESET_BC);
-        // getInstrumentation().getContext().sendBroadcast(reset);
-    }
-
 }
