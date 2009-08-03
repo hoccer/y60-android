@@ -172,20 +172,19 @@ public class GomProxyHelper {
 
     public boolean hasInCache(String pPath) {
 
-        assertConnected();
         RpcStatus status = new RpcStatus();
         boolean inCache;
-
+        assertConnected();
         try {
-
             inCache = mProxy.hasInCache(pPath, status);
             if (status.hasError()) {
                 Throwable err = status.getError();
                 throw new RuntimeException(err);
             }
-
+        } catch (NullPointerException e) {
+            throw new BindingException(
+                    "Catched exception which indicates an asyncrounous unbind from gomproxy", e);
         } catch (Exception x) {
-
             Logger.e(LOG_TAG, "hasInCache failed", x);
             throw new RuntimeException(x);
         }
