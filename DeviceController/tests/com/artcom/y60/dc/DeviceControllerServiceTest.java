@@ -31,6 +31,7 @@ public class DeviceControllerServiceTest extends ServiceTestCase<DeviceControlle
 
     public void tearDown() {
         Logger.v(LOG_TAG, "---------- teardown --- called");
+
     }
 
     public void assertNoWebserverIsRunning() {
@@ -68,7 +69,7 @@ public class DeviceControllerServiceTest extends ServiceTestCase<DeviceControlle
         assertNull(getService());
         Intent startIntent = new Intent("y60.intent.SERVICE_DEVICE_CONTROLLER");
         startService(startIntent);
-        TestHelper.assertDeviceControlerIsRunning(getContext());
+        TestHelper.blockUntilDeviceControllerIsRunning();
         assertNotNull("service should be available", getService());
 
         blockUntilWebserverIsStarted();
