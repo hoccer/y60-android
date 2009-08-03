@@ -9,6 +9,7 @@ import org.mortbay.jetty.Connector;
 import android.content.Intent;
 import android.test.AssertionFailedError;
 import android.test.ServiceTestCase;
+import android.test.suitebuilder.annotation.Suppress;
 
 import com.artcom.y60.Constants;
 import com.artcom.y60.DeviceConfiguration;
@@ -25,22 +26,27 @@ public class DeviceControllerServiceTest extends ServiceTestCase<DeviceControlle
         super(DeviceControllerService.class);
     }
 
-    public void setUp() {
+    @Override
+    public void setUp() throws Exception {
+        super.setUp();
         Logger.v(LOG_TAG, "---------- setup --- called");
     }
 
-    public void tearDown() {
+    @Override
+    public void tearDown() throws Exception {
         Logger.v(LOG_TAG, "---------- teardown --- called");
-
+        super.tearDown();
     }
 
     public void assertNoWebserverIsRunning() {
         try {
             HttpHelper.getStatusCode("http://localhost:4042/");
-            fail();
+            fail("unexpetedly the webserver seems to run");
         } catch (Exception e) {
-            Logger.v(LOG_TAG, "Exception caught: No Webserver is available ");
+            Logger.v(LOG_TAG, "Ok! No Webserver is available. This is expected.");
         }
+        // assertNull("device controller should not be available anymore",
+        // getService());
     }
 
     public void testAJettyRoundtrip() throws Exception {
@@ -62,6 +68,7 @@ public class DeviceControllerServiceTest extends ServiceTestCase<DeviceControlle
         assertNoWebserverIsRunning();
     }
 
+    @Suppress
     public void testAutomaticWebserverStartup() throws Exception {
 
         assertNoWebserverIsRunning();
