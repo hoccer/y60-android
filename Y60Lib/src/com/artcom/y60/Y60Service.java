@@ -13,7 +13,7 @@ public abstract class Y60Service extends Service {
     @Override
     public void onCreate() {
 
-        Logger.v(LOG_TAG, "onCreate called for service ", getClass());
+        Logger.v(LOG_TAG, "------------ onCreate called for service ", getClass());
 
         super.onCreate();
     }
@@ -21,7 +21,7 @@ public abstract class Y60Service extends Service {
     @Override
     public void onDestroy() {
 
-        Logger.d(LOG_TAG, "onDestroy called for service ", getClass());
+        Logger.d(LOG_TAG, "------------ onDestroy called for service ", getClass());
 
         super.onDestroy();
     }

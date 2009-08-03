@@ -25,6 +25,14 @@ public class DeviceControllerServiceTest extends ServiceTestCase<DeviceControlle
         super(DeviceControllerService.class);
     }
 
+    public void setUp() {
+        Logger.v(LOG_TAG, "---------- setup --- called");
+    }
+
+    public void tearDown() {
+        Logger.v(LOG_TAG, "---------- teardown --- called");
+    }
+
     public void assertNoWebserverIsRunning() {
         try {
             HttpHelper.getStatusCode("http://localhost:4042/");
@@ -58,11 +66,13 @@ public class DeviceControllerServiceTest extends ServiceTestCase<DeviceControlle
         assertNoWebserverIsRunning();
 
         assertNull(getService());
+        Intent startIntent = new Intent("y60.intent.SERVICE_DEVICE_CONTROLLER");
+        startService(startIntent);
         TestHelper.assertDeviceControlerIsRunning(getContext());
-        assertNotNull(getService());
+        assertNotNull("service should be available", getService());
 
         blockUntilWebserverIsStarted();
-        assertTrue("webserver does not run", getService().mServer.isRunning());
+        assertTrue("webserver should run", getService().mServer.isRunning());
 
         assertEquals("webserver has unexpected number of connectors", 1, getService().mServer
                 .getConnectors().length);

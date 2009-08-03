@@ -8,6 +8,7 @@ import org.json.JSONObject;
 
 import android.content.Context;
 import android.content.Intent;
+import android.test.AssertionFailedError;
 
 import com.artcom.y60.http.HttpClientException;
 
@@ -147,7 +148,7 @@ public class TestHelper {
             }
         }
 
-        throw new AssertionError(pFailMessage + ": should be <" + pExpected + ">, but was <"
+        throw new AssertionFailedError(pFailMessage + ": should be <" + pExpected + ">, but was <"
                 + mesuredValue + ">");
     }
 
@@ -221,7 +222,6 @@ public class TestHelper {
         Intent startIntent = new Intent("y60.intent.SERVICE_DEVICE_CONTROLLER");
         pContext.startService(startIntent);
         TestHelper.blockUntilDeviceControllerIsRunning();
-
     }
 
     public static void blockUntilDeviceControllerIsRunning() throws Exception {
