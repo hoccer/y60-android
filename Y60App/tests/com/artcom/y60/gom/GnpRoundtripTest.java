@@ -60,7 +60,7 @@ public class GnpRoundtripTest extends GomActivityUnitTestCase {
 
         GomTestObserver observer = new GomTestObserver(this);
         BroadcastReceiver receiver = GomNotificationHelper.registerObserverAndNotify(observedPath,
-                observer, helper);
+                observer, helper, false);
 
         getActivity().registerReceiver(receiver, Constants.Gom.GNP_INTENT_FILTER);
         TestHelper.blockUntilResourceAvailable("Observer should be in GOM", GomNotificationHelper
