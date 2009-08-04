@@ -3,14 +3,14 @@ package com.artcom.y60.gom;
 import com.artcom.y60.BindingException;
 import com.artcom.y60.Logger;
 
-public abstract class GomWorker implements Runnable {
+public abstract class GomWorker {
 
     private static final String LOG_TAG = "GomWorker";
 
-    private GomProxyHelper      mGom;
+    protected GomProxyHelper    mGom;
     private boolean             mHasFinished;
 
-    public GomWorker(GomProxyHelper gom) throws GomProxyException {
+    public GomWorker(GomProxyHelper gom) {
         mGom = gom;
         if (mGom == null) {
             throw new NullPointerException("No gom proxy provided: GomWorker got a null reference");
@@ -19,13 +19,12 @@ public abstract class GomWorker implements Runnable {
             throw new BindingException("GomProxy was not bound. GomWorker can't possibly work.");
         }
         mHasFinished = false;
-        run();
+        launch();
     }
 
-    abstract void execute();
+    public abstract void execute();
 
-    @Override
-    public void run() {
+    private void launch() {
         try {
             execute();
         } catch (BindingException e) {
