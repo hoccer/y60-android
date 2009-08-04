@@ -393,8 +393,10 @@ public class GomProxyHelper {
     private void assertConnected() {
 
         if (mProxy == null) {
-
-            throw new BindingException("GomProxyHelper " + toString() + " not bound to proxy!");
+            BindingException e = new BindingException("GomProxyHelper " + toString()
+                    + " not bound to proxy!");
+            e.fillInStackTrace();
+            throw e;
         }
     }
 
