@@ -9,16 +9,15 @@ $socket_number = 1
 def fetch_build_state_from uri
   doc = Hpricot(open(uri))
   status_img = doc.at("//img[@src='buildStatus']")
-  
-  tg_buid_state = status_img.attributes['alt']
+  build_state = status_img.attributes['alt'] 
 end
 
 def fetch_build_states
 
-  tg_buid_state = fetch_build_state_from "http://tg-svn.t-gallery.act/job/T-Gallery%20Android%20Projects/lastBuild/"
+  tg_build_state = fetch_build_state_from "http://tg-svn.t-gallery.act/job/T-Gallery%20Android%20Projects/lastBuild/"
+  y60_build_state = fetch_build_state_from "http://tg-svn.t-gallery.act/job/Y60%20Android%20Projects/lastBuild/"
 
-  y60_buid_state = fetch_build_state_from "http://tg-svn.t-gallery.act/job/Y60%20Android%20Projects/lastBuild/"
-
+  puts y60_build_state
   [tg_build_state, y60_build_state]
 end
 
@@ -72,8 +71,8 @@ def main
         puts "stopping fountain"
         system "sudo sispmctl -q -f #{$socket_number}"
       end
-    rescue
-      puts "There was an error. Trying again."
+    rescue => e
+      puts "There was an error:\n#{e.backtrace.join "\n"}\nTrying again."
       retry
     end
   end
