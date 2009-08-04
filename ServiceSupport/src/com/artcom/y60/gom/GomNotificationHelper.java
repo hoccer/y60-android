@@ -79,7 +79,7 @@ public class GomNotificationHelper {
             final GomObserver pGomObserver, final GomProxyHelper pGom,
             final ErrorHandler pErrorHandler) throws IOException, IpAddressNotFoundException {
 
-        return registerObserverAndNotify(pPath, pGomObserver, pGom, false, pErrorHandler);
+        return registerObserverAndNotify(pPath, pGomObserver, pGom, true, pErrorHandler);
     }
 
     /**
@@ -157,7 +157,7 @@ public class GomNotificationHelper {
             final GomObserver pGomObserver, final GomProxyHelper pGom,
             final ErrorHandler pErrorHandler) throws IOException, IpAddressNotFoundException {
 
-        return registerObserver(pPath, pGomObserver, pGom, false, pErrorHandler);
+        return registerObserver(pPath, pGomObserver, pGom, true, pErrorHandler);
     }
 
     /**
