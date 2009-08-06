@@ -19,7 +19,7 @@ public class BindingException extends RuntimeException {
 
     public BindingException(Throwable throwable) {
         super(throwable);
-        // TODO Auto-generated constructor stub
+        // TODO Auto-generated constructor stub--
     }
 
 }
