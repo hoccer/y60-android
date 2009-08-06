@@ -7,6 +7,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
+import java.net.SocketException;
 import java.net.URI;
 import java.net.URLEncoder;
 import java.util.Map;
@@ -374,7 +375,14 @@ public class HttpHelper {
             }
         });
 
-        HttpResponse response = httpclient.execute(pMethod);
+        HttpResponse response;
+        try {
+            response = httpclient.execute(pMethod);
+        } catch (SocketException e) {
+            e = new SocketException(e.getMessage() + ": " + pMethod.getURI());
+            e.fillInStackTrace();
+            throw e;
+        }
         HttpException.throwIfError(pMethod.getURI().toString(), response);
         return response;
     }
