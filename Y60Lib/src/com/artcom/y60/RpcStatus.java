@@ -45,7 +45,7 @@ public class RpcStatus implements Parcelable {
     }
 
     public Throwable getError() {
-
+        mError.fillInStackTrace();
         return mError;
     }
 
