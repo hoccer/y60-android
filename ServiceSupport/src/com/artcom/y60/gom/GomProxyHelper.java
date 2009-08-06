@@ -114,7 +114,6 @@ public class GomProxyHelper {
             return new GomAttribute(pPath, this, value);
 
         } catch (RemoteException rex) {
-
             Logger.e(LOG_TAG, "failed to retrieve attribute data", rex);
             throw new RuntimeException(rex);
         }
