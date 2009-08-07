@@ -167,6 +167,13 @@ public class FlingableScreen implements AnimationListener {
         mBaseLayout.addView(mContentLayout);
     }
 
+    public boolean isAnimationRunning() {
+        if (mBaseLayout.getAnimation() == null) {
+            return false;
+        }
+        return !mBaseLayout.getAnimation().hasEnded();
+    }
+
     protected synchronized void refresh() {
 
     }
