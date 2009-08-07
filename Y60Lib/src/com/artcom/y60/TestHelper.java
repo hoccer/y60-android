@@ -1,7 +1,14 @@
 package com.artcom.y60;
 
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.SocketTimeoutException;
+
+import junit.framework.Assert;
 
 import org.apache.http.conn.HttpHostConnectException;
 import org.json.JSONObject;
@@ -325,6 +332,64 @@ public class TestHelper {
     public interface Measurement {
 
         public Object getActualValue() throws Exception;
+    }
+
+    /**
+     * Assert two {@linkplain File files} to have equal content.
+     * 
+     * @param message
+     *            the error message
+     * @param expected
+     *            reference file
+     * @param current
+     *            file to compare
+     * @author Apache Project (package org.apache.commons.id.test)
+     * @license Apache Lichense 2.0
+     */
+    public static void assertFileEquals(final String message, final File expected,
+            final File current) {
+        try {
+            assertInputStreamEquals(new BufferedInputStream(new FileInputStream(expected)),
+                    new BufferedInputStream(new FileInputStream(current)));
+        } catch (final FileNotFoundException e) {
+            Assert.fail((message != null ? message + ": " : "") + e.getMessage());
+        }
+    }
+
+    private static void assertInputStreamEquals(final InputStream expected,
+            final InputStream current) {
+        assertInputStreamEquals(null, expected, current);
+    }
+
+    /**
+     * Assert two {@linkplain InputStream input streams} to deliver equal
+     * content.
+     * 
+     * @param message
+     *            the error message
+     * @param expected
+     *            reference input
+     * @param current
+     *            input to compare
+     * @since 1.0
+     * @author Apache Project (package org.apache.commons.id.test)
+     * @license Apache Lichense 2.0
+     */
+    public static void assertInputStreamEquals(final String message, final InputStream expected,
+            final InputStream current) {
+        long counter = 0;
+        int eByte, cByte;
+        try {
+            for (; (eByte = expected.read()) != -1; ++counter) {
+                cByte = current.read();
+                if (eByte != cByte) {
+                    Assert.assertEquals((message != null ? message + ": " : "")
+                            + "Stream not equal at position " + counter, eByte, cByte);
+                }
+            }
+        } catch (final IOException e) {
+            Assert.fail((message != null ? message + ": " : "") + e.getMessage());
+        }
     }
 
 }
