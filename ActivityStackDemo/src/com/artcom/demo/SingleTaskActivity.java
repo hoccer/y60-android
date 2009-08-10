@@ -13,6 +13,10 @@ public class SingleTaskActivity extends ActivityStackDemo {
 
         Date date = new Date();
         SimpleDateFormat df = new SimpleDateFormat("HH:mm:ss");
-        mTextView.setText("SingleTask Activity \n\n " + df.format(date));
+        mTextView
+                .setText("SingleTask Activity"
+                        + df.format(date)
+                        + "\n\n"
+                        + "Only one instance of this activity exits. It is always the root activity of the task.\n\n ");
     }
 }

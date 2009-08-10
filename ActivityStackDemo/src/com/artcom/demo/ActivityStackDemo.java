@@ -22,7 +22,9 @@ public class ActivityStackDemo extends Activity {
         mTextView = (TextView) findViewById(R.id.mytext);
         Date date = new Date();
         SimpleDateFormat df = new SimpleDateFormat("HH:mm:ss");
-        mTextView.setText("Activity Stack Demo\n\n " + df.format(date));
+        mTextView.setText("Activity Stack Demo - understanding launch modes.\n\n"
+                + "In order to understand the differences between the various launch modes it is "
+                + "advised to temporally set this application as HOME application.\n");
 
         Button standard = ((Button) findViewById(R.id.standard));
         standard.setOnClickListener(new OnClickListener() {

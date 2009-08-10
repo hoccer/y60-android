@@ -14,7 +14,9 @@ public class SingleTopActivity extends ActivityStackDemo {
         Date date = new Date();
         SimpleDateFormat df = new SimpleDateFormat("HH:mm:ss");
         mTextView
-                .setText("SingleTop Activity \n\ncreates a new instance if the activity is not already on top of the current stack\n\n "
-                        + df.format(date));
+                .setText("SingleTop Activity "
+                        + df.format(date)
+                        + "\n\n"
+                        + "creates a new instance if the activity is not already on top of the current stack\n\n ");
     }
 }

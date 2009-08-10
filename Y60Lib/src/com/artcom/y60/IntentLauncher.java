@@ -24,7 +24,6 @@ public class IntentLauncher extends SlotLauncher {
         String pkg = pActivityClass.substring(0, dotPos);
         ComponentName compName = new ComponentName(pkg, pActivityClass);
         mIntent = new Intent();
-        mIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         mIntent.setComponent(compName);
     }
 
