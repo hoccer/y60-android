@@ -60,6 +60,12 @@ public class GomHttpWrapper {
         return HttpHelper.putXML(pNodeUrl, "<node/>");
     }
 
+    public static String createNodeAtUuid(String pNodePath) throws HttpClientException,
+            HttpServerException, IOException {
+        HttpResponse myResponse = HttpHelper.getPostXMLResponse(pNodePath, "<node/>");
+        return myResponse.getFirstHeader("Location").getValue();
+    }
+
     public static HttpResponse putNodeWithAttributes(String pNodeUrl, HashMap<String, String> pAttrs)
             throws HttpClientException, HttpServerException, IOException {
 

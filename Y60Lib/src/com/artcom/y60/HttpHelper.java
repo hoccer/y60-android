@@ -25,6 +25,7 @@ import org.apache.http.client.methods.HttpHead;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
 import org.apache.http.client.methods.HttpRequestBase;
+import org.apache.http.client.params.HttpClientParams;
 import org.apache.http.entity.FileEntity;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
@@ -113,6 +114,13 @@ public class HttpHelper {
         insertXML(body, post);
         HttpResponse result = executeHTTPMethod(post, POST_TIMEOUT);
         return extractBodyAsString(result.getEntity());
+    }
+
+    public static HttpResponse getPostXMLResponse(String uri, String body) throws IOException,
+            HttpClientException, HttpServerException {
+        HttpPost post = new HttpPost(uri);
+        insertXML(body, post);
+        return executeHTTPMethod(post, POST_TIMEOUT, false);
     }
 
     public static String post(String uri, String body, String pContentType, String pAccept)
@@ -360,6 +368,43 @@ public class HttpHelper {
         HttpParams httpParams = new BasicHttpParams();
         HttpConnectionParams.setConnectionTimeout(httpParams, pConnectionTimeout);
         HttpConnectionParams.setSoTimeout(httpParams, pConnectionTimeout);
+
+        DefaultHttpClient httpclient = new DefaultHttpClient(httpParams);
+
+        // Log redirects
+        httpclient.setRedirectHandler(new DefaultRedirectHandler() {
+            @Override
+            public URI getLocationURI(HttpResponse response, HttpContext context)
+                    throws ProtocolException {
+                URI uri = super.getLocationURI(response, context);
+                Logger
+                        .v(LOG_TAG, response.getStatusLine().getStatusCode() + " redirect to: "
+                                + uri);
+                return uri;
+            }
+        });
+
+        HttpResponse response;
+        try {
+            response = httpclient.execute(pMethod);
+        } catch (SocketException e) {
+            e = new SocketException(e.getMessage() + ": " + pMethod.getURI());
+            e.fillInStackTrace();
+            throw e;
+        }
+        HttpException.throwIfError(pMethod.getURI().toString(), response);
+        return response;
+    }
+
+    private static HttpResponse executeHTTPMethod(HttpRequestBase pMethod, int pConnectionTimeout,
+            Boolean pRedirect) throws IOException, HttpClientException, HttpServerException {
+
+        HttpParams httpParams = new BasicHttpParams();
+        HttpConnectionParams.setConnectionTimeout(httpParams, pConnectionTimeout);
+        HttpConnectionParams.setSoTimeout(httpParams, pConnectionTimeout);
+        if (!pRedirect) {
+            HttpClientParams.setRedirecting(httpParams, false);
+        }
         DefaultHttpClient httpclient = new DefaultHttpClient(httpParams);
 
         // Log redirects
