@@ -332,7 +332,8 @@ public class GomProxyHelper {
 
     }
 
-    void getNodeData(String pPath, List<String> pSubNodeNames, List<String> pAttributeNames) {
+    void getNodeData(String pPath, List<String> pSubNodeNames, List<String> pAttributeNames)
+            throws GomEntryNotFoundException {
         assertConnected();
         try {
             RpcStatus status = new RpcStatus();
@@ -340,7 +341,11 @@ public class GomProxyHelper {
 
             if (status.hasError()) {
                 Throwable err = status.getError();
-                throw new RuntimeException(err);
+                if (err instanceof GomEntryNotFoundException) {
+                    throw new GomEntryNotFoundException(err);
+                } else {
+                    throw new RuntimeException(err);
+                }
             }
 
         } catch (RemoteException rex) {
