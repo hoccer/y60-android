@@ -10,7 +10,7 @@ import android.view.animation.Animation.AnimationListener;
 import android.widget.AbsoluteLayout;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
-import android.widget.TableLayout;
+import android.widget.RelativeLayout;
 
 public class FlingableScreen implements AnimationListener {
 
@@ -29,7 +29,7 @@ public class FlingableScreen implements AnimationListener {
 
     private AbsoluteLayout      mBaseLayout;
 
-    private TableLayout         mContentLayout;
+    private RelativeLayout      mContentLayout;
 
     private View                mContent;
 
@@ -55,8 +55,7 @@ public class FlingableScreen implements AnimationListener {
         progress.setLayoutParams(params);
         mContent = progress;
         mContent.setLongClickable(true);
-        mContentLayout = new TableLayout(mActivity);
-        mContentLayout.setOrientation(TableLayout.HORIZONTAL);
+        mContentLayout = new RelativeLayout(mActivity);
         mContentLayout.setLongClickable(true);
         mContentLayout.addView(mContent);
         mBaseLayout = new AbsoluteLayout(mActivity);
