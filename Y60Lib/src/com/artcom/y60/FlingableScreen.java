@@ -40,6 +40,10 @@ public class FlingableScreen implements AnimationListener {
     private Animation           mOutToRight;
     private Animation           mInFromLeft;
     private Animation           mInFromRight;
+    private Animation           mOutToTop;
+    private Animation           mOutToBottom;
+    private Animation           mInFromTop;
+    private Animation           mInFromBottom;
 
     private int                 mBackgroundResource;
 
@@ -86,6 +90,30 @@ public class FlingableScreen implements AnimationListener {
         mInFromRight.setDuration(ANIMATION_DURATION);
         mInFromRight.setAnimationListener(this);
 
+        mOutToTop = new TranslateAnimation(Animation.RELATIVE_TO_SELF, 0,
+                Animation.RELATIVE_TO_SELF, 0, Animation.RELATIVE_TO_SELF, 0,
+                Animation.RELATIVE_TO_SELF, -1);
+        mOutToTop.setDuration(ANIMATION_DURATION);
+        mOutToTop.setAnimationListener(this);
+
+        mInFromTop = new TranslateAnimation(Animation.RELATIVE_TO_SELF, 0,
+                Animation.RELATIVE_TO_SELF, 0, Animation.RELATIVE_TO_SELF, -1,
+                Animation.RELATIVE_TO_SELF, 0);
+        mInFromTop.setDuration(ANIMATION_DURATION);
+        mInFromTop.setAnimationListener(this);
+
+        mOutToBottom = new TranslateAnimation(Animation.RELATIVE_TO_SELF, 0,
+                Animation.RELATIVE_TO_SELF, 0, Animation.RELATIVE_TO_SELF, 0,
+                Animation.RELATIVE_TO_SELF, 1);
+        mOutToBottom.setDuration(ANIMATION_DURATION);
+        mOutToBottom.setAnimationListener(this);
+
+        mInFromBottom = new TranslateAnimation(Animation.RELATIVE_TO_SELF, 0,
+                Animation.RELATIVE_TO_SELF, 0, Animation.RELATIVE_TO_SELF, 1,
+                Animation.RELATIVE_TO_SELF, 0);
+        mInFromBottom.setDuration(ANIMATION_DURATION);
+        mInFromBottom.setAnimationListener(this);
+
         mBackgroundResource = pBackgroundResource;
     }
 
@@ -131,14 +159,22 @@ public class FlingableScreen implements AnimationListener {
 
             if (p_Direction == Direction.LEFT) {
                 mBaseLayout.startAnimation(mInFromRight);
-            } else {
+            } else if (p_Direction == Direction.RIGHT) {
                 mBaseLayout.startAnimation(mInFromLeft);
+            } else if (p_Direction == Direction.TOP) {
+                mBaseLayout.startAnimation(mInFromBottom);
+            } else {
+                mBaseLayout.startAnimation(mInFromTop);
             }
         } else {
             if (p_Direction == Direction.LEFT) {
                 mBaseLayout.startAnimation(mOutToLeft);
-            } else {
+            } else if (p_Direction == Direction.RIGHT) {
                 mBaseLayout.startAnimation(mOutToRight);
+            } else if (p_Direction == Direction.TOP) {
+                mBaseLayout.startAnimation(mOutToTop);
+            } else {
+                mBaseLayout.startAnimation(mOutToBottom);
             }
         }
 
