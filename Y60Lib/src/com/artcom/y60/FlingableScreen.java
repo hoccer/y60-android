@@ -22,8 +22,8 @@ public class FlingableScreen implements AnimationListener {
 
     // Constants ---------------------------------------------------------
 
-    private static final int    ANIMATION_DURATION = 500;
-    private static final String LOG_TAG            = "FlingableScreen";
+    private static final int    ANIMATION_DURATION  = 500;
+    private static final String LOG_TAG             = "FlingableScreen";
 
     // Instance Variables ------------------------------------------------
 
@@ -46,7 +46,7 @@ public class FlingableScreen implements AnimationListener {
     private Animation           mInFromBottom;
 
     private int                 mBackgroundResource;
-    private Drawable            mBackgroundDrawable;
+    private Drawable            mBackgroundDrawable = null;
 
     // Constructors ------------------------------------------------------
 
@@ -154,8 +154,6 @@ public class FlingableScreen implements AnimationListener {
 
         mBaseLayout.clearAnimation();
 
-        Logger.v(LOG_TAG, "animating");
-
         if (p_Target == Target.IN) {
 
             if (p_Direction == Direction.LEFT) {
@@ -192,7 +190,7 @@ public class FlingableScreen implements AnimationListener {
         }
     }
 
-    public void setBackground(Drawable pBackground) {
+    public void setBackgroundForFlingable(Drawable pBackground) {
         mBackgroundDrawable = pBackground;
         mActivity.getWindow().setBackgroundDrawable(pBackground);
         // mBaseLayout.setBackgroundDrawable(mBackgroundDrawable);
