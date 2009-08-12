@@ -1,9 +1,9 @@
 package com.artcom.y60;
 
 import android.app.Activity;
+import android.graphics.drawable.Drawable;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.Window;
 import android.view.animation.Animation;
 import android.view.animation.TranslateAnimation;
 import android.view.animation.Animation.AnimationListener;
@@ -46,6 +46,7 @@ public class FlingableScreen implements AnimationListener {
     private Animation           mInFromBottom;
 
     private int                 mBackgroundResource;
+    private Drawable            mBackgroundDrawable;
 
     // Constructors ------------------------------------------------------
 
@@ -182,9 +183,19 @@ public class FlingableScreen implements AnimationListener {
     }
 
     public void showBackground() {
+        if (mBackgroundDrawable != null) {
+            // mBaseLayout.setBackgroundDrawable(mBackgroundDrawable);
+            mActivity.getWindow().setBackgroundDrawable(mBackgroundDrawable);
+        } else {
+            mActivity.getWindow().setBackgroundDrawableResource(mBackgroundResource);
+            // mBaseLayout.setBackgroundResource(mBackgroundResource);
+        }
+    }
 
-        Window win = mActivity.getWindow();
-        win.setBackgroundDrawableResource(mBackgroundResource);
+    public void setBackground(Drawable pBackground) {
+        mBackgroundDrawable = pBackground;
+        mActivity.getWindow().setBackgroundDrawable(pBackground);
+        // mBaseLayout.setBackgroundDrawable(mBackgroundDrawable);
     }
 
     public void clear() {
