@@ -16,7 +16,6 @@ import android.os.IBinder;
 import com.artcom.y60.DeviceConfiguration;
 import com.artcom.y60.ErrorHandling;
 import com.artcom.y60.Logger;
-import com.artcom.y60.gom.GomEntryTypeMismatchException;
 import com.artcom.y60.gom.Y60GomService;
 
 public class StatusWatcher extends Y60GomService {
@@ -97,12 +96,7 @@ public class StatusWatcher extends Y60GomService {
                     return;
                 }
 
-                try {
-                    getGom().getNode(mDeviceConfiguration.getDevicePath());
-                } catch (GomEntryTypeMismatchException e) {
-                    showWestWindNotification("Y60's GOM is not accessable");
-                    return;
-                }
+                getGom().getNode(mDeviceConfiguration.getDevicePath());
 
                 // everything is fine... disable notification
                 mNotificationManager.cancel(GOM_NOT_ACCESSIBLE_NOTIFICATION_ID);
