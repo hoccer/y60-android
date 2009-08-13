@@ -65,10 +65,8 @@ public class GomProxyHelperTest extends GomActivityUnitTestCase {
             node.entries(); // lazy loading accesses the GOM here, not before
             fail("expected a 404 exception in the service");
 
-        } catch (RuntimeException e) {
-
-            Logger.v(LOG_TAG, "ok, caught exception ", e);
-
+        } catch (GomEntryNotFoundException e) {
+            Logger.v(LOG_TAG, "GomEntryNotFound!!! ", e);
             assertTrue("expected a 404 exception in the service", e.getMessage().contains("404"));
         }
     }

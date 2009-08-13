@@ -80,7 +80,7 @@ public class GomProxyHelper {
         }
     }
 
-    public GomNode getNode(String pPath) throws GomEntryTypeMismatchException {
+    public GomNode getNode(String pPath) {
 
         assertConnected();
         return new GomNode(pPath, this);

@@ -78,11 +78,7 @@ public class GomWorkerTest extends GomActivityUnitTestCase {
             public void execute() {
                 getGom().unbind();
                 mHasCodeBeenExecuted = true;
-                try {
-                    getGom().getNode("/");
-                } catch (GomEntryTypeMismatchException e) {
-                    fail();
-                }
+                getGom().getNode("/");
                 fail("BindingException should have been thrown and caught silently");
             }
         };
