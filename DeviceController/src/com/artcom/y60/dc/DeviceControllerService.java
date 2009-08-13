@@ -94,6 +94,8 @@ public class DeviceControllerService extends Y60GomService {
                 ipAddress = NetworkHelper.getDeviceIpAddress();
                 GomNode device = getGom().getNode(dc.getDevicePath());
                 device.getOrCreateAttribute("ip_address").putValue(ipAddress);
+                device.getOrCreateAttribute("rtp_address").putValue(ipAddress);
+                device.getOrCreateAttribute("rtp_port").putValue("16384");
             } else {
                 Logger.i(LOG_TAG, "I'm running in the emulator. Not publishing my ip address.");
             }

@@ -28,17 +28,17 @@ public class DeviceControllerHandler extends DefaultHandler {
 
     // Constants ---------------------------------------------------------
 
-    private static final String LOG_TAG = "DeviceControllerHandler";
+    private static final String LOG_TAG          = "DeviceControllerHandler";
 
     /** path prefix for proc requests */
-    public static final String PROC_PATH_PREFIX = "/proc";
+    public static final String  PROC_PATH_PREFIX = "/proc";
 
     /** target for RCA HTTP requests */
-    public static final String RCA_TARGET = "/commands";
+    public static final String  RCA_TARGET       = "/commands";
 
     // Instance Variables ------------------------------------------------
 
-    private Service mService;
+    private Service             mService;
 
     // Constructors ------------------------------------------------------
 
@@ -50,7 +50,7 @@ public class DeviceControllerHandler extends DefaultHandler {
 
     @Override
     public void handle(String pTarget, HttpServletRequest pRequest, HttpServletResponse pResponse,
-                    int pDispatch) {
+            int pDispatch) {
 
         try {
 
@@ -122,9 +122,9 @@ public class DeviceControllerHandler extends DefaultHandler {
         UrlEncoded.decodeUtf8To(paramsStr.getBytes(), 0, paramsStr.length(), parameters);
 
         Logger.v(LOG_TAG, "target = " + (String) parameters.get("target") + ", sender = "
-                        + (String) parameters.get("sender") + ", receiver = "
-                        + (String) parameters.get("receiver") + ", arguments = "
-                        + (String) parameters.get("arguments"));
+                + (String) parameters.get("sender") + ", receiver = "
+                + (String) parameters.get("receiver") + ", arguments = "
+                + (String) parameters.get("arguments"));
 
         Intent intent;
         Intent broadcastIntent;
@@ -141,17 +141,17 @@ public class DeviceControllerHandler extends DefaultHandler {
 
         } else {
             throw new HandlerException("illegal RCA target: " + targetParam + "from: "
-                            + parameters.get("sender"));
+                    + parameters.get("sender"));
         }
 
         broadcastIntent.putExtra(IntentExtraKeys.KEY_SEARCH_TARGET, (String) parameters
-                        .get("target"));
+                .get("target"));
         broadcastIntent.putExtra(IntentExtraKeys.KEY_SEARCH_SENDER, (String) parameters
-                        .get("sender"));
+                .get("sender"));
         broadcastIntent.putExtra(IntentExtraKeys.KEY_SEARCH_RECEIVER, (String) parameters
-                        .get("receiver"));
+                .get("receiver"));
         broadcastIntent.putExtra(IntentExtraKeys.KEY_SEARCH_ARGUMENTS, (String) parameters
-                        .get("arguments"));
+                .get("arguments"));
 
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         mService.startActivity(intent);
@@ -160,7 +160,7 @@ public class DeviceControllerHandler extends DefaultHandler {
     }
 
     private void handleGomNotification(HttpServletRequest pRequest) throws IOException,
-                    HandlerException {
+            HandlerException {
 
         Logger.d(LOG_TAG, "handling GOM notification");
 
@@ -175,8 +175,7 @@ public class DeviceControllerHandler extends DefaultHandler {
 
             // wrong concept - uri is actually a path! see RFC 2396 for details
             gnpIntent
-                            .putExtra(IntentExtraKeys.KEY_NOTIFICATION_PATH, notification
-                                            .getString("uri"));
+                    .putExtra(IntentExtraKeys.KEY_NOTIFICATION_PATH, notification.getString("uri"));
 
             String operation = null;
             if (notification.has("create")) {
@@ -210,7 +209,7 @@ public class DeviceControllerHandler extends DefaultHandler {
         } catch (JSONException jsx) {
 
             Logger.e(LOG_TAG, "ignoring notification - failed to parse json: \n'", content, "'\n",
-                            jsx);
+                    jsx);
         }
     }
 
@@ -234,7 +233,7 @@ public class DeviceControllerHandler extends DefaultHandler {
     }
 
     private void respondNotImplemented(HttpServletResponse response) throws ServletException,
-                    IOException {
+            IOException {
 
         response.setContentType("text/plain");
         response.setStatus(HttpServletResponse.SC_NOT_IMPLEMENTED);
