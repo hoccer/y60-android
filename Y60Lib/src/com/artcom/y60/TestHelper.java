@@ -28,7 +28,6 @@ public class TestHelper {
     // Static Methods ----------------------------------------------------
 
     /**
-     * 
      * @param pFailMessage
      * @param pTimeout
      *            in milliseconds
@@ -57,7 +56,6 @@ public class TestHelper {
     }
 
     /**
-     * 
      * @param pFailMessage
      * @param pTimeout
      *            in milliseconds
@@ -101,7 +99,6 @@ public class TestHelper {
     }
 
     /**
-     * 
      * @param pFailMessage
      * @param pTimeout
      * @param pMeasurement
@@ -362,8 +359,7 @@ public class TestHelper {
     }
 
     /**
-     * Assert two {@linkplain InputStream input streams} to deliver equal
-     * content.
+     * Assert two {@linkplain InputStream input streams} to deliver equal content.
      * 
      * @param message
      *            the error message
@@ -392,4 +388,12 @@ public class TestHelper {
         }
     }
 
+    public static File[] getFiles(String dirName) throws Exception {
+        File dataDir = new File(dirName);
+        Assert.assertTrue("dir should exists", dataDir.exists());
+        Assert.assertTrue("dir should be a dir", dataDir.isDirectory());
+        Assert.assertTrue("dir should be readable", dataDir.canRead());
+
+        return dataDir.listFiles();
+    }
 }
