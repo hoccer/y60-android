@@ -2,6 +2,7 @@ package com.artcom.y60;
 
 import java.io.BufferedInputStream;
 import java.io.File;
+import java.io.FileFilter;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -389,11 +390,21 @@ public class TestHelper {
     }
 
     public static File[] getFiles(String dirName) throws Exception {
+        return getFiles(dirName, "");
+    }
+
+    public static File[] getFiles(String dirName, final String pFileEnding) throws Exception {
         File dataDir = new File(dirName);
         Assert.assertTrue("dir should exists", dataDir.exists());
         Assert.assertTrue("dir should be a dir", dataDir.isDirectory());
         Assert.assertTrue("dir should be readable", dataDir.canRead());
 
-        return dataDir.listFiles();
+        FileFilter filter = new FileFilter() {
+            public boolean accept(File f) {
+                return f.getName().toLowerCase().endsWith(pFileEnding);
+            }
+        };
+
+        return dataDir.listFiles(filter);
     }
 }
