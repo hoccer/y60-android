@@ -1,0 +1,4 @@
+default.properties
+bin/
+sdcard.img
+sdcard.img.lock

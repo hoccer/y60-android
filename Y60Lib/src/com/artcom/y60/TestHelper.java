@@ -29,6 +29,7 @@ public class TestHelper {
     // Static Methods ----------------------------------------------------
 
     /**
+     * 
      * @param pFailMessage
      * @param pTimeout
      *            in milliseconds
@@ -57,6 +58,7 @@ public class TestHelper {
     }
 
     /**
+     * 
      * @param pFailMessage
      * @param pTimeout
      *            in milliseconds
@@ -100,6 +102,7 @@ public class TestHelper {
     }
 
     /**
+     * 
      * @param pFailMessage
      * @param pTimeout
      * @param pMeasurement
@@ -360,7 +363,8 @@ public class TestHelper {
     }
 
     /**
-     * Assert two {@linkplain InputStream input streams} to deliver equal content.
+     * Assert two {@linkplain InputStream input streams} to deliver equal
+     * content.
      * 
      * @param message
      *            the error message
