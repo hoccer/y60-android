@@ -1,0 +1,15 @@
+#!/bin/sh
+
+killall ruby ./scripts/adb_portier.rb
+killall ruby ./adb_portier.rb
+cd ~/droiddata/y60-android
+unset GIT_DIR
+git reset --hard HEAD
+echo "building y60-android"
+cd ../artcom-tg-android
+rake build >> ../adb_portier.log 2>&1 &
+echo "finished building y60-android"
+cd scripts
+./adb_portier.rb >> ../../adb_portier.log 2>&1 &
+
+
