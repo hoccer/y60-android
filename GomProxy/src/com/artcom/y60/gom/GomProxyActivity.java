@@ -10,7 +10,7 @@ public class GomProxyActivity extends Activity {
 
     private TextView mText;
 
-    // Public Instance Methods -------------------------------------------
+    // Public Instance Methods ------------------------------------------
 
     public void onCreate(Bundle savedInstanceState) {
 
@@ -23,24 +23,24 @@ public class GomProxyActivity extends Activity {
 
         super.onResume();
 
-//        mText.setText("Binding to GomProxyService...");
-//
-//        new GomProxyHelper(this, new BindingListener<GomProxyHelper>() {
-//
-//            public void bound(GomProxyHelper helper) {
-//
-//                runOnUiThread(new Runnable() {
-//
-//                    public void run() {
-//
-//                        mText.setText("Binding to GomProxyService...success.");
-//                    }
-//                });
-//            }
-//
-//            public void unbound(GomProxyHelper helper) {
-//            }
-//        });
+        // mText.setText("Binding to GomProxyService...");
+        //
+        // new GomProxyHelper(this, new BindingListener<GomProxyHelper>() {
+        //
+        // public void bound(GomProxyHelper helper) {
+        //
+        // runOnUiThread(new Runnable() {
+        //
+        // public void run() {
+        //
+        // mText.setText("Binding to GomProxyService...success.");
+        // }
+        // });
+        // }
+        //
+        // public void unbound(GomProxyHelper helper) {
+        // }
+        // });
     }
 
 }

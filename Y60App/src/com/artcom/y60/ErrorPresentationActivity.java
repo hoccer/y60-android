@@ -14,7 +14,7 @@ public class ErrorPresentationActivity extends Activity {
     }
 
     // TODO this will eventually need to be configurable, possibly via
-    // preferences .
+    // preferences
     private static final Mode mMode = Mode.DEBUG;
 
     private TextView          mTextView;
