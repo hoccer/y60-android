@@ -393,6 +393,30 @@ public class TestHelper {
         }
     }
 
+    public static void assertEquals(final String message, final byte[] expected,
+            final byte[] current) {
+
+        int eByte, cByte;
+        int i = 0;
+        try {
+            for (; i < expected.length; ++i) {
+                eByte = expected[i];
+                cByte = current[i];
+
+                if (eByte != cByte) {
+                    Assert.assertEquals((message != null ? message + ": " : "")
+                            + "Byte Array not equal at position " + i, eByte, cByte);
+                }
+            }
+        } catch (final ArrayIndexOutOfBoundsException e) {
+            Assert.fail((message != null ? message + ": " : "")
+                    + "Byte Array truncated at position  " + i);
+        }
+
+        Assert.assertEquals("byte array to long", expected.length, current.length);
+
+    }
+
     public static File[] getFiles(String dirName) throws Exception {
         return getFiles(dirName, "");
     }

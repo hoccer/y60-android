@@ -26,6 +26,10 @@ public abstract class Ring<T> {
         setActive(mCurrent - 1);
     }
 
+    public T getCurrent() {
+        return mRingContent.get(mCurrent);
+    }
+
     protected abstract void onActiveChange(T pOldActiveMember, T pNextActiveMember);
 
     private int calculateRealIndex(int pIndex) {
