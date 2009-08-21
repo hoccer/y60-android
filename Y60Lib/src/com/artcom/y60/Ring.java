@@ -7,10 +7,6 @@ public abstract class Ring<T> {
     private final ArrayList<T> mRingContent = new ArrayList<T>();
     private int                mCurrent     = 0;                  ;
 
-    public T getCurrent() {
-        return mRingContent.get(mCurrent);
-    }
-
     public void add(T pNewMember) {
         mRingContent.add(pNewMember);
     }
