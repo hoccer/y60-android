@@ -16,9 +16,10 @@ public class Cache {
 
     // Constants ---------------------------------------------------------
 
-    public static final String  LOG_TAG   = Cache.class.getName();
+    public static final String  LOG_TAG   = "Cache";
     static final String         CACHE_DIR = "/sdcard/HttpProxyCache/";
-    private Map<String, Bundle> mCachedContent;
+    private Map<String, Bundle> mCachedContent;                       // _the_
+    // cache
 
     private List<String>        mPendingResources;
 

@@ -148,7 +148,7 @@ public class HttpProxyHelper {
 
         if (mProxy == null) {
 
-            Logger.v(logTag(), "get called, but proxy is still null - returning fallback");
+            Logger.v(LOG_TAG, "get called, but proxy is still null - returning fallback");
             return pDefault;
         }
 
@@ -156,10 +156,12 @@ public class HttpProxyHelper {
 
         if (bytes == null) {
 
-            Logger.v(logTag(), "get called, but result is empty - returning fallback");
+            Logger.v(LOG_TAG,
+                    "''''''''''''''''''''get called, but result is empty - returning fallback");
             return pDefault;
         }
 
+        Logger.v(LOG_TAG, "return drawable from bytestrem");
         InputStream is = new ByteArrayInputStream(bytes);
         return Drawable.createFromStream(is, pUri.toString());
     }

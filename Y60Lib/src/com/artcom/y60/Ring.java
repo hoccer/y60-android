@@ -4,8 +4,12 @@ import java.util.ArrayList;
 
 public abstract class Ring<T> {
 
-    private ArrayList<T> mRingContent = new ArrayList<T>();
-    private int          mCurrent     = 0;                  ;
+    private final ArrayList<T> mRingContent = new ArrayList<T>();
+    private int                mCurrent     = 0;                  ;
+
+    public T getCurrent() {
+        return mRingContent.get(mCurrent);
+    }
 
     public void add(T pNewMember) {
         mRingContent.add(pNewMember);
