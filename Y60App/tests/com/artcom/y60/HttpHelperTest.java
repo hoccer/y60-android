@@ -15,7 +15,7 @@ public class HttpHelperTest extends TestCase {
         try {
             HttpResponse response = HttpHelper.get("http://artcom.de/dieseurlgibtsgarnicht");
             Logger.v(LOG_TAG, response.getStatusLine().getStatusCode(), " - ", response
-                            .getStatusLine());
+                    .getStatusLine());
             fail("expected a 404 exception!");
 
         } catch (HttpClientException ex) {
@@ -24,4 +24,5 @@ public class HttpHelperTest extends TestCase {
             Logger.v(LOG_TAG, ex.getMessage());
         }
     }
+
 }

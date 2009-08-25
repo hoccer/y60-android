@@ -424,7 +424,7 @@ public class TestHelper {
     public static File[] getFiles(String dirName, final String pFileEnding) throws Exception {
         File dataDir = new File(dirName);
         Assert.assertTrue("dir should exists", dataDir.exists());
-        Assert.assertTrue("dir should be a dir", dataDir.isDirectory());
+        Assert.assertTrue(dirName + " should be a directory", dataDir.isDirectory());
         Assert.assertTrue("dir should be readable", dataDir.canRead());
 
         FileFilter filter = new FileFilter() {
