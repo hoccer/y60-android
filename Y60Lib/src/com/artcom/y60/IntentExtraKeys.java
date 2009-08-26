@@ -15,4 +15,10 @@ public class IntentExtraKeys {
     public static final String KEY_NOTIFICATION_DATA_STRING = "data";
     public static final String KEY_WEB_URL                  = "web_url";
     public static final String KEY_PURCHASE_RENDITION_URI   = "rendition_uri";
+
+    public static final String KEY_QUESTION_HEADER          = "header";
+    public static final String KEY_QUESTION_QUESTION        = "question";
+    public static final String KEY_QUESTION_OPTION_A        = "option1";
+    public static final String KEY_QUESTION_OPTION_B        = "option2";
+    public static final String KEY_QUESTION_UUID            = "uuid";
 }
