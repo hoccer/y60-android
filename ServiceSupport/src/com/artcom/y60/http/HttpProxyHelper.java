@@ -17,6 +17,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
@@ -261,6 +263,15 @@ public class HttpProxyHelper {
         byte[] bytes = fetchFromCache(pUri);
         InputStream is = new ByteArrayInputStream(bytes);
         return Drawable.createFromStream(is, pUri.toString());
+
+    }
+
+    public Bitmap fetchBitmapFromCache(Uri pUri) {
+
+        byte[] bytes = fetchFromCache(pUri);
+        InputStream is = new ByteArrayInputStream(bytes);
+        return BitmapFactory.decodeStream(is);
+
     }
 
     public String fetchStringFromCache(Uri pUri) {
