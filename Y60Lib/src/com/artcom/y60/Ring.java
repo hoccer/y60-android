@@ -2,13 +2,17 @@ package com.artcom.y60;
 
 import java.util.ArrayList;
 
-public abstract class Ring<T> {
+public class Ring<T> {
 
     private final ArrayList<T> mRingContent = new ArrayList<T>();
-    private int                mCurrent     = 0;                  ;
+    private int                mCurrent     = 0;
 
     public void add(T pNewMember) {
         mRingContent.add(pNewMember);
+
+        if (size() == 1) {
+            onChange(getCurrent(), getCurrent());
+        }
     }
 
     public void jumpTo(int pNewIndex) {
