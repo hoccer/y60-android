@@ -11,30 +11,41 @@ public abstract class Ring<T> {
         mRingContent.add(pNewMember);
     }
 
-    public void setActive(int pIndex) {
-        pIndex = calculateRealIndex(pIndex);
-        onActiveChange(mRingContent.get(mCurrent), mRingContent.get(pIndex));
+    public void jumpTo(int pNewIndex) {
+        int oldIndex = mCurrent;
+        pNewIndex = calculateRealIndex(pNewIndex);
 
-        mCurrent = pIndex;
+        if (oldIndex == pNewIndex) {
+            return;
+        }
+
+        mCurrent = pNewIndex;
+
+        onChange(mRingContent.get(oldIndex), mRingContent.get(pNewIndex));
     }
 
-    public void setNext() {
-        setActive(mCurrent + 1);
+    public void stepForward() {
+        jumpTo(mCurrent + 1);
     }
 
-    public void setPrevious() {
-        setActive(mCurrent - 1);
+    public void stepBackward() {
+        jumpTo(mCurrent - 1);
     }
 
     public T getCurrent() {
         return mRingContent.get(mCurrent);
     }
 
+    public int getCurrentIndex() {
+        return mCurrent;
+    }
+
     public int size() {
         return mRingContent.size();
     }
 
-    protected abstract void onActiveChange(T pOldActiveMember, T pNextActiveMember);
+    protected void onChange(T pOldActiveMember, T pNextActiveMember) {
+    }
 
     private int calculateRealIndex(int pIndex) {
         pIndex = pIndex % mRingContent.size();
