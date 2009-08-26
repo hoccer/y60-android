@@ -30,6 +30,10 @@ public abstract class Ring<T> {
         return mRingContent.get(mCurrent);
     }
 
+    public int size() {
+        return mRingContent.size();
+    }
+
     protected abstract void onActiveChange(T pOldActiveMember, T pNextActiveMember);
 
     private int calculateRealIndex(int pIndex) {
@@ -40,4 +44,5 @@ public abstract class Ring<T> {
 
         return pIndex;
     }
+
 }
