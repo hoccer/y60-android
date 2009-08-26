@@ -33,7 +33,7 @@ public abstract class Ring<T> {
     }
 
     public T getCurrent() {
-        return mRingContent.get(mCurrent);
+        return mRingContent.get(getCurrentIndex());
     }
 
     public int getCurrentIndex() {
