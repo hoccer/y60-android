@@ -40,6 +40,7 @@ public class GomProxyHelper {
 
     public GomProxyHelper(Context pContext, BindingListener<GomProxyHelper> pBindingListener) {
 
+        Logger.v(LOG_TAG, "GomProxyHelper constructor, context is: ", pContext);
         mBindingListener = pBindingListener;
         mContext = pContext;
         mConnection = new GomProxyServiceConnection();
@@ -59,7 +60,7 @@ public class GomProxyHelper {
     }
 
     public void unbind() {
-        Logger.v(logTag(), "unbinding from GomProxy (" + toString() + ")");
+        Logger.v(logTag(), "unbinding from GomProxy (" + toString() + ") and context: ", mContext);
         mContext.unbindService(mConnection);
         onUnbound();
     }
