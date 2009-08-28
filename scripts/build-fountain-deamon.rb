@@ -54,7 +54,7 @@ def main
   ALL ALL=NOPASSWD: /usr/bin/sispmctl
   "
   
-  sleep_time = 5
+  sleep_time = 10
 
   puts "deamon started and will check the build status every #{sleep_time} seconds"
   while true
