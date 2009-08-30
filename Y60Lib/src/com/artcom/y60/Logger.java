@@ -13,6 +13,7 @@ import android.util.Log;
 
 public class Logger {
 
+    private static Level    sLevel         = Level.WARN;
     public static final int MAX_LINE_WIDTH = 500;
 
     public enum Level implements Comparable<Level> {
@@ -44,9 +45,9 @@ public class Logger {
             return BY_NAME.get(pName.toLowerCase());
         }
 
-        private int    mAsInt;
-        private int    mPriority;
-        private String mName;
+        private final int    mAsInt;
+        private final int    mPriority;
+        private final String mName;
 
         Level(int pAsInt, int pPriority, String pName) {
 
@@ -132,10 +133,6 @@ public class Logger {
             }
         }
     };
-
-    // Static Variables ----------------------------------------------------
-
-    private static Level sLevel = Level.VERBOSE;
 
     // Static Methods ----------------------------------------------------
 
