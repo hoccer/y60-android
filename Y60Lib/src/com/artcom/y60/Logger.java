@@ -13,7 +13,7 @@ import android.util.Log;
 
 public class Logger {
 
-    private static Level    sLevel         = Level.WARN;
+    private static Level    sLevel         = Level.VERBOSE;
     public static final int MAX_LINE_WIDTH = 500;
 
     public enum Level implements Comparable<Level> {
