@@ -238,7 +238,7 @@ public class TestHelper {
 
     public static void blockUntilDeviceControllerIsRunning(long pTimeout) throws Exception {
 
-        TestHelper.blockUntilEquals("device controller should have started withhin " + pTimeout
+        TestHelper.blockUntilEquals("device controller should have started within " + pTimeout
                 + " milliseconds", pTimeout, "404", new TestHelper.Measurement() {
             @Override
             public Object getActualValue() {
