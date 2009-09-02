@@ -4,6 +4,8 @@
 #
 #  On ubuntu you can install the neccesary dependencies by typing
 #  $ sudo aptitude install ffmpeg ubuntu-restricted-extras
+#  you might also need:
+#  apt-get install libavcodec-unstripped-51 libavdevice-unstripped-52 libavformat-unstripped-52
 #
 ####################################################################################
 # Androvideo - Harel Malka 2009
