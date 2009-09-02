@@ -38,11 +38,18 @@ public class GomHttpWrapper {
         return HttpHelper.delete(pUri);
     }
 
+    @Deprecated
     public static String getAttributeValue(Uri pAttrUrl) throws HttpClientException,
             HttpServerException, IOException {
 
+        return getAttributeValue(pAttrUrl.toString());
+    }
+
+    public static String getAttributeValue(String pAttrUrl) throws HttpClientException,
+            HttpServerException, IOException {
+
         try {
-            JSONObject wrapper = HttpHelper.getJson(pAttrUrl.toString());
+            JSONObject wrapper = HttpHelper.getJson(pAttrUrl);
             JSONObject attr = wrapper.getJSONObject(Constants.Gom.Keywords.ATTRIBUTE);
             String value = attr.getString(Constants.Gom.Keywords.VALUE);
 
