@@ -17,13 +17,20 @@ import com.artcom.y60.http.HttpServerException;
 
 public class GomHttpWrapper {
 
+    @Deprecated
     public static HttpResponse updateOrCreateAttribute(Uri pUri, String pValue)
+            throws HttpClientException, HttpServerException, IOException {
+
+        return updateOrCreateAttribute(pUri.toString(), pValue);
+    }
+
+    public static HttpResponse updateOrCreateAttribute(String pUri, String pValue)
             throws HttpClientException, HttpServerException, IOException {
 
         Map<String, String> formData = new HashMap<String, String>();
         formData.put(Constants.Gom.Keywords.ATTRIBUTE, pValue);
 
-        return HttpHelper.putUrlEncoded(pUri.toString(), formData);
+        return HttpHelper.putUrlEncoded(pUri, formData);
     }
 
     public static HttpResponse deleteAttribute(Uri pUri) throws HttpClientException,
