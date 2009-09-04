@@ -3,6 +3,8 @@ package com.artcom.y60;
 import java.io.IOException;
 import java.util.HashMap;
 
+import org.apache.http.HttpResponse;
+
 import android.net.Uri;
 
 import com.artcom.y60.http.HttpException;
@@ -49,7 +51,8 @@ public class RciLauncher extends SlotLauncher {
         try {
 
             Logger.d(LOG_TAG, "Send: ", HttpHelper.urlEncode(args));
-            HttpHelper.postUrlEncoded(mRciUri.toString(), args);
+            HttpResponse res = HttpHelper.postUrlEncoded(mRciUri.toString(), args);
+            Logger.v(LOG_TAG, res.getStatusLine());
 
         } catch (IOException e) {
 
