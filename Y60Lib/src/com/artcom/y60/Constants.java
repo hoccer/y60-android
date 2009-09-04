@@ -35,6 +35,7 @@ public class Constants {
         public static final String       OBSERVER_BASE_PATH    = "/gom/observer";
 
         public static final IntentFilter GNP_INTENT_FILTER;
+        public static final String       QUESTION_PATH         = "/questions";
 
         static {
             DeviceConfiguration config = DeviceConfiguration.load();
