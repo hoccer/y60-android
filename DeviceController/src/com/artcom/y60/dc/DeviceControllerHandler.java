@@ -132,11 +132,11 @@ public class DeviceControllerHandler extends DefaultHandler {
         Object targetParam = parameters.get("target");
 
         if ("search".equals(targetParam)) {
-            intent = new Intent(Y60Action.SEARCH);
+            // intent = new Intent(Y60Action.SEARCH);
             broadcastIntent = new Intent(Y60Action.SEARCH_BC);
 
         } else if ("voice_control".equals(targetParam)) {
-            intent = new Intent(Y60Action.VOICE_CONTROL);
+            // intent = new Intent(Y60Action.VOICE_CONTROL);
             broadcastIntent = new Intent(Y60Action.VOICE_CONTROL_BC);
 
         } else {
@@ -153,8 +153,8 @@ public class DeviceControllerHandler extends DefaultHandler {
         broadcastIntent.putExtra(IntentExtraKeys.KEY_SEARCH_ARGUMENTS, (String) parameters
                 .get("arguments"));
 
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        mService.startActivity(intent);
+        // intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        // mService.startActivity(intent);
 
         mService.sendBroadcast(broadcastIntent);
     }
