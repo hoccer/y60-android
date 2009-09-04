@@ -21,7 +21,8 @@ public class Constants {
 
             // GOM keywords
             public static final String NODE = "node", URI = "uri", ATTRIBUTE = "attribute",
-                    ENTRIES = "entries", NAME = "name", VALUE = "value", TYPE = "type";
+                    ENTRIES = "entries", NAME = "name", VALUE = "value", TYPE = "type",
+                    DISPLAY_NAME = "display_name";
         }
 
         public static final String       URI;
