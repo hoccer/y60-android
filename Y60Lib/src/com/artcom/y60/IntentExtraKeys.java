@@ -18,7 +18,10 @@ public class IntentExtraKeys {
 
     public static final String KEY_QUESTION_HEADER          = "header";
     public static final String KEY_QUESTION_QUESTION        = "question";
-    public static final String KEY_QUESTION_OPTION_A        = "option1";
-    public static final String KEY_QUESTION_OPTION_B        = "option2";
+    public static final String KEY_QUESTION_OPTION_A        = "optiona";
+    public static final String KEY_QUESTION_OPTION_B        = "optionb";
+    public static final String KEY_QUESTION_ACTION_A        = "actiona";
+    public static final String KEY_QUESTION_ACTION_B        = "actionb";
+    public static final String KEY_QUESTION_IMAGE           = "image";
     public static final String KEY_QUESTION_UUID            = "uuid";
 }
