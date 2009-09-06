@@ -43,7 +43,7 @@ public class RciLauncher extends SlotLauncher {
 
         HashMap<String, String> args = new HashMap<String, String>();
         args.put("target", mTarget);
-        args.put("arguments", "action=" + mAction + "&uri=" + mResourceUri + "&sender="
+        args.put("arguments", "action=" + mAction + "&file_uri=" + mResourceUri + "&sender="
                 + mOwnerPath);
 
         try {
