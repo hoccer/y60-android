@@ -40,6 +40,7 @@ public class GomNotificationBroadcastReceiver extends BroadcastReceiver {
         // reg ex for paths of entries in which we are interested
         // i.e. the path we observe or one level below
         mRegEx = GomNotificationHelper.createRegularExpression(mPath);
+        Logger.v(LOG_TAG, "created GomNotificationBroadcastReceiver for ", mPath);
     }
 
     @Override

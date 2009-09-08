@@ -10,8 +10,11 @@
      
     <application  android:icon="@drawable/default_icon" android:label="Y60">
     
-        <activity android:name=".Y60" android:label="@string/app_name"
-                  android:icon="@drawable/y60_icon">
+        <activity 
+        	android:name=".Y60" 
+        	android:label="@string/app_name"
+        	android:screenOrientation="portrait"
+            android:icon="@drawable/y60_icon">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
