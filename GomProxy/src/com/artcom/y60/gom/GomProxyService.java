@@ -51,7 +51,28 @@ public class GomProxyService extends Y60Service {
 
         mNodes = new HashMap<String, NodeData>();
         mAttributes = new HashMap<String, String>();
-        Logger.v(LOG_TAG, "HttpProxyService instantiated");
+        Logger.v(LOG_TAG, "GomProxyService instantiated");
+
+        new Thread(new Runnable() {
+
+            long time = System.currentTimeMillis();
+
+            @Override
+            public void run() {
+
+                Logger.v(LOG_TAG, "in run()");
+                while (true) {
+
+                    if (System.currentTimeMillis() - time > 2000) {
+                        Logger.v(LOG_TAG, "Size of Gom Proxy is: Nodes: ", mNodes.size(),
+                                " Attributes: ", mAttributes.size());
+                        time = System.currentTimeMillis();
+                    }
+                }
+
+            }
+
+        }).start();
 
         mBaseUri = Uri.parse(Constants.Gom.URI);
     }
@@ -81,6 +102,7 @@ public class GomProxyService extends Y60Service {
         Logger.i(LOG_TAG, "onStart");
 
         super.onStart(intent, startId);
+
     }
 
     @Override
