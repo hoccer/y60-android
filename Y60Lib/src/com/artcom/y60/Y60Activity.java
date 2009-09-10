@@ -98,4 +98,10 @@ public abstract class Y60Activity extends Activity {
         Logger.v(LOG_TAG, "starting device controller");
         startService(new Intent("y60.intent.SERVICE_DEVICE_CONTROLLER"));
     }
+
+    protected boolean isGomfreeTest() {
+        return getIntent().getExtras() != null
+                && getIntent().getExtras().getBoolean("isGomfreeTest");
+    }
+
 }

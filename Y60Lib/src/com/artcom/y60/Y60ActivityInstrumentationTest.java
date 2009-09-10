@@ -5,6 +5,7 @@ import java.io.FileReader;
 
 import android.app.Activity;
 import android.app.Instrumentation;
+import android.content.Intent;
 import android.os.SystemClock;
 import android.test.ActivityInstrumentationTestCase2;
 import android.test.AssertionFailedError;
@@ -229,6 +230,10 @@ public abstract class Y60ActivityInstrumentationTest<T extends Activity> extends
     protected void pressKeySequence(String pText) {
         Instrumentation instrumentation = getInstrumentation();
         instrumentation.sendStringSync(pText);
+    }
+
+    protected void markAsGomfreeTest() {
+        setActivityIntent((new Intent()).putExtra("isGomfreeTest", true));
     }
 
     /**
