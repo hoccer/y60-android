@@ -153,9 +153,6 @@ public class DeviceControllerHandler extends DefaultHandler {
         broadcastIntent.putExtra(IntentExtraKeys.KEY_SEARCH_ARGUMENTS, (String) parameters
                 .get("arguments"));
 
-        // intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        // mService.startActivity(intent);
-
         mService.sendBroadcast(broadcastIntent);
     }
 
