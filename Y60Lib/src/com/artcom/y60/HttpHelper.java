@@ -193,6 +193,9 @@ public class HttpHelper {
     public static HttpResponse fetchUriToFile(String uriString, String filename)
             throws IOException, HttpClientException, HttpServerException {
 
+        Logger.v(LOG_TAG, "Uri download string: ", uriString);
+        Logger.v(LOG_TAG, "Filename string: ", filename);
+
         HttpGet get = new HttpGet(uriString);
         HttpResponse response = executeHTTPMethod(get);
         HttpEntity entity = response.getEntity();
