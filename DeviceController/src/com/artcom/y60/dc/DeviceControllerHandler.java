@@ -121,22 +121,23 @@ public class DeviceControllerHandler extends DefaultHandler {
         MultiMap parameters = new MultiMap();
         UrlEncoded.decodeUtf8To(paramsStr.getBytes(), 0, paramsStr.length(), parameters);
 
+        MultiMap argumentsMap = new MultiMap();
+        String argumentsUrl = (String) parameters.get("arguments");
+        UrlEncoded.decodeUtf8To(argumentsUrl.getBytes(), 0, argumentsUrl.length(), argumentsMap);
+        String argumentsJson = new JSONObject(argumentsMap).toString();
+
         Logger.v(LOG_TAG, "target = " + (String) parameters.get("target") + ", sender = "
                 + (String) parameters.get("sender") + ", receiver = "
-                + (String) parameters.get("receiver") + ", arguments = "
-                + (String) parameters.get("arguments"));
+                + (String) parameters.get("receiver") + ", arguments = " + argumentsJson);
 
-        Intent intent;
         Intent broadcastIntent;
 
         Object targetParam = parameters.get("target");
 
         if ("search".equals(targetParam)) {
-            // intent = new Intent(Y60Action.SEARCH);
             broadcastIntent = new Intent(Y60Action.SEARCH_BC);
 
         } else if ("voice_control".equals(targetParam)) {
-            // intent = new Intent(Y60Action.VOICE_CONTROL);
             broadcastIntent = new Intent(Y60Action.VOICE_CONTROL_BC);
 
         } else {
@@ -150,8 +151,7 @@ public class DeviceControllerHandler extends DefaultHandler {
                 .get("sender"));
         broadcastIntent.putExtra(IntentExtraKeys.KEY_SEARCH_RECEIVER, (String) parameters
                 .get("receiver"));
-        broadcastIntent.putExtra(IntentExtraKeys.KEY_SEARCH_ARGUMENTS, (String) parameters
-                .get("arguments"));
+        broadcastIntent.putExtra(IntentExtraKeys.KEY_SEARCH_ARGUMENTS, argumentsJson);
 
         mService.sendBroadcast(broadcastIntent);
     }
