@@ -26,4 +26,7 @@ public class IntentExtraKeys {
     public static final String KEY_QUESTION_ACTION_B        = "actionb";
     public static final String KEY_QUESTION_IMAGE           = "image";
     public static final String KEY_QUESTION_UUID            = "uuid";
+
+    public static final String MEDIA_URI                    = "media_uri";
+    public static final String MEDIA_NAME                   = "media_name";
 }
