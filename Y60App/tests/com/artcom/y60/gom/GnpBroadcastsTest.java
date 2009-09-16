@@ -200,10 +200,10 @@ public class GnpBroadcastsTest extends GomActivityUnitTestCase {
 
         Intent gnpIntent = new Intent(Y60Action.GOM_NOTIFICATION_BC);
 
-        gnpIntent.putExtra(IntentExtraKeys.KEY_NOTIFICATION_PATH, pUri);
-        gnpIntent.putExtra(IntentExtraKeys.KEY_NOTIFICATION_OPERATION, pOperation);
+        gnpIntent.putExtra(IntentExtraKeys.NOTIFICATION_PATH, pUri);
+        gnpIntent.putExtra(IntentExtraKeys.NOTIFICATION_OPERATION, pOperation);
 
-        gnpIntent.putExtra(IntentExtraKeys.KEY_NOTIFICATION_DATA_STRING, pData.toString());
+        gnpIntent.putExtra(IntentExtraKeys.NOTIFICATION_DATA_STRING, pData.toString());
         return gnpIntent;
 
     }

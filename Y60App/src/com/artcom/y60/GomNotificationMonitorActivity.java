@@ -55,9 +55,9 @@ public class GomNotificationMonitorActivity extends Activity {
         public void onReceive(Context pContext, Intent pIntent) {
             
             mTextView.append("Received GOM notification:");
-            mTextView.append("\n\tURI: "+pIntent.getStringExtra(IntentExtraKeys.KEY_NOTIFICATION_PATH));
-            mTextView.append("\n\tOperation: "+pIntent.getStringExtra(IntentExtraKeys.KEY_NOTIFICATION_OPERATION));
-            mTextView.append("\n\tData: "+pIntent.getStringExtra(IntentExtraKeys.KEY_NOTIFICATION_DATA_STRING));
+            mTextView.append("\n\tURI: "+pIntent.getStringExtra(IntentExtraKeys.NOTIFICATION_PATH));
+            mTextView.append("\n\tOperation: "+pIntent.getStringExtra(IntentExtraKeys.NOTIFICATION_OPERATION));
+            mTextView.append("\n\tData: "+pIntent.getStringExtra(IntentExtraKeys.NOTIFICATION_DATA_STRING));
             mTextView.append("\n\n");
         }
     }
