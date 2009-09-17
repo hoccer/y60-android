@@ -52,16 +52,16 @@ public class DeviceControllerHandlerTest extends ServiceTestCase<DeviceControlle
         
         assertNotNull("no broadcast was sent", intent);
         
-        String actualOp = intent.getStringExtra(IntentExtraKeys.KEY_NOTIFICATION_OPERATION);
+        String actualOp = intent.getStringExtra(IntentExtraKeys.NOTIFICATION_OPERATION);
         assertEquals("operation is not: " + actualOp, pOperation, actualOp);
         
         String expectedPath = nodePath + ":" + timestamp;
-        String actualPath   = intent.getStringExtra(IntentExtraKeys.KEY_NOTIFICATION_PATH);
+        String actualPath   = intent.getStringExtra(IntentExtraKeys.NOTIFICATION_PATH);
         assertEquals("path is not as expected: "+actualPath, expectedPath, actualPath );
         
         JSONObject jsonData     = new JSONObject(jsonStr);
         JSONObject jsonOp       = jsonData.getJSONObject(pOperation);
-        String     actualOpData = intent.getStringExtra(IntentExtraKeys.KEY_NOTIFICATION_DATA_STRING);
+        String     actualOpData = intent.getStringExtra(IntentExtraKeys.NOTIFICATION_DATA_STRING);
         assertEquals("unexpected JSON content: "+actualOpData, jsonOp.toString(), actualOpData);
     }
     

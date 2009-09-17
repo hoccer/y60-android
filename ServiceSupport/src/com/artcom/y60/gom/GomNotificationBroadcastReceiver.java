@@ -49,22 +49,22 @@ public class GomNotificationBroadcastReceiver extends BroadcastReceiver {
         Logger.d(LOG_TAG, "BroadcastReceiver ", this, " for ", mPath, " onReceive with intent: ",
                 pIntent.toString(), " - with bubble up? ", mBubbleUp);
         Logger.v(LOG_TAG, "BroadcastReceiver for ", mPath, " - getting path: ", pIntent
-                .getStringExtra(IntentExtraKeys.KEY_NOTIFICATION_PATH));
+                .getStringExtra(IntentExtraKeys.NOTIFICATION_PATH));
 
-        String notificationPath = pIntent.getStringExtra(IntentExtraKeys.KEY_NOTIFICATION_PATH);
+        String notificationPath = pIntent.getStringExtra(IntentExtraKeys.NOTIFICATION_PATH);
         if (notificationPathIsObservedByMe(notificationPath)) {
 
             Logger.d(LOG_TAG, "BroadcastReceiver ", mPath, " , ok, the path is relevant to me");
             Logger.v(LOG_TAG, "BroadcastReceiver ", mPath, "  - data: ", pIntent
-                    .getStringExtra(IntentExtraKeys.KEY_NOTIFICATION_DATA_STRING));
+                    .getStringExtra(IntentExtraKeys.NOTIFICATION_DATA_STRING));
 
-            String jsnStr = pIntent.getStringExtra(IntentExtraKeys.KEY_NOTIFICATION_DATA_STRING);
+            String jsnStr = pIntent.getStringExtra(IntentExtraKeys.NOTIFICATION_DATA_STRING);
             JSONObject data;
             try {
                 data = new JSONObject(jsnStr);
 
                 String operation = pIntent
-                        .getStringExtra(IntentExtraKeys.KEY_NOTIFICATION_OPERATION);
+                        .getStringExtra(IntentExtraKeys.NOTIFICATION_OPERATION);
                 String path = getAffectedEntryPath(data);
 
                 if ("create".equals(operation)) {

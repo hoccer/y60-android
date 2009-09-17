@@ -297,9 +297,9 @@ public class TestHelper {
 
         Intent notification = new Intent();
         notification.setAction(Y60Action.GOM_NOTIFICATION_BC);
-        notification.putExtra(IntentExtraKeys.KEY_NOTIFICATION_PATH, pPath);
-        notification.putExtra(IntentExtraKeys.KEY_NOTIFICATION_OPERATION, pOperation);
-        notification.putExtra(IntentExtraKeys.KEY_NOTIFICATION_DATA_STRING, pData);
+        notification.putExtra(IntentExtraKeys.NOTIFICATION_PATH, pPath);
+        notification.putExtra(IntentExtraKeys.NOTIFICATION_OPERATION, pOperation);
+        notification.putExtra(IntentExtraKeys.NOTIFICATION_DATA_STRING, pData);
         pContext.sendBroadcast(notification);
     }
 

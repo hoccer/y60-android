@@ -125,6 +125,7 @@ public class HttpProxyHelper {
         get(pUri);
     }
 
+    @Deprecated
     public byte[] get(Uri pUri) {
 
         String uri = pUri.toString();
@@ -133,6 +134,25 @@ public class HttpProxyHelper {
         RpcStatus status = new RpcStatus();
         try {
             resourceDescription = mProxy.get(uri, status);
+        } catch (RemoteException rex) {
+            Logger.e(logTag(), "get(", pUri, ") failed", rex);
+            throw new RuntimeException(rex);
+        }
+        if (status.hasError()) {
+            throw new RuntimeException(status.getError());
+        }
+        if (resourceDescription == null) {
+            return null;
+        }
+        return ResourceBundleHelper.convertResourceBundleToByteArray(resourceDescription);
+    }
+
+    public byte[] get(String pUri) {
+
+        Bundle resourceDescription;
+        RpcStatus status = new RpcStatus();
+        try {
+            resourceDescription = mProxy.get(pUri, status);
         } catch (RemoteException rex) {
             Logger.e(logTag(), "get(", pUri, ") failed", rex);
             throw new RuntimeException(rex);

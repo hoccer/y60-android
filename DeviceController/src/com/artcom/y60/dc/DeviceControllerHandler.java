@@ -145,13 +145,13 @@ public class DeviceControllerHandler extends DefaultHandler {
                     + parameters.get("sender"));
         }
 
-        broadcastIntent.putExtra(IntentExtraKeys.KEY_SEARCH_TARGET, (String) parameters
+        broadcastIntent.putExtra(IntentExtraKeys.SEARCH_TARGET, (String) parameters
                 .get("target"));
-        broadcastIntent.putExtra(IntentExtraKeys.KEY_SEARCH_SENDER, (String) parameters
+        broadcastIntent.putExtra(IntentExtraKeys.SEARCH_SENDER, (String) parameters
                 .get("sender"));
-        broadcastIntent.putExtra(IntentExtraKeys.KEY_SEARCH_RECEIVER, (String) parameters
+        broadcastIntent.putExtra(IntentExtraKeys.SEARCH_RECEIVER, (String) parameters
                 .get("receiver"));
-        broadcastIntent.putExtra(IntentExtraKeys.KEY_SEARCH_ARGUMENTS, argumentsJson);
+        broadcastIntent.putExtra(IntentExtraKeys.SEARCH_ARGUMENTS, argumentsJson);
 
         mService.sendBroadcast(broadcastIntent);
     }
@@ -172,7 +172,7 @@ public class DeviceControllerHandler extends DefaultHandler {
 
             // wrong concept - uri is actually a path! see RFC 2396 for details
             gnpIntent
-                    .putExtra(IntentExtraKeys.KEY_NOTIFICATION_PATH, notification.getString("uri"));
+                    .putExtra(IntentExtraKeys.NOTIFICATION_PATH, notification.getString("uri"));
 
             String operation = null;
             if (notification.has("create")) {
@@ -195,10 +195,10 @@ public class DeviceControllerHandler extends DefaultHandler {
 
             Logger.v(LOG_TAG, "notification operation: ", operation.toUpperCase());
 
-            gnpIntent.putExtra(IntentExtraKeys.KEY_NOTIFICATION_OPERATION, operation);
+            gnpIntent.putExtra(IntentExtraKeys.NOTIFICATION_OPERATION, operation);
 
             String data = notification.getJSONObject(operation).toString();
-            gnpIntent.putExtra(IntentExtraKeys.KEY_NOTIFICATION_DATA_STRING, data);
+            gnpIntent.putExtra(IntentExtraKeys.NOTIFICATION_DATA_STRING, data);
 
             Logger.v(LOG_TAG, "sending Broadcast with intent: ", gnpIntent);
             mService.sendBroadcast(gnpIntent);
