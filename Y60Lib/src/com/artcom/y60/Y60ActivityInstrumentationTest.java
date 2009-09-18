@@ -65,7 +65,7 @@ public abstract class Y60ActivityInstrumentationTest<T extends Activity> extends
         assertNoErrorLogOnSdcard();
     }
 
-    public void blockUntilResponsive() throws Exception {
+    public void blockUntilActivityIsResponsive() throws Exception {
 
         final Y60Activity activity = (Y60Activity) getActivity();
         final int initalCount = activity.getResponsivnessCounterForTestPurposes();
@@ -76,10 +76,20 @@ public abstract class Y60ActivityInstrumentationTest<T extends Activity> extends
                     @Override
                     public boolean isSatisfied() throws Exception {
                         pressKey(KeyEvent.KEYCODE_T, 100);
-                        return activity.getResponsivnessCounterForTestPurposes() >= initalCount + 10;
+                        Thread.sleep(100);
+                        return activity.getResponsivnessCounterForTestPurposes() >= initalCount + 3;
                     }
 
                 });
+    }
+
+    public void assertActivityIsResponsive() throws InterruptedException {
+        Y60Activity activity = (Y60Activity) getActivity();
+        int initalCount = activity.getResponsivnessCounterForTestPurposes();
+        pressKey(KeyEvent.KEYCODE_T, 100);
+        Thread.sleep(100);
+        assertTrue("activity should respond to a key event", activity
+                .getResponsivnessCounterForTestPurposes() > initalCount);
     }
 
     void assertNoErrorLogOnSdcard() throws Exception {
