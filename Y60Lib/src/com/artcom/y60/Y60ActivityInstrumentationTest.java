@@ -254,6 +254,22 @@ public abstract class Y60ActivityInstrumentationTest<T extends Activity> extends
         instrumentation.sendKeySync(new KeyEvent(KeyEvent.ACTION_UP, pKeyCode));
     }
 
+    protected void pressContinuouslyKey(int pKeyCode, long pDurationMillis)
+            throws InterruptedException {
+
+        Instrumentation instrumentation = getInstrumentation();
+        int repeatCode = 0;
+        instrumentation.sendKeySync(new KeyEvent(0, 0, KeyEvent.ACTION_DOWN, pKeyCode, repeatCode));
+        long start = System.currentTimeMillis();
+        while (System.currentTimeMillis() < start + pDurationMillis) {
+            repeatCode++;
+            Thread.sleep(100);
+            instrumentation.sendKeySync(new KeyEvent(0, 0, KeyEvent.ACTION_DOWN, pKeyCode,
+                    repeatCode));
+        }
+        instrumentation.sendKeySync(new KeyEvent(KeyEvent.ACTION_UP, pKeyCode));
+    }
+
     protected void pressKeySequence(String pText) {
         Instrumentation instrumentation = getInstrumentation();
         instrumentation.sendStringSync(pText);
