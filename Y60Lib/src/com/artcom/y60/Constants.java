@@ -20,9 +20,16 @@ public class Constants {
         public static class Keywords {
 
             // GOM keywords
-            public static final String NODE = "node", URI = "uri", ATTRIBUTE = "attribute",
-                    ENTRIES = "entries", NAME = "name", VALUE = "value", TYPE = "type",
-                    DISPLAY_NAME = "display_name";
+            public static final String NODE         = "node";
+            public static final String URI          = "uri";
+            public static final String ATTRIBUTE    = "attribute";
+            public static final String ENTRIES      = "entries";
+            public static final String NAME         = "name";
+            public static final String VALUE        = "value";
+            public static final String TYPE         = "type";
+            public static final String DISPLAY_NAME = "display_name";
+            public static final String BROWSABLE    = "browsable";
+            public static final String ITEM         = "item";
         }
 
         public static final String       URI;
