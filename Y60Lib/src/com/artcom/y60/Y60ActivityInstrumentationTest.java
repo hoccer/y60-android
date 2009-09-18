@@ -65,6 +65,23 @@ public abstract class Y60ActivityInstrumentationTest<T extends Activity> extends
         assertNoErrorLogOnSdcard();
     }
 
+    public void blockUntilResponsive() throws Exception {
+
+        final Y60Activity activity = (Y60Activity) getActivity();
+        final int initalCount = activity.getResponsivnessCounterForTestPurposes();
+
+        TestHelper.blockUntilTrue("homescreen should get responsive", 8000,
+                new TestHelper.Condition() {
+
+                    @Override
+                    public boolean isSatisfied() throws Exception {
+                        pressKey(KeyEvent.KEYCODE_T, 100);
+                        return activity.getResponsivnessCounterForTestPurposes() >= initalCount + 10;
+                    }
+
+                });
+    }
+
     void assertNoErrorLogOnSdcard() throws Exception {
 
         File f = new File("/sdcard/error_log.txt");

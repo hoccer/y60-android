@@ -7,14 +7,16 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
 import android.os.Process;
+import android.view.KeyEvent;
 
 public abstract class Y60Activity extends Activity {
 
-    private static final String LOG_TAG      = "Y60Activity";
+    private static final String LOG_TAG                                  = "Y60Activity";
 
     private BroadcastReceiver   mReceiver;
 
-    private boolean             mIsDestroyed = false;
+    private boolean             mIsDestroyed                             = false;
+    private int                 mResponsivnessCounterForTestPurposesOnly = 0;
 
     public abstract boolean hasBackendAvailableBeenCalled();
 
@@ -102,6 +104,20 @@ public abstract class Y60Activity extends Activity {
     protected boolean isGomfreeTest() {
         return getIntent().getExtras() != null
                 && getIntent().getExtras().getBoolean("isGomfreeTest");
+    }
+
+    public int getResponsivnessCounterForTestPurposes() {
+        return mResponsivnessCounterForTestPurposesOnly;
+    }
+
+    @Override
+    public boolean onKeyDown(int pKeyCode, KeyEvent pEvent) {
+        if (pKeyCode == KeyEvent.KEYCODE_T) {
+            // used to test the responsivness of the gui
+            mResponsivnessCounterForTestPurposesOnly++;
+        }
+
+        return super.onKeyDown(pKeyCode, pEvent);
     }
 
 }
