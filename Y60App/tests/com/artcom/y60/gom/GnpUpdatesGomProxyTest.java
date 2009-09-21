@@ -498,12 +498,12 @@ public class GnpUpdatesGomProxyTest extends GomActivityUnitTestCase {
 
         initializeActivity();
         TestHelper.blockUntilDeviceControllerIsRunning();
-        GomProxyHelper proxy = createHelper();
+        final GomProxyHelper proxy = createHelper();
 
         String timestamp = String.valueOf(System.currentTimeMillis());
 
-        String nodePath = TEST_BASE_PATH + "/test_recursive_delete_node_on_notification/"
-                + timestamp;
+        final String nodePath = TEST_BASE_PATH
+                + "/test_observed_node_with_subnode_and_attribute_deleted/" + timestamp;
         String nodeUrl = UriHelper.join(Constants.Gom.URI, nodePath);
 
         Logger.d(LOG_TAG, "node URL: ", nodeUrl);
@@ -522,7 +522,7 @@ public class GnpUpdatesGomProxyTest extends GomActivityUnitTestCase {
         // create attribute in the test node
         String attrName = "test_attribute";
         String attrPath = nodePath + ":" + attrName;
-        Uri attrUri = Uri.parse(nodeUrl + ":" + attrName);
+        String attrUri = nodeUrl + ":" + attrName;
         GomHttpWrapper.updateOrCreateAttribute(attrUri, "who cares?");
 
         final GomTestObserver gto = new GomTestObserver(this);
@@ -548,15 +548,20 @@ public class GnpUpdatesGomProxyTest extends GomActivityUnitTestCase {
         GomHttpWrapper.deleteNode(Uri.parse(nodeUrl));
 
         // update may take a while
-        TestHelper.blockUntilTrue("gnp delete callback should have been called once", 5000,
+        TestHelper.blockUntilTrue("gnp delete callback should have been called three times", 10000,
                 new TestHelper.Condition() {
                     @Override
                     public boolean isSatisfied() {
-                        return gto.getDeleteCount() == 1;
+                        return gto.getDeleteCount() == 3;
                     }
                 });
 
-        assertFalse("node shouldn't be in cache", proxy.hasInCache(nodePath));
+        TestHelper.blockUntilFalse("node shouldn't be in cache", 10000, new TestHelper.Condition() {
+            @Override
+            public boolean isSatisfied() throws Exception {
+                return proxy.hasInCache(nodePath);
+            }
+        });
         assertFalse("sub node shouldn't be in cache", proxy.hasInCache(subNodePath));
         assertFalse("attribute shouldn't be in cache", proxy.hasInCache(attrPath));
 

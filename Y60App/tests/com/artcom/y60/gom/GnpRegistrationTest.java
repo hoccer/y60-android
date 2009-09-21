@@ -308,7 +308,7 @@ public class GnpRegistrationTest extends GomActivityUnitTestCase {
         // create attribute in the test node
         String attrName = "test_attribute";
         String attrPath = nodePath + ":" + attrName;
-        Uri attrUrl = Uri.parse(nodeUrl + ":" + attrName);
+        String attrUrl = nodeUrl + ":" + attrName;
         GomHttpWrapper.updateOrCreateAttribute(attrUrl, "who cares?");
         assertTrue("Value should be in Gom", HttpHelper.getJson(attrUrl.toString()).toString()
                 .contains("who cares?"));
@@ -335,6 +335,7 @@ public class GnpRegistrationTest extends GomActivityUnitTestCase {
                 .getCachedAttributeValue(attrPath));
 
         proxy.deleteEntry(nodePath);
+        proxy.deleteEntry(attrPath);
         assertFalse("node shouldnt be in cache", proxy.hasInCache(nodePath));
         assertFalse("attribute should be deleted in cache", proxy.hasInCache(attrPath));
 

@@ -46,42 +46,46 @@ public class GomNotificationBroadcastReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context pContext, Intent pIntent) {
 
-        Logger.d(LOG_TAG, "BroadcastReceiver ", this, " for ", mPath, " onReceive with intent: ",
-                pIntent.toString(), " - with bubble up? ", mBubbleUp);
-        Logger.v(LOG_TAG, "BroadcastReceiver for ", mPath, " - getting path: ", pIntent
-                .getStringExtra(IntentExtraKeys.NOTIFICATION_PATH));
+        // Logger.d(LOG_TAG, "BroadcastReceiver ", this, " for ", mPath,
+        // " onReceive with intent: ",
+        // pIntent.toString(), " - with bubble up? ", mBubbleUp);
+        // Logger.v(LOG_TAG, "BroadcastReceiver for ", mPath,
+        // " - getting path: ", pIntent
+        // .getStringExtra(IntentExtraKeys.NOTIFICATION_PATH));
 
         String notificationPath = pIntent.getStringExtra(IntentExtraKeys.NOTIFICATION_PATH);
         if (notificationPathIsObservedByMe(notificationPath)) {
 
             Logger.d(LOG_TAG, "BroadcastReceiver ", mPath, " , ok, the path is relevant to me");
-            Logger.v(LOG_TAG, "BroadcastReceiver ", mPath, "  - data: ", pIntent
-                    .getStringExtra(IntentExtraKeys.NOTIFICATION_DATA_STRING));
 
             String jsnStr = pIntent.getStringExtra(IntentExtraKeys.NOTIFICATION_DATA_STRING);
             JSONObject data;
             try {
                 data = new JSONObject(jsnStr);
 
-                String operation = pIntent
-                        .getStringExtra(IntentExtraKeys.NOTIFICATION_OPERATION);
+                String operation = pIntent.getStringExtra(IntentExtraKeys.NOTIFICATION_OPERATION);
                 String path = getAffectedEntryPath(data);
 
                 if ("create".equals(operation)) {
-                    Logger.v(LOG_TAG, "BroadcastReceiver ", mPath, " , it's a CREATE notification");
-                    Logger.v(LOG_TAG, "DER PFFFFFFFFFFFFFFFFFFFFFFFFFAD: ", path);
-                    Logger.v(LOG_TAG, "DER DAAAAAAAAAAAAAAAAAAAAAAATEN: ", data);
+                    // Logger.v(LOG_TAG, "BroadcastReceiver ", mPath,
+                    // " , it's a CREATE notification");
+                    // Logger.v(LOG_TAG, "DER PFFFFFFFFFFFFFFFFFFFFFFFFFAD: ",
+                    // path);
+                    // Logger.v(LOG_TAG, "DER DAAAAAAAAAAAAAAAAAAAAAAATEN: ",
+                    // data);
                     mGomProxy.createEntry(path, data.toString());
-                    Logger.v(LOG_TAG, "dannnnaaaach DER : ");
+                    // Logger.v(LOG_TAG, "dannnnaaaach DER : ");
                     mGomObserver.onEntryCreated(path, data);
 
                     // update proxy
                 } else if ("update".equals(operation)) {
-                    Logger
-                            .v(LOG_TAG, "BroadcastReceiver ", mPath,
-                                    " , it's an UPDATE notification");
-                    Logger.v(LOG_TAG, "DER PFFFFFFFFFFFFFFFFFFFFFFFFFAD: ", path);
-                    Logger.v(LOG_TAG, "DER DAAAAAAAAAAAAAAAAAAAAAAATEN: ", data);
+                    // Logger
+                    // .v(LOG_TAG, "BroadcastReceiver ", mPath,
+                    // " , it's an UPDATE notification");
+                    // Logger.v(LOG_TAG, "DER PFFFFFFFFFFFFFFFFFFFFFFFFFAD: ",
+                    // path);
+                    // Logger.v(LOG_TAG, "DER DAAAAAAAAAAAAAAAAAAAAAAATEN: ",
+                    // data);
                     mGomProxy.updateEntry(path, data.toString());
                     mGomObserver.onEntryUpdated(path, data);
 

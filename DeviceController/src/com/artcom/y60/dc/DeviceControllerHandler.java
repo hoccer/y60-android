@@ -145,10 +145,8 @@ public class DeviceControllerHandler extends DefaultHandler {
                     + parameters.get("sender"));
         }
 
-        broadcastIntent.putExtra(IntentExtraKeys.SEARCH_TARGET, (String) parameters
-                .get("target"));
-        broadcastIntent.putExtra(IntentExtraKeys.SEARCH_SENDER, (String) parameters
-                .get("sender"));
+        broadcastIntent.putExtra(IntentExtraKeys.SEARCH_TARGET, (String) parameters.get("target"));
+        broadcastIntent.putExtra(IntentExtraKeys.SEARCH_SENDER, (String) parameters.get("sender"));
         broadcastIntent.putExtra(IntentExtraKeys.SEARCH_RECEIVER, (String) parameters
                 .get("receiver"));
         broadcastIntent.putExtra(IntentExtraKeys.SEARCH_ARGUMENTS, argumentsJson);
@@ -171,8 +169,7 @@ public class DeviceControllerHandler extends DefaultHandler {
             Intent gnpIntent = new Intent(Y60Action.GOM_NOTIFICATION_BC);
 
             // wrong concept - uri is actually a path! see RFC 2396 for details
-            gnpIntent
-                    .putExtra(IntentExtraKeys.NOTIFICATION_PATH, notification.getString("uri"));
+            gnpIntent.putExtra(IntentExtraKeys.NOTIFICATION_PATH, notification.getString("uri"));
 
             String operation = null;
             if (notification.has("create")) {
@@ -193,13 +190,13 @@ public class DeviceControllerHandler extends DefaultHandler {
                 throw new HandlerException("GOM notification malformed:\n" + content);
             }
 
-            Logger.v(LOG_TAG, "notification operation: ", operation.toUpperCase());
-
             gnpIntent.putExtra(IntentExtraKeys.NOTIFICATION_OPERATION, operation);
 
             String data = notification.getJSONObject(operation).toString();
             gnpIntent.putExtra(IntentExtraKeys.NOTIFICATION_DATA_STRING, data);
 
+            Logger.v(LOG_TAG, "notification operation: ", operation.toUpperCase(), " and data: ",
+                    data);
             Logger.v(LOG_TAG, "sending Broadcast with intent: ", gnpIntent);
             mService.sendBroadcast(gnpIntent);
 

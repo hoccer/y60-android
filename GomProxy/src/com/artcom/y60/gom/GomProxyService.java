@@ -422,8 +422,6 @@ public class GomProxyService extends Y60Service {
 
     private void deleteAttribute(String pPath) {
 
-        Logger.v(LOG_TAG, mAttributes.keySet().toString(), "\n\n\n\ndelete attribute ", pPath,
-                " size: ", mAttributes.size(), " has in cacche: ", hasAttributeInCache(pPath));
         mAttributes.remove(pPath);
         String nodePath = GomReference.parentPath(pPath);
         synchronized (mNodes) {
@@ -435,8 +433,8 @@ public class GomProxyService extends Y60Service {
                 }
             }
         }
-        Logger.v(LOG_TAG, "delete attribute ", pPath, " size: ", mAttributes.size(),
-                " has in cacche: ", hasAttributeInCache(pPath));
+        Logger.v(LOG_TAG, "deleted attribute ", pPath, " size: ", mAttributes.size(),
+                " has in cache: ", hasAttributeInCache(pPath));
     }
 
     private void deleteNode(String pPath) {
@@ -448,28 +446,25 @@ public class GomProxyService extends Y60Service {
                 return;
             }
 
-            synchronized (nodeData) {
-                List<String> attrList = nodeData.attributeNames;
-                List<String> nodeList = nodeData.subNodeNames;
-                for (String anAttr : attrList) {
-                    Logger.v(LOG_TAG, "delete attribute ", anAttr);
-                    deleteAttribute(pPath + ":" + anAttr);
-                }
-                for (String aNode : nodeList) {
-                    Logger.v(LOG_TAG, "delete node ", aNode);
-
-                    deleteNode(pPath + "/" + aNode);
-                }
-            }
-            Logger.v(LOG_TAG, "delete node ", pPath, " size: ", mNodes.size(), " has in cacche: ",
-                    hasNodeInCache(pPath));
-            Logger.v(LOG_TAG, "delete node ", pPath, " size: ", mNodes.size(), " has in cacche: ",
+            // synchronized (nodeData) {
+            // List<String> attrList = nodeData.attributeNames;
+            // List<String> nodeList = nodeData.subNodeNames;
+            // for (String anAttr : attrList) {
+            // Logger.v(LOG_TAG, "delete attribute ", anAttr);
+            // deleteAttribute(pPath + ":" + anAttr);
+            // }
+            // for (String aNode : nodeList) {
+            // Logger.v(LOG_TAG, "delete node ", aNode);
+            //
+            // deleteNode(pPath + "/" + aNode);
+            // }
+            // }
+            Logger.v(LOG_TAG, "deleted node ", pPath, " size: ", mNodes.size(), " has in cache: ",
                     hasNodeInCache(pPath));
         }
     }
 
     public void deleteEntry(String pPath) {
-        Logger.v(LOG_TAG, pPath);
         String lastSegment = pPath.substring(pPath.lastIndexOf("/") + 1);
         if (lastSegment.contains(":")) {
             Logger.v(LOG_TAG, "delete attribute " + pPath);
