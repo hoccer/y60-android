@@ -229,9 +229,6 @@ public class DragAndDropHelper implements OnTouchListener {
 
     private void endDragging(MotionEvent pEvent) {
 
-        mThumbView.setVisibility(View.GONE);
-        mAbsoluteLayout.removeView(mThumbView);
-
         if (mIsDropTargetEnabled) {
 
             Slot target = mDropTargetCollection.getfocusedDropTarget(mThumbView);
@@ -242,11 +239,7 @@ public class DragAndDropHelper implements OnTouchListener {
                     ErrorHandling.signalGomError(LOG_TAG, gx, mActivity);
                 }
             }
-            mAbsoluteLayout.removeView(mDropTargetCollection.getDropTargetLayout());
         }
-
-        mActivityViewGroup.setVisibility(View.VISIBLE);
-        mAbsoluteLayout.invalidate();
 
         if (mDragListenerList.size() > 0) {
             Iterator<DragListener> it = mDragListenerList.iterator();
@@ -256,7 +249,7 @@ public class DragAndDropHelper implements OnTouchListener {
             }
         }
 
-        mThumbView = null; // let the gc take care of it
+        // mThumbView = null; // let the gc take care of it
 
         mState = State.NOT_DRAGGING;
 
