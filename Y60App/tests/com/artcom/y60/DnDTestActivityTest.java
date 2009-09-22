@@ -38,17 +38,6 @@ public class DnDTestActivityTest extends Y60ActivityInstrumentationTest<DnDTestA
                 + (mDraggingEnded.draggedView.getHeight() / 2.0)
                 + DragAndDropHelper.VERTICAL_OFFSET);
 
-        // Logger.v(LOG_TAG, "width ", pDraggedView.getWidth(), " height ",
-        // pDraggedView
-        // .getHeight());
-        // Logger.v(LOG_TAG, "onDraggingEnded ", pX, pY, pY +
-        // pDraggedView.getHeight() / 2.0
-        // + DragAndDropHelper.VERTICAL_OFFSET);
-        // Logger.v(LOG_TAG, "getTop: ", pDraggedView.getTop(), "; getBottom: ",
-        // pDraggedView
-        // .getBottom());
-        // Logger.v(LOG_TAG, "getLeft: ", pDraggedView.getLeft());
-
     }
 
     public void testReleaseLongPress() throws InterruptedException {
@@ -59,13 +48,9 @@ public class DnDTestActivityTest extends Y60ActivityInstrumentationTest<DnDTestA
         release(getActivity().getDragResource());
         waitForDragEnded(100);
         assertEquals(View.VISIBLE, mDraggingEnded.origin.getVisibility());
-        assertEquals(View.GONE, mDraggingEnded.draggedView.getVisibility());
-
+        assertEquals("item should stay visible -- animation will follow", View.VISIBLE,
+                mDraggingEnded.draggedView.getVisibility());
     }
-
-    // public void testExistenceOfDragTarget(){
-    //        
-    // }
 
     public void testDropTargetExistence() throws InterruptedException {
 
