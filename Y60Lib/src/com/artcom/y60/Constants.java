@@ -37,7 +37,7 @@ public class Constants {
         public static final String       SCRIPT_BASE_PATH;
         public static final String       SCRIPT_RUNNER_URI     = "http://t-gom.service.t-gallery.act/gom/script-runner";
         public static final String       PURCHASE_SERVICE_PATH = "/services/purchase";
-        public static final String       DELIVERY_SERVICE_PATH = "/services/delivery";
+        public static final String       DELIVERY_SERVICE_PATH = "/services/delivery:uri";
 
         public static final String       OBSERVER_BASE_PATH    = "/gom/observer";
 
