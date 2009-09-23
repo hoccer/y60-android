@@ -34,16 +34,13 @@ public class DragAndDropHelper implements OnTouchListener {
     public static final String   LOG_TAG            = "DragAndDropHelper";
 
     private static final float   SCALE_FACTOR       = 0.4f;
-
     private static final int     ANIMATION_DURATION = 200;
-
     public static final int      VERTICAL_OFFSET    = 20;
 
     // Instance Variables ------------------------------------------------
 
     /** The Layout in which the dragging takes place */
     private AbsoluteLayout       mAbsoluteLayout;
-
     private View                 mActivityViewGroup;
 
     /** The View to be dragged around */
@@ -63,16 +60,12 @@ public class DragAndDropHelper implements OnTouchListener {
      * possible to fling a picture which is also draggable.
      */
     private OnTouchListener      mDelegateTouchListener;
-
     private List<DragListener>   mDragListenerList;
-
     private View                 mDefaultThumbnail;
-
     private DropTargetCollection mDropTargetCollection;
-
     private boolean              mIsDropTargetEnabled;
-
     private State                mState;
+    private boolean              mIsLaunched        = false;
 
     // Static Methods ----------------------------------------------------
 
@@ -105,26 +98,19 @@ public class DragAndDropHelper implements OnTouchListener {
 
         mState = State.NOT_DRAGGING;
         mActivityViewGroup = pActivityViewGroup;
-
         mAbsoluteLayout = pLayout;
         mAbsoluteLayout.setOnTouchListener(this); // override old listener, we
         // take responsibility
         mAbsoluteLayout.setLongClickable(true);
-
         mSourceView = pView;
         mSourceView.setOnTouchListener(this); // override old listener, we take
         // responsibility
         mSourceView.setLongClickable(true);
-
         mDefaultThumbnail = pDefaultThumbnail;
-
         mActivity = pActivity;
-
         mIsDropTargetEnabled = false;
         mDropTargetCollection = new DropTargetCollection(mActivity, mAbsoluteLayout);
-
         mDragListenerList = new LinkedList<DragListener>();
-
         mGest = new GestureDetector(new ShareGestureListener());
     }
 
@@ -140,25 +126,30 @@ public class DragAndDropHelper implements OnTouchListener {
     @Override
     public boolean onTouch(View pTouchedView, MotionEvent pEvent) {
 
-        Logger.d(LOG_TAG, "\nnext onTouch ", pTouchedView, " ", pEvent.getAction(), " ", pEvent
-                .getX(), " ", pEvent.getY());
+        // Logger.d(LOG_TAG, "\nnext onTouch ", pTouchedView, " ",
+        // pEvent.getAction(), " ", pEvent
+        // .getX(), " ", pEvent.getY());
 
         int action = pEvent.getAction();
         if (mState == State.DRAGGING) {
-
             switch (action) {
                 case (MotionEvent.ACTION_UP):
+                    // Logger.v(LOG_TAG,
+                    // "_________________________ action up in dragging -> cancel");
                     endDragging(pEvent);
+                    if (!mIsLaunched) {
+                        cleanView();
+                    }
                     return true;
                 case (MotionEvent.ACTION_MOVE):
                     drag(pEvent);
                     return true;
             }
-
         } else if (mState == State.IN_ANIMATION) {
-
             if (action == MotionEvent.ACTION_UP) {
-
+                // Logger.v(LOG_TAG,
+                // "_________________________ action up in animation -> cancel");
+                cleanView();
                 mState = State.NOT_DRAGGING;
                 return true;
             }
@@ -173,11 +164,9 @@ public class DragAndDropHelper implements OnTouchListener {
             } else {
                 Logger.d(LOG_TAG, "DnD gesture: false");
             }
-
         }
 
         if (mDelegateTouchListener != null) {
-
             mDelegateTouchListener.onTouch(pTouchedView, pEvent);
             Logger.d(LOG_TAG, "delegate touch event to mDelegateTouchListener");
         }
@@ -186,20 +175,16 @@ public class DragAndDropHelper implements OnTouchListener {
     }
 
     public void setDelegateOnTouchListener(OnTouchListener pListener) {
-
         mDelegateTouchListener = pListener;
     }
 
     public void addDragListener(DragListener pListener) {
-
         mDragListenerList.add(pListener);
         Logger.v(LOG_TAG, "number of drag listerners: ", mDragListenerList.size());
     }
 
     public void addDropTarget(Slot pSlot) {
-
         if (!mIsDropTargetEnabled) {
-
             addDragListener(mDropTargetCollection);
             mIsDropTargetEnabled = true;
         }
@@ -214,7 +199,6 @@ public class DragAndDropHelper implements OnTouchListener {
     // Private Instance Methods ------------------------------------------
 
     private void drag(MotionEvent pEvent) {
-
         LayoutParams position = positionForDragging(pEvent);
         mThumbView.setLayoutParams(position);
 
@@ -227,14 +211,22 @@ public class DragAndDropHelper implements OnTouchListener {
         }
     }
 
+    private void cleanView() {
+        mActivityViewGroup.setVisibility(View.VISIBLE);
+        mThumbView.setVisibility(View.INVISIBLE);
+        mAbsoluteLayout.removeView(mDropTargetCollection.getDropTargetLayout());
+        mAbsoluteLayout.invalidate();
+        mThumbView = null; // let the gc take care of it
+    }
+
     private void endDragging(MotionEvent pEvent) {
-
+        mIsLaunched = false;
         if (mIsDropTargetEnabled) {
-
             Slot target = mDropTargetCollection.getfocusedDropTarget(mThumbView);
             if (target != null) {
                 try {
                     target.getLauncher().launch();
+                    mIsLaunched = true;
                 } catch (Exception gx) {
                     ErrorHandling.signalGomError(LOG_TAG, gx, mActivity);
                 }
@@ -249,8 +241,6 @@ public class DragAndDropHelper implements OnTouchListener {
             }
         }
 
-        // mThumbView = null; // let the gc take care of it
-
         mState = State.NOT_DRAGGING;
 
         System.gc(); // would be nice...
@@ -258,7 +248,6 @@ public class DragAndDropHelper implements OnTouchListener {
 
     // return top left + vertical offsetted for positioning the view
     private LayoutParams positionForDragging(MotionEvent pEvent) {
-
         int x = (int) pEvent.getX() - mThumbView.getWidth() / 2;
         int y = (int) pEvent.getY() - mThumbView.getHeight() / 2 - VERTICAL_OFFSET;
 
