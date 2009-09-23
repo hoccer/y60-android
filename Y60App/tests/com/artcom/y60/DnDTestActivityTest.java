@@ -48,7 +48,11 @@ public class DnDTestActivityTest extends Y60ActivityInstrumentationTest<DnDTestA
         release(getActivity().getDragResource());
         waitForDragEnded(100);
         assertEquals(View.VISIBLE, mDraggingEnded.origin.getVisibility());
-        assertEquals("item should stay visible -- animation will follow", View.VISIBLE,
+        // assertEquals("item should stay visible -- animation will follow",
+        // View.VISIBLE,
+        // mDraggingEnded.draggedView.getVisibility());
+
+        assertEquals("item should become invisible when animation is canceled", View.INVISIBLE,
                 mDraggingEnded.draggedView.getVisibility());
     }
 
