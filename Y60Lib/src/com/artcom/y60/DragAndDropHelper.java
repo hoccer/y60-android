@@ -137,9 +137,7 @@ public class DragAndDropHelper implements OnTouchListener {
                     // Logger.v(LOG_TAG,
                     // "_________________________ action up in dragging -> cancel");
                     endDragging(pEvent);
-                    if (!mIsLaunched) {
-                        cleanView();
-                    }
+
                     return true;
                 case (MotionEvent.ACTION_MOVE):
                     drag(pEvent);
@@ -224,12 +222,13 @@ public class DragAndDropHelper implements OnTouchListener {
         if (mIsDropTargetEnabled) {
             Slot target = mDropTargetCollection.getfocusedDropTarget(mThumbView);
             if (target != null) {
-                try {
-                    target.getLauncher().launch();
-                    mIsLaunched = true;
-                } catch (Exception gx) {
-                    ErrorHandling.signalGomError(LOG_TAG, gx, mActivity);
-                }
+                Logger.v(LOG_TAG, "############startLetterAnimation");
+                startLetterAnimation(target);
+            } else {
+                Logger.v(LOG_TAG, "###################cleanView");
+                cleanView();
+                mState = State.NOT_DRAGGING;
+                return;
             }
         }
 
@@ -244,6 +243,23 @@ public class DragAndDropHelper implements OnTouchListener {
         mState = State.NOT_DRAGGING;
 
         System.gc(); // would be nice...
+    }
+
+    private void startLetterAnimation(Slot pTarget) {
+
+        TranslateAnimation translate = new TranslateAnimation(0, 160 - mSourceView.getWidth() / 2,
+                0, 300 - mSourceView.getHeight() / 2 - VERTICAL_OFFSET);
+        translate.setDuration(ANIMATION_DURATION);
+
+        ScaleAnimation scale = new ScaleAnimation(SCALE_FACTOR, 0.1f, SCALE_FACTOR, 0.1f,
+                Animation.ABSOLUTE, 0, Animation.ABSOLUTE, 0);
+        scale.setDuration(ANIMATION_DURATION);
+
+        AnimationSet anims = new AnimationSet(true);
+        anims.addAnimation(translate);
+        anims.addAnimation(scale);
+        anims.setAnimationListener(new LetterAnimationListener(pTarget));
+        mThumbView.startAnimation(anims);
     }
 
     // return top left + vertical offsetted for positioning the view
@@ -279,7 +295,6 @@ public class DragAndDropHelper implements OnTouchListener {
 
                 // if default View IS null
                 if (mThumbView == null) {
-
                     mThumbView = GraphicsHelper.scaleView(mSourceView, SCALE_FACTOR, mActivity);
                 }
                 mThumbView.setVisibility(View.INVISIBLE);
@@ -376,6 +391,33 @@ public class DragAndDropHelper implements OnTouchListener {
         }
 
         public void onAnimationStart(Animation animation) {
+        }
+    }
+
+    class LetterAnimationListener implements Animation.AnimationListener {
+
+        private Slot mTarget;
+
+        public LetterAnimationListener(Slot pTarget) {
+            Logger.v(LOG_TAG, "create LetterAnimationListener");
+            mTarget = pTarget;
+        }
+
+        public void onAnimationEnd(Animation animation) {
+            try {
+                mTarget.getLauncher().launch();
+                mIsLaunched = true;
+            } catch (Exception gx) {
+                ErrorHandling.signalGomError(LOG_TAG, gx, mActivity);
+            }
+            Logger.v(LOG_TAG, "----------- on Animation end of LetterAnimation");
+        }
+
+        public void onAnimationRepeat(Animation animation) {
+        }
+
+        public void onAnimationStart(Animation animation) {
+            Logger.v(LOG_TAG, "----------- on Animation start of LetterAnimation");
         }
     }
 
