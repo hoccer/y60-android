@@ -31,11 +31,12 @@ public class DragAndDropHelper implements OnTouchListener {
 
     // Constants ---------------------------------------------------------
 
-    public static final String   LOG_TAG            = "DragAndDropHelper";
+    public static final String   LOG_TAG             = "DragAndDropHelper";
 
-    private static final float   SCALE_FACTOR       = 0.4f;
-    private static final int     ANIMATION_DURATION = 200;
-    public static final int      VERTICAL_OFFSET    = 20;
+    private static final float   SCALE_FACTOR        = 0.4f;
+    private static final float   LETTER_SCALE_FACTOR = 0.15f;
+    private static final int     ANIMATION_DURATION  = 200;
+    public static final int      VERTICAL_OFFSET     = 20;
 
     // Instance Variables ------------------------------------------------
 
@@ -240,18 +241,25 @@ public class DragAndDropHelper implements OnTouchListener {
 
     private void startLetterAnimation(Slot pTarget) {
 
-        TranslateAnimation translate = new TranslateAnimation(0, 160 - mSourceView.getWidth() / 2,
-                0, 300 - mSourceView.getHeight() / 2 - VERTICAL_OFFSET);
-        translate.setDuration(ANIMATION_DURATION);
+        Logger.v(LOG_TAG, "Left: ", mThumbView.getLeft(), "   top: ", mThumbView.getTop());
+        TranslateAnimation translate = new TranslateAnimation(Animation.ABSOLUTE, mThumbView
+                .getLeft()
+                - mThumbView.getWidth() / 2.0f, Animation.ABSOLUTE, mThumbView.getLeft()
+                - mThumbView.getWidth() / 2.0f, Animation.ABSOLUTE, mThumbView.getTop(),
+                Animation.ABSOLUTE, 100.0f);
+        translate.setDuration(3000);// ANIMATION_DURATION);
 
-        ScaleAnimation scale = new ScaleAnimation(SCALE_FACTOR, 0.1f, SCALE_FACTOR, 0.1f,
-                Animation.ABSOLUTE, 0, Animation.ABSOLUTE, 0);
-        scale.setDuration(ANIMATION_DURATION);
+        ScaleAnimation scale = new ScaleAnimation(1.0f, LETTER_SCALE_FACTOR, 1.0f,
+                LETTER_SCALE_FACTOR, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF,
+                0.5f);
+        scale.setDuration(3000);// ANIMATION_DURATION);
 
         AnimationSet anims = new AnimationSet(true);
-        anims.addAnimation(translate);
+        // anims.addAnimation(translate);
         anims.addAnimation(scale);
         anims.setAnimationListener(new LetterAnimationListener(pTarget));
+        anims.setFillEnabled(true);
+        anims.setFillAfter(true);
         mThumbView.startAnimation(anims);
     }
 
@@ -407,7 +415,7 @@ public class DragAndDropHelper implements OnTouchListener {
         }
 
         public void onAnimationStart(Animation animation) {
-            ((ImageView) mThumbView).getDrawable().setAlpha(0);
+            ((ImageView) mThumbView).getDrawable().setAlpha(255);
             Logger.v(LOG_TAG, "----------- on Animation start of LetterAnimation");
         }
     }
