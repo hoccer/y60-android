@@ -69,7 +69,7 @@ public class DropTargetCollection extends SlotHolder implements DragListener {
     }
 
     @Override
-    public void onDraggingEnded(View pOrigin, View pDraggedView, int pX, int pY) {
+    public void onDraggingAborted(View pOrigin, View pDraggedView, int pX, int pY) {
         // TODO Auto-generated method stub
 
     }

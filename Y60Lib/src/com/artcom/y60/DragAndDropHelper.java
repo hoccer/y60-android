@@ -65,7 +65,6 @@ public class DragAndDropHelper implements OnTouchListener {
     private DropTargetCollection mDropTargetCollection;
     private boolean              mIsDropTargetEnabled;
     private State                mState;
-    private boolean              mIsLaunched        = false;
 
     // Static Methods ----------------------------------------------------
 
@@ -157,16 +156,17 @@ public class DragAndDropHelper implements OnTouchListener {
         // better: register for long press... always returns false
         if (pTouchedView == mSourceView/* || isCurrentlyDragging() */) {
             if (mGest.onTouchEvent(pEvent)) {
-                Logger.d(LOG_TAG, "DnD gesture: true");
+                // Logger.d(LOG_TAG, "DnD gesture: true");
                 return true;
             } else {
-                Logger.d(LOG_TAG, "DnD gesture: false");
+                // Logger.d(LOG_TAG, "DnD gesture: false");
             }
         }
 
         if (mDelegateTouchListener != null) {
             mDelegateTouchListener.onTouch(pTouchedView, pEvent);
-            Logger.d(LOG_TAG, "delegate touch event to mDelegateTouchListener");
+            // Logger.d(LOG_TAG,
+            // "delegate touch event to mDelegateTouchListener");
         }
         return true;
 
@@ -218,7 +218,6 @@ public class DragAndDropHelper implements OnTouchListener {
     }
 
     private void endDragging(MotionEvent pEvent) {
-        mIsLaunched = false;
         if (mIsDropTargetEnabled) {
             Slot target = mDropTargetCollection.getfocusedDropTarget(mThumbView);
             if (target != null) {
@@ -226,22 +225,16 @@ public class DragAndDropHelper implements OnTouchListener {
                 startLetterAnimation(target);
             } else {
                 Logger.v(LOG_TAG, "###################cleanView");
+                Iterator<DragListener> it = mDragListenerList.iterator();
+                while (it.hasNext()) {
+                    LayoutParams position = positionForDragging(pEvent);
+                    it.next().onDraggingAborted(mSourceView, mThumbView, position.x, position.y);
+                }
                 cleanView();
-                mState = State.NOT_DRAGGING;
-                return;
-            }
-        }
-
-        if (mDragListenerList.size() > 0) {
-            Iterator<DragListener> it = mDragListenerList.iterator();
-            while (it.hasNext()) {
-                LayoutParams position = positionForDragging(pEvent);
-                it.next().onDraggingEnded(mSourceView, mThumbView, position.x, position.y);
             }
         }
 
         mState = State.NOT_DRAGGING;
-
         System.gc(); // would be nice...
     }
 
@@ -280,8 +273,6 @@ public class DragAndDropHelper implements OnTouchListener {
 
         @Override
         public void onLongPress(MotionEvent pE) {
-
-            Logger.v(LOG_TAG, "LOOOOOOOOOOOOOOOOOOOOOOOONG PRESS");
 
             if (mDragListenerList.size() > 0) {
                 Iterator<DragListener> it = mDragListenerList.iterator();
@@ -406,7 +397,6 @@ public class DragAndDropHelper implements OnTouchListener {
         public void onAnimationEnd(Animation animation) {
             try {
                 mTarget.getLauncher().launch();
-                mIsLaunched = true;
             } catch (Exception gx) {
                 ErrorHandling.signalGomError(LOG_TAG, gx, mActivity);
             }
@@ -417,6 +407,7 @@ public class DragAndDropHelper implements OnTouchListener {
         }
 
         public void onAnimationStart(Animation animation) {
+            ((ImageView) mThumbView).getDrawable().setAlpha(0);
             Logger.v(LOG_TAG, "----------- on Animation start of LetterAnimation");
         }
     }

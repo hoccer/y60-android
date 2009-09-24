@@ -126,7 +126,7 @@ public class DnDTestActivityTest extends Y60ActivityInstrumentationTest<DnDTestA
     }
 
     @Override
-    public void onDraggingEnded(View pOrigin, View pDraggedView, int pX, int pY) {
+    public void onDraggingAborted(View pOrigin, View pDraggedView, int pX, int pY) {
         mDraggingEnded = new DraggingEndedEvent(pOrigin, pDraggedView, pX, pY);
     }
 

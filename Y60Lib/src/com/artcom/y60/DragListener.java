@@ -10,7 +10,7 @@ public interface DragListener {
     public void onDragged(View pOrigin, View pDraggedView, AbsoluteLayout pAbsoluteLayout, int pX,
             int pY);
 
-    public void onDraggingEnded(View pOrigin, View pDraggedView, int pX, int pY);
+    public void onDraggingAborted(View pOrigin, View pDraggedView, int pX, int pY);
 
     public void onBeforeDraggingStarted(View pSourceView);
 }
