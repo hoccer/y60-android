@@ -31,12 +31,12 @@ public class DragAndDropHelper implements OnTouchListener {
 
     // Constants ---------------------------------------------------------
 
-    public static final String   LOG_TAG             = "DragAndDropHelper";
+    public static final String   LOG_TAG            = "DragAndDropHelper";
 
-    private static final float   SCALE_FACTOR        = 0.4f;
-    private static final float   LETTER_SCALE_FACTOR = 0.15f;
-    private static final int     ANIMATION_DURATION  = 200;
-    public static final int      VERTICAL_OFFSET     = 20;
+    private static final float   SCALE_FACTOR       = 0.4f;
+
+    private static final int     ANIMATION_DURATION = 200;
+    public static final int      VERTICAL_OFFSET    = 20;
 
     // Instance Variables ------------------------------------------------
 
@@ -223,7 +223,7 @@ public class DragAndDropHelper implements OnTouchListener {
             Slot target = mDropTargetCollection.getfocusedDropTarget(mThumbView);
             if (target != null) {
                 Logger.v(LOG_TAG, "############startLetterAnimation");
-                startLetterAnimation(target);
+                onSuccessfulDrop(target);
             } else {
                 Logger.v(LOG_TAG, "###################cleanView");
                 Iterator<DragListener> it = mDragListenerList.iterator();
@@ -239,27 +239,8 @@ public class DragAndDropHelper implements OnTouchListener {
         System.gc(); // would be nice...
     }
 
-    private void startLetterAnimation(Slot pTarget) {
-
-        Logger.v(LOG_TAG, "Left: ", mThumbView.getLeft(), "   top: ", mThumbView.getTop());
-        TranslateAnimation translate = new TranslateAnimation(Animation.RELATIVE_TO_SELF, 0.0f,
-                Animation.RELATIVE_TO_SELF, 0.0f, Animation.RELATIVE_TO_SELF, 0.0f,
-                Animation.ABSOLUTE, 100.0f);
-        translate.setDuration(3000);// ANIMATION_DURATION);
-
-        ScaleAnimation scale = new ScaleAnimation(1.0f, LETTER_SCALE_FACTOR, 1.0f,
-                LETTER_SCALE_FACTOR, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF,
-                0.5f);
-        scale.setStartOffset(500);
-        scale.setDuration(3000);// ANIMATION_DURATION);
-
-        AnimationSet anims = new AnimationSet(true);
-        anims.addAnimation(scale);
-        anims.addAnimation(translate);
-        anims.setAnimationListener(new LetterAnimationListener(pTarget));
-        anims.setFillEnabled(true);
-        anims.setFillAfter(true);
-        mThumbView.startAnimation(anims);
+    protected void onSuccessfulDrop(Slot pTarget) {
+        cleanView();
     }
 
     // return top left + vertical offsetted for positioning the view
@@ -351,6 +332,14 @@ public class DragAndDropHelper implements OnTouchListener {
         }
     }
 
+    public View getThumbView() {
+        return mThumbView;
+    }
+
+    public Activity getActivity() {
+        return mActivity;
+    }
+
     class ThumbnailAnimationListener implements Animation.AnimationListener {
 
         public void onAnimationEnd(Animation animation) {
@@ -389,33 +378,6 @@ public class DragAndDropHelper implements OnTouchListener {
         }
 
         public void onAnimationStart(Animation animation) {
-        }
-    }
-
-    class LetterAnimationListener implements Animation.AnimationListener {
-
-        private Slot mTarget;
-
-        public LetterAnimationListener(Slot pTarget) {
-            Logger.v(LOG_TAG, "create LetterAnimationListener");
-            mTarget = pTarget;
-        }
-
-        public void onAnimationEnd(Animation animation) {
-            try {
-                mTarget.getLauncher().launch();
-            } catch (Exception gx) {
-                ErrorHandling.signalGomError(LOG_TAG, gx, mActivity);
-            }
-            Logger.v(LOG_TAG, "----------- on Animation end of LetterAnimation");
-        }
-
-        public void onAnimationRepeat(Animation animation) {
-        }
-
-        public void onAnimationStart(Animation animation) {
-            ((ImageView) mThumbView).getDrawable().setAlpha(255);
-            Logger.v(LOG_TAG, "----------- on Animation start of LetterAnimation");
         }
     }
 
