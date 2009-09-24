@@ -242,21 +242,20 @@ public class DragAndDropHelper implements OnTouchListener {
     private void startLetterAnimation(Slot pTarget) {
 
         Logger.v(LOG_TAG, "Left: ", mThumbView.getLeft(), "   top: ", mThumbView.getTop());
-        TranslateAnimation translate = new TranslateAnimation(Animation.ABSOLUTE, mThumbView
-                .getLeft()
-                - mThumbView.getWidth() / 2.0f, Animation.ABSOLUTE, mThumbView.getLeft()
-                - mThumbView.getWidth() / 2.0f, Animation.ABSOLUTE, mThumbView.getTop(),
+        TranslateAnimation translate = new TranslateAnimation(Animation.RELATIVE_TO_SELF, 0.0f,
+                Animation.RELATIVE_TO_SELF, 0.0f, Animation.RELATIVE_TO_SELF, 0.0f,
                 Animation.ABSOLUTE, 100.0f);
         translate.setDuration(3000);// ANIMATION_DURATION);
 
         ScaleAnimation scale = new ScaleAnimation(1.0f, LETTER_SCALE_FACTOR, 1.0f,
                 LETTER_SCALE_FACTOR, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF,
                 0.5f);
+        scale.setStartOffset(500);
         scale.setDuration(3000);// ANIMATION_DURATION);
 
         AnimationSet anims = new AnimationSet(true);
-        // anims.addAnimation(translate);
         anims.addAnimation(scale);
+        anims.addAnimation(translate);
         anims.setAnimationListener(new LetterAnimationListener(pTarget));
         anims.setFillEnabled(true);
         anims.setFillAfter(true);
