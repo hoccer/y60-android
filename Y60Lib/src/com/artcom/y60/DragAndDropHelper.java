@@ -42,6 +42,7 @@ public class DragAndDropHelper implements OnTouchListener {
 
     /** The Layout in which the dragging takes place */
     private AbsoluteLayout       mAbsoluteLayout;
+
     private View                 mActivityViewGroup;
 
     /** The View to be dragged around */
@@ -284,12 +285,9 @@ public class DragAndDropHelper implements OnTouchListener {
             int x = (int) pE.getX();// -mDrawable.getMinimumWidth()/2;
             int y = (int) pE.getY() - 10;// -mDrawable.getMinimumHeight()*2;
 
-            LayoutParams params = new LayoutParams(LayoutParams.WRAP_CONTENT,
-                    LayoutParams.WRAP_CONTENT, x
-                            - (int) (mSourceView.getWidth() * SCALE_FACTOR / 2), y
-                            - (int) (mSourceView.getHeight() * SCALE_FACTOR / 2 - VERTICAL_OFFSET));
-
-            mThumbView.setLayoutParams(params);
+            ViewHelper.setAbsolutePos(mThumbView, x
+                    - (int) (mSourceView.getWidth() * SCALE_FACTOR / 2), y
+                    - (int) (mSourceView.getHeight() * SCALE_FACTOR / 2 - VERTICAL_OFFSET));
 
             TranslateAnimation translate = new TranslateAnimation(0,
                     x - mSourceView.getWidth() / 2, 0, y - mSourceView.getHeight() / 2
@@ -338,6 +336,10 @@ public class DragAndDropHelper implements OnTouchListener {
 
     public Activity getActivity() {
         return mActivity;
+    }
+
+    public AbsoluteLayout getAbsoluteLayout() {
+        return mAbsoluteLayout;
     }
 
     class ThumbnailAnimationListener implements Animation.AnimationListener {

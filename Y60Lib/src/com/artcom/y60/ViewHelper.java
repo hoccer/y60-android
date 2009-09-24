@@ -1,7 +1,6 @@
 package com.artcom.y60;
 
 import android.app.Activity;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.AbsoluteLayout;
@@ -23,8 +22,7 @@ public class ViewHelper {
      * @throws ClassCastException
      *             if given view is not part of an absolute layout.
      */
-    public static int getAbsolutePosX(View view) throws NullPointerException,
-            ClassCastException {
+    public static int getAbsolutePosX(View view) throws NullPointerException, ClassCastException {
 
         if (view == null)
             throw new NullPointerException("View must not be null!");
@@ -43,8 +41,7 @@ public class ViewHelper {
      * @throws ClassCastException
      *             if given view is not part of an absolute layout.
      */
-    public static int getAbsolutePosY(View view) throws NullPointerException,
-            ClassCastException {
+    public static int getAbsolutePosY(View view) throws NullPointerException, ClassCastException {
 
         if (view == null)
             throw new NullPointerException("View must not be null!");
@@ -71,9 +68,10 @@ public class ViewHelper {
         if (view == null)
             throw new NullPointerException("View must not be null!");
 
-        AbsoluteLayout.LayoutParams lp = new AbsoluteLayout.LayoutParams(
-                LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT, x, y);
+        AbsoluteLayout.LayoutParams lp = new AbsoluteLayout.LayoutParams(LayoutParams.WRAP_CONTENT,
+                LayoutParams.WRAP_CONTENT, x, y);
 
         view.setLayoutParams(lp);
     }
+
 }

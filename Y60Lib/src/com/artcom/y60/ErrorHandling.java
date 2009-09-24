@@ -1,7 +1,6 @@
 package com.artcom.y60;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -80,8 +79,7 @@ public class ErrorHandling {
 
     }
 
-    public static void signalFileNotFoundError(String logTag, FileNotFoundException error,
-            Context context) {
+    public static void signalFileNotFoundError(String logTag, Throwable error, Context context) {
         signalError(logTag, error, context, Category.FILE_NOT_FOUND);
     }
 
