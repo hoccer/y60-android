@@ -2,8 +2,6 @@ package com.artcom.y60;
 
 import android.content.Context;
 
-import com.artcom.y60.gom.GomException;
-
 /**
  * Base class for implementing slot functionality.
  * 
@@ -19,7 +17,7 @@ public abstract class SlotLauncher {
     // Public Instance Methods -------------------------------------------
 
     /** Override if you're interested */
-    public void launch() throws GomException {
+    public void launch() {
     }
 
     /** Override if you're interested */

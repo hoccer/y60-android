@@ -239,6 +239,7 @@ public class DragAndDropHelper implements OnTouchListener {
     }
 
     protected void onSuccessfulDrop(Slot pTarget) {
+        pTarget.getLauncher().launch();
         cleanView();
     }
 

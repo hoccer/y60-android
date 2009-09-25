@@ -9,8 +9,6 @@ import android.view.View;
 import android.view.GestureDetector.OnGestureListener;
 import android.view.View.OnTouchListener;
 
-import com.artcom.y60.gom.GomException;
-
 class SlotLaunchingClickListener implements OnTouchListener {
 
     // Constants ---------------------------------------------------------
@@ -83,11 +81,7 @@ class SlotLaunchingClickListener implements OnTouchListener {
 
         public boolean onSingleTapUp(MotionEvent arg0) {
             Logger.d(LOG_TAG, "slot clicked!");
-            try {
-                mLauncher.launch();
-            } catch (GomException gx) {
-                ErrorHandling.signalGomError(LOG_TAG, gx, mHolder.getContext());
-            }
+            mLauncher.launch();
             return false;
         }
     }

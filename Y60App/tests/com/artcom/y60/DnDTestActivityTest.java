@@ -9,13 +9,13 @@ public class DnDTestActivityTest extends Y60ActivityInstrumentationTest<DnDTestA
 
     protected static final String LOG_TAG = "DnDTestActivityTest";
     private DraggingStartedEvent  mDraggingStarted;
-    private DraggingEndedEvent    mDraggingEnded;
+    private DraggingAbortedEvent  mDraggingAboarted;
     private DraggedEvent          mDragged;
 
     public void setUp() throws Exception {
         super.setUp();
         mDraggingStarted = null;
-        mDraggingEnded = null;
+        mDraggingAboarted = null;
         mDragged = null;
     }
 
@@ -30,12 +30,12 @@ public class DnDTestActivityTest extends Y60ActivityInstrumentationTest<DnDTestA
         touch(getActivity().getDragResource());
         waitForDragStarted(2500);
         moveAndRelease(200, 200);
-        waitForDragEnded(100);
+        assertDragWasAborted(100);
 
-        assertEquals("y callback param equals view value", mDraggingEnded.y,
-                mDraggingEnded.draggedView.getTop());
-        assertEquals("dragged to y = 200 ", 200.0, mDraggingEnded.draggedView.getTop()
-                + (mDraggingEnded.draggedView.getHeight() / 2.0)
+        assertEquals("y callback param equals view value", mDraggingAboarted.y,
+                mDraggingAboarted.draggedView.getTop());
+        assertEquals("dragged to y = 200 ", 200.0, mDraggingAboarted.draggedView.getTop()
+                + (mDraggingAboarted.draggedView.getHeight() / 2.0)
                 + DragAndDropHelper.VERTICAL_OFFSET);
 
     }
@@ -46,14 +46,14 @@ public class DnDTestActivityTest extends Y60ActivityInstrumentationTest<DnDTestA
         touch(getActivity().getDragResource());
         waitForDragStarted(1500);
         release(getActivity().getDragResource());
-        waitForDragEnded(100);
-        assertEquals(View.VISIBLE, mDraggingEnded.origin.getVisibility());
+        assertDragWasAborted(100);
+        assertEquals(View.VISIBLE, mDraggingAboarted.origin.getVisibility());
         // assertEquals("item should stay visible -- animation will follow",
         // View.VISIBLE,
-        // mDraggingEnded.draggedView.getVisibility());
+        // mDraggingAboarted.draggedView.getVisibility());
 
         assertEquals("item should become invisible when animation is canceled", View.INVISIBLE,
-                mDraggingEnded.draggedView.getVisibility());
+                mDraggingAboarted.draggedView.getVisibility());
     }
 
     public void testDropTargetExistence() throws InterruptedException {
@@ -65,7 +65,7 @@ public class DnDTestActivityTest extends Y60ActivityInstrumentationTest<DnDTestA
         touch(getActivity().getDragResource());
         waitForDragStarted(1500);
         release(getActivity().getDragResource());
-        waitForDragEnded(100);
+        assertDragWasAborted(100);
 
         LinearLayout dropTargetContainer = (LinearLayout) getActivity().getAbsoluteLayout()
                 .getChildAt(0);
@@ -75,7 +75,18 @@ public class DnDTestActivityTest extends Y60ActivityInstrumentationTest<DnDTestA
 
     }
 
-    public void testDroppingOnTarget() throws InterruptedException {
+    public void testCancelDraggingByNotDroppingOnTarget() throws Exception {
+
+        getActivity().getDragAndDropHelper().addDragListener(this);
+        assertFalse("The item is not dropped yet ", getActivity().isDroppedOnTarget());
+
+        touch(getActivity().getDragResource());
+        waitForDragStarted(1500);
+        moveAndRelease(200, 150);
+        assertDragWasAborted(2000);
+    }
+
+    public void testDroppingOnTarget() throws Exception {
 
         getActivity().getDragAndDropHelper().addDragListener(this);
         assertFalse("The item is not dropped yet ", getActivity().isDroppedOnTarget());
@@ -83,10 +94,20 @@ public class DnDTestActivityTest extends Y60ActivityInstrumentationTest<DnDTestA
         touch(getActivity().getDragResource());
         waitForDragStarted(1500);
         moveAndRelease(50, 50);
-        waitForDragEnded(100);
+        assertIsDroppedOnTarget();
 
-        assertTrue("The item was dropped", getActivity().isDroppedOnTarget());
+        assertNull("dragging should not be aborted", mDraggingAboarted);
+    }
 
+    private void assertIsDroppedOnTarget() throws Exception {
+        TestHelper.blockUntilTrue("The item should have been dropped", 2000,
+                new TestHelper.Condition() {
+
+                    @Override
+                    public boolean isSatisfied() throws Exception {
+                        return getActivity().isDroppedOnTarget();
+                    }
+                });
     }
 
     private void waitForDragStarted(long pInterval) throws InterruptedException {
@@ -109,14 +130,14 @@ public class DnDTestActivityTest extends Y60ActivityInstrumentationTest<DnDTestA
         assertNotNull("dragging didn't occur for " + pInterval + " millis!", mDragged);
     }
 
-    private void waitForDragEnded(long pInterval) throws InterruptedException {
+    private void assertDragWasAborted(long pInterval) throws InterruptedException {
 
         long time = System.currentTimeMillis();
-        while (mDraggingEnded == null && System.currentTimeMillis() - time < pInterval) {
+        while (mDraggingAboarted == null && System.currentTimeMillis() - time < pInterval) {
             Thread.sleep(10);
         }
 
-        assertNotNull("dragging didn't end for " + pInterval + " millis!", mDraggingEnded);
+        assertNotNull("dragging didn't end for " + pInterval + " millis!", mDraggingAboarted);
     }
 
     @Override
@@ -127,7 +148,7 @@ public class DnDTestActivityTest extends Y60ActivityInstrumentationTest<DnDTestA
 
     @Override
     public void onDraggingAborted(View pOrigin, View pDraggedView, int pX, int pY) {
-        mDraggingEnded = new DraggingEndedEvent(pOrigin, pDraggedView, pX, pY);
+        mDraggingAboarted = new DraggingAbortedEvent(pOrigin, pDraggedView, pX, pY);
     }
 
     @Override
@@ -154,14 +175,14 @@ public class DnDTestActivityTest extends Y60ActivityInstrumentationTest<DnDTestA
         }
     }
 
-    class DraggingEndedEvent {
+    class DraggingAbortedEvent {
 
         View origin;
         View draggedView;
         int  x;
         int  y;
 
-        public DraggingEndedEvent(View pOrigin, View pDraggedView, int pX, int pY) {
+        public DraggingAbortedEvent(View pOrigin, View pDraggedView, int pX, int pY) {
 
             origin = pOrigin;
             draggedView = pDraggedView;
