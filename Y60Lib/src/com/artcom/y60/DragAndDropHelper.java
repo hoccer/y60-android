@@ -223,10 +223,8 @@ public class DragAndDropHelper implements OnTouchListener {
         if (mIsDropTargetEnabled) {
             Slot target = mDropTargetCollection.getfocusedDropTarget(mThumbView);
             if (target != null) {
-                Logger.v(LOG_TAG, "############startLetterAnimation");
                 onSuccessfulDrop(target);
             } else {
-                Logger.v(LOG_TAG, "###################cleanView");
                 Iterator<DragListener> it = mDragListenerList.iterator();
                 while (it.hasNext()) {
                     LayoutParams position = positionForDragging(pEvent);
