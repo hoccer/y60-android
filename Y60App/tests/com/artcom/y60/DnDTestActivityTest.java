@@ -37,7 +37,6 @@ public class DnDTestActivityTest extends Y60ActivityInstrumentationTest<DnDTestA
         assertEquals("dragged to y = 200 ", 200.0, mDraggingAboarted.draggedView.getTop()
                 + (mDraggingAboarted.draggedView.getHeight() / 2.0)
                 + DragAndDropHelper.VERTICAL_OFFSET);
-
     }
 
     public void testReleaseLongPress() throws InterruptedException {
