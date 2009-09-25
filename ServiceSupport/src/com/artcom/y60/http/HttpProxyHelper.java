@@ -65,7 +65,11 @@ public class HttpProxyHelper {
     /**
      * The queue of URIs of resources which have been updated
      */
-    private List<Uri>                        mNotificationQueue;
+    private List<Uri>                        mUpdateNotificationQueue;
+    /**
+     * The queue of URIs of resources which are not available
+     */
+    private List<Uri>                        mNotAvailableNotificationQueue;
 
     /**
      * Flag indicating if the updater thread should shutdown
@@ -78,7 +82,8 @@ public class HttpProxyHelper {
 
     private BindingListener<HttpProxyHelper> mBindingListener;
 
-    private HttpResourceUpdateReceiver       mReceiver;
+    private HttpResourceUpdateReceiver       mUpdateReceiver;
+    private HttpResourceNotAvailableReceiver mNotAvailableReceiver;
 
     // Constructors ------------------------------------------------------
 
@@ -86,13 +91,17 @@ public class HttpProxyHelper {
 
         mShutdown = false;
         mContext = pContext;
-        mNotificationQueue = new LinkedList<Uri>();
+        mUpdateNotificationQueue = new LinkedList<Uri>();
+        mNotAvailableNotificationQueue = new LinkedList<Uri>();
         mListeners = new HashMap<Uri, Set<ResourceListener>>();
         mBindingListener = pBindingListener;
 
-        mReceiver = new HttpResourceUpdateReceiver();
-        mContext.registerReceiver(mReceiver, new IntentFilter(
+        mUpdateReceiver = new HttpResourceUpdateReceiver();
+        mContext.registerReceiver(mUpdateReceiver, new IntentFilter(
                 HttpProxyConstants.RESOURCE_UPDATE_ACTION));
+        mNotAvailableReceiver = new HttpResourceNotAvailableReceiver();
+        mContext.registerReceiver(mNotAvailableReceiver, new IntentFilter(
+                HttpProxyConstants.RESOURCE_NOT_AVAILABLE_ACTION));
 
         Intent proxyIntent = new Intent(IHttpProxyService.class.getName());
         mConnection = new HttpProxyServiceConnection();
@@ -110,7 +119,8 @@ public class HttpProxyHelper {
 
     public void unbind() {
         mContext.unbindService(mConnection);
-        mContext.unregisterReceiver(mReceiver);
+        mContext.unregisterReceiver(mUpdateReceiver);
+        mContext.unregisterReceiver(mNotAvailableReceiver);
     }
 
     public void assertConnected() {
@@ -374,12 +384,22 @@ public class HttpProxyHelper {
 
         @Override
         public void onReceive(Context pCtx, Intent pIntent) {
-
-            synchronized (mNotificationQueue) {
-
+            synchronized (mUpdateNotificationQueue) {
                 String uri = pIntent.getStringExtra(HttpProxyConstants.URI_EXTRA);
-                Logger.v(logTag(), "received broadcast for uri ", uri);
-                mNotificationQueue.add(Uri.parse(uri));
+                Logger.v(logTag(), "received update broadcast for uri ", uri);
+                mUpdateNotificationQueue.add(Uri.parse(uri));
+            }
+        }
+    }
+
+    class HttpResourceNotAvailableReceiver extends BroadcastReceiver {
+
+        @Override
+        public void onReceive(Context pCtx, Intent pIntent) {
+            synchronized (mNotAvailableNotificationQueue) {
+                String uri = pIntent.getStringExtra(HttpProxyConstants.URI_EXTRA);
+                Logger.v(logTag(), "received not available broadcast for uri ", uri);
+                mNotAvailableNotificationQueue.add(Uri.parse(uri));
             }
         }
     }
@@ -390,29 +410,49 @@ public class HttpProxyHelper {
 
             while (!mShutdown) {
 
-                Uri uri = null;
-                synchronized (mNotificationQueue) {
-
-                    if (mNotificationQueue.size() > 0) {
-
-                        uri = mNotificationQueue.remove(0);
+                Uri updatedUri = null;
+                synchronized (mUpdateNotificationQueue) {
+                    if (mUpdateNotificationQueue.size() > 0) {
+                        updatedUri = mUpdateNotificationQueue.remove(0);
                     }
                 }
 
                 // do processing out of synchronization to avoid
                 // that the broadcast receiver gets blocked when
                 // adding new URIs
-                if (uri != null) {
-
+                if (updatedUri != null) {
                     Logger.v(logTag(), "registered listeners: ", mListeners.keySet());
-                    Logger.v(logTag(), "updating listeners for uri ", uri);
-                    Set<ResourceListener> listeners = getListenersFor(uri);
+                    Logger.v(logTag(), "updating listeners for uri ", updatedUri);
+                    Set<ResourceListener> listeners = getListenersFor(updatedUri);
                     if (listeners != null) {
                         synchronized (listeners) {
-
                             for (ResourceListener listener : listeners) {
-                                listener.onResourceChanged(uri);
-                                listener.onResourceAvailable(Uri.parse(uri.toString()));
+                                listener.onResourceChanged(updatedUri);
+                                listener.onResourceAvailable(Uri.parse(updatedUri.toString()));
+                            }
+                        }
+                    }
+                }
+
+                Uri notAvailableUri = null;
+                synchronized (mNotAvailableNotificationQueue) {
+                    if (mNotAvailableNotificationQueue.size() > 0) {
+                        notAvailableUri = mNotAvailableNotificationQueue.remove(0);
+                    }
+                }
+
+                // do processing out of synchronization to avoid
+                // that the broadcast receiver gets blocked when
+                // adding new URIs
+                if (notAvailableUri != null) {
+                    Logger.v(logTag(), "registered listeners: ", mListeners.keySet());
+                    Logger.v(logTag(), "updating listeners for uri ", notAvailableUri);
+                    Set<ResourceListener> listeners = getListenersFor(notAvailableUri);
+                    if (listeners != null) {
+                        synchronized (listeners) {
+                            for (ResourceListener listener : listeners) {
+                                listener.onResourceNotAvailable(Uri.parse(notAvailableUri
+                                        .toString()));
                             }
                         }
                     }

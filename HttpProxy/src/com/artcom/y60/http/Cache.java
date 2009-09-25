@@ -175,7 +175,7 @@ public class Cache {
             }
 
         } catch (Exception e) {
-
+            HttpProxyService.resourceNotAvailable(pUri);
             Logger.e(LOG_TAG, "refreshing ", pUri, " failed!", e);
         }
     }

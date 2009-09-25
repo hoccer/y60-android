@@ -27,9 +27,9 @@ public class HttpProxyService extends Y60Service {
 
     // Constants ---------------------------------------------------------
 
-    public static final String LOG_TAG;
+    public static final String           LOG_TAG;
 
-    private static final Cache CACHE;
+    private static final Cache           CACHE;
 
     // Class Variables ---------------------------------------------------
 
@@ -68,6 +68,28 @@ public class HttpProxyService extends Y60Service {
         }
     }
 
+    /**
+     * Helper to notify about resource changes via intent broadcast.
+     */
+    static void resourceNotAvailable(String pUri) {
+
+        synchronized (sInstances) {
+
+            if (sInstances.size() == 0) {
+
+                // this must never happen!
+                Logger.e(LOG_TAG, "Can't send broadcast since all services have died!");
+
+            } else {
+                HttpProxyService service = sInstances.iterator().next();
+                Intent intent = new Intent(HttpProxyConstants.RESOURCE_NOT_AVAILABLE_ACTION);
+                intent.putExtra(HttpProxyConstants.URI_EXTRA, pUri);
+                Logger.v(LOG_TAG, "Broadcasting not available for resource " + pUri);
+                service.sendBroadcast(intent);
+            }
+        }
+    }
+
     private static int countInstances() {
 
         synchronized (sInstances) {
@@ -80,9 +102,9 @@ public class HttpProxyService extends Y60Service {
 
     private HttpProxyRemote mRemote;
 
-    private String mId;
+    private String          mId;
 
-    private ResetReceiver mResetReceiver;
+    private ResetReceiver   mResetReceiver;
 
     // Constructors ------------------------------------------------------
 
