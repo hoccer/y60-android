@@ -1,6 +1,5 @@
 package com.artcom.y60;
 
-import com.artcom.y60.gom.GomException;
 
 public abstract class DecoratingSlotLauncher extends SlotLauncher {
 
@@ -27,7 +26,7 @@ public abstract class DecoratingSlotLauncher extends SlotLauncher {
     // Public Instance Methods -------------------------------------------
 
     @Override
-    public final void launch() throws GomException {
+    public final void launch() {
 
         launchThis();
 

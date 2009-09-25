@@ -23,12 +23,12 @@ end
 
 def build_in_progress?
   states = fetch_build_states
-  states[0] == "In progress" || states[0] == "In progress"
+  states[0] == "In progress" || states[1] == "In progress"
 end
 
 def build_succsessful?
   states = fetch_build_states
-  states[0] == "Success" && states[0] == "Success"
+  states[0] == "Success" && states[1] == "Success"
 end
 
 def build_not_succsessful?
