@@ -276,7 +276,11 @@ public abstract class Y60ActivityInstrumentationTest<T extends Activity> extends
     }
 
     protected void markAsGomfreeTest() {
-        setActivityIntent((new Intent()).putExtra("isGomfreeTest", true));
+        markAsGomfreeTest(new Intent());
+    }
+
+    protected void markAsGomfreeTest(Intent pIntent) {
+        setActivityIntent(pIntent.putExtra("isGomfreeTest", true));
     }
 
     /**

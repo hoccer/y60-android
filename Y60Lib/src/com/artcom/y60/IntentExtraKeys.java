@@ -29,6 +29,7 @@ public class IntentExtraKeys {
     public static final String QUESTION_UUID            = "uuid";
 
     public static final String POSSESSION_URI           = "possession_uri";
+    public static final String IMAGE_URI                = "image_uri";
     public static final String MEDIA_URI                = "media_uri";
     public static final String MEDIA_NAME               = "media_name";
     public static final String MEDIA_TYPE               = "media_type";
