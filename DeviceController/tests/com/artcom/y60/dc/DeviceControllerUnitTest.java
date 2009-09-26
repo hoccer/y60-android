@@ -138,8 +138,8 @@ public class DeviceControllerUnitTest extends TestCase {
         assertNotNull("jetty should create the threadpool on start()", jetty.getThreadPool());
         QueuedThreadPool threadpool = (QueuedThreadPool) jetty.getThreadPool();
         threadpool.setMaxStopTimeMs(10);
-        assertEquals("jetty should have a verry short threadpool shutdown timelimit", 10,
-                threadpool.getMaxStopTimeMs());
+        assertEquals("jetty should have a very short threadpool shutdown timelimit", 10, threadpool
+                .getMaxStopTimeMs());
 
         assertTrue(jetty.isStarted());
         assertTrue(jetty.isRunning());
