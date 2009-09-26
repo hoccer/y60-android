@@ -427,7 +427,6 @@ public class HttpProxyHelper {
                     if (listeners != null) {
                         synchronized (listeners) {
                             for (ResourceListener listener : listeners) {
-                                listener.onResourceChanged(updatedUri);
                                 listener.onResourceAvailable(Uri.parse(updatedUri.toString()));
                             }
                         }
