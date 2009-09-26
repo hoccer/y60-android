@@ -34,5 +34,8 @@ public class IntentExtraKeys {
     public static final String MEDIA_NAME               = "media_name";
     public static final String MEDIA_TYPE               = "media_type";
 
+    public static final String POSSESSION_URI_LIST      = "possession_uri_list";
+    public static final String MEDIA_URI_LIST           = "media_uri_list";
+
     public static final String VOICE_CONTROL_REASON     = "reason";
 }
