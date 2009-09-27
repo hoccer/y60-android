@@ -18,7 +18,6 @@ public class Constants {
     public static class Gom {
 
         public static class Keywords {
-
             // GOM keywords
             public static final String NODE         = "node";
             public static final String URI          = "uri";

@@ -179,7 +179,6 @@ public class HttpProxyHelper {
     public Drawable get(Uri pUri, Drawable pDefault) {
 
         if (mProxy == null) {
-
             Logger.v(LOG_TAG, "get called, but proxy is still null - returning fallback");
             return pDefault;
         }
@@ -201,18 +200,28 @@ public class HttpProxyHelper {
     public String get(Uri pUri, String pDefault) {
 
         if (mProxy == null) {
-
             return pDefault;
         }
 
         byte[] bytes = get(pUri);
-
         if (bytes == null) {
-
             return pDefault;
         }
 
         return new String(bytes);
+    }
+
+    public String getSynchronously(Uri pUri) {
+        requestDownload(pUri); // trigger
+        int i = 0;
+        while (!isInCache(pUri) && i < 600) {
+            try {
+                Thread.sleep(50);
+            } catch (InterruptedException e) {
+            }
+            i++;
+        }
+        return fetchStringFromCache(pUri);
     }
 
     public boolean isInCache(Uri pUri) {
@@ -239,11 +248,8 @@ public class HttpProxyHelper {
         Bundle content;
         try {
             // mProxy.fetchFromCache(pUri.toString(), status);
-
             content = mProxy.fetchFromCache(pUri.toString(), status);
-
         } catch (RemoteException rex) {
-
             Logger.e(logTag(), "fetchFromCache(", pUri, ") failed", rex);
             throw new RuntimeException(rex);
         }
@@ -305,7 +311,6 @@ public class HttpProxyHelper {
     }
 
     public String fetchStringFromCache(Uri pUri) {
-
         byte[] bytes = fetchFromCache(pUri);
         return new String(bytes);
     }
@@ -407,9 +412,7 @@ public class HttpProxyHelper {
     class Updater implements Runnable {
 
         public void run() {
-
             while (!mShutdown) {
-
                 Uri updatedUri = null;
                 synchronized (mUpdateNotificationQueue) {
                     if (mUpdateNotificationQueue.size() > 0) {
@@ -456,13 +459,9 @@ public class HttpProxyHelper {
                         }
                     }
                 }
-
                 try {
-
                     Thread.sleep(20);
-
                 } catch (InterruptedException ix) {
-
                     // not interested
                 }
             }
