@@ -13,8 +13,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.net.Uri;
-
 import com.artcom.y60.Constants;
 import com.artcom.y60.Logger;
 import com.artcom.y60.http.HttpException;
@@ -155,11 +153,11 @@ public class GomNode extends GomEntry {
         try {
             attribute = getAttribute(pName);
         } catch (NoSuchElementException e) {
-            GomHttpWrapper.updateOrCreateAttribute(Uri.parse(getUri() + ":" + pName), "");
+            GomHttpWrapper.updateOrCreateAttribute(getUri() + ":" + pName, "");
             Logger.e(LOG_TAG, "creating nonexistend gom attribute");
             attribute = getAttribute(pName);
         } catch (GomEntryNotFoundException e) {
-            GomHttpWrapper.updateOrCreateAttribute(Uri.parse(getUri() + ":" + pName), "");
+            GomHttpWrapper.updateOrCreateAttribute(getUri() + ":" + pName, "");
             Logger.e(LOG_TAG, "creating nonexistend gom attribute");
             attribute = getAttribute(pName);
         }

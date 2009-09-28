@@ -24,6 +24,7 @@ import com.artcom.y60.IpAddressNotFoundException;
 import com.artcom.y60.Logger;
 import com.artcom.y60.NetworkHelper;
 import com.artcom.y60.gom.GomException;
+import com.artcom.y60.gom.GomHttpWrapper;
 import com.artcom.y60.gom.GomNode;
 import com.artcom.y60.gom.Y60GomService;
 import com.artcom.y60.http.HttpException;
@@ -53,7 +54,7 @@ public class DeviceControllerService extends Y60GomService {
                         Logger.v(LOG_TAG, "bound() to GomProxyHelper: Server will be started now");
                     }
                     try {
-                        updateDeviceAddresses();
+                        updateGomAttributesForDevice();
                     } catch (BindingException e) {
                         Logger.w(LOG_TAG,
                                 "GomProxy was unbound while processing asynchronous thread");
@@ -82,7 +83,7 @@ public class DeviceControllerService extends Y60GomService {
     /**
      * Update our ip and rci_uri in the GOM
      */
-    private void updateDeviceAddresses() throws GomException, IOException, HttpException {
+    private void updateGomAttributesForDevice() throws GomException, IOException, HttpException {
 
         DeviceConfiguration dc = DeviceConfiguration.load();
         String ipAddress;
@@ -112,6 +113,8 @@ public class DeviceControllerService extends Y60GomService {
 
             GomNode device = getGom().getNode(dc.getDevicePath());
             device.getOrCreateAttribute("rci_uri").putValue(command_uri);
+            GomHttpWrapper.updateOrCreateAttribute(Constants.Gom.URI + Constants.Gom.DEVICE_PATH
+                    + ":enable_odp", "false");
 
         } catch (IpAddressNotFoundException e) {
             ErrorHandling.signalNetworkError(LOG_TAG, e, this);
