@@ -46,6 +46,7 @@ android:id="@+id/preload_cache_button"
 android:layout_width="160dip"
 android:layout_height="wrap_content"
 android:text="Preload Cache"
+android:visibility="gone"
 />
 </LinearLayout>
 

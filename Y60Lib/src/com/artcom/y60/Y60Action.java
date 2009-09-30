@@ -10,16 +10,21 @@ public abstract class Y60Action {
 
     public static final String SHUTDOWN_ACTIVITIES_BC    = "y60.intent.SHUTDOWN_ACTIVITIES";
 
-    public static final String INIT_Y60_BC               = "y60.intent.INIT_Y60";
     public static final String START_Y60                 = "y60.intent.SHOW_Y60";
 
     public static final String SERVICE_DEVICE_CONTROLLER = "y60.intent.SERVICE_DEVICE_CONTROLLER";
 
     public static final String SERVICE_STATUS_WATCHER    = "y60.intent.SERVICE_STATUS_WATCHER";
 
+    public static final String INIT_PROXY_SERVICES       = "y60.intent.INIT_PROXY_SERVICES";
+    public static final String SERVICE_HTTP_PROXY        = "y60.intent.SERVICE_HTTP_PROXY";
     public static final String SERVICE_GOM_PROXY         = "y60.intent.SERVICE_GOM_PROXY";
 
-    public static final String SERVICE_HTTP_PROXY        = "y60.intent.SERVICE_HTTP_PROXY";
+    public static final String SERVICE_GOM_PROXY_READY   = "y60.intent.SERVICE_GOM_PROXY_READY";
+    public static final String SERVICE_HTTP_PROXY_READY  = "y60.intent.SERVICE_HTTP_PROXY_READY";
+    public static final String DEVICE_CONTROLLER_READY   = "y60.intent.DEVICE_CONTROLLER_READY";
+    public static final String JAVASCRIPT_VIEWS_READY    = "y60.intent.JAVASCRIPT_VIEWS_READY";
+    public static final String GLOBAL_OBSERVERS_READY    = "y60.intent.GLOBAL_OBSERVERS_READY";
 
     public static final String GOM_NOTIFICATION_BC       = "y60.intent.GOM_NOTIFICATION";
 

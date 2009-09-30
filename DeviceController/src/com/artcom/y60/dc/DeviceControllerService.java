@@ -23,6 +23,7 @@ import com.artcom.y60.ErrorHandling;
 import com.artcom.y60.IpAddressNotFoundException;
 import com.artcom.y60.Logger;
 import com.artcom.y60.NetworkHelper;
+import com.artcom.y60.Y60Action;
 import com.artcom.y60.gom.GomException;
 import com.artcom.y60.gom.GomHttpWrapper;
 import com.artcom.y60.gom.GomNode;
@@ -64,11 +65,10 @@ public class DeviceControllerService extends Y60GomService {
 
                     ErrorHandling.signalUnspecifiedError(LOG_TAG, ex, DeviceControllerService.this);
                 }
+
+                sendBroadcast(new Intent(Y60Action.DEVICE_CONTROLLER_READY));
             }
         });
-
-        Intent statusWatcherIntent = new Intent("y60.intent.SERVICE_STATUS_WATCHER");
-        startService(statusWatcherIntent);
     }
 
     @Override

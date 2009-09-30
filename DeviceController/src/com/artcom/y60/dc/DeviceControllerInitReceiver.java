@@ -7,7 +7,7 @@ import android.content.Intent;
 import com.artcom.y60.Logger;
 import com.artcom.y60.Y60Action;
 
-public class InitReceiver extends BroadcastReceiver {
+public class DeviceControllerInitReceiver extends BroadcastReceiver {
 
     private static final String LOG_TAG = "InitReceiver";
 

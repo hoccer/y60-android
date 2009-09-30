@@ -107,8 +107,7 @@ public class Y60 extends Activity {
         mInitButton.setOnClickListener(new OnClickListener() {
             // @Override
             public void onClick(View v) {
-                Intent intent = new Intent(Y60Action.INIT_Y60_BC);
-                sendBroadcast(intent);
+                sendBroadcast(new Intent(Y60Action.INIT_PROXY_SERVICES));
             }
         });
 

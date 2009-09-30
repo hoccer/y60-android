@@ -4,6 +4,7 @@
       android:versionCode="1"
       android:versionName="1.0.0">
     <application android:icon="@drawable/icon" android:label="@string/app_name">
+    
         <activity android:name=".HttpProxyActivity"
                   android:label="@string/app_name">
             <intent-filter>
@@ -11,12 +12,23 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        
         <uses-library android:name="android.test.runner" />
+        
         <service android:name=".HttpProxyService">
             <intent-filter><action android:name="com.artcom.y60.http.IHttpProxyService"/></intent-filter> 
             <intent-filter><action android:name="y60.intent.SERVICE_HTTP_PROXY"/></intent-filter> 
         </service>
+        
+        <receiver android:enabled="true"
+          android:exported="true"
+          android:name="HttpProxyInitReceiver">
+            <intent-filter>
+                <action android:name="y60.intent.INIT_PROXY_SERVICES" /> 
+            </intent-filter>
+        </receiver>
     </application>
+    
     <uses-permission android:name="android.permission.INTERNET" />
     <instrumentation android:name="android.test.InstrumentationTestRunner" 
       android:targetPackage="com.artcom.y60.http" 
