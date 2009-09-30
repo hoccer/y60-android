@@ -164,6 +164,11 @@ public class HttpHelper {
         return executeHTTPMethod(del);
     }
 
+    public static HttpResponse delete(String uri) throws IOException, HttpClientException,
+            HttpServerException {
+        return delete(Uri.parse(uri));
+    }
+
     public static String getAsString(Uri uri) throws IOException, HttpClientException,
             HttpServerException {
 
