@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
+
 <TableLayout
 android:id="@+id/y60_screen"
 android:layout_width="fill_parent"
@@ -11,36 +12,49 @@ android:layout_width="wrap_content"
 android:layout_height="wrap_content"
 android:text="EditText"
 android:textSize="18sp"
->
-</EditText>
+/>
+
+<LinearLayout
+android:orientation="horizontal"
+android:layout_width="fill_parent"
+android:layout_height="wrap_content">
 <Button
 android:id="@+id/set_device_path_button"
-android:layout_width="wrap_content"
+android:layout_width="160dip"
 android:layout_height="wrap_content"
 android:text="Set device ID"
->
-</Button>
+/>
 <Button
 android:id="@+id/wifi_config_button"
-android:layout_width="wrap_content"
+android:layout_width="160dip"
 android:layout_height="wrap_content"
 android:text="Configure WiFi"
->
-</Button>
+/>
+</LinearLayout>
+<LinearLayout
+android:orientation="horizontal"
+android:layout_width="fill_parent"
+android:layout_height="wrap_content">
 <Button
 android:id="@+id/init_y60_button"
-android:layout_width="wrap_content"
+android:layout_width="160dip"
 android:layout_height="wrap_content"
 android:text="Init Y60"
->
-</Button>
+/>
+<Button
+android:id="@+id/preload_cache_button"
+android:layout_width="160dip"
+android:layout_height="wrap_content"
+android:text="Preload Cache"
+/>
+</LinearLayout>
+
 <Button
 android:id="@+id/stop_dc_button"
 android:layout_width="wrap_content"
 android:layout_height="wrap_content"
 android:text="Stop DeviceController/StatusWatcher"
->
-</Button>
+/>
 <TextView
     android:id="@+id/home_target_label"
     android:layout_width="wrap_content"

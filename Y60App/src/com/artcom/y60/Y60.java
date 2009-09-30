@@ -68,6 +68,7 @@ public class Y60 extends Activity {
     private EditText                           mDeviceIdEdit;
     private Button                             mSetDeviceIdButton;
     private Button                             mInitButton;
+    private Button                             mPreloadButton;
     private Button                             mStopDcButton;
     private Button                             mWifiCfgButton;
 
@@ -106,12 +107,16 @@ public class Y60 extends Activity {
         mInitButton.setOnClickListener(new OnClickListener() {
             // @Override
             public void onClick(View v) {
-                // don't hide status bar
-                // Window win = getWindow();
-                // win.setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
-                // WindowManager.LayoutParams.FLAG_FULLSCREEN);
-
                 Intent intent = new Intent(Y60Action.INIT_Y60_BC);
+                sendBroadcast(intent);
+            }
+        });
+
+        mPreloadButton = (Button) findViewById(R.id.preload_cache_button);
+        mPreloadButton.setOnClickListener(new OnClickListener() {
+            // @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(Y60Action.PRELOAD_CACHE);
                 sendBroadcast(intent);
             }
         });
