@@ -12,4 +12,6 @@ interface IHttpProxyService {
     boolean isInCache(String pUri, out RpcStatus status);
     
     void removeFromCache(String pUri, out RpcStatus status);
+    
+    Bundle getDataSyncronously(String pUri, out RpcStatus status);
 }

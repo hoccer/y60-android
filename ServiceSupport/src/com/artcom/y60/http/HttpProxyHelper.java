@@ -135,6 +135,28 @@ public class HttpProxyHelper {
         get(pUri);
     }
 
+    public String getDataSyncronously(Uri pUri) {
+        String uri = pUri.toString();
+
+        Bundle resourceDescription;
+        RpcStatus status = new RpcStatus();
+        try {
+            resourceDescription = mProxy.getDataSyncronously(uri, status);
+        } catch (RemoteException rex) {
+            Logger.e(logTag(), "get(", pUri, ") failed", rex);
+            throw new RuntimeException(rex);
+        }
+        if (status.hasError()) {
+            return null;
+            // throw new RuntimeException(status.getError());
+        }
+        if (resourceDescription == null) {
+            return null;
+        }
+        return new String(ResourceBundleHelper
+                .convertResourceBundleToByteArray(resourceDescription));
+    }
+
     @Deprecated
     public byte[] get(Uri pUri) {
 
@@ -211,7 +233,7 @@ public class HttpProxyHelper {
         return new String(bytes);
     }
 
-    public String getSynchronously(Uri pUri) {
+    public String getSynchronouslyFromCache(Uri pUri) {
         requestDownload(pUri); // trigger
         int i = 0;
         while (!isInCache(pUri) && i < 600) {

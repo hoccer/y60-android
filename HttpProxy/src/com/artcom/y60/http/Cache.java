@@ -1,6 +1,7 @@
 package com.artcom.y60.http;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -63,6 +64,29 @@ public class Cache {
 
             return mCachedContent.get(pUri);
         }
+    }
+
+    public Bundle getDataSyncronously(String pUri) throws HttpClientException, HttpServerException,
+            IOException {
+
+        Bundle newContent = new Bundle(2);
+
+        long size = HttpHelper.getSize(pUri);
+        newContent.putLong(HttpProxyConstants.SIZE_TAG, size);
+
+        if (size > HttpProxyConstants.MAX_IN_MEMORY_SIZE) {
+            String localResourcePath = CACHE_DIR + Uri.parse(pUri).getLastPathSegment();
+
+            HttpHelper.fetchUriToFile(pUri, localResourcePath);
+            newContent.putString(HttpProxyConstants.LOCAL_RESOURCE_PATH_TAG, localResourcePath);
+        } else {
+            byte[] array = HttpHelper.getAsByteArray(Uri.parse(pUri));
+            newContent.putByteArray(HttpProxyConstants.BYTE_ARRAY_TAG, array);
+        }
+
+        mCachedContent.put(pUri, newContent);
+
+        return newContent;
     }
 
     /**
@@ -138,6 +162,8 @@ public class Cache {
     /**
      * Stores the uri in a bundle. Big files will be written to sdcard, small
      * ones a kept in memory.
+     * 
+     * @throws Exception
      */
     private void refresh(String pUri) {
 

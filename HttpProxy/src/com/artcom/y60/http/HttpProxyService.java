@@ -1,5 +1,6 @@
 package com.artcom.y60.http;
 
+import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -182,6 +183,11 @@ public class HttpProxyService extends Y60Service {
         return CACHE.get(pUri);
     }
 
+    public Bundle getDataSyncronously(String pUri) throws HttpClientException, HttpServerException,
+            IOException {
+        return CACHE.getDataSyncronously(pUri);
+    }
+
     public Bundle fetchFromCache(String pUri) {
 
         return CACHE.fetchFromCache(pUri);
@@ -250,6 +256,16 @@ public class HttpProxyService extends Y60Service {
                 HttpProxyService.this.removeFromCache(pUri);
             } catch (Exception e) {
                 status.setError(e);
+            }
+        }
+
+        @Override
+        public Bundle getDataSyncronously(String pUri, RpcStatus pStatus) throws RemoteException {
+            try {
+                return HttpProxyService.this.getDataSyncronously(pUri);
+            } catch (Exception e) {
+                pStatus.setError(e);
+                return null;
             }
         }
     }
