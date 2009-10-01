@@ -63,7 +63,7 @@ public class HttpProxyService extends Y60Service {
                 HttpProxyService service = sInstances.iterator().next();
                 Intent intent = new Intent(HttpProxyConstants.RESOURCE_UPDATE_ACTION);
                 intent.putExtra(HttpProxyConstants.URI_EXTRA, pUri);
-                Logger.v(LOG_TAG, "Broadcasting update for resource " + pUri);
+                Logger.v(LOG_TAG, "Broadcasting 'update' for resource " + pUri);
                 service.sendBroadcast(intent);
             }
         }
@@ -85,7 +85,7 @@ public class HttpProxyService extends Y60Service {
                 HttpProxyService service = sInstances.iterator().next();
                 Intent intent = new Intent(HttpProxyConstants.RESOURCE_NOT_AVAILABLE_ACTION);
                 intent.putExtra(HttpProxyConstants.URI_EXTRA, pUri);
-                Logger.v(LOG_TAG, "Broadcasting not available for resource " + pUri);
+                Logger.v(LOG_TAG, "Broadcasting 'not available' for resource " + pUri);
                 service.sendBroadcast(intent);
             }
         }
