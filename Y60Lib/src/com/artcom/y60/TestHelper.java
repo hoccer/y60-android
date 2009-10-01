@@ -194,8 +194,13 @@ public class TestHelper {
 
     public static void blockUntilResourceAvailable(String pFailMessage, final String pUrl)
             throws Exception {
+        blockUntilResourceAvailable(pFailMessage, pUrl, 3000);
+    }
 
-        blockUntilTrue(pFailMessage, 3000, new TestHelper.Condition() {
+    public static void blockUntilResourceAvailable(String pFailMessage, final String pUrl,
+            int pTimeout) throws Exception {
+
+        blockUntilTrue(pFailMessage, pTimeout, new TestHelper.Condition() {
             @Override
             public boolean isSatisfied() {
                 try {
