@@ -219,6 +219,10 @@ public class HttpProxyHelper {
         return Drawable.createFromStream(is, pUri.toString());
     }
 
+    public boolean isBound() {
+        return mProxy != null;
+    }
+
     public String get(Uri pUri, String pDefault) {
 
         if (mProxy == null) {

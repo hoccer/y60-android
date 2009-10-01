@@ -6,6 +6,7 @@ import com.artcom.y60.ErrorHandling;
 import com.artcom.y60.Logger;
 import com.artcom.y60.TestHelper;
 import com.artcom.y60.Y60Service;
+import com.artcom.y60.http.HttpProxyHelper;
 
 public abstract class Y60GomService extends Y60Service {
 
@@ -13,7 +14,10 @@ public abstract class Y60GomService extends Y60Service {
 
     private static final String LOG_TAG       = "Y60GomService";
     private GomProxyHelper      mGom;
+    private HttpProxyHelper     mHttpProxy;
     private Runnable            mNotificationCallbackForBindToGom;
+    private Runnable            mNotificationCallbackForBindToHttpProxy;
+
     protected static boolean    sIsBoundToGom = false;
 
     @Override
@@ -21,12 +25,14 @@ public abstract class Y60GomService extends Y60Service {
 
         super.onCreate();
         bindToGom();
+        // bindToHttpProxy();
 
     }
 
     @Override
     public void onDestroy() {
         unbindFromGom();
+        unbindFromHttpProxy();
         super.onDestroy();
     }
 
@@ -37,6 +43,13 @@ public abstract class Y60GomService extends Y60Service {
         return mGom;
     }
 
+    protected HttpProxyHelper getHttpProxy() {
+        if (mHttpProxy == null || !mHttpProxy.isBound()) {
+            throw new BindingException("requested httpProxy, but it is not bound");
+        }
+        return mHttpProxy;
+    }
+
     public static boolean isStaticBoundToGom() {
         return sIsBoundToGom;
     }
@@ -45,11 +58,23 @@ public abstract class Y60GomService extends Y60Service {
         return mGom != null && mGom.isBound();
     }
 
+    public boolean isBoundToHttpProxy() {
+        return mHttpProxy != null && mHttpProxy.isBound();
+    }
+
     public void callOnBoundToGom(Runnable pRunnable) {
         mNotificationCallbackForBindToGom = pRunnable;
 
         if (isBoundToGom()) {
             new Thread(mNotificationCallbackForBindToGom).start();
+        }
+    }
+
+    public void callOnBoundToHttpProxy(Runnable pRunnable) {
+        mNotificationCallbackForBindToHttpProxy = pRunnable;
+
+        if (isBoundToHttpProxy()) {
+            new Thread(mNotificationCallbackForBindToHttpProxy).start();
         }
     }
 
@@ -88,10 +113,36 @@ public abstract class Y60GomService extends Y60Service {
         });
     }
 
+    public void bindToHttpProxy() {
+
+        new HttpProxyHelper(this, new BindingListener<HttpProxyHelper>() {
+
+            public void bound(HttpProxyHelper phelper) {
+                Logger.v(LOG_TAG, "HttpProxy bound");
+                mHttpProxy = phelper;
+                if (mNotificationCallbackForBindToHttpProxy != null) {
+                    new Thread(mNotificationCallbackForBindToHttpProxy).start();
+                }
+            }
+
+            public void unbound(HttpProxyHelper helper) {
+                Logger.v(LOG_TAG, "HttpProxy unbound");
+                mHttpProxy = null;
+            }
+        });
+    }
+
     public void unbindFromGom() {
 
         if (mGom != null) {
             mGom.unbind();
+        }
+    }
+
+    public void unbindFromHttpProxy() {
+
+        if (mHttpProxy != null) {
+            mHttpProxy.unbind();
         }
     }
 }
