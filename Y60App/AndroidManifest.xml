@@ -45,6 +45,19 @@
             </intent-filter>
         </activity>
         
+        <!-- receiver android:enabled="true"
+          android:exported="true"
+          android:name="RunLevelReceiver">
+            <intent-filter>
+                <action android:name="y60.intent.GLOBAL_OBSERVERS_READY" /> 
+                <action android:name="y60.intent.JAVASCRIPT_VIEWS_READY" />
+                <action android:name="y60.intent.SEARCH_READY" />
+                <action android:name="y60.intent.CALL_READY" />
+                <action android:name="y60.intent.VIDEO_PRELOAD_READY" />
+                <action android:name="y60.intent.PRELOAD_BROWSE_READY" />
+            </intent-filter>
+        </receiver-->
+        
         <!-- The following activities are for meant to be used for instrumentation
              tests only ................................................................. -->
         

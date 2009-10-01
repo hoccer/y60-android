@@ -78,6 +78,7 @@ public class GomProxyService extends Y60Service {
     @Override
     public void onStart(Intent intent, int startId) {
         Logger.i(LOG_TAG, "onStart");
+        Logger.v(LOG_TAG, "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ send broadcast GOM PROXY READY");
         sendBroadcast(new Intent(Y60Action.SERVICE_GOM_PROXY_READY));
         super.onStart(intent, startId);
     }

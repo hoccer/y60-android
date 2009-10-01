@@ -65,6 +65,8 @@ public class Y60 extends Activity {
 
     private static final String                LOG_TAG = "Y60";
 
+    private RunLevelReceiver                   mRunLevelReceiver;
+
     private EditText                           mDeviceIdEdit;
     private Button                             mSetDeviceIdButton;
     private Button                             mInitButton;
@@ -78,10 +80,17 @@ public class Y60 extends Activity {
     private Spinner                            mChooseLogLevel;
     private ArrayAdapter<String>               mLogLevelArrayAdapter;
 
-    /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        mRunLevelReceiver = new RunLevelReceiver();
+        registerReceiver(mRunLevelReceiver, new IntentFilter(Y60Action.GLOBAL_OBSERVERS_READY));
+        registerReceiver(mRunLevelReceiver, new IntentFilter(Y60Action.JAVASCRIPT_VIEWS_READY));
+        registerReceiver(mRunLevelReceiver, new IntentFilter(Y60Action.SEARCH_READY));
+        registerReceiver(mRunLevelReceiver, new IntentFilter(Y60Action.CALL_READY));
+        registerReceiver(mRunLevelReceiver, new IntentFilter(Y60Action.VIDEO_PRELOAD_READY));
+        registerReceiver(mRunLevelReceiver, new IntentFilter(Y60Action.PRELOAD_BROWSE_READY));
 
         setContentView(R.layout.y60_layout);
 
@@ -107,7 +116,25 @@ public class Y60 extends Activity {
         mInitButton.setOnClickListener(new OnClickListener() {
             // @Override
             public void onClick(View v) {
-                sendBroadcast(new Intent(Y60Action.INIT_PROXY_SERVICES));
+
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        stopService(new Intent(Y60Action.SERVICE_DEVICE_CONTROLLER));
+                        sendBroadcast(new Intent(Y60Action.SHUTDOWN_SERVICES_BC));
+                        mRunLevelReceiver.reset();
+
+                        // TODO block until shutdown complete
+
+                        try {
+                            Thread.sleep(5000);
+                        } catch (InterruptedException e) {
+                            // TODO Auto-generated catch block
+                            e.printStackTrace();
+                        }
+                        sendBroadcast(new Intent(Y60Action.INIT_PROXY_SERVICES));
+                    }
+                }).start();
             }
         });
 
@@ -273,6 +300,13 @@ public class Y60 extends Activity {
         }
 
         return chosen;
+    }
+
+    @Override
+    protected void onDestroy() {
+        unregisterReceiver(mRunLevelReceiver);
+        mRunLevelReceiver = null;
+        super.onDestroy();
     }
 
     class RenameClickListener implements OnClickListener {

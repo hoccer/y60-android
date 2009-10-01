@@ -28,8 +28,7 @@ public class HttpProxyService extends Y60Service {
 
     // Constants ---------------------------------------------------------
 
-    public static final String           LOG_TAG;
-
+    private static final String          LOG_TAG = "HttpProxyService";
     private static final Cache           CACHE;
 
     // Class Variables ---------------------------------------------------
@@ -40,7 +39,6 @@ public class HttpProxyService extends Y60Service {
 
     static {
 
-        LOG_TAG = "HttpProxyService[class " + System.currentTimeMillis() + "]";
         CACHE = new Cache();
         sInstances = new HashSet<HttpProxyService>();
     }
@@ -142,7 +140,7 @@ public class HttpProxyService extends Y60Service {
 
     @Override
     public void onStart(Intent intent, int startId) {
-
+        Logger.v(LOG_TAG, "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ send broadcast HTTP PROXY READY");
         sendBroadcast(new Intent(Y60Action.SERVICE_HTTP_PROXY_READY));
         Logger.i(tag(), "HttpProxyService.onStart");
         super.onStart(intent, startId);

@@ -21,10 +21,10 @@
         </activity>
 
         <service android:name=".DeviceControllerService" android:process=":remote">
-        	<intent-filter>
-        	    <action android:name="y60.intent.SERVICE_DEVICE_CONTROLLER" />
-                <category android:name="android.intent.category.DEFAULT" />	
-        	</intent-filter>
+            <intent-filter>
+                <action android:name="y60.intent.SERVICE_DEVICE_CONTROLLER" />
+                <category android:name="android.intent.category.DEFAULT" />    
+            </intent-filter>
         </service>
 
         <service android:name=".StatusWatcher" android:process=":remote">

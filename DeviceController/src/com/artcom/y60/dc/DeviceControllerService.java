@@ -49,6 +49,7 @@ public class DeviceControllerService extends Y60GomService {
         callOnBoundToGom(new Runnable() {
 
             public void run() {
+                Logger.v(LOG_TAG, "call on bound to gom");
                 try {
                     if (mServer == null) {
                         mServer = startServer(Constants.Network.DEFAULT_PORT);
@@ -66,6 +67,8 @@ public class DeviceControllerService extends Y60GomService {
                     ErrorHandling.signalUnspecifiedError(LOG_TAG, ex, DeviceControllerService.this);
                 }
 
+                Logger.v(LOG_TAG,
+                        "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ broadcast device controller ready");
                 sendBroadcast(new Intent(Y60Action.DEVICE_CONTROLLER_READY));
             }
         });
@@ -85,6 +88,7 @@ public class DeviceControllerService extends Y60GomService {
      */
     private void updateGomAttributesForDevice() throws GomException, IOException, HttpException {
 
+        Logger.v(LOG_TAG, "updateDomAttributes for Device");
         DeviceConfiguration dc = DeviceConfiguration.load();
         String ipAddress;
 
@@ -177,8 +181,9 @@ public class DeviceControllerService extends Y60GomService {
         QueuedThreadPool threadpool = (QueuedThreadPool) server.getThreadPool();
         threadpool.setMaxStopTimeMs(10);
 
-        Toast.makeText(DeviceControllerService.this, R.string.jetty_started, Toast.LENGTH_SHORT)
-                .show();
+        // Toast.makeText(DeviceControllerService.this, R.string.jetty_started,
+        // Toast.LENGTH_SHORT)
+        // .show();
 
         return server;
     }

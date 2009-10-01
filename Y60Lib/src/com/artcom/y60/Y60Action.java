@@ -1,5 +1,6 @@
 package com.artcom.y60;
 
+
 public abstract class Y60Action {
 
     public static final String SEARCH                    = "y60.intent.SEARCH";
@@ -20,11 +21,18 @@ public abstract class Y60Action {
     public static final String SERVICE_HTTP_PROXY        = "y60.intent.SERVICE_HTTP_PROXY";
     public static final String SERVICE_GOM_PROXY         = "y60.intent.SERVICE_GOM_PROXY";
 
+    public static final String SHUTDOWN_SERVICES_BC      = "y60.intent.SHUTDOWN_SERVICES_BC";
     public static final String SERVICE_GOM_PROXY_READY   = "y60.intent.SERVICE_GOM_PROXY_READY";
     public static final String SERVICE_HTTP_PROXY_READY  = "y60.intent.SERVICE_HTTP_PROXY_READY";
     public static final String DEVICE_CONTROLLER_READY   = "y60.intent.DEVICE_CONTROLLER_READY";
     public static final String JAVASCRIPT_VIEWS_READY    = "y60.intent.JAVASCRIPT_VIEWS_READY";
     public static final String GLOBAL_OBSERVERS_READY    = "y60.intent.GLOBAL_OBSERVERS_READY";
+    public static final String SEARCH_READY              = "y60.intent.SEARCH_READY";
+    public static final String CALL_READY                = "y60.intent.CALL_READY";
+    public static final String PRELOAD_BROWSE_READY      = "y60.intent.PRELOAD_BROWSE_READY";
+    public static final String VIDEO_PRELOAD_READY       = "y60.intent.VIDEO_PRELOAD_READY";
+
+    public static final String INIT_READY                = "y60.intent.INIT_READY";
 
     public static final String GOM_NOTIFICATION_BC       = "y60.intent.GOM_NOTIFICATION";
 
