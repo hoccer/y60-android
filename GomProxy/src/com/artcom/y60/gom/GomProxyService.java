@@ -444,20 +444,19 @@ public class GomProxyService extends Y60Service {
             if (nodeData == null) {
                 return;
             }
+            synchronized (nodeData) {
+                List<String> attrList = nodeData.attributeNames;
+                List<String> nodeList = nodeData.subNodeNames;
+                for (String anAttr : attrList) {
+                    Logger.v(LOG_TAG, "delete attribute ", anAttr);
+                    deleteAttribute(pPath + ":" + anAttr);
+                }
+                for (String aNode : nodeList) {
+                    Logger.v(LOG_TAG, "delete node ", aNode);
 
-            // synchronized (nodeData) {
-            // List<String> attrList = nodeData.attributeNames;
-            // List<String> nodeList = nodeData.subNodeNames;
-            // for (String anAttr : attrList) {
-            // Logger.v(LOG_TAG, "delete attribute ", anAttr);
-            // deleteAttribute(pPath + ":" + anAttr);
-            // }
-            // for (String aNode : nodeList) {
-            // Logger.v(LOG_TAG, "delete node ", aNode);
-            //
-            // deleteNode(pPath + "/" + aNode);
-            // }
-            // }
+                    deleteNode(pPath + "/" + aNode);
+                }
+            }
             Logger.v(LOG_TAG, "deleted node ", pPath, " size: ", mNodes.size(), " has in cache: ",
                     hasNodeInCache(pPath));
         }

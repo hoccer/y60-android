@@ -548,11 +548,11 @@ public class GnpUpdatesGomProxyTest extends GomActivityUnitTestCase {
         GomHttpWrapper.deleteNode(Uri.parse(nodeUrl));
 
         // update may take a while
-        TestHelper.blockUntilTrue("gnp delete callback should have been called three times", 10000,
+        TestHelper.blockUntilTrue("gnp delete callback should have been called", 10000,
                 new TestHelper.Condition() {
                     @Override
                     public boolean isSatisfied() {
-                        return gto.getDeleteCount() == 3;
+                        return gto.getDeleteCount() == 1;
                     }
                 });
 
@@ -565,6 +565,7 @@ public class GnpUpdatesGomProxyTest extends GomActivityUnitTestCase {
         assertFalse("sub node shouldn't be in cache", proxy.hasInCache(subNodePath));
         assertFalse("attribute shouldn't be in cache", proxy.hasInCache(attrPath));
 
+        HttpHelper.delete(nodePath);
     }
 
     // attribute(<-registered, <-deleted) = delete on attribute
