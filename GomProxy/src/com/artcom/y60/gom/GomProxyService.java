@@ -32,7 +32,7 @@ public class GomProxyService extends Y60Service {
 
     // Constants ---------------------------------------------------------
 
-    private static final String   LOG_TAG = "GomProxyService";
+    private static final String   LOG_TAG           = "GomProxyService";
 
     // Instance Variables ------------------------------------------------
 
@@ -45,6 +45,8 @@ public class GomProxyService extends Y60Service {
     private Uri                   mBaseUri;
 
     private BroadcastReceiver     mResetReceiver;
+
+    protected boolean             mIsStartedForTest = false;
 
     // Constructors ------------------------------------------------------
 
@@ -78,10 +80,13 @@ public class GomProxyService extends Y60Service {
 
     @Override
     public void onStart(Intent intent, int startId) {
-        Logger.i(LOG_TAG, "onStart");
+        Logger.v(LOG_TAG, "onStart: threadid: ", Thread.currentThread().getId());
         Logger.v(LOG_TAG, "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ send broadcast GOM PROXY READY");
         sendBroadcast(new Intent(Y60Action.SERVICE_GOM_PROXY_READY));
         Toast.makeText(this, "GOM PROXY is ready", Toast.LENGTH_SHORT).show();
+
+        mIsStartedForTest = true;
+
         super.onStart(intent, startId);
     }
 
@@ -434,7 +439,7 @@ public class GomProxyService extends Y60Service {
                 }
             }
         }
-        Logger.v(LOG_TAG, "deleted attribute ", pPath, " size: ", mAttributes.size(),
+        Logger.v(LOG_TAG, "deleted attribute: ", pPath, " size: ", mAttributes.size(),
                 " has in cache: ", hasAttributeInCache(pPath));
     }
 
@@ -446,6 +451,7 @@ public class GomProxyService extends Y60Service {
             if (nodeData == null) {
                 return;
             }
+
             synchronized (nodeData) {
                 List<String> attrList = nodeData.attributeNames;
                 List<String> nodeList = nodeData.subNodeNames;

@@ -174,63 +174,92 @@ public class GomProxyServiceTest extends ServiceTestCase<GomProxyService> {
                         .getAttributeValue("/test/android/y60/infrastructure_gom/gom_proxy_service_test:attribute"));
     }
 
-    public void testDeleteNode() {
-        startService(mIntent);
-        GomProxyService service = getService();
-
-        String nodePath = "/test/android/y60/infrastructure_gom/gom_proxy_service_test/a_node";
-        List<String> nodeList = new Vector<String>();
-        List<String> attribList = new Vector<String>();
-        service.saveNode(nodePath, nodeList, attribList);
-        assertTrue("node should be in cache", service.hasNodeInCache(nodePath));
-        service.deleteEntry(nodePath);
-        assertFalse("node should not be in cache", service.hasNodeInCache(nodePath));
-    }
-
-    public void testDeleteNonexistingNode() {
+    public void testDeleteNonExistingNode() {
         startService(mIntent);
         GomProxyService service = getService();
 
         String nodePath = "/test/android/y60/infrastructure_gom/gom_proxy_service_test/a_nonexisting_node";
         service.deleteEntry(nodePath);
-        service.deleteEntry(nodePath);
+
+        assertFalse("node should not be in cache", service.hasNodeInCache(nodePath));
     }
 
-    public void testDeleteNodeWithStubbedChilds() throws Exception {
+    public void testDeleteNodeDataRecursively() throws Exception {
+
         startService(mIntent);
-        GomProxyService service = getService();
+        final GomProxyService service = getService();
 
-        String nodePath = "/test/android/y60/infrastructure_gom/gom_proxy_service_test/a_node_with_childs";
+        String nodePath = "/test/android/y60/infrastructure_gom/gom_proxy_service_test/delete_node_with_filled_childs";
 
-        List<String> nodeList = new Vector<String>();
-        String childNodePath = "/test/android/y60/infrastructure_gom/gom_proxy_service_test/a_node_with_childs/a_node_child";
-        nodeList.add(childNodePath);
+        List<String> nodeNameList = new Vector<String>();
+        String childNodeName = "a_node_child";
+        String childNodePath = nodePath + "/" + childNodeName;
+        nodeNameList.add(childNodeName);
 
-        List<String> attribList = new Vector<String>();
-        String childAttributePath = "/test/android/y60/infrastructure_gom/gom_proxy_service_test/a_node_with_childs:a_attribute_child";
-        attribList.add(childAttributePath);
+        List<String> attributeNameList = new Vector<String>();
+        String childAttributeName = "an_attribute_child";
+        String childAttributePath = nodePath + ":" + childAttributeName;
+        attributeNameList.add(childAttributeName);
 
-        service.saveNode(nodePath, nodeList, attribList);
+        service.saveNode(nodePath, nodeNameList, attributeNameList);
+        service.saveNode(childNodePath, new Vector<String>(), new Vector<String>());
+        service.saveAttribute(childAttributePath, "mango");
 
         assertTrue("node should be in cache", service.hasNodeInCache(nodePath));
 
-        nodeList = new Vector<String>();
-        attribList = new Vector<String>();
-        service.getNodeData(nodePath, nodeList, attribList);
-        assertTrue("child node should be in cache", nodeList.contains(childNodePath));
-        assertTrue("child attribute should be in cache", attribList.contains(childAttributePath));
-        // assertTrue("node should be in cache",
-        // service.hasNodeInCache(nodePath));
-        // assertTrue("child node should be in cache",
-        // service.hasNodeInCache(childNodePath));
-        // assertTrue("child attribute should be in cache",
-        // service.hasNodeInCache(childAttributePath));
+        nodeNameList = new Vector<String>();
+        attributeNameList = new Vector<String>();
+        service.getNodeData(nodePath, nodeNameList, attributeNameList);
+        assertTrue("child node should be in cache", nodeNameList.contains(childNodeName));
+        assertTrue("child attribute should be in cache", attributeNameList
+                .contains(childAttributeName));
+
+        assertTrue("child node should be in node cache", service.hasNodeInCache(childNodePath));
+        assertTrue("child attribute should be in cache", service
+                .hasAttributeInCache(childAttributePath));
 
         service.deleteEntry(nodePath);
         assertFalse("node should not be in cache", service.hasNodeInCache(nodePath));
-        assertFalse("child node should not be in cache", service.hasNodeInCache(childNodePath));
         assertFalse("child attribute should not be in cache", service
-                .hasNodeInCache(childAttributePath));
+                .hasAttributeInCache(childAttributePath));
+        assertFalse("child node should not be in node cache", service.hasNodeInCache(childNodePath));
+    }
+
+    // node / subnode , attribute
+    public void testDeleteNodeWithStubbedChilds() throws Exception {
+        startService(mIntent);
+        final GomProxyService service = getService();
+
+        String nodePath = "/test/android/y60/infrastructure_gom/gom_proxy_service_test/delete_node_with_stubbed_childs";
+
+        List<String> nodeNameList = new Vector<String>();
+        String childNodeName = "a_node_child";
+        String childNodePath = nodePath + "/" + childNodeName;
+        nodeNameList.add(childNodeName);
+
+        List<String> attributeNameList = new Vector<String>();
+        String childAttributeName = "an_attribute_child";
+        String childAttributePath = nodePath + ":" + childAttributeName;
+        attributeNameList.add(childAttributeName);
+
+        service.saveNode(nodePath, nodeNameList, attributeNameList);
+
+        assertTrue("node should be in cache", service.hasNodeInCache(nodePath));
+
+        nodeNameList = new Vector<String>();
+        attributeNameList = new Vector<String>();
+        service.getNodeData(nodePath, nodeNameList, attributeNameList);
+        assertTrue("child node name should be in cache", nodeNameList.contains(childNodeName));
+        assertTrue("child attribute name should be in cache", attributeNameList
+                .contains(childAttributeName));
+
+        assertFalse("child node path should not be in node cache, its only a stub", service
+                .hasNodeInCache(childNodePath));
+        assertFalse("child attribute path should not be in cache, its only a stub", service
+                .hasAttributeInCache(childAttributePath));
+
+        service.deleteEntry(nodePath);
+        assertFalse("node should not be in cache", service.hasNodeInCache(nodePath));
     }
 
     public void testDeleteAttribute() {
