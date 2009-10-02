@@ -169,6 +169,17 @@ public class HttpHelper {
         return delete(Uri.parse(uri));
     }
 
+    public static void deleteAndIgnoreNotFound(String uri) throws IOException, HttpClientException,
+            HttpServerException {
+        try {
+            delete(Uri.parse(uri));
+        } catch (HttpClientException e) {
+            if (e.getHttpResponse().getStatusLine().getStatusCode() != 404) {
+                throw e;
+            }
+        }
+    }
+
     public static String getAsString(Uri uri) throws IOException, HttpClientException,
             HttpServerException {
 
