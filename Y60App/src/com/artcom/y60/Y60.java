@@ -122,7 +122,6 @@ public class Y60 extends Activity {
                     public void run() {
                         stopService(new Intent(Y60Action.SERVICE_DEVICE_CONTROLLER));
                         sendBroadcast(new Intent(Y60Action.SHUTDOWN_SERVICES_BC));
-                        mRunLevelReceiver.reset();
 
                         // TODO block until shutdown complete
 
@@ -132,6 +131,8 @@ public class Y60 extends Activity {
                             // TODO Auto-generated catch block
                             e.printStackTrace();
                         }
+
+                        mRunLevelReceiver.reset();
                         sendBroadcast(new Intent(Y60Action.INIT_PROXY_SERVICES));
                     }
                 }).start();

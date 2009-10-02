@@ -67,10 +67,10 @@ public class RunLevelReceiver extends BroadcastReceiver {
     }
 
     private boolean isEverythingReady() {
-        Logger.v(LOG_TAG, "isEveryThingReady? search: ", isSearchReady, " call: ", isCallReady,
-                " globalObservers: ", isGlobalObserversReady, " jsViews: ", isJavaScriptViewsReady,
-                " videoPreload: ", isVideoPreloadReady, " preloadBrowse: ",
-                isPreloadBrowseViewsReady);
+        Logger.v(LOG_TAG, "isEveryThingReady? \n search: ", isSearchReady, " \ncall: ",
+                isCallReady, " \nglobalObservers: ", isGlobalObserversReady, " \njsViews: ",
+                isJavaScriptViewsReady, " \nvideoPreload: ", isVideoPreloadReady,
+                " \npreloadBrowse: ", isPreloadBrowseViewsReady);
         return isSearchReady && isCallReady && isGlobalObserversReady && isJavaScriptViewsReady
                 && isVideoPreloadReady && isPreloadBrowseViewsReady;
     }
@@ -82,5 +82,10 @@ public class RunLevelReceiver extends BroadcastReceiver {
         isJavaScriptViewsReady = false;
         isVideoPreloadReady = false;
         isPreloadBrowseViewsReady = false;
+
+        Logger.v(LOG_TAG, "RESET!?\n search: ", isSearchReady, " \ncall: ", isCallReady,
+                " \nglobalObservers: ", isGlobalObserversReady, " \njsViews: ",
+                isJavaScriptViewsReady, " \nvideoPreload: ", isVideoPreloadReady,
+                " \npreloadBrowse: ", isPreloadBrowseViewsReady);
     }
 }
