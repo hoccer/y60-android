@@ -196,7 +196,7 @@ public class GomProxyServiceTest extends ServiceTestCase<GomProxyService> {
         service.deleteEntry(nodePath);
     }
 
-    public void testDeleteNodeWithChilds() throws Exception {
+    public void testDeleteNodeWithStubbedChilds() throws Exception {
         startService(mIntent);
         GomProxyService service = getService();
 
@@ -219,6 +219,12 @@ public class GomProxyServiceTest extends ServiceTestCase<GomProxyService> {
         service.getNodeData(nodePath, nodeList, attribList);
         assertTrue("child node should be in cache", nodeList.contains(childNodePath));
         assertTrue("child attribute should be in cache", attribList.contains(childAttributePath));
+        // assertTrue("node should be in cache",
+        // service.hasNodeInCache(nodePath));
+        // assertTrue("child node should be in cache",
+        // service.hasNodeInCache(childNodePath));
+        // assertTrue("child attribute should be in cache",
+        // service.hasNodeInCache(childAttributePath));
 
         service.deleteEntry(nodePath);
         assertFalse("node should not be in cache", service.hasNodeInCache(nodePath));
