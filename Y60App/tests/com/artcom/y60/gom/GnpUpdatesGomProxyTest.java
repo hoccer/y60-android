@@ -565,7 +565,7 @@ public class GnpUpdatesGomProxyTest extends GomActivityUnitTestCase {
         assertFalse("sub node shouldn't be in cache", proxy.hasInCache(subNodePath));
         assertFalse("attribute shouldn't be in cache", proxy.hasInCache(attrPath));
 
-        HttpHelper.delete(nodeUrl);
+        HttpHelper.deleteAndIgnoreNotFound(nodeUrl);
     }
 
     // attribute(<-registered, <-deleted) = delete on attribute
