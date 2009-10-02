@@ -84,14 +84,7 @@ public class Y60 extends Activity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        mRunLevelReceiver = new RunLevelReceiver();
-        registerReceiver(mRunLevelReceiver, new IntentFilter(Y60Action.GLOBAL_OBSERVERS_READY));
-        registerReceiver(mRunLevelReceiver, new IntentFilter(Y60Action.JAVASCRIPT_VIEWS_READY));
-        registerReceiver(mRunLevelReceiver, new IntentFilter(Y60Action.SEARCH_READY));
-        registerReceiver(mRunLevelReceiver, new IntentFilter(Y60Action.CALL_READY));
-        registerReceiver(mRunLevelReceiver, new IntentFilter(Y60Action.VIDEO_PRELOAD_READY));
-        registerReceiver(mRunLevelReceiver, new IntentFilter(Y60Action.PRELOAD_BROWSE_READY));
-
+        registerNewRunLevelReceiver();
         setContentView(R.layout.y60_layout);
 
         mDeviceIdEdit = (EditText) findViewById(R.id.device_path_edit);
@@ -116,25 +109,27 @@ public class Y60 extends Activity {
         mInitButton.setOnClickListener(new OnClickListener() {
             // @Override
             public void onClick(View v) {
+                unregisterRunLevelReceiver();
 
                 new Thread(new Runnable() {
                     @Override
                     public void run() {
+
                         stopService(new Intent(Y60Action.SERVICE_DEVICE_CONTROLLER));
                         sendBroadcast(new Intent(Y60Action.SHUTDOWN_SERVICES_BC));
 
                         // TODO block until shutdown complete
-
                         try {
-                            Thread.sleep(5000);
+                            Thread.sleep(10000);
                         } catch (InterruptedException e) {
                             // TODO Auto-generated catch block
                             e.printStackTrace();
                         }
 
-                        mRunLevelReceiver.reset();
+                        registerNewRunLevelReceiver();
                         sendBroadcast(new Intent(Y60Action.INIT_PROXY_SERVICES));
                     }
+
                 }).start();
             }
         });
@@ -200,6 +195,24 @@ public class Y60 extends Activity {
         mChooseLogLevel.setAdapter(mLogLevelArrayAdapter);
         mChooseLogLevel.setSelection(selectedLevelIndex);
         mChooseLogLevel.setOnItemSelectedListener(new LogLevelSelectionListener());
+    }
+
+    private void registerNewRunLevelReceiver() {
+        mRunLevelReceiver = new RunLevelReceiver();
+        registerReceiver(mRunLevelReceiver, new IntentFilter(Y60Action.GLOBAL_OBSERVERS_READY));
+        registerReceiver(mRunLevelReceiver, new IntentFilter(Y60Action.JAVASCRIPT_VIEWS_READY));
+        registerReceiver(mRunLevelReceiver, new IntentFilter(Y60Action.SEARCH_READY));
+        registerReceiver(mRunLevelReceiver, new IntentFilter(Y60Action.CALL_READY));
+        registerReceiver(mRunLevelReceiver, new IntentFilter(Y60Action.VIDEO_PRELOAD_READY));
+        registerReceiver(mRunLevelReceiver, new IntentFilter(Y60Action.PRELOAD_BROWSE_READY));
+    }
+
+    private void unregisterRunLevelReceiver() {
+        // mRunLevelReceiver.reset();
+        if (mRunLevelReceiver != null) {
+            unregisterReceiver(mRunLevelReceiver);
+        }
+        mRunLevelReceiver = null;
     }
 
     @Override

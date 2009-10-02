@@ -70,7 +70,7 @@ public class RunLevelReceiver extends BroadcastReceiver {
         Logger.v(LOG_TAG, "isEveryThingReady? \n search: ", isSearchReady, " \ncall: ",
                 isCallReady, " \nglobalObservers: ", isGlobalObserversReady, " \njsViews: ",
                 isJavaScriptViewsReady, " \nvideoPreload: ", isVideoPreloadReady,
-                " \npreloadBrowse: ", isPreloadBrowseViewsReady);
+                " \npreloadBrowse: ", isPreloadBrowseViewsReady, "\naddress: ", this.toString());
         return isSearchReady && isCallReady && isGlobalObserversReady && isJavaScriptViewsReady
                 && isVideoPreloadReady && isPreloadBrowseViewsReady;
     }
@@ -86,6 +86,6 @@ public class RunLevelReceiver extends BroadcastReceiver {
         Logger.v(LOG_TAG, "RESET!?\n search: ", isSearchReady, " \ncall: ", isCallReady,
                 " \nglobalObservers: ", isGlobalObserversReady, " \njsViews: ",
                 isJavaScriptViewsReady, " \nvideoPreload: ", isVideoPreloadReady,
-                " \npreloadBrowse: ", isPreloadBrowseViewsReady);
+                " \npreloadBrowse: ", isPreloadBrowseViewsReady, "\naddress: ", this.toString());
     }
 }
