@@ -80,7 +80,6 @@ public class DeviceControllerService extends Y60GomService {
 
         Logger.i(LOG_TAG, "onStart(): DeviceControllerService started");
         super.onStart(intent, startId);
-
     }
 
     /**
@@ -180,10 +179,6 @@ public class DeviceControllerService extends Y60GomService {
         server.start();
         QueuedThreadPool threadpool = (QueuedThreadPool) server.getThreadPool();
         threadpool.setMaxStopTimeMs(10);
-
-        // Toast.makeText(DeviceControllerService.this, R.string.jetty_started,
-        // Toast.LENGTH_SHORT)
-        // .show();
 
         return server;
     }

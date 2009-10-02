@@ -3,6 +3,7 @@ package com.artcom.y60;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.widget.Toast;
 
 public class RunLevelReceiver extends BroadcastReceiver {
 
@@ -22,26 +23,37 @@ public class RunLevelReceiver extends BroadcastReceiver {
             isSearchReady = true;
             Logger.v(LOG_TAG, "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ search is ready");
             launchHomeScreenIfReady(pContext);
+            Toast.makeText(pContext, "SEARCH is ready", Toast.LENGTH_SHORT).show();
+
         } else if (pIntent.getAction().equals(Y60Action.CALL_READY)) {
             isCallReady = true;
             Logger.v(LOG_TAG, "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ call is ready");
             launchHomeScreenIfReady(pContext);
+            Toast.makeText(pContext, "CALL is ready", Toast.LENGTH_SHORT).show();
+
         } else if (pIntent.getAction().equals(Y60Action.JAVASCRIPT_VIEWS_READY)) {
             isJavaScriptViewsReady = true;
             Logger.v(LOG_TAG, "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ javascript views is ready");
             launchHomeScreenIfReady(pContext);
+            Toast.makeText(pContext, "JS VIEWS are ready", Toast.LENGTH_SHORT).show();
+
         } else if (pIntent.getAction().equals(Y60Action.GLOBAL_OBSERVERS_READY)) {
             isGlobalObserversReady = true;
             Logger.v(LOG_TAG, "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ global observers is ready");
             launchHomeScreenIfReady(pContext);
+            Toast.makeText(pContext, "GLOBAL OBSERVERS is ready", Toast.LENGTH_SHORT).show();
+
         } else if (pIntent.getAction().equals(Y60Action.PRELOAD_BROWSE_READY)) {
             isPreloadBrowseViewsReady = true;
             Logger.v(LOG_TAG, "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ preload browse is ready");
             launchHomeScreenIfReady(pContext);
+            Toast.makeText(pContext, "PRELOAD_BROWSE_READY is ready", Toast.LENGTH_SHORT).show();
+
         } else if (pIntent.getAction().equals(Y60Action.VIDEO_PRELOAD_READY)) {
             isVideoPreloadReady = true;
             Logger.v(LOG_TAG, "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ video preload is ready");
             launchHomeScreenIfReady(pContext);
+            Toast.makeText(pContext, "VIDEO_PRELOAD_READY is ready", Toast.LENGTH_SHORT).show();
         }
 
     }
