@@ -1,4 +1,5 @@
 package com.artcom.y60;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -10,7 +11,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.ActivityInfo;
 import android.content.pm.ResolveInfo;
-
 
 public class IntentHelper {
 
@@ -49,7 +49,7 @@ public class IntentHelper {
         return resultList.toArray(new ComponentInformation[activityInfos.size()]);
     }
 
-    private static HashMap<String, ComponentInformation> queryIntentActivitiesAsMap(Intent pIntent,
+    public static HashMap<String, ComponentInformation> queryIntentActivitiesAsMap(Intent pIntent,
             Context pContext) {
 
         // ResolveInfo: Information that is returned from resolving an intent
