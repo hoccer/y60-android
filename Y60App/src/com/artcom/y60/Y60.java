@@ -34,10 +34,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.NoSuchElementException;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -46,9 +43,7 @@ import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
-import android.content.pm.ResolveInfo;
 import android.os.Bundle;
 import android.view.MotionEvent;
 import android.view.View;
@@ -156,8 +151,8 @@ public class Y60 extends Activity {
 
         mChooseHomeButtonTarget = (Spinner) findViewById(R.id.home_target_chooser);
         // display possible components:
-        ComponentInformation[] components = getPossibleComponents(Intent.ACTION_MAIN,
-                Intent.CATEGORY_HOME, Intent.CATEGORY_DEFAULT);
+        ComponentInformation[] components = IntentHelper.getPossibleComponents(Intent.ACTION_MAIN,
+                this, Intent.CATEGORY_HOME, Intent.CATEGORY_DEFAULT);
         mCompInfoArrayAdapter = new ArrayAdapter<ComponentInformation>(this,
                 android.R.layout.simple_spinner_dropdown_item, components);
         mChooseHomeButtonTarget.setAdapter(mCompInfoArrayAdapter);
@@ -233,89 +228,6 @@ public class Y60 extends Activity {
 
     }
 
-    private ComponentInformation[] getPossibleComponents(String pAction, String... pCategories) {
-
-        // create Intent from params
-        Intent homeIntent = new Intent(pAction);
-        for (String cat : pCategories) {
-
-            homeIntent.addCategory(cat);
-        }
-
-        HashMap<String, ComponentInformation> activityInfos = queryIntentActivitiesAsMap(homeIntent);
-        ArrayList<ComponentInformation> resultList = new ArrayList<ComponentInformation>(
-                activityInfos.size());
-        try {
-            ComponentInformation chosen = getPreferredActivity(pAction, activityInfos);
-            activityInfos.remove(chosen.componentName.getClassName());
-            resultList.add(chosen); // default activity should be the 1st
-            // element
-        } catch (NoSuchElementException e) {
-            Logger.e(LOG_TAG, "No preferred activity found");
-        }
-
-        resultList.addAll(activityInfos.values());
-
-        // possible activities to array
-        return resultList.toArray(new ComponentInformation[activityInfos.size()]);
-    }
-
-    private HashMap<String, ComponentInformation> queryIntentActivitiesAsMap(Intent pIntent) {
-
-        // ResolveInfo: Information that is returned from resolving an intent
-        // against an IntentFilter
-        List<ResolveInfo> homeResolveInfos = getPackageManager().queryIntentActivities(pIntent, 0);
-
-        // Possible Activities
-        HashMap<String, ComponentInformation> activityInfos = new HashMap<String, ComponentInformation>(
-                homeResolveInfos.size());
-        // Fills ComponentNames (=activites) for homeResolveInfos and determines
-        // bestScore
-        for (ResolveInfo currentResolveInfo : homeResolveInfos) {
-
-            ActivityInfo activityInfo = currentResolveInfo.activityInfo;
-            // create ComponentName from current activity.
-            ComponentName name = new ComponentName(activityInfo.applicationInfo.packageName,
-                    activityInfo.name);
-
-            activityInfos.put(name.getClassName(), new ComponentInformation(name,
-                    currentResolveInfo.match));
-            Logger.v(LOG_TAG, "rival activity: ", name + "for (intent-)action: ", pIntent
-                    .getAction());
-        }
-
-        return activityInfos;
-    }
-
-    private ComponentInformation getPreferredActivity(String pAction,
-            HashMap<String, ComponentInformation> pComponents) {
-
-        ArrayList<IntentFilter> filters = new ArrayList<IntentFilter>();
-        ArrayList<ComponentName> activityNames = new ArrayList<ComponentName>();
-        getPackageManager().getPreferredActivities(filters, activityNames, null);
-        Logger.v(LOG_TAG, "found ", filters.size(), "preferred activities");
-
-        ComponentInformation chosen = null;
-
-        for (int i = 0; i < filters.size(); i++) {
-
-            IntentFilter filter = filters.get(i);
-            if (filter.getAction(0).equals(pAction)) {
-
-                String className = activityNames.get(i).getClassName();
-                chosen = pComponents.get(className);
-                break;
-            }
-        }
-
-        if (chosen == null) {
-            throw new NoSuchElementException("No preferred activity found for action '" + pAction
-                    + "'!");
-        }
-
-        return chosen;
-    }
-
     @Override
     protected void onDestroy() {
         unregisterReceiver(mRunLevelReceiver);
@@ -365,29 +277,12 @@ public class Y60 extends Activity {
 
     }
 
-    class ComponentInformation {
-
-        public ComponentName componentName;
-        public int           match;
-
-        public ComponentInformation(ComponentName pComponentName, int pMatch) {
-            componentName = pComponentName;
-            match = pMatch;
-        }
-
-        @Override
-        public String toString() {
-            return componentName.getClassName();
-        }
-
-    }
-
     class ActivitySelectionListener implements OnItemSelectedListener {
 
         public void onItemSelected(AdapterView<?> arg0, View arg1, int pPos, long arg3) {
 
-            ComponentInformation[] componentNames = getPossibleComponents(Intent.ACTION_MAIN,
-                    Intent.CATEGORY_HOME, Intent.CATEGORY_DEFAULT);
+            ComponentInformation[] componentNames = IntentHelper.getPossibleComponents(
+                    Intent.ACTION_MAIN, Y60.this, Intent.CATEGORY_HOME, Intent.CATEGORY_DEFAULT);
 
             IntentFilter filter = new IntentFilter(Intent.ACTION_MAIN);
             filter.addCategory(Intent.CATEGORY_HOME);
