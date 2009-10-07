@@ -1,6 +1,5 @@
 package com.artcom.y60;
 
-import android.content.ComponentName;
 import android.content.Intent;
 
 public class IntentLauncher extends SlotLauncher {
@@ -9,7 +8,7 @@ public class IntentLauncher extends SlotLauncher {
 
     // Instance Variables ------------------------------------------------
 
-    private Intent              mIntent;
+    private final Intent        mIntent;
 
     // Constructors ------------------------------------------------------
 
@@ -20,11 +19,7 @@ public class IntentLauncher extends SlotLauncher {
 
     public IntentLauncher(String pActivityClass) {
 
-        int dotPos = pActivityClass.lastIndexOf(".");
-        String pkg = pActivityClass.substring(0, dotPos);
-        ComponentName compName = new ComponentName(pkg, pActivityClass);
-        mIntent = new Intent();
-        mIntent.setComponent(compName);
+        mIntent = IntentHelper.getExplicitIntentForClass(pActivityClass);
     }
 
     // Public Instance Methods -------------------------------------------
@@ -35,6 +30,7 @@ public class IntentLauncher extends SlotLauncher {
         getContext().startActivity(mIntent);
     }
 
+    @Override
     public String toString() {
 
         return mIntent.toString();
