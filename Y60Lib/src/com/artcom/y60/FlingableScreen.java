@@ -203,7 +203,6 @@ public class FlingableScreen implements AnimationListener {
     // Protected Instance Methods ----------------------------------------
 
     protected void setContent(View pContent) {
-
         mContent = pContent;
         mContentLayout.removeAllViews();
         mBaseLayout.removeAllViews();
