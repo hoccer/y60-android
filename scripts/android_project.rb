@@ -59,8 +59,10 @@ class AndroidProject < Project
     apk_dir = "#{path}/bin"
     puts "installing #{name} #{device_id}, looking for apk in #{apk_dir}"
     Dir["#{apk_dir}/*.apk"].each do |apk|
-      run "installing with adb", <<-EOT
-        adb #{s} install #{apk}
+      run "installing", <<-EOT
+        adb #{s} push #{apk} /data/local/
+        adb shell pm install /data/local/#{File.basename apk}
+        adb shell rm /data/local/#{File.basename apk}
       EOT
     end
   end
