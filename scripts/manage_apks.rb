@@ -32,6 +32,9 @@ def main action, device_id, pj_names
     p.send action, device_id
   end
   
+  # clean the mess up
+  system "adb shell rm /data/local/*apk"
+  
 rescue => e
   puts "oops: #{e}\n#{e.backtrace.join "\n"}"
   puts Usage

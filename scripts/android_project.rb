@@ -61,14 +61,15 @@ class AndroidProject < Project
     Dir["#{apk_dir}/*.apk"].each do |apk|
       run "installing", <<-EOT
         adb #{s} push #{apk} /data/local/
-        adb shell pm install /data/local/#{File.basename apk}
-        adb shell rm /data/local/#{File.basename apk}
+        adb shell pm install -r /data/local/#{File.basename apk}
+        sleep 1      
       EOT
     end
   end
 
   def reinstall device_id=""
-    uninstall device_id
+  
+    # install does automaticly reinstall
     install device_id
   end
 
