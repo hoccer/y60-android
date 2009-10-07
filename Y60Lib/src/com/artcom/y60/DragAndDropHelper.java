@@ -41,7 +41,7 @@ public class DragAndDropHelper implements OnTouchListener {
     // Instance Variables ------------------------------------------------
 
     /** The Layout in which the dragging takes place */
-    private AbsoluteLayout       mAbsoluteLayout;
+    protected AbsoluteLayout     mAbsoluteLayout;
 
     private View                 mActivityViewGroup;
 
@@ -49,7 +49,7 @@ public class DragAndDropHelper implements OnTouchListener {
     private View                 mSourceView;
 
     /** The foreground activity that displayed the draggable view */
-    private Activity             mActivity;
+    protected Activity           mActivity;
 
     /** A thumbnailed screenshot of the draggable view */
     private View                 mThumbView;
@@ -104,7 +104,8 @@ public class DragAndDropHelper implements OnTouchListener {
         // take responsibility
         mAbsoluteLayout.setLongClickable(true);
         mSourceView = pView;
-        mSourceView.setOnTouchListener(this); // override old listener, we take
+        mSourceView.setOnTouchListener(this); // override old listener, we
+        // take
         // responsibility
         mSourceView.setLongClickable(true);
         mDefaultThumbnail = pDefaultThumbnail;
@@ -211,10 +212,11 @@ public class DragAndDropHelper implements OnTouchListener {
         }
     }
 
-    private void cleanView() {
+    public void cleanView() {
         mActivityViewGroup.setVisibility(View.VISIBLE);
         mThumbView.setVisibility(View.INVISIBLE);
         mAbsoluteLayout.removeView(mDropTargetCollection.getDropTargetLayout());
+        mAbsoluteLayout.removeView(mThumbView);
         mAbsoluteLayout.invalidate();
         mThumbView = null; // let the gc take care of it
     }
@@ -245,8 +247,12 @@ public class DragAndDropHelper implements OnTouchListener {
 
     // return top left + vertical offsetted for positioning the view
     private LayoutParams positionForDragging(MotionEvent pEvent) {
-        int x = (int) pEvent.getX() - mThumbView.getWidth() / 2;
-        int y = (int) pEvent.getY() - mThumbView.getHeight() / 2 - VERTICAL_OFFSET;
+        Logger.v(LOG_TAG, "ThumbView Width: ", mThumbView.getWidth(), "ThumbView Height: ",
+                mThumbView.getHeight(), "EventGetX: ", pEvent.getX(), "EventGetY: ", pEvent.getY(),
+                " left: ", mSourceView.getLeft(), " top: ", mSourceView.getTop());
+        int x = (int) pEvent.getX() - mThumbView.getWidth() / 2 + mSourceView.getLeft();
+        int y = (int) pEvent.getY() - mThumbView.getHeight() / 2 - VERTICAL_OFFSET
+                + mSourceView.getTop();
 
         return new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT, x, y);
     }
@@ -269,12 +275,13 @@ public class DragAndDropHelper implements OnTouchListener {
                 }
             }
 
+            float scaleFactor = 320.0f / mSourceView.getWidth() * SCALE_FACTOR;
             if (mThumbView == null) {
                 mThumbView = mDefaultThumbnail;
 
                 // if default View IS null
                 if (mThumbView == null) {
-                    mThumbView = GraphicsHelper.scaleView(mSourceView, SCALE_FACTOR, mActivity);
+                    mThumbView = GraphicsHelper.scaleView(mSourceView, scaleFactor, mActivity);
                 }
                 mThumbView.setVisibility(View.INVISIBLE);
                 mThumbView.setOnTouchListener(DragAndDropHelper.this);
@@ -285,15 +292,15 @@ public class DragAndDropHelper implements OnTouchListener {
             int y = (int) pE.getY() - 10;// -mDrawable.getMinimumHeight()*2;
 
             ViewHelper.setAbsolutePos(mThumbView, x
-                    - (int) (mSourceView.getWidth() * SCALE_FACTOR / 2), y
-                    - (int) (mSourceView.getHeight() * SCALE_FACTOR / 2 - VERTICAL_OFFSET));
+                    - (int) (mSourceView.getWidth() * scaleFactor / 2), y
+                    - (int) (mSourceView.getHeight() * scaleFactor / 2 - VERTICAL_OFFSET));
 
             TranslateAnimation translate = new TranslateAnimation(0,
                     x - mSourceView.getWidth() / 2, 0, y - mSourceView.getHeight() / 2
                             - VERTICAL_OFFSET);
             translate.setDuration(ANIMATION_DURATION);
 
-            ScaleAnimation scale = new ScaleAnimation(1.0f, SCALE_FACTOR, 1.0f, SCALE_FACTOR,
+            ScaleAnimation scale = new ScaleAnimation(1.0f, scaleFactor, 1.0f, scaleFactor,
                     Animation.ABSOLUTE, x, Animation.ABSOLUTE, y);
             scale.setDuration(ANIMATION_DURATION);
 
