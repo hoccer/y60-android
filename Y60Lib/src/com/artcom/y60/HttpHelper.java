@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.SocketException;
+import java.net.SocketTimeoutException;
 import java.net.URI;
 import java.net.URLEncoder;
 import java.util.Map;
@@ -406,6 +407,10 @@ public class HttpHelper {
         HttpResponse response;
         try {
             response = httpclient.execute(pMethod);
+        } catch (SocketTimeoutException e) {
+            e = new SocketTimeoutException(e.getMessage() + ": " + pMethod.getURI());
+            e.fillInStackTrace();
+            throw e;
         } catch (SocketException e) {
             e = new SocketException(e.getMessage() + ": " + pMethod.getURI());
             e.fillInStackTrace();
