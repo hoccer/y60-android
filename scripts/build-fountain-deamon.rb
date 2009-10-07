@@ -8,27 +8,22 @@ $socket_number = 1
 
 def fetch_build_state_from uri
   doc = Hpricot(open(uri))
-  status_img = doc.at("//img[@src='buildStatus']")
-  build_state = status_img.attributes['alt'] 
+  title = doc.at("//entry/title")
+  title.to_s.gsub /.*\((.*)\).*/, '\1'
 end
 
 def fetch_build_states
 
-  tg_build_state = fetch_build_state_from "http://tg-svn.t-gallery.act/job/T-Gallery%20Android%20Projects/lastBuild/"
-  y60_build_state = fetch_build_state_from "http://tg-svn.t-gallery.act/job/Y60%20Android%20Projects/lastBuild/"
+  tg_build_state = fetch_build_state_from "http://tg-svn.t-gallery.act:8080/job/T-Gallery%20Android%20Projects/rssAll"
+  y60_build_state = fetch_build_state_from "http://tg-svn.t-gallery.act/job/Y60%20Android%20Projects/rssAll/"
 
   puts y60_build_state
   [tg_build_state, y60_build_state]
 end
 
-def build_in_progress?
-  states = fetch_build_states
-  states[0] == "In progress" || states[1] == "In progress"
-end
-
 def build_succsessful?
   states = fetch_build_states
-  states[0] == "Success" && states[1] == "Success"
+  states[0] == "SUCCESS" && states[1] == "SUCCESS"
 end
 
 def build_not_succsessful?
@@ -47,7 +42,7 @@ def switch new_state
 end
 
 def main 
-
+  
   puts "Make shure you have added this to visudo:
 
   # enable everyone to use sispmctl
@@ -62,8 +57,6 @@ def main
     begin
       sleep sleep_time
 
-      next if build_in_progress? 
-    
       if fountain_off? and build_succsessful? then
         puts "starting fountain"
         system "sudo sispmctl -q -o #{$socket_number}"
