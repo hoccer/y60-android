@@ -14,6 +14,7 @@ import junit.framework.Assert;
 import org.apache.http.conn.HttpHostConnectException;
 import org.json.JSONObject;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.test.AssertionFailedError;
@@ -439,5 +440,16 @@ public class TestHelper {
         };
 
         return dataDir.listFiles(filter);
+    }
+
+    public static void blockUntilActivityIsFinishing(final Activity pActivity, long pTimeout)
+            throws Exception {
+        blockUntilTrue("Activity should be finished by now", pTimeout, new Condition() {
+            @Override
+            public boolean isSatisfied() throws Exception {
+                return pActivity.isFinishing();
+            }
+        });
+
     }
 }

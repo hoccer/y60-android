@@ -1,5 +1,7 @@
 package com.artcom.y60.gom;
 
+import android.os.AsyncTask;
+
 import com.artcom.y60.BindingException;
 import com.artcom.y60.BindingListener;
 import com.artcom.y60.ErrorHandling;
@@ -17,6 +19,7 @@ public abstract class Y60GomService extends Y60Service {
     private HttpProxyHelper     mHttpProxy;
     private Runnable            mNotificationCallbackForBindToGom;
     private Runnable            mNotificationCallbackForBindToHttpProxy;
+    private AsyncTask           mAsyncTaskForBindToGom;
 
     protected static boolean    sIsBoundToGom = false;
 
@@ -70,6 +73,14 @@ public abstract class Y60GomService extends Y60Service {
         }
     }
 
+    public void callOnBoundToGom(AsyncTask<Object, Object, Object> pAsyncTask, Object pInputParams) {
+
+        mAsyncTaskForBindToGom = pAsyncTask;
+        if (isBoundToGom()) {
+            mAsyncTaskForBindToGom.execute(pInputParams);
+        }
+    }
+
     public void callOnBoundToHttpProxy(Runnable pRunnable) {
         mNotificationCallbackForBindToHttpProxy = pRunnable;
 
@@ -104,6 +115,11 @@ public abstract class Y60GomService extends Y60Service {
                 if (mNotificationCallbackForBindToGom != null) {
                     new Thread(mNotificationCallbackForBindToGom).start();
                 }
+
+                if (mAsyncTaskForBindToGom != null) {
+                    mAsyncTaskForBindToGom.execute(null);
+                }
+
             }
 
             public void unbound(GomProxyHelper helper) {
