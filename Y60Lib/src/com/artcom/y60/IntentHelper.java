@@ -17,8 +17,8 @@ public class IntentHelper {
     private static String LOG_TAG = "IntentHelper";
 
     /**
-     * @return list of components which matches the intent action; first element is the user choosen
-     *         default
+     * @return list of components which matches the intent action; first element
+     *         is the user choosen default
      */
     public static ComponentInformation[] getPossibleComponents(String pAction, Context pContext,
             String... pCategories) {
@@ -105,6 +105,15 @@ public class IntentHelper {
         }
 
         return chosen;
+    }
+
+    public static Intent getExplicitIntentForClass(String pActivityClass) {
+        int dotPos = pActivityClass.lastIndexOf(".");
+        String pkg = pActivityClass.substring(0, dotPos);
+        ComponentName compName = new ComponentName(pkg, pActivityClass);
+        Intent intent = new Intent();
+        intent.setComponent(compName);
+        return intent;
     }
 
 }

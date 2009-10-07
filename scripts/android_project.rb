@@ -62,7 +62,7 @@ class AndroidProject < Project
       run "installing", <<-EOT
         adb #{s} push #{apk} /data/local/
         adb shell pm install -r /data/local/#{File.basename apk}
-        sleep 1      
+        sleep 2      
       EOT
     end
   end
