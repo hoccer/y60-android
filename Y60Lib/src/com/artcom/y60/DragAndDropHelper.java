@@ -214,7 +214,9 @@ public class DragAndDropHelper implements OnTouchListener {
 
     public void cleanView() {
         mActivityViewGroup.setVisibility(View.VISIBLE);
-        mThumbView.setVisibility(View.INVISIBLE);
+        if (mThumbView != null) {
+            mThumbView.setVisibility(View.INVISIBLE);
+        }
         mAbsoluteLayout.removeView(mDropTargetCollection.getDropTargetLayout());
         mAbsoluteLayout.removeView(mThumbView);
         mAbsoluteLayout.invalidate();
