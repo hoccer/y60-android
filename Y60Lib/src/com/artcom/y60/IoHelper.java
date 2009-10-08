@@ -10,6 +10,11 @@ import java.io.InputStreamReader;
 
 public class IoHelper {
 
+    public static String replaceSpaces(String pString) {
+        pString = pString.replaceAll(" ", "%20");
+        return pString;
+    }
+
     public static String readStringFromStream(InputStream pInStream) throws IOException {
 
         InputStreamReader isr = new InputStreamReader(pInStream);
