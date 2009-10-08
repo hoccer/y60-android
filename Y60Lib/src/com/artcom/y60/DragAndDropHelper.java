@@ -63,7 +63,7 @@ public class DragAndDropHelper implements OnTouchListener {
      */
     private OnTouchListener      mDelegateTouchListener;
     private List<DragListener>   mDragListenerList;
-    private View                 mDefaultThumbnail;
+    private View                 mThumbnail;
     private DropTargetCollection mDropTargetCollection;
     private boolean              mIsDropTargetEnabled;
     private State                mState;
@@ -95,7 +95,7 @@ public class DragAndDropHelper implements OnTouchListener {
     // Constructors ------------------------------------------------------
 
     public DragAndDropHelper(View pView, AbsoluteLayout pLayout, View pActivityViewGroup,
-            Activity pActivity, View pDefaultThumbnail) {
+            Activity pActivity, View pThumbnail) {
 
         mState = State.NOT_DRAGGING;
         mActivityViewGroup = pActivityViewGroup;
@@ -108,7 +108,7 @@ public class DragAndDropHelper implements OnTouchListener {
         // take
         // responsibility
         mSourceView.setLongClickable(true);
-        mDefaultThumbnail = pDefaultThumbnail;
+        mThumbnail = pThumbnail;
         mActivity = pActivity;
         mIsDropTargetEnabled = false;
         mDropTargetCollection = new DropTargetCollection(mActivity, mAbsoluteLayout);
@@ -277,12 +277,14 @@ public class DragAndDropHelper implements OnTouchListener {
 
             float scaleFactor = 320.0f / mSourceView.getWidth() * SCALE_FACTOR;
             if (mThumbView == null) {
-                mThumbView = mDefaultThumbnail;
+                mThumbView = mThumbnail;
 
                 // if default View IS null
                 if (mThumbView == null) {
+                    Logger.v(LOG_TAG, "thumbview is null");
                     mThumbView = GraphicsHelper.scaleView(mSourceView, scaleFactor, mActivity);
                 }
+                Logger.v(LOG_TAG, "Thumbview: ", mThumbView.getWidth(), mThumbView.getHeight());
                 mThumbView.setVisibility(View.INVISIBLE);
                 mThumbView.setOnTouchListener(DragAndDropHelper.this);
                 mAbsoluteLayout.addView(mThumbView);
@@ -367,6 +369,8 @@ public class DragAndDropHelper implements OnTouchListener {
                 mAbsoluteLayout.invalidate();
                 Vibrator vibrator = (Vibrator) mActivity.getSystemService(Context.VIBRATOR_SERVICE);
                 vibrator.vibrate(ANIMATION_DURATION);
+
+                Logger.v(LOG_TAG, "Thumbview: ", mThumbView.getWidth(), mThumbView.getHeight());
 
                 mState = State.DRAGGING;
 

@@ -31,7 +31,7 @@ public class GraphicsHelper {
         // recreate the new Bitmap
         Bitmap resizedBitmap = Bitmap.createBitmap(pSource, 0, 0, width, height, matrix, true);
         Drawable scaledDrawable = new BitmapDrawable(resizedBitmap);
-        
+
         ImageView scaledImageView = new ImageView(pContext);
         scaledImageView.setImageDrawable(scaledDrawable);
 
