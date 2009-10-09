@@ -63,11 +63,12 @@ public class GomHttpWrapperTest extends TestCase {
         String attrPath = testPath + ":" + timestamp;
         String attrUri = Constants.Gom.URI + attrPath;
 
-        assertFalse("Attribute shouldnt be in Gom", GomHttpWrapper.isUriExisting(attrUri));
+        assertFalse("Attribute shouldnt be in Gom", GomHttpWrapper.isAttributeExisting(attrUri));
 
         GomHttpWrapper.updateOrCreateAttribute(attrUri, "mango");
 
-        assertTrue("Attribute shouldnt be in Gom", GomHttpWrapper.isUriExisting(attrUri));
+        assertTrue("Attribute shouldnt be in Gom", GomHttpWrapper.isAttributeExisting(attrUri));
 
     }
+
 }

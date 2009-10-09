@@ -116,7 +116,7 @@ public class DeviceControllerService extends Y60GomService {
 
             GomNode device = getGom().getNode(dc.getDevicePath());
             device.getOrCreateAttribute("rci_uri").putValue(command_uri);
-            if (!GomHttpWrapper.isUriExisting(Constants.Gom.URI + Constants.Gom.DEVICE_PATH
+            if (!GomHttpWrapper.isAttributeExisting(Constants.Gom.URI + Constants.Gom.DEVICE_PATH
                     + ":enable_odp")) {
                 GomHttpWrapper.updateOrCreateAttribute(Constants.Gom.URI
                         + Constants.Gom.DEVICE_PATH + ":enable_odp", "false");

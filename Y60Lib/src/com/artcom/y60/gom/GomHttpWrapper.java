@@ -93,7 +93,7 @@ public class GomHttpWrapper {
 
     }
 
-    public static boolean isUriExisting(String pUri) {
+    public static boolean isAttributeExisting(String pUri) {
         try {
             getAttributeValue(pUri);
         } catch (HttpException e) {
