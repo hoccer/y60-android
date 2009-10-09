@@ -1,6 +1,5 @@
 package com.artcom.y60;
 
-
 public abstract class Y60Action {
 
     public static final String SEARCH                    = "y60.intent.SEARCH";
@@ -31,6 +30,11 @@ public abstract class Y60Action {
     public static final String CALL_READY                = "y60.intent.CALL_READY";
     public static final String PRELOAD_BROWSE_READY      = "y60.intent.PRELOAD_BROWSE_READY";
     public static final String VIDEO_PRELOAD_READY       = "y60.intent.VIDEO_PRELOAD_READY";
+
+    public static final String START_BLOCKING_AUDIO      = "y60.intent.START_BLOCKING_AUDIO";
+    public static final String STOP_BLOCKING_AUDIO       = "y60.intent.STOP_BLOCKING_AUDIO";
+    public static final String PAUSE_AUDIO               = "y60.intent.PAUSE_AUDIO";
+    public static final String RESUME_AUDIO              = "y60.intent.RESUME_AUDIO";
 
     public static final String INIT_READY                = "y60.intent.INIT_READY";
 
