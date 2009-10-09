@@ -33,13 +33,13 @@ public class GomHttpWrapper {
         return HttpHelper.putUrlEncoded(pUri, formData);
     }
 
-    public static HttpResponse deleteAttribute(Uri pUri) throws HttpClientException,
+    public static HttpResponse deleteAttribute(String pUri) throws HttpClientException,
             HttpServerException, IOException {
 
         return HttpHelper.delete(pUri);
     }
 
-    public static HttpResponse deleteNode(Uri pUri) throws HttpClientException,
+    public static HttpResponse deleteNode(String pUri) throws HttpClientException,
             HttpServerException, IOException {
 
         return HttpHelper.delete(pUri);

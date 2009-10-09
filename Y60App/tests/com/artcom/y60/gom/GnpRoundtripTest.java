@@ -45,11 +45,11 @@ public class GnpRoundtripTest extends GomActivityUnitTestCase {
                 statusCode < 300);
 
         String visibleAttrPath = observedPath + ":attribute";
-        Uri visibleAttrUrl = Uri.parse(Constants.Gom.URI + visibleAttrPath);
+        String visibleAttrUrl = Constants.Gom.URI + visibleAttrPath;
         GomHttpWrapper.updateOrCreateAttribute(visibleAttrUrl, "who cares?");
 
         String invisibleAttrPath = visibleNodePath + ":invalid_attribute";
-        Uri invisibleAttrUrl = Uri.parse(Constants.Gom.URI + invisibleAttrPath);
+        String invisibleAttrUrl = Constants.Gom.URI + invisibleAttrPath;
         GomHttpWrapper.updateOrCreateAttribute(invisibleAttrUrl, "who else cares?");
 
         String content = HttpHelper.getAsString(invisibleAttrUrl);
@@ -80,21 +80,21 @@ public class GnpRoundtripTest extends GomActivityUnitTestCase {
         // observer.assertUpdateCalled();
         observer.reset();
 
-        GomHttpWrapper.deleteNode(Uri.parse(Constants.Gom.URI + invisibleNodePath));
+        GomHttpWrapper.deleteNode(Constants.Gom.URI + invisibleNodePath);
         Thread.sleep(2500);
         observer.assertCreateNotCalled();
         observer.assertDeleteNotCalled();
         // observer.assertUpdateNotCalled();
         observer.reset();
 
-        GomHttpWrapper.deleteNode(Uri.parse(Constants.Gom.URI + visibleNodePath));
+        GomHttpWrapper.deleteNode(Constants.Gom.URI + visibleNodePath);
         Thread.sleep(4000);
         observer.assertCreateNotCalled();
         observer.assertDeleteCalled();
         // observer.assertUpdateCalled();
         observer.reset();
 
-        GomHttpWrapper.deleteNode(Uri.parse(Constants.Gom.URI + observedPath));
+        GomHttpWrapper.deleteNode(Constants.Gom.URI + observedPath);
         Thread.sleep(4000);
         observer.assertCreateNotCalled();
         observer.assertDeleteCalled();

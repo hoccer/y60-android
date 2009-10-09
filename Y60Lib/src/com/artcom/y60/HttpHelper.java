@@ -38,13 +38,13 @@ import org.apache.http.protocol.HttpContext;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.artcom.y60.http.HttpClientException;
-import com.artcom.y60.http.HttpException;
-import com.artcom.y60.http.HttpServerException;
-
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
+
+import com.artcom.y60.http.HttpClientException;
+import com.artcom.y60.http.HttpException;
+import com.artcom.y60.http.HttpServerException;
 
 public class HttpHelper {
 
@@ -158,22 +158,16 @@ public class HttpHelper {
         return new BitmapDrawable(getAsInStream(pUri));
     }
 
-    public static HttpResponse delete(Uri uri) throws IOException, HttpClientException,
-            HttpServerException {
-
-        HttpDelete del = new HttpDelete(uri.toString());
-        return executeHTTPMethod(del);
-    }
-
     public static HttpResponse delete(String uri) throws IOException, HttpClientException,
             HttpServerException {
-        return delete(Uri.parse(uri));
+        HttpDelete del = new HttpDelete(uri);
+        return executeHTTPMethod(del);
     }
 
     public static void deleteAndIgnoreNotFound(String uri) throws IOException, HttpClientException,
             HttpServerException {
         try {
-            delete(Uri.parse(uri));
+            delete(uri);
         } catch (HttpClientException e) {
             if (e.getHttpResponse().getStatusLine().getStatusCode() != 404) {
                 throw e;
