@@ -13,6 +13,7 @@ import android.net.Uri;
 import com.artcom.y60.Constants;
 import com.artcom.y60.HttpHelper;
 import com.artcom.y60.http.HttpClientException;
+import com.artcom.y60.http.HttpException;
 import com.artcom.y60.http.HttpServerException;
 
 public class GomHttpWrapper {
@@ -90,6 +91,17 @@ public class GomHttpWrapper {
         }
         return HttpHelper.putUrlEncoded(pNodeUrl, formData);
 
+    }
+
+    public static boolean isUriExisting(String pUri) {
+        try {
+            getAttributeValue(pUri);
+        } catch (HttpException e) {
+            return false;
+        } catch (IOException e) {
+            return false;
+        }
+        return true;
     }
 
 }

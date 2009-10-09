@@ -3,7 +3,6 @@ package com.artcom.y60.gom;
 import java.util.HashMap;
 
 import junit.framework.TestCase;
-import android.net.Uri;
 
 import com.artcom.y60.Constants;
 import com.artcom.y60.HttpHelper;
@@ -12,10 +11,10 @@ public class GomHttpWrapperTest extends TestCase {
 
     private static final String TEST_BASE_PATH = "/test/android/y60/infrastructure_gom/gom_http_wrapper_test";
 
-    private static final String ATTR_URL = Constants.Gom.URI + TEST_BASE_PATH
-                    + ":show_me_the_value";
+    private static final String ATTR_URL       = Constants.Gom.URI + TEST_BASE_PATH
+                                                       + ":show_me_the_value";
 
-    private static final String ATTR_VALUE = "tralala";
+    private static final String ATTR_VALUE     = "tralala";
 
     @Override
     public void setUp() throws Exception {
@@ -25,7 +24,7 @@ public class GomHttpWrapperTest extends TestCase {
 
     public void testGetAttributeValue() throws Exception {
 
-        String value = GomHttpWrapper.getAttributeValue(Uri.parse(ATTR_URL));
+        String value = GomHttpWrapper.getAttributeValue(ATTR_URL);
 
         assertEquals("attribute value wasn't as expected", ATTR_VALUE, value);
     }
@@ -55,6 +54,20 @@ public class GomHttpWrapperTest extends TestCase {
         GomHttpWrapper.putNodeWithAttributes(nodeUrl, data);
 
         assertNotNull("attribute should be in gom", HttpHelper.getAsString(nodeUrl + ":" + attr1));
+    }
+
+    public void testIsAttributeExisting() throws Exception {
+
+        String timestamp = String.valueOf(System.currentTimeMillis());
+        String testPath = TEST_BASE_PATH + "/test_is_attribute_existing";
+        String attrPath = testPath + ":" + timestamp;
+        String attrUri = Constants.Gom.URI + attrPath;
+
+        assertFalse("Attribute shouldnt be in Gom", GomHttpWrapper.isUriExisting(attrUri));
+
+        GomHttpWrapper.updateOrCreateAttribute(attrUri, "mango");
+
+        assertTrue("Attribute shouldnt be in Gom", GomHttpWrapper.isUriExisting(attrUri));
 
     }
 }
