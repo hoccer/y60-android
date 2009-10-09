@@ -169,6 +169,10 @@ public class ErrorHandling {
         signalError(logTag, error, context, Category.NOT_IMPLEMENTED);
     }
 
+    public static void signalUnkownHostException(String logTag, Throwable error, Context context) {
+        signalError(logTag, error, context, Category.NETWORK_ERROR);
+    }
+
     static void cancelErrorNotification(Context pContext) {
 
         NotificationManager notifier = (NotificationManager) pContext
@@ -206,4 +210,5 @@ public class ErrorHandling {
         // by now, we just log it as a warning
         Logger.w(pLogTag, pMsg);
     }
+
 }
