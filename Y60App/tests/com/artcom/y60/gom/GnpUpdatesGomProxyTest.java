@@ -197,7 +197,7 @@ public class GnpUpdatesGomProxyTest extends GomActivityUnitTestCase {
 
         // create attribute in the test node
         String attrName = "test_attribute";
-        Uri attrUri = Uri.parse(nodeUrl + ":" + attrName);
+        String attrUri = nodeUrl + ":" + attrName;
         GomHttpWrapper.updateOrCreateAttribute(attrUri, "who cares?");
 
         String attrPath = nodePath + ":" + attrName;
@@ -369,7 +369,7 @@ public class GnpUpdatesGomProxyTest extends GomActivityUnitTestCase {
 
         assertTrue("Subnode should be in cache", proxy.hasInCache(subNodePath));
 
-        GomHttpWrapper.deleteNode(Uri.parse(subNodeUrl));
+        GomHttpWrapper.deleteNode(subNodeUrl);
 
         // update may take a while
         TestHelper.blockUntilTrue("gnp delete callback should have been called once", 5000,
@@ -428,7 +428,7 @@ public class GnpUpdatesGomProxyTest extends GomActivityUnitTestCase {
         assertTrue("Node should be in cache", proxy.hasInCache(nodePath));
         assertFalse("Subnode should not be in cache (lazy loading)", proxy.hasInCache(subNodePath));
 
-        GomHttpWrapper.deleteNode(Uri.parse(subNodeUrl));
+        GomHttpWrapper.deleteNode(subNodeUrl);
 
         // update may take a while
         TestHelper.blockUntilTrue("gnp delete callback should have been called only once", 5000,
@@ -479,7 +479,7 @@ public class GnpUpdatesGomProxyTest extends GomActivityUnitTestCase {
 
         assertTrue("Node should be in cache", proxy.hasInCache(nodePath));
 
-        GomHttpWrapper.deleteNode(Uri.parse(nodeUrl));
+        GomHttpWrapper.deleteNode(nodeUrl);
 
         // update may take a while
         TestHelper.blockUntilTrue("gnp delete callback should have been called once", 5000,
@@ -545,7 +545,7 @@ public class GnpUpdatesGomProxyTest extends GomActivityUnitTestCase {
         proxy.getNodeData(subNodePath, new LinkedList<String>(), new LinkedList<String>());
         assertTrue("sub node should be in cache", proxy.hasInCache(subNodePath));
 
-        GomHttpWrapper.deleteNode(Uri.parse(nodeUrl));
+        GomHttpWrapper.deleteNode(nodeUrl);
 
         // update may take a while
         TestHelper.blockUntilTrue("gnp delete callback should have been called", 10000,
@@ -598,7 +598,7 @@ public class GnpUpdatesGomProxyTest extends GomActivityUnitTestCase {
 
         assertTrue("attribute should be in cache", proxy.hasInCache(attrPath));
 
-        GomHttpWrapper.deleteAttribute(Uri.parse(attrUrl));
+        GomHttpWrapper.deleteAttribute(attrUrl);
 
         // update may take a while
         TestHelper.blockUntilTrue("gnp delete callback should have been called once", 5000,
