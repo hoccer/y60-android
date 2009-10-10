@@ -11,9 +11,10 @@
     <application  android:icon="@drawable/default_icon" android:label="Y60">
     
         <activity 
-        	android:name=".Y60" 
-        	android:label="@string/app_name"
-        	android:screenOrientation="portrait"
+            android:name=".Y60" 
+            android:label="@string/app_name"
+            android:screenOrientation="portrait"
+            android:noHistory="true"
             android:icon="@drawable/y60_icon">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -64,9 +65,9 @@
         <activity android:name="DnDTestActivity"  android:exported="true" 
                   android:theme="@android:style/Theme.NoTitleBar"
                   android:label="Y60:DnDTestActivity" android:icon="@drawable/default_icon">
-			<intent-filter>
-				<action android:name="android.intent.action.MAIN" />
-			</intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+            </intent-filter>
         </activity>
         
         <activity android:name="SlotTestActivity"  android:exported="true" 
@@ -86,8 +87,8 @@
         
         <uses-library android:name="android.test.runner" />
         
-	</application>
-	
+    </application>
+    
     <instrumentation android:name="android.test.InstrumentationTestRunner" 
       android:targetPackage="com.artcom.y60" 
       android:label="Y60 Infrastructure Tests">
