@@ -1,5 +1,7 @@
 package com.artcom.y60;
 
+import java.net.URLEncoder;
+
 import junit.framework.TestCase;
 
 import org.apache.http.HttpResponse;
@@ -23,6 +25,11 @@ public class HttpHelperTest extends TestCase {
             assertEquals("expected a 404 exception", 404, ex.getStatusCode());
             Logger.v(LOG_TAG, ex.getMessage());
         }
+    }
+
+    public void testUrlEncoding() {
+
+        assertEquals("a+funky+test", URLEncoder.encode("a funky test"));
     }
 
 }

@@ -281,11 +281,15 @@ public class HttpHelper {
             throws IOException, HttpClientException, HttpServerException {
 
         String body = urlEncode(pData);
+        return postUrlEncoded(pUrl, body);
+    }
+
+    public static HttpResponse postUrlEncoded(String pUrl, String pUrlEncodedData)
+            throws IOException, HttpClientException, HttpServerException {
+
         HttpPost post = new HttpPost(pUrl);
 
-        // Logger.v(LOG_TAG, "POST " + pUrl + " with body " + body);
-
-        insertUrlEncoded(body, post);
+        insertUrlEncoded(pUrlEncodedData, post);
         return executeHTTPMethod(post);
     }
 
