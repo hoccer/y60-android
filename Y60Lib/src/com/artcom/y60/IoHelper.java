@@ -10,7 +10,7 @@ import java.io.InputStreamReader;
 
 public class IoHelper {
 
-    public static String replaceSpaces(String pString) {
+    public static String encodeUrlBlanks(String pString) {
         pString = pString.replaceAll(" ", "%20");
         return pString;
     }
