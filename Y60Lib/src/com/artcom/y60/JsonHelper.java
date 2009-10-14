@@ -70,4 +70,16 @@ public class JsonHelper {
         }
         return set;
     }
+
+    public static String getValue(JSONObject pJson, String name) {
+        if (pJson.has(name)) {
+            try {
+                return pJson.getString(name);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+        return "";
+    }
+
 }

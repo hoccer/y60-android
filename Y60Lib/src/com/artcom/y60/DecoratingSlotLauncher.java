@@ -1,11 +1,10 @@
 package com.artcom.y60;
 
-
 public abstract class DecoratingSlotLauncher extends SlotLauncher {
 
     // Constants ---------------------------------------------------------
 
-    private static final String LOG_TAG = DecoratingSlotLauncher.class.getName();
+    private static final String LOG_TAG = "DecoratingSlotLauncher";
 
     // Instance Variables ------------------------------------------------
 

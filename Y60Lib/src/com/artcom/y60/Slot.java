@@ -72,10 +72,10 @@ public class Slot {
      * Creates a new slot using the given holder and propagates the holder to
      * the given launcher and viewer.
      */
-    public Slot(String pName, SlotLauncher pLauncher, SlotViewer pView) {
+    public Slot(String pSlotName, SlotLauncher pLauncher, SlotViewer pView) {
 
         mIsInFocus = false;
-        mName = pName;
+        mName = pSlotName;
 
         mLauncher = pLauncher;
         mLauncher.setSlot(this);
