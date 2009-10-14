@@ -30,7 +30,7 @@ public class IntentExtraKeys {
 
     public static final String GOM_POSSESSION_URI       = "gom_possession_uri";
     public static final String DAM_ASSET_URI            = "dam_asset_uri";
-    public static final String FILE_URI                 = "file_uri";
+    public static final String MOBILE_RENDITION_URI     = "mobile_rendition_uri";
     public static final String MEDIA_NAME               = "media_name";
     public static final String MEDIA_TYPE               = "media_type";
 
