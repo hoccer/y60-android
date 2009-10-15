@@ -17,7 +17,6 @@ import android.view.View;
  * Adds some helpers to the ActivityInstrumentationTestCase
  * 
  * @author arne
- * 
  * @param <T>
  *            the activity class to be tested
  */
@@ -28,14 +27,14 @@ public abstract class Y60ActivityInstrumentationTest<T extends Activity> extends
     private static String      LOG_TAG       = "Y60ActivityInstrumentationTest";
 
     /**
-     * Horizontal resolution of the display in portrait orientation. To be used
-     * for testing only, thus protected.
+     * Horizontal resolution of the display in portrait orientation. To be used for testing only,
+     * thus protected.
      */
     protected final static int SCREEN_WIDTH  = 320;
 
     /**
-     * Vertical resolution of the display in portrait orientation. To be used
-     * for testing only, thus protected.
+     * Vertical resolution of the display in portrait orientation. To be used for testing only, thus
+     * protected.
      */
     protected final static int SCREEN_HEIGHT = 480;
 
@@ -133,9 +132,9 @@ public abstract class Y60ActivityInstrumentationTest<T extends Activity> extends
     }
 
     /**
-     * In order for a fling gesture to be detected by the Android
-     * GestureDetector class, it has to consist of a sequence of small move
-     * events. This method takes care of generating these events.
+     * In order for a fling gesture to be detected by the Android GestureDetector class, it has to
+     * consist of a sequence of small move events. This method takes care of generating these
+     * events.
      */
     protected void fling(Direction pDirection) {
 
@@ -243,8 +242,8 @@ public abstract class Y60ActivityInstrumentationTest<T extends Activity> extends
     }
 
     /**
-     * Convenience method for generating DOWN and UP events. See
-     * android.view.KeyEvent for key codes.
+     * Convenience method for generating DOWN and UP events. See android.view.KeyEvent for key
+     * codes.
      */
     protected void pressKey(int pKeyCode, long pDurationMillis) throws InterruptedException {
 
@@ -284,8 +283,7 @@ public abstract class Y60ActivityInstrumentationTest<T extends Activity> extends
     }
 
     /**
-     * Shorthand for <code>getClass().getSimpleName()</code>, to be used for
-     * logcat logging.
+     * Shorthand for <code>getClass().getSimpleName()</code>, to be used for logcat logging.
      */
     protected String tag() {
 

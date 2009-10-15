@@ -8,7 +8,7 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.VIBRATE" />   
      
-    <application  android:icon="@drawable/default_icon" android:label="Y60">
+    <application  android:icon="@drawable/default_icon" android:label="Y60" android:debuggable="true">
     
         <activity 
             android:name=".Y60" 
