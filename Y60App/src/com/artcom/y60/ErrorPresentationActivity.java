@@ -49,16 +49,21 @@ public class ErrorPresentationActivity extends Activity {
                 logTag = intent.getStringExtra(ErrorHandling.ID_LOGTAG);
             }
 
+            String stacktrace = "<no stacktrace>";
+            if (intent.hasExtra(ErrorHandling.ID_STACKTRACE)) {
+                intent.getStringExtra(ErrorHandling.ID_STACKTRACE);
+            }
+
             String message = "(unspecified error)";
             if (intent.hasExtra(ErrorHandling.ID_MESSAGE)) {
                 message = intent.getStringExtra(ErrorHandling.ID_MESSAGE);
 
                 // Sort by class here later, for now, we just log everything in
                 // verbose mode
-                Logger.e(logTag, message);
+                Logger.e(logTag, message, stacktrace);
             }
 
-            mTextView.setText("Oops! " + logTag + " says: " + message);
+            mTextView.setText("Oops! " + logTag + " says: " + message + "\n\n" + stacktrace);
 
         } else if (mMode == Mode.PRODUCTION) {
 

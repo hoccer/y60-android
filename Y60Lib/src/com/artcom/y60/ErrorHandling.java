@@ -35,6 +35,7 @@ public class ErrorHandling {
     private static final String LOG_TAG                   = "ErrorHandling";
 
     public static final String  ID_MESSAGE                = "error";
+    public static final String  ID_STACKTRACE             = "stacktrace";
     public static final String  ID_LOGTAG                 = "logtag";
     public static final String  ID_CATEGORY               = "category";
 
@@ -76,7 +77,6 @@ public class ErrorHandling {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
-
     }
 
     public static void signalFileNotFoundError(String logTag, Throwable error, Context context) {
@@ -189,6 +189,7 @@ public class ErrorHandling {
             Category pCategory) {
         Intent intent = new Intent("y60.intent.ERROR_PRESENTATION");
         intent.putExtra(ID_MESSAGE, pError.toString());
+        intent.putExtra(ID_STACKTRACE, pError.getStackTrace().toString());
         intent.putExtra(ID_LOGTAG, pLogTag);
         intent.putExtra(ID_CATEGORY, pCategory);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
