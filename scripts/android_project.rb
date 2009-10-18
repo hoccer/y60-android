@@ -57,11 +57,12 @@ class AndroidProject < Project
     s = "-s #{device_id}" unless device_id.nil? || device_id.empty?
 
     apk_dir = "#{path}/bin"
-    puts "installing #{name} #{device_id}, looking for apk in #{apk_dir}"
+    puts "installing #{name} on #{device_id}, looking for apk in #{apk_dir}"
     Dir["#{apk_dir}/*.apk"].each do |apk|
       run "installing", <<-EOT
         adb #{s} push #{apk} /data/local/
-        adb shell pm install -r /data/local/#{File.basename apk}
+        sleep 1      
+        adb #{s} shell pm install -r /data/local/#{File.basename apk}
         sleep 2      
       EOT
     end
