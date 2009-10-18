@@ -189,10 +189,17 @@ public class ErrorHandling {
             Category pCategory) {
         Intent intent = new Intent("y60.intent.ERROR_PRESENTATION");
         intent.putExtra(ID_MESSAGE, pError.toString());
-        intent.putExtra(ID_STACKTRACE, pError.getStackTrace().toString());
+
         intent.putExtra(ID_LOGTAG, pLogTag);
         intent.putExtra(ID_CATEGORY, pCategory);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+
+        String stacktrace = "";
+        StackTraceElement[] trace = pError.getStackTrace();
+        for (StackTraceElement line : trace) {
+            stacktrace += line.toString() + "\n";
+        }
+        intent.putExtra(ID_STACKTRACE, stacktrace);
 
         return intent;
     }
