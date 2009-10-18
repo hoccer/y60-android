@@ -32,8 +32,10 @@ def main action, device_id, pj_names
     p.send action, device_id
   end
   
+  device = "-s #{device_id}" unless device_id.nil? || device_id.empty?
+
   # clean the mess up
-  system "adb -s #{device_id} shell rm /data/local/*apk"
+  system "adb #{device} shell rm /data/local/*apk"
   
 rescue => e
   puts "oops: #{e}\n#{e.backtrace.join "\n"}"
