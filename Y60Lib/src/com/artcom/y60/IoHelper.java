@@ -15,6 +15,14 @@ public class IoHelper {
         return pString;
     }
 
+    public static String cutString(String pString, int pMaxWidth) {
+        pMaxWidth -= 3;
+        if (pString.length() > pMaxWidth) {
+            return pString.substring(0, pMaxWidth) + "...";
+        }
+        return pString;
+    }
+
     public static String readStringFromStream(InputStream pInStream) throws IOException {
 
         InputStreamReader isr = new InputStreamReader(pInStream);
@@ -49,6 +57,16 @@ public class IoHelper {
             fos.write(buffer, 0, len);
         }
         fos.close();
+    }
+
+    public static void deleteDir(File file) {
+        if (file.isDirectory()) {
+            String[] children = file.list();
+            for (int i = 0; i < children.length; i++) {
+                deleteDir(new File(file, children[i]));
+            }
+        }
+        file.delete();
     }
 
 }

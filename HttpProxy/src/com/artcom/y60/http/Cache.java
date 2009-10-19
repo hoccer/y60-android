@@ -11,22 +11,23 @@ import android.net.Uri;
 import android.os.Bundle;
 
 import com.artcom.y60.HttpHelper;
+import com.artcom.y60.IoHelper;
 import com.artcom.y60.Logger;
 
 public class Cache {
 
     // Constants ---------------------------------------------------------
 
-    public static final String  LOG_TAG   = "Cache";
-    static final String         CACHE_DIR = "/sdcard/HttpProxyCache/";
-    private Map<String, Bundle> mCachedContent;                       // _the_
+    public static final String        LOG_TAG   = "Cache";
+    static final String               CACHE_DIR = "/sdcard/HttpProxyCache/";
+    private final Map<String, Bundle> mCachedContent;                       // _the_
     // cache
 
-    private List<String>        mPendingResources;
+    private final List<String>        mPendingResources;
 
-    private Thread              mRefresher;
+    private Thread                    mRefresher;
 
-    private boolean             mShutdown;
+    private boolean                   mShutdown;
 
     // Constructors ------------------------------------------------------
 
@@ -148,6 +149,8 @@ public class Cache {
 
                 mCachedContent.clear();
                 mPendingResources.clear();
+
+                IoHelper.deleteDir(new File(CACHE_DIR));
             }
         }
     }
@@ -160,8 +163,7 @@ public class Cache {
     // Private Instance Methods ------------------------------------------
 
     /**
-     * Stores the uri in a bundle. Big files will be written to sdcard, small
-     * ones a kept in memory.
+     * Stores the uri in a bundle. Big files will be written to sdcard, small ones a kept in memory.
      * 
      * @throws Exception
      */

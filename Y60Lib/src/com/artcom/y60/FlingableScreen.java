@@ -28,9 +28,7 @@ public class FlingableScreen implements AnimationListener {
     // Instance Variables ------------------------------------------------
 
     private AbsoluteLayout      mBaseLayout;
-
     private RelativeLayout      mContentLayout;
-
     private View                mContent;
 
     private Activity            mActivity;
@@ -70,48 +68,72 @@ public class FlingableScreen implements AnimationListener {
         mOutToLeft = new TranslateAnimation(Animation.RELATIVE_TO_SELF, 0,
                 Animation.RELATIVE_TO_SELF, -1, Animation.RELATIVE_TO_SELF, 0,
                 Animation.RELATIVE_TO_SELF, 0);
+        mOutToLeft.setFillEnabled(true);
+        mOutToLeft.setFillAfter(true);
+        mOutToLeft.setFillBefore(true);
         mOutToLeft.setDuration(ANIMATION_DURATION);
         mOutToLeft.setAnimationListener(this);
 
         mInFromLeft = new TranslateAnimation(Animation.RELATIVE_TO_SELF, -1,
                 Animation.RELATIVE_TO_SELF, 0, Animation.RELATIVE_TO_SELF, 0,
                 Animation.RELATIVE_TO_SELF, 0);
+        mInFromLeft.setFillEnabled(true);
+        mInFromLeft.setFillAfter(true);
+        mInFromLeft.setFillBefore(true);
         mInFromLeft.setDuration(ANIMATION_DURATION);
         mInFromLeft.setAnimationListener(this);
 
         mOutToRight = new TranslateAnimation(Animation.RELATIVE_TO_SELF, 0,
                 Animation.RELATIVE_TO_SELF, 1, Animation.RELATIVE_TO_SELF, 0,
                 Animation.RELATIVE_TO_SELF, 0);
+        mOutToRight.setFillEnabled(true);
+        mOutToRight.setFillAfter(true);
+        mOutToRight.setFillBefore(true);
         mOutToRight.setDuration(ANIMATION_DURATION);
         mOutToRight.setAnimationListener(this);
 
         mInFromRight = new TranslateAnimation(Animation.RELATIVE_TO_SELF, 1,
                 Animation.RELATIVE_TO_SELF, 0, Animation.RELATIVE_TO_SELF, 0,
                 Animation.RELATIVE_TO_SELF, 0);
+        mInFromRight.setFillEnabled(true);
+        mInFromRight.setFillAfter(true);
+        mInFromRight.setFillBefore(true);
         mInFromRight.setDuration(ANIMATION_DURATION);
         mInFromRight.setAnimationListener(this);
 
         mOutToTop = new TranslateAnimation(Animation.RELATIVE_TO_SELF, 0,
                 Animation.RELATIVE_TO_SELF, 0, Animation.RELATIVE_TO_SELF, 0,
                 Animation.RELATIVE_TO_SELF, -1);
+        mOutToTop.setFillEnabled(true);
+        mOutToTop.setFillAfter(true);
+        mOutToTop.setFillBefore(true);
         mOutToTop.setDuration(ANIMATION_DURATION);
         mOutToTop.setAnimationListener(this);
 
         mInFromTop = new TranslateAnimation(Animation.RELATIVE_TO_SELF, 0,
                 Animation.RELATIVE_TO_SELF, 0, Animation.RELATIVE_TO_SELF, -1,
                 Animation.RELATIVE_TO_SELF, 0);
+        mInFromTop.setFillEnabled(true);
+        mInFromTop.setFillAfter(true);
+        mInFromTop.setFillBefore(true);
         mInFromTop.setDuration(ANIMATION_DURATION);
         mInFromTop.setAnimationListener(this);
 
         mOutToBottom = new TranslateAnimation(Animation.RELATIVE_TO_SELF, 0,
                 Animation.RELATIVE_TO_SELF, 0, Animation.RELATIVE_TO_SELF, 0,
                 Animation.RELATIVE_TO_SELF, 1);
+        mOutToBottom.setFillEnabled(true);
+        mOutToBottom.setFillAfter(true);
+        mOutToBottom.setFillBefore(true);
         mOutToBottom.setDuration(ANIMATION_DURATION);
         mOutToBottom.setAnimationListener(this);
 
         mInFromBottom = new TranslateAnimation(Animation.RELATIVE_TO_SELF, 0,
                 Animation.RELATIVE_TO_SELF, 0, Animation.RELATIVE_TO_SELF, 1,
                 Animation.RELATIVE_TO_SELF, 0);
+        mInFromBottom.setFillEnabled(true);
+        mInFromBottom.setFillAfter(true);
+        mInFromBottom.setFillBefore(true);
         mInFromBottom.setDuration(ANIMATION_DURATION);
         mInFromBottom.setAnimationListener(this);
 
@@ -180,6 +202,10 @@ public class FlingableScreen implements AnimationListener {
         showBackground();
     }
 
+    public void clearAnimation() {
+        mBaseLayout.clearAnimation();
+    }
+
     public void showBackground() {
         if (mBackgroundDrawable != null) {
             // mBaseLayout.setBackgroundDrawable(mBackgroundDrawable);
@@ -194,10 +220,6 @@ public class FlingableScreen implements AnimationListener {
         mBackgroundDrawable = pBackground;
         mActivity.getWindow().setBackgroundDrawable(pBackground);
         // mBaseLayout.setBackgroundDrawable(mBackgroundDrawable);
-    }
-
-    public void clear() {
-
     }
 
     // Protected Instance Methods ----------------------------------------
