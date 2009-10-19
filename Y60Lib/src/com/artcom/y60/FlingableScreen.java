@@ -28,9 +28,7 @@ public class FlingableScreen implements AnimationListener {
     // Instance Variables ------------------------------------------------
 
     private AbsoluteLayout      mBaseLayout;
-
     private RelativeLayout      mContentLayout;
-
     private View                mContent;
 
     private Activity            mActivity;
