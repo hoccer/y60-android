@@ -15,6 +15,14 @@ public class IoHelper {
         return pString;
     }
 
+    public static String cutString(String pString, int pMaxWidth) {
+        pMaxWidth -= 3;
+        if (pString.length() > pMaxWidth) {
+            return pString.substring(0, pMaxWidth) + "...";
+        }
+        return pString;
+    }
+
     public static String readStringFromStream(InputStream pInStream) throws IOException {
 
         InputStreamReader isr = new InputStreamReader(pInStream);
