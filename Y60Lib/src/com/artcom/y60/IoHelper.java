@@ -59,4 +59,14 @@ public class IoHelper {
         fos.close();
     }
 
+    public static void deleteDir(File file) {
+        if (file.isDirectory()) {
+            String[] children = file.list();
+            for (int i = 0; i < children.length; i++) {
+                deleteDir(new File(file, children[i]));
+            }
+        }
+        file.delete();
+    }
+
 }

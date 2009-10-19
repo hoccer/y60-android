@@ -102,7 +102,7 @@ public class HttpProxyService extends Y60Service {
 
     private HttpProxyRemote mRemote;
 
-    private String          mId;
+    private final String    mId;
 
     private ResetReceiver   mResetReceiver;
 
@@ -165,6 +165,8 @@ public class HttpProxyService extends Y60Service {
         }
 
         unregisterReceiver(mResetReceiver);
+
+        clear();
 
         super.onDestroy();
     }
