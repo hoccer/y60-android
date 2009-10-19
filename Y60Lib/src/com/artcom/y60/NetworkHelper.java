@@ -34,8 +34,8 @@ public class NetworkHelper {
     }
 
     /**
-     * Fetches the ip address used to go "on stage". This is either the one we
-     * got from a dhcp server or (on emulators) an address setted in the GOM.
+     * Fetches the ip address used to go "on stage". This is either the one we got from a dhcp
+     * server or (on emulators) an address setted in the GOM.
      * 
      * @throws IpAddressNotFoundException
      */
@@ -48,8 +48,7 @@ public class NetworkHelper {
             for (InetAddress addr : addrs) {
 
                 Logger.v(LOG_TAG, "ip address: <", addr, ">");
-                if (addr.toString().indexOf("192.168.9.") > -1) {
-
+                if (!addr.toString().contains("127.0.0.1")) {
                     ip = addr;
                 }
             }
@@ -80,8 +79,7 @@ public class NetworkHelper {
     }
 
     /**
-     * Fetches the first ip address of the device wich is not the loopback
-     * 127.0.0.1.
+     * Fetches the first ip address of the device wich is not the loopback 127.0.0.1.
      */
     public static String getDeviceIpAddress() throws IpAddressNotFoundException {
 
