@@ -15,6 +15,18 @@ public class RunLevelReceiver extends BroadcastReceiver {
     private boolean             isJavaScriptViewsReady    = false;
     private boolean             isVideoPreloadReady       = false;
     private boolean             isPreloadBrowseViewsReady = false;
+    private boolean             isDeviceControllerReady   = false;
+    private boolean             isGomProxyReady           = false;
+    private boolean             isHttpProxyReady          = false;
+    private ProgressListener    mProgressListener;
+
+    public void setProgressListener(ProgressListener pProgressListener) {
+        mProgressListener = pProgressListener;
+    }
+
+    public int getNoOfLevels() {
+        return 9;
+    }
 
     @Override
     public void onReceive(Context pContext, Intent pIntent) {
@@ -22,39 +34,49 @@ public class RunLevelReceiver extends BroadcastReceiver {
         if (pIntent.getAction().equals(Y60Action.SEARCH_READY)) {
             isSearchReady = true;
             Logger.v(LOG_TAG, "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ search is ready");
-            launchHomeScreenIfReady(pContext);
             Toast.makeText(pContext, "SEARCH is ready", Toast.LENGTH_SHORT).show();
 
         } else if (pIntent.getAction().equals(Y60Action.CALL_READY)) {
             isCallReady = true;
             Logger.v(LOG_TAG, "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ call is ready");
-            launchHomeScreenIfReady(pContext);
             Toast.makeText(pContext, "CALL is ready", Toast.LENGTH_SHORT).show();
 
         } else if (pIntent.getAction().equals(Y60Action.JAVASCRIPT_VIEWS_READY)) {
             isJavaScriptViewsReady = true;
             Logger.v(LOG_TAG, "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ javascript views is ready");
-            launchHomeScreenIfReady(pContext);
             Toast.makeText(pContext, "JS VIEWS are ready", Toast.LENGTH_SHORT).show();
 
         } else if (pIntent.getAction().equals(Y60Action.GLOBAL_OBSERVERS_READY)) {
             isGlobalObserversReady = true;
             Logger.v(LOG_TAG, "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ global observers is ready");
-            launchHomeScreenIfReady(pContext);
             Toast.makeText(pContext, "GLOBAL OBSERVERS is ready", Toast.LENGTH_SHORT).show();
 
         } else if (pIntent.getAction().equals(Y60Action.PRELOAD_BROWSE_READY)) {
             isPreloadBrowseViewsReady = true;
             Logger.v(LOG_TAG, "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ preload browse is ready");
-            launchHomeScreenIfReady(pContext);
             Toast.makeText(pContext, "PRELOAD_BROWSE_READY is ready", Toast.LENGTH_SHORT).show();
 
         } else if (pIntent.getAction().equals(Y60Action.VIDEO_PRELOAD_READY)) {
             isVideoPreloadReady = true;
             Logger.v(LOG_TAG, "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ video preload is ready");
-            launchHomeScreenIfReady(pContext);
             Toast.makeText(pContext, "VIDEO_PRELOAD_READY is ready", Toast.LENGTH_SHORT).show();
+
+        } else if (pIntent.getAction().equals(Y60Action.DEVICE_CONTROLLER_READY)) {
+            isDeviceControllerReady = true;
+            Toast.makeText(pContext, "DEVICE_CONTROLLER_READY", Toast.LENGTH_SHORT).show();
+
+        } else if (pIntent.getAction().equals(Y60Action.SERVICE_GOM_PROXY_READY)) {
+            isGomProxyReady = true;
+            Toast.makeText(pContext, "SERVICE_GOM_PROXY_READY", Toast.LENGTH_SHORT).show();
+
+        } else if (pIntent.getAction().equals(Y60Action.SERVICE_HTTP_PROXY_READY)) {
+            isHttpProxyReady = true;
+            Toast.makeText(pContext, "SERVICE_HTTP_PROXY_READY", Toast.LENGTH_SHORT).show();
+
         }
+        launchHomeScreenIfReady(pContext);
+        if (mProgressListener != null)
+            mProgressListener.update();
 
     }
 
@@ -70,7 +92,9 @@ public class RunLevelReceiver extends BroadcastReceiver {
         Logger.v(LOG_TAG, "isEveryThingReady? \n search: ", isSearchReady, " \ncall: ",
                 isCallReady, " \nglobalObservers: ", isGlobalObserversReady, " \njsViews: ",
                 isJavaScriptViewsReady, " \nvideoPreload: ", isVideoPreloadReady,
-                " \npreloadBrowse: ", isPreloadBrowseViewsReady, "\naddress: ", this.toString());
+                " \npreloadBrowse: ", isPreloadBrowseViewsReady, "\nisDeviceControllerReady: ",
+                isDeviceControllerReady, "\nisGomProxyReady: ", isGomProxyReady,
+                "\nisHttpProxyReady: ", isHttpProxyReady, "\naddress: ", this.toString());
         return isSearchReady && isCallReady && isGlobalObserversReady && isJavaScriptViewsReady
                 && isVideoPreloadReady && isPreloadBrowseViewsReady;
     }

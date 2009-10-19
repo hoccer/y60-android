@@ -200,6 +200,10 @@ public class Y60 extends Activity {
         registerReceiver(mRunLevelReceiver, new IntentFilter(Y60Action.CALL_READY));
         registerReceiver(mRunLevelReceiver, new IntentFilter(Y60Action.VIDEO_PRELOAD_READY));
         registerReceiver(mRunLevelReceiver, new IntentFilter(Y60Action.PRELOAD_BROWSE_READY));
+
+        registerReceiver(mRunLevelReceiver, new IntentFilter(Y60Action.DEVICE_CONTROLLER_READY));
+        registerReceiver(mRunLevelReceiver, new IntentFilter(Y60Action.SERVICE_GOM_PROXY_READY));
+        registerReceiver(mRunLevelReceiver, new IntentFilter(Y60Action.SERVICE_HTTP_PROXY_READY));
     }
 
     private void unregisterRunLevelReceiver() {
