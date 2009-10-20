@@ -8,7 +8,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 public class IoHelper {
+    private static final String LOG_TAG = "IoHelper";
 
     public static String encodeUrlBlanks(String pString) {
         pString = pString.replaceAll(" ", "%20");
@@ -69,6 +73,17 @@ public class IoHelper {
             }
         }
         file.delete();
+    }
+
+    public static String getValue(JSONObject json, String name) {
+        if (json.has(name)) {
+            try {
+                return json.getString(name);
+            } catch (JSONException e) {
+                Logger.e(LOG_TAG, "could not fetch value: ", name, " from json");
+            }
+        }
+        return "";
     }
 
 }
