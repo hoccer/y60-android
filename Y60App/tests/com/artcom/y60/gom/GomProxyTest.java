@@ -21,7 +21,8 @@ public class GomProxyTest extends GomActivityUnitTestCase {
         GomProxyHelper helper = createHelper();
         Uri uri = helper.getBaseUri();
 
-        assertEquals("http://t-gom.service.t-gallery.act", uri.toString());
+        assertTrue("should contain http://", uri.toString().contains("http://"));
+        assertTrue("should contain 'gom'", uri.toString().contains("gom"));
     }
 
     public void testBindingAndUnbinding() throws Exception {
@@ -101,11 +102,13 @@ public class GomProxyTest extends GomActivityUnitTestCase {
 
     // Protected Instance Methods ----------------------------------------
 
+    @Override
     protected void setUp() throws Exception {
 
         super.setUp();
     }
 
+    @Override
     protected void tearDown() throws Exception {
 
         super.tearDown();
