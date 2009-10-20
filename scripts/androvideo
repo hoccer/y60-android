@@ -33,8 +33,8 @@
 #
 # some variable and function definitions
 
-#RESOLUTION="320x480" # default resolution
-RESOLUTION="480x320"
+RESOLUTION="320x480" # default resolution
+#RESOLUTION="480x320"
 AUDIO_CHANNELS="1"
 AUDIO_SAMPLING_RATE="16000"
 AUDIO_BIT_RATE="32000"
@@ -43,7 +43,8 @@ declare -a VIDEO_FILES # array to hold the files to covert
 
 convert () {
 	echo "Converting ${1}"
-	ffmpeg -i "$1" -s "$RESOLUTION" -vcodec mpeg4 -acodec libfaac -ac 1 -ar "$AUDIO_SAMPLING_RATE" -r "$FRAME_RATE" -ab "$AUDIO_BIT_RATE" -aspect 3:2  "$1.mp4"
+#	ffmpeg -i "$1" -s "$RESOLUTION" -vcodec mpeg4 -acodec libfaac -ac 1 -ar "$AUDIO_SAMPLING_RATE" -r "$FRAME_RATE" -ab "$AUDIO_BIT_RATE" -aspect 3:2  "$1.mp4"
+	ffmpeg -i "$1" -s "$RESOLUTION" -vcodec mpeg4 -acodec libfaac -ac 1 -ar "$AUDIO_SAMPLING_RATE" -r "$FRAME_RATE" -ab "$AUDIO_BIT_RATE" -aspect 2:3  "$1.mp4"
 }
  
 setup () {

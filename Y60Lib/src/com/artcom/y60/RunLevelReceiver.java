@@ -94,7 +94,7 @@ public class RunLevelReceiver extends BroadcastReceiver {
         }
     }
 
-    private boolean isEverythingReady() {
+    public boolean isEverythingReady() {
         Logger.v(LOG_TAG, "isEveryThingReady? \n search: ", isSearchReady, " \ncall: ",
                 isCallReady, " \nglobalObservers: ", isGlobalObserversReady, " \njsViews: ",
                 isJavaScriptViewsReady, " \nvideoPreload: ", isVideoPreloadReady,
@@ -102,7 +102,8 @@ public class RunLevelReceiver extends BroadcastReceiver {
                 isDeviceControllerReady, "\nisGomProxyReady: ", isGomProxyReady,
                 "\nisHttpProxyReady: ", isHttpProxyReady, "\naddress: ", this.toString());
         return isSearchReady && isCallReady && isGlobalObserversReady && isJavaScriptViewsReady
-                && isVideoPreloadReady && isPreloadBrowseViewsReady;
+                && isVideoPreloadReady && isPreloadBrowseViewsReady && isGomProxyReady
+                && isHttpProxyReady && isDeviceControllerReady;
     }
 
     public void reset() {
@@ -112,11 +113,50 @@ public class RunLevelReceiver extends BroadcastReceiver {
         isJavaScriptViewsReady = false;
         isVideoPreloadReady = false;
         isPreloadBrowseViewsReady = false;
+        isGomProxyReady = false;
+        isHttpProxyReady = false;
+        isDeviceControllerReady = false;
 
         Logger.v(LOG_TAG, "RESET!?\n search: ", isSearchReady, " \ncall: ", isCallReady,
                 " \nglobalObservers: ", isGlobalObserversReady, " \njsViews: ",
                 isJavaScriptViewsReady, " \nvideoPreload: ", isVideoPreloadReady,
                 " \npreloadBrowse: ", isPreloadBrowseViewsReady, "\naddress: ", this.toString());
+    }
+
+    public boolean isSearchReady() {
+        return isSearchReady;
+    }
+
+    public boolean isCallReady() {
+        return isCallReady;
+    }
+
+    public boolean isGlobalObserversReady() {
+        return isGlobalObserversReady;
+    }
+
+    public boolean isJavaScriptViewsReady() {
+        return isJavaScriptViewsReady;
+    }
+
+    public boolean isVideoPreloadReady() {
+        return isVideoPreloadReady;
+    }
+
+    public boolean isPreloadBrowseViewsReady() {
+        return isPreloadBrowseViewsReady;
+    }
+
+    public boolean isDeviceControllerReady() {
+        return isDeviceControllerReady;
+    }
+
+    public boolean isGomProxyReady() {
+        return isGomProxyReady;
+    }
+
+    public boolean isHttpProxyReady() {
+        return isHttpProxyReady;
     }
 
 }
