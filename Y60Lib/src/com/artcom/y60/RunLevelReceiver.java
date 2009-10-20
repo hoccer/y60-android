@@ -75,8 +75,9 @@ public class RunLevelReceiver extends BroadcastReceiver {
 
         }
         launchHomeScreenIfReady(pContext);
-        if (mProgressListener != null)
+        if (mProgressListener != null) {
             mProgressListener.update();
+        }
 
     }
 
@@ -112,4 +113,5 @@ public class RunLevelReceiver extends BroadcastReceiver {
                 isJavaScriptViewsReady, " \nvideoPreload: ", isVideoPreloadReady,
                 " \npreloadBrowse: ", isPreloadBrowseViewsReady, "\naddress: ", this.toString());
     }
+
 }
