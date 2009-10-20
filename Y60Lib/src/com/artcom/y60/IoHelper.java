@@ -12,6 +12,8 @@ public class IoHelper {
 
     public static String encodeUrlBlanks(String pString) {
         pString = pString.replaceAll(" ", "%20");
+        // pString = pString.replaceAll("ü", "%FC"); //not sure if this is
+        // needed
         return pString;
     }
 
