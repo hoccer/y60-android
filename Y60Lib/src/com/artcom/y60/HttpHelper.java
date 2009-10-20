@@ -85,7 +85,7 @@ public class HttpHelper {
         HttpPut put = new HttpPut(pUrl);
         String body = tmp.toString();
 
-        Logger.v(LOG_TAG, "PUT " + pUrl + " with body " + body);
+        // Logger.v(LOG_TAG, "PUT " + pUrl + " with body " + body);
 
         insertUrlEncoded(body, put);
         return executeHTTPMethod(put, PUT_TIMEOUT);
@@ -227,8 +227,6 @@ public class HttpHelper {
         String url = toJsonUrl(pUrl);
         String result = getAsString(url);
 
-        // Log.v(LOG_TAG, "JSON result: " + result);
-
         return new JSONObject(result);
     }
 
@@ -265,7 +263,7 @@ public class HttpHelper {
 
     public static int getStatusCode(String url) throws IOException {
 
-        Logger.v(LOG_TAG, "getStatusCode for ", url);
+        // Logger.v(LOG_TAG, "getStatusCode for ", url);
         HttpHead head = new HttpHead(url);
         try {
 
