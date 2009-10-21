@@ -8,6 +8,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 public class IoHelper {
 
     public static String encodeUrlBlanks(String pString) {
@@ -67,6 +70,13 @@ public class IoHelper {
             }
         }
         file.delete();
+    }
+
+    public static String getValue(JSONObject jo, String name) throws JSONException {
+        if (jo.has(name)) {
+            return jo.getString(name);
+        }
+        return "";
     }
 
 }
