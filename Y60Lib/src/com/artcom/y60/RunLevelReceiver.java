@@ -3,7 +3,6 @@ package com.artcom.y60;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.widget.Toast;
 
 public class RunLevelReceiver extends BroadcastReceiver {
 
@@ -29,8 +28,8 @@ public class RunLevelReceiver extends BroadcastReceiver {
     }
 
     public void toast(Context pContext, String pMessage) {
-        if (mProgressListener == null)
-            Toast.makeText(pContext, pMessage, Toast.LENGTH_SHORT).show();
+        // if (mProgressListener == null)
+        // Toast.makeText(pContext, pMessage, Toast.LENGTH_SHORT).show();
     }
 
     @Override
@@ -68,15 +67,15 @@ public class RunLevelReceiver extends BroadcastReceiver {
 
         } else if (pIntent.getAction().equals(Y60Action.DEVICE_CONTROLLER_READY)) {
             isDeviceControllerReady = true;
-            Toast.makeText(pContext, "DEVICE_CONTROLLER_READY", Toast.LENGTH_SHORT).show();
+            toast(pContext, "DEVICE_CONTROLLER_READY");
 
         } else if (pIntent.getAction().equals(Y60Action.SERVICE_GOM_PROXY_READY)) {
             isGomProxyReady = true;
-            Toast.makeText(pContext, "SERVICE_GOM_PROXY_READY", Toast.LENGTH_SHORT).show();
+            toast(pContext, "SERVICE_GOM_PROXY_READY");
 
         } else if (pIntent.getAction().equals(Y60Action.SERVICE_HTTP_PROXY_READY)) {
             isHttpProxyReady = true;
-            Toast.makeText(pContext, "SERVICE_HTTP_PROXY_READY", Toast.LENGTH_SHORT).show();
+            toast(pContext, "SERVICE_HTTP_PROXY_READY");
 
         }
         launchHomeScreenIfReady(pContext);

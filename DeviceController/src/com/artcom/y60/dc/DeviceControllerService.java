@@ -133,8 +133,9 @@ public class DeviceControllerService extends Y60GomService {
 
         if (mServer == null) {
             Logger.i(LOG_TAG, "onDestroy(): Jetty not running, Server is null");
-            Toast.makeText(DeviceControllerService.this, R.string.jetty_not_running,
-                    Toast.LENGTH_SHORT).show();
+            // Toast.makeText(DeviceControllerService.this,
+            // R.string.jetty_not_running,
+            // Toast.LENGTH_SHORT).show();
 
             super.onDestroy();
             return;
@@ -145,7 +146,8 @@ public class DeviceControllerService extends Y60GomService {
 
         } catch (Exception e) {
             ErrorHandling.signalServiceError(LOG_TAG, e, this);
-            Toast.makeText(this, getText(R.string.jetty_not_stopped), Toast.LENGTH_SHORT).show();
+            // Toast.makeText(this, getText(R.string.jetty_not_stopped),
+            // Toast.LENGTH_SHORT).show();
         }
 
         super.onDestroy();

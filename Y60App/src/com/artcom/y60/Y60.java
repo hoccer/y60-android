@@ -58,7 +58,7 @@ import android.widget.AdapterView.OnItemSelectedListener;
 
 public class Y60 extends Activity {
 
-    private static final String                LOG_TAG = "Y60";
+    private static final String                LOG_TAG  = "Y60";
 
     private RunLevelReceiver                   mRunLevelReceiver;
 
@@ -74,6 +74,8 @@ public class Y60 extends Activity {
 
     private Spinner                            mChooseLogLevel;
     private ArrayAdapter<String>               mLogLevelArrayAdapter;
+
+    public static final String                 INIT_APP = "tgallery.intent.INIT_APP";
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -104,28 +106,26 @@ public class Y60 extends Activity {
         mInitButton.setOnClickListener(new OnClickListener() {
             // @Override
             public void onClick(View v) {
-                unregisterRunLevelReceiver();
-
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-
-                        stopService(new Intent(Y60Action.SERVICE_DEVICE_CONTROLLER));
-                        sendBroadcast(new Intent(Y60Action.SHUTDOWN_SERVICES_BC));
-
-                        // TODO block until shutdown complete
-                        try {
-                            Thread.sleep(10000);
-                        } catch (InterruptedException e) {
-                            // TODO Auto-generated catch block
-                            e.printStackTrace();
-                        }
-
-                        registerNewRunLevelReceiver();
-                        sendBroadcast(new Intent(Y60Action.INIT_PROXY_SERVICES));
-                    }
-
-                }).start();
+                /*
+                 * unregisterRunLevelReceiver();
+                 * 
+                 * new Thread(new Runnable() {
+                 * 
+                 * @Override public void run() {
+                 * 
+                 * stopService(new Intent(Y60Action.SERVICE_DEVICE_CONTROLLER));
+                 * sendBroadcast(new Intent(Y60Action.SHUTDOWN_SERVICES_BC));
+                 * 
+                 * // TODO block until shutdown complete try {
+                 * Thread.sleep(10000); } catch (InterruptedException e) { //
+                 * TODO Auto-generated catch block e.printStackTrace(); }
+                 * 
+                 * registerNewRunLevelReceiver(); sendBroadcast(new
+                 * Intent(Y60Action.INIT_PROXY_SERVICES)); }
+                 * 
+                 * }).start();
+                 */
+                startActivity(new Intent(INIT_APP));
             }
         });
 

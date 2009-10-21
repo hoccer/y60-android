@@ -16,7 +16,6 @@ import android.content.IntentFilter;
 import android.net.Uri;
 import android.os.IBinder;
 import android.os.RemoteException;
-import android.widget.Toast;
 
 import com.artcom.y60.Constants;
 import com.artcom.y60.DeviceConfiguration;
@@ -83,7 +82,8 @@ public class GomProxyService extends Y60Service {
         Logger.v(LOG_TAG, "onStart: threadid: ", Thread.currentThread().getId());
         Logger.v(LOG_TAG, "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ send broadcast GOM PROXY READY");
         sendBroadcast(new Intent(Y60Action.SERVICE_GOM_PROXY_READY));
-        Toast.makeText(this, "GOM PROXY is ready", Toast.LENGTH_SHORT).show();
+        // Toast.makeText(this, "GOM PROXY is ready",
+        // Toast.LENGTH_SHORT).show();
 
         mIsStartedForTest = true;
 
