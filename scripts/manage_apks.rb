@@ -18,6 +18,15 @@ usage: $ #{__FILE__} <action>
      uninstall   removes installed apks
 EOT
 
+def remember_version device_flag
+
+  version = (open "| git log --summary HEAD").gets[7..-1][0..6]
+
+  puts "remembering version '#{version}'"
+  
+  open "| adb #{device_flag} shell \"echo '#{version}' > /sdcard/deployed_version.txt\""
+end
+
 def main action, device_id, pj_names
   
   projects = Project.load_in_dependency_order(pj_names)
@@ -36,6 +45,8 @@ def main action, device_id, pj_names
 
   # clean the mess up
   system "adb #{device} shell rm /data/local/*apk"
+
+  remember_version device unless action == "uninstall"
   
 rescue => e
   puts "oops: #{e}\n#{e.backtrace.join "\n"}"
