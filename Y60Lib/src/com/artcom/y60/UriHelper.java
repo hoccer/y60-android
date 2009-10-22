@@ -31,4 +31,11 @@ public class UriHelper {
         return pStr;
     }
 
+    public static boolean isImageUri(String pUri) {
+        return pUri.substring(pUri.lastIndexOf(".") + 1).equals("png")
+                || pUri.substring(pUri.lastIndexOf(".") + 1).equals("jpg")
+                || pUri.substring(pUri.lastIndexOf(".") + 1).equals("jpeg")
+                || pUri.substring(pUri.lastIndexOf(".") + 1).equals("gif");
+    }
+
 }
