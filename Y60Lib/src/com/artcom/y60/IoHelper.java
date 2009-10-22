@@ -12,6 +12,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 public class IoHelper {
+    private static final String LOG_TAG = "IoHelper";
 
     public static String encodeUrlBlanks(String pString) {
         pString = pString.replaceAll(" ", "%20");
