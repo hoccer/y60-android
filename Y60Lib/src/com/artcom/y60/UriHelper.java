@@ -3,6 +3,7 @@ package com.artcom.y60;
 import android.net.Uri;
 
 public class UriHelper {
+    private static final String LOG_TAG = "UriHelper";
 
     public static String join(String pBaseUri, String... pSegments) {
 
@@ -38,4 +39,12 @@ public class UriHelper {
                 || pUri.substring(pUri.lastIndexOf(".") + 1).equals("gif");
     }
 
+    public static boolean isRawUri(String pUri) {
+
+        // String[] rawTypes = { ".png", ".jpg", ".jpeg", ".gif", ".mp4",
+        // ".mp3", ".3gp", ".mov", ".wav" };
+        // String s = pUri.substring(pUri.toLowerCase().lastIndexOf("."));
+        int lastDotIndex = pUri.length() - pUri.lastIndexOf(".") - 1;
+        return lastDotIndex == 3 || lastDotIndex == 4;
+    }
 }
