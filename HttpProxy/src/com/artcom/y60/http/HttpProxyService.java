@@ -11,7 +11,6 @@ import android.content.IntentFilter;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
-import android.widget.Toast;
 
 import com.artcom.y60.DeviceConfiguration;
 import com.artcom.y60.Logger;
@@ -143,7 +142,8 @@ public class HttpProxyService extends Y60Service {
     public void onStart(Intent intent, int startId) {
         Logger.v(LOG_TAG, "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ send broadcast HTTP PROXY READY");
         sendBroadcast(new Intent(Y60Action.SERVICE_HTTP_PROXY_READY));
-        Toast.makeText(this, "HTTP PROXY is ready", Toast.LENGTH_SHORT).show();
+        // Toast.makeText(this, "HTTP PROXY is ready",
+        // Toast.LENGTH_SHORT).show();
         Logger.i(tag(), "HttpProxyService.onStart");
         super.onStart(intent, startId);
         Logger.d(tag(), "instances: " + countInstances());

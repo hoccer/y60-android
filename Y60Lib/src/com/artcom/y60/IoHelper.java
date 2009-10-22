@@ -73,13 +73,9 @@ public class IoHelper {
         file.delete();
     }
 
-    public static String getValue(JSONObject json, String name) {
-        if (json.has(name)) {
-            try {
-                return json.getString(name);
-            } catch (JSONException e) {
-                Logger.e(LOG_TAG, "could not fetch value: ", name, " from json");
-            }
+    public static String getValue(JSONObject jo, String name) throws JSONException {
+        if (jo.has(name)) {
+            return jo.getString(name);
         }
         return "";
     }
