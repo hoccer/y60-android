@@ -7,8 +7,13 @@ public class NetworkHelperTest extends TestCase {
     public void testGettingStagingIp() throws Exception {
 
         assertTrue(
-                "Device should have a valid staging ip, but was " + NetworkHelper.getStagingIp(),
+                "Device should not have local address as staging ip, but was " + NetworkHelper.getStagingIp(),
                 !NetworkHelper.getStagingIp().toString().contains("172.0.0.1"));
+
+        assertTrue(
+                "Device should not have an emulator address as staging ip, but was " + NetworkHelper.getStagingIp(),
+                !NetworkHelper.getStagingIp().toString().contains("10.0.2"));
+
     }
 
 }
