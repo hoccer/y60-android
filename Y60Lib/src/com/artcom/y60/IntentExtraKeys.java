@@ -3,6 +3,7 @@ package com.artcom.y60;
 public class IntentExtraKeys {
     public static final String CALLING_APP              = "calling_app";
     public static final String QUERY_PATH               = "query_path";
+    public static final String QUERY_TITLE              = "query_title";
     public static final String SEARCH_TARGET            = "target";
     public static final String SEARCH_SENDER            = "sender";
     public static final String SEARCH_RECEIVER          = "receiver";

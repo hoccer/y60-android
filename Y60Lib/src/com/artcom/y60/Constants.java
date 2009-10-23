@@ -27,8 +27,6 @@ public class Constants {
             public static final String VALUE        = "value";
             public static final String TYPE         = "type";
             public static final String DISPLAY_NAME = "display_name";
-            public static final String BROWSABLE    = "browsable";
-            public static final String ITEM         = "item";
         }
 
         public static final String       URI;
