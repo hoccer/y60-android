@@ -1,5 +1,7 @@
 package com.artcom.y60.dc;
 
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
 
 import org.mortbay.jetty.Connector;
@@ -38,7 +40,7 @@ public class DeviceControllerService extends Y60GomService {
 
     Server                      mServer;
 
-    private IBinder             mBinder          = new DeviceControllerBinder();
+    private final IBinder       mBinder          = new DeviceControllerBinder();
 
     @Override
     public void onCreate() {
@@ -56,7 +58,8 @@ public class DeviceControllerService extends Y60GomService {
                         Logger.v(LOG_TAG, "bound() to GomProxyHelper: Server will be started now");
                     }
                     try {
-                        updateGomAttributesForDevice();
+                        updateIpAdressAttributesForDevice();
+                        updateVersionAttributeForDevice();
                     } catch (BindingException e) {
                         Logger.w(LOG_TAG,
                                 "GomProxy was unbound while processing asynchronous thread");
@@ -82,12 +85,10 @@ public class DeviceControllerService extends Y60GomService {
         super.onStart(intent, startId);
     }
 
-    /**
-     * Update our ip and rci_uri in the GOM
-     */
-    private void updateGomAttributesForDevice() throws GomException, IOException, HttpException {
+    private void updateIpAdressAttributesForDevice() throws GomException, IOException,
+            HttpException {
 
-        Logger.v(LOG_TAG, "updateDomAttributes for Device");
+        Logger.v(LOG_TAG, "updateGomAttributes for Device");
         DeviceConfiguration dc = DeviceConfiguration.load();
         String ipAddress;
 
@@ -125,6 +126,25 @@ public class DeviceControllerService extends Y60GomService {
         } catch (IpAddressNotFoundException e) {
             ErrorHandling.signalNetworkError(LOG_TAG, e, this);
         }
+    }
+
+    private void updateVersionAttributeForDevice() throws GomException, HttpException, IOException {
+
+        DeviceConfiguration dc = DeviceConfiguration.load();
+
+        FileReader fr;
+        try {
+            fr = new FileReader("/sdcard/deployed_version.txt");
+        } catch (FileNotFoundException e) {
+            Logger.e(LOG_TAG, "could not find version string on sdcard: ", e);
+            return;
+        }
+        char[] inputBuffer = new char[255];
+        fr.read(inputBuffer);
+        String version = new String(inputBuffer);
+
+        GomNode device = getGom().getNode(dc.getDevicePath());
+        device.getOrCreateAttribute("software_version").putValue(version);
     }
 
     @Override
