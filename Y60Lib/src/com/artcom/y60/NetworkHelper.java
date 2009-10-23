@@ -48,7 +48,7 @@ public class NetworkHelper {
             for (InetAddress addr : addrs) {
 
                 Logger.v(LOG_TAG, "ip address: <", addr, ">");
-                if (!addr.toString().contains("127.0.0.1")) {
+                if (!addr.toString().contains("127.0.0.1") && !addr.toString().contains("10.0.2")) {
                     ip = addr;
                 }
             }
