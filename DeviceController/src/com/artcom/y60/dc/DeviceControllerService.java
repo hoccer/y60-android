@@ -16,7 +16,6 @@ import android.app.ActivityManager.MemoryInfo;
 import android.content.Intent;
 import android.os.Binder;
 import android.os.IBinder;
-import android.widget.Toast;
 
 import com.artcom.y60.BindingException;
 import com.artcom.y60.Constants;
@@ -214,7 +213,7 @@ public class DeviceControllerService extends Y60GomService {
         mServer.join();
         Logger.i(LOG_TAG, "stopServer(): Jetty Server stopped. done.");
 
-        Toast.makeText(this, getText(R.string.jetty_stopped), Toast.LENGTH_SHORT).show();
+        //Toast.makeText(this, getText(R.string.jetty_stopped), Toast.LENGTH_SHORT).show();
         mServer = null;
     }
 
