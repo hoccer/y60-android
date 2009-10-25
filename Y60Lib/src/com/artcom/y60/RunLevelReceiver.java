@@ -100,7 +100,7 @@ public class RunLevelReceiver extends BroadcastReceiver {
                 " \npreloadBrowse: ", isPreloadBrowseViewsReady, "\nisDeviceControllerReady: ",
                 isDeviceControllerReady, "\nisGomProxyReady: ", isGomProxyReady,
                 "\nisHttpProxyReady: ", isHttpProxyReady, "\naddress: ", this.toString());
-        return isSearchReady && isCallReady && isGlobalObserversReady && isJavaScriptViewsReady
+        return isSearchReady /* && isCallReady */ && isGlobalObserversReady && isJavaScriptViewsReady
                 && isVideoPreloadReady && isPreloadBrowseViewsReady && isGomProxyReady
                 && isHttpProxyReady && isDeviceControllerReady;
     }
