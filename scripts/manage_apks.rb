@@ -18,13 +18,21 @@ usage: $ #{__FILE__} <action>
      uninstall   removes installed apks
 EOT
 
+
+def get_git_version
+  version = (open "|git log --summary HEAD").gets[7..-1][0..6]
+  puts "got git version '#{version}'"
+  return version
+end
+
+
 def remember_version device_flag
 
-  version = (open "| git log --summary HEAD").gets[7..-1][0..6]
+  version = get_git_version
 
   puts "remembering version '#{version}'"
   
-  open "| adb #{device_flag} shell \"echo '#{version}' > /sdcard/deployed_version.txt\""
+  system %(adb #{device_flag} shell "echo '#{version}' > /sdcard/deployed_version.txt")
 end
 
 def main action, device_id, pj_names
