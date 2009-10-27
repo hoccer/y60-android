@@ -46,6 +46,8 @@ public class FlingableScreen implements AnimationListener {
     private int                 mBackgroundResource;
     private Drawable            mBackgroundDrawable = null;
 
+    private boolean             mIsAnimating        = false;
+
     // Constructors ------------------------------------------------------
 
     public FlingableScreen(String p_Name, Activity pActivity, int pBackgroundResource) {
@@ -239,20 +241,32 @@ public class FlingableScreen implements AnimationListener {
 
     @Override
     public void onAnimationEnd(Animation pArg0) {
-        // TODO Auto-generated method stub
-
     }
 
     @Override
     public void onAnimationRepeat(Animation pArg0) {
-        // TODO Auto-generated method stub
-
     }
 
     @Override
     public void onAnimationStart(Animation pArg0) {
-        // TODO Auto-generated method stub
+        mIsAnimating = true;
+        new Thread(new Runnable() {
 
+            @Override
+            public void run() {
+                try {
+                    Thread.sleep(ANIMATION_DURATION + 50);
+                } catch (InterruptedException e) {
+                    ErrorHandling.signalUnspecifiedError(LOG_TAG, e, mActivity);
+                }
+                mIsAnimating = false;
+            }
+
+        }).start();
+    }
+
+    public boolean isAnimating() {
+        return mIsAnimating;
     }
 
     // Inner Classes -----------------------------------------------------
