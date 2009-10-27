@@ -42,4 +42,5 @@ public class IntentExtraKeys {
     public static final String VOICE_CONTROL_REASON     = "reason";
     public static final String RETURN_DATA              = "return_data";
     public static final String ACTION                   = "action";
+    public static final String RECIPIENT                = "recipient";
 }
