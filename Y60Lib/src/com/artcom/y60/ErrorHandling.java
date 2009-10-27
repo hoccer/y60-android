@@ -25,7 +25,7 @@ public class ErrorHandling {
         FILE_NOT_FOUND, MALFORMED_URI, MALFORMED_DATA, UNSUPPORTED_ENCODING, SAX_ERROR, JSON_ERROR, MISSING_GOM_ENTRY, MISSING_MANDATORY_OBJECT, LOW_ON_MEMORY_ERROR,
 
         // development and environmental errors
-        COMPONENT_NOT_FOUND, NETWORK_ERROR, IO_ERROR, ILLEGAL_ARGUMENT, GOM_ERROR, BACKEND_ERROR, SERVICE_ERROR, DEFECTIVE_CONTENT_ERROR, NOT_IMPLEMENTED, HTTP_ERROR, UNKNOWN_ASSET,
+        COMPONENT_NOT_FOUND, NETWORK_ERROR, IO_ERROR, ILLEGAL_ARGUMENT, GOM_ERROR, BACKEND_ERROR, SERVICE_ERROR, DEFECTIVE_CONTENT_ERROR, NOT_IMPLEMENTED, HTTP_ERROR, UNKNOWN_ASSET, ASSET_CREATION,
 
         UNSPECIFIED
     }
@@ -90,6 +90,10 @@ public class ErrorHandling {
     public static void signalUnsupportedEncodingError(String logTag, Throwable error,
             Context context) {
         signalError(logTag, error, context, Category.UNSUPPORTED_ENCODING);
+    }
+
+    public static void signalAssetCreationError(String logTag, Throwable error, Context context) {
+        signalError(logTag, error, context, Category.ASSET_CREATION);
     }
 
     public static void signalSaxError(String logTag, SAXException error, Context context) {
