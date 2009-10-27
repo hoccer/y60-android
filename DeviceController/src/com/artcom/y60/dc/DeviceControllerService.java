@@ -138,7 +138,7 @@ public class DeviceControllerService extends Y60GomService {
             Logger.e(LOG_TAG, "could not find version string on sdcard: ", e);
             return;
         }
-        char[] inputBuffer = new char[255];
+        char[] inputBuffer = new char[7];
         fr.read(inputBuffer);
         String version = new String(inputBuffer);
 
@@ -213,7 +213,7 @@ public class DeviceControllerService extends Y60GomService {
         mServer.join();
         Logger.i(LOG_TAG, "stopServer(): Jetty Server stopped. done.");
 
-        //Toast.makeText(this, getText(R.string.jetty_stopped), Toast.LENGTH_SHORT).show();
+        // Toast.makeText(this, getText(R.string.jetty_stopped), Toast.LENGTH_SHORT).show();
         mServer = null;
     }
 
