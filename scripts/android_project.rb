@@ -61,9 +61,7 @@ class AndroidProject < Project
     Dir["#{apk_dir}/*.apk"].each do |apk|
       run "installing", <<-EOT
         adb #{s} push #{apk} /data/local/
-        sleep 1      
         adb #{s} shell pm install -r /data/local/#{File.basename apk}
-        sleep 1      
       EOT
     end
   end

@@ -153,6 +153,12 @@ public class ErrorHandling {
         signalError(logTag, error, context, Category.SERVICE_ERROR);
     }
 
+    public static void signalMandentoryServiceKilled(String logTag, Context context) {
+        signalError(logTag, new Exception(
+                "This service is ment to be a deamon and should not have been killed"), context,
+                Category.SERVICE_ERROR);
+    }
+
     public static void signalMissingGomEntryError(String logTag, NoSuchElementException error,
             Context context) {
         signalError(logTag, error, context, Category.MISSING_GOM_ENTRY);
