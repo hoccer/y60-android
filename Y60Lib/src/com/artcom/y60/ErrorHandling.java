@@ -4,11 +4,18 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.NoSuchElementException;
 
 import org.json.JSONException;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
+
+import com.artcom.y60.http.HttpClientException;
+import com.artcom.y60.http.HttpServerException;
 
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -47,7 +54,20 @@ public class ErrorHandling {
         // context.startActivity(intent);
         sendErrorNotification(logTag, error, context, intent);
         saveErrorOnSdcard(logTag, error, category);
-
+        try {
+            String path=Constants.Gom.URI+"/log/mobile:"+logTag;
+            Logger.e(LOG_TAG, "putting to path ", path);
+            HashMap<String, String> pData=new HashMap<String, String>(); 
+            pData.put("type", "string");
+            StringWriter s=new StringWriter();
+            PrintWriter p=new PrintWriter(s);
+            p.println(DeviceConfiguration.load().getDevicePath());
+            error.printStackTrace(p);
+            pData.put("attribute", s.getBuffer().toString());
+			HttpHelper.putUrlEncoded(path, pData);
+		} catch (Exception e) {
+			Logger.e(LOG_TAG, e);
+		}
     }
 
     private static void saveErrorOnSdcard(String pLogTag, Throwable pError, Category pCategory) {
