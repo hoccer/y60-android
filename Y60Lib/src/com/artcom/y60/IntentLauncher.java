@@ -8,7 +8,7 @@ public class IntentLauncher extends SlotLauncher {
 
     // Instance Variables ------------------------------------------------
 
-    private final Intent        mIntent;
+    protected final Intent      mIntent;
 
     // Constructors ------------------------------------------------------
 
