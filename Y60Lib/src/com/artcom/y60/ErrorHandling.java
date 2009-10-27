@@ -60,7 +60,9 @@ public class ErrorHandling {
             HashMap<String, String> pData=new HashMap<String, String>(); 
             pData.put("type", "string");
             StringWriter s=new StringWriter();
-            error.printStackTrace(new PrintWriter(s));
+            PrintWriter p=new PrintWriter(s);
+            p.println(DeviceConfiguration.load().getDevicePath());
+            error.printStackTrace(p);
             pData.put("attribute", s.getBuffer().toString());
 			HttpHelper.putUrlEncoded(path, pData);
 		} catch (Exception e) {
