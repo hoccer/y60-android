@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<classpath>
+<classpath xmlns:y60="urn:y60">
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="lib" path="libs/android.jar">
 		<attributes>
@@ -8,4 +8,6 @@
 	</classpathentry>
 	<classpathentry combineaccessrules="false" kind="src" path="/Y60Lib"/>
 	<classpathentry kind="output" path="bin"/>
+        <y60:hidden-build-dependency kind="src" path="/GomProxy"/>
+        <y60:hidden-build-dependency kind="src" path="/HttpProxy"/>
 </classpath>
