@@ -34,7 +34,7 @@ public class GnpRegistrationTest extends GomActivityUnitTestCase {
 
         final GomTestObserver gto = new GomTestObserver(this);
 
-        GomNotificationHelper.registerObserverAndNotify(attrPath, gto, helper);
+        GomNotificationHelper.createObserverAndNotify(attrPath, gto, helper);
 
         TestHelper.blockUntilTrue("delete not called", 3000, new TestHelper.Condition() {
 
@@ -73,7 +73,7 @@ public class GnpRegistrationTest extends GomActivityUnitTestCase {
         String value = "huhu";
         helper.saveAttribute(attrPath, value);
 
-        GomNotificationHelper.registerObserverAndNotify(attrPath, gto, helper);
+        GomNotificationHelper.createObserverAndNotify(attrPath, gto, helper);
 
         TestHelper.blockUntilTrue("update not called", 3000, new TestHelper.Condition() {
 
@@ -121,7 +121,7 @@ public class GnpRegistrationTest extends GomActivityUnitTestCase {
         helper.saveNode(nodePath, new LinkedList<String>(), new LinkedList<String>());
         assertNotNull(helper.getNode(nodePath));
 
-        GomNotificationHelper.registerObserverAndNotify(nodePath, gto, helper);
+        GomNotificationHelper.createObserverAndNotify(nodePath, gto, helper);
 
         TestHelper.blockUntilTrue("update not called", 3000, new TestHelper.Condition() {
 
@@ -170,7 +170,7 @@ public class GnpRegistrationTest extends GomActivityUnitTestCase {
         GomHttpWrapper.updateOrCreateAttribute(attrUrl, attrValue);
 
         final GomTestObserver gto = new GomTestObserver(this);
-        GomNotificationHelper.registerObserverAndNotify(attrPath, gto, helper);
+        GomNotificationHelper.createObserverAndNotify(attrPath, gto, helper);
 
         TestHelper.blockUntilTrue("update not called", 3000, new TestHelper.Condition() {
 
@@ -217,7 +217,7 @@ public class GnpRegistrationTest extends GomActivityUnitTestCase {
         GomHttpWrapper.updateOrCreateAttribute(attrUrl, newAttrValue);
 
         final GomTestObserver gto = new GomTestObserver(this);
-        GomNotificationHelper.registerObserverAndNotify(attrPath, gto, helper);
+        GomNotificationHelper.createObserverAndNotify(attrPath, gto, helper);
 
         TestHelper.blockUntilTrue("update not called", 3000, new TestHelper.Condition() {
 
@@ -272,7 +272,7 @@ public class GnpRegistrationTest extends GomActivityUnitTestCase {
                 .contains(attrValue));
 
         final GomTestObserver gto = new GomTestObserver(this);
-        GomNotificationHelper.registerObserverAndNotify(attrPath, gto, helper);
+        GomNotificationHelper.createObserverAndNotify(attrPath, gto, helper);
 
         TestHelper.blockUntilTrue("update not called", 3000, new TestHelper.Condition() {
 
@@ -317,7 +317,7 @@ public class GnpRegistrationTest extends GomActivityUnitTestCase {
         assertFalse("attribute shouldnt be in cache", proxy.hasInCache(attrPath));
 
         final GomTestObserver gto = new GomTestObserver(this);
-        BroadcastReceiver rec = GomNotificationHelper.registerObserverAndNotify(nodePath, gto,
+        BroadcastReceiver rec = GomNotificationHelper.createObserverAndNotify(nodePath, gto,
                 proxy);
         getActivity().registerReceiver(rec, Constants.Gom.GNP_INTENT_FILTER);
 
@@ -368,7 +368,7 @@ public class GnpRegistrationTest extends GomActivityUnitTestCase {
         assertFalse("subNode shouldnt be in cache", proxy.hasInCache(subNodeName));
 
         final GomTestObserver gto = new GomTestObserver(this);
-        BroadcastReceiver rec = GomNotificationHelper.registerObserverAndNotify(nodePath, gto,
+        BroadcastReceiver rec = GomNotificationHelper.createObserverAndNotify(nodePath, gto,
                 proxy);
         getActivity().registerReceiver(rec, Constants.Gom.GNP_INTENT_FILTER);
 

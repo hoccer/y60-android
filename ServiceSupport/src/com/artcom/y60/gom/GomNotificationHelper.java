@@ -29,11 +29,11 @@ public class GomNotificationHelper {
     // Static Methods ----------------------------------------------------
 
     // REGISTER AND NOTIFY
-    public static BroadcastReceiver registerObserverAndNotify(final String pPath,
+    public static BroadcastReceiver createObserverAndNotify(final String pPath,
             final GomObserver pGomObserver, final GomProxyHelper pGom) throws IOException,
             IpAddressNotFoundException {
 
-        return registerObserverAndNotify(pPath, pGomObserver, pGom, new ErrorHandler() {
+        return createObserverAndNotify(pPath, pGomObserver, pGom, new ErrorHandler() {
 
             @Override
             public void handle(Exception pE) {
@@ -44,11 +44,11 @@ public class GomNotificationHelper {
 
     }
 
-    public static BroadcastReceiver registerObserverAndNotify(final String pPath,
+    public static BroadcastReceiver createObserverAndNotify(final String pPath,
             final GomObserver pGomObserver, final GomProxyHelper pGom, boolean pBubbleUp)
             throws IOException, IpAddressNotFoundException {
 
-        return registerObserverAndNotify(pPath, pGomObserver, pGom, pBubbleUp, new ErrorHandler() {
+        return createObserverAndNotify(pPath, pGomObserver, pGom, pBubbleUp, new ErrorHandler() {
 
             @Override
             public void handle(Exception pE) {
@@ -60,7 +60,7 @@ public class GomNotificationHelper {
     }
 
     // JUST REGISTER, DO NOT GET NOTIFIED IMMEDIATELY NOTIFY
-    public static BroadcastReceiver registerObserver(final String pPath,
+    public static BroadcastReceiver createObserver(final String pPath,
             final GomObserver pGomObserver, final GomProxyHelper pGom) throws IOException,
             IpAddressNotFoundException {
 
@@ -75,11 +75,11 @@ public class GomNotificationHelper {
 
     }
 
-    public static BroadcastReceiver registerObserverAndNotify(final String pPath,
+    public static BroadcastReceiver createObserverAndNotify(final String pPath,
             final GomObserver pGomObserver, final GomProxyHelper pGom,
             final ErrorHandler pErrorHandler) throws IOException, IpAddressNotFoundException {
 
-        return registerObserverAndNotify(pPath, pGomObserver, pGom, true, pErrorHandler);
+        return createObserverAndNotify(pPath, pGomObserver, pGom, true, pErrorHandler);
     }
 
     /**
@@ -94,11 +94,11 @@ public class GomNotificationHelper {
      *            pass your own error handling code to the registration thread
      * 
      */
-    public static BroadcastReceiver registerObserverAndNotify(final String pPath,
+    public static BroadcastReceiver createObserverAndNotify(final String pPath,
             final GomObserver pGomObserver, final GomProxyHelper pGom, final boolean pBubbleUp,
             final ErrorHandler pErrorHandler) throws IOException, IpAddressNotFoundException {
 
-        BroadcastReceiver rec = createBroadcastReceiver(pPath, pGomObserver, pBubbleUp, pGom);
+        BroadcastReceiver receiver = createBroadcastReceiver(pPath, pGomObserver, pBubbleUp, pGom);
 
         if (!pGom.isBound() || pGom == null) {
             throw new IllegalStateException("GomProxyHelper " + pGom.toString() + " is not bound!");
@@ -150,7 +150,7 @@ public class GomNotificationHelper {
             }
         }).start();
 
-        return rec;
+        return receiver;
     }
 
     public static BroadcastReceiver registerObserver(final String pPath,

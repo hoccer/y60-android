@@ -28,7 +28,7 @@ public class GnpBroadcastsTest extends GomActivityUnitTestCase {
         GomTestObserver gomObserver = new GomTestObserver(this);
 
         BroadcastReceiver br;
-        br = GomNotificationHelper.registerObserverAndNotify(attrPath, gomObserver, helper);
+        br = GomNotificationHelper.createObserverAndNotify(attrPath, gomObserver, helper);
 
         JSONObject json = new JSONObject(TestHelper.createJsonFromAttr(testPath, timestamp, "keks"));
 
@@ -63,7 +63,7 @@ public class GnpBroadcastsTest extends GomActivityUnitTestCase {
         GomTestObserver gomObserver = new GomTestObserver(this);
 
         BroadcastReceiver br;
-        br = GomNotificationHelper.registerObserverAndNotify(attrPath, gomObserver, helper);
+        br = GomNotificationHelper.createObserverAndNotify(attrPath, gomObserver, helper);
 
         JSONObject json = new JSONObject(TestHelper.createJsonFromAttr(testPath, timestamp, "keks"));
         Intent bcIntent = createBroadcastIntent(attrPath, "delete", json);
@@ -98,7 +98,7 @@ public class GnpBroadcastsTest extends GomActivityUnitTestCase {
         GomTestObserver gomObserver = new GomTestObserver(this);
 
         BroadcastReceiver br;
-        br = GomNotificationHelper.registerObserverAndNotify(attrPath, gomObserver, helper);
+        br = GomNotificationHelper.createObserverAndNotify(attrPath, gomObserver, helper);
 
         JSONObject json = new JSONObject(TestHelper.createJsonFromAttr(testPath, timestamp, "keks"));
         Intent bcIntent = createBroadcastIntent(attrPath, "update", json);
@@ -128,7 +128,7 @@ public class GnpBroadcastsTest extends GomActivityUnitTestCase {
         String attrPath = "pathToAttribute:" + timestamp;
 
         BroadcastReceiver br;
-        br = GomNotificationHelper.registerObserverAndNotify(attrPath, new GomTestObserver(this),
+        br = GomNotificationHelper.createObserverAndNotify(attrPath, new GomTestObserver(this),
                 gomProxy);
         // you will probably get a delete notification
 
@@ -155,7 +155,7 @@ public class GnpBroadcastsTest extends GomActivityUnitTestCase {
                 gomProxy.getCachedAttributeValue(attrPath));
 
         BroadcastReceiver br;
-        br = GomNotificationHelper.registerObserverAndNotify(attrPath, new GomTestObserver(this),
+        br = GomNotificationHelper.createObserverAndNotify(attrPath, new GomTestObserver(this),
                 gomProxy);
         // you will probably get a delete notification
 
@@ -181,7 +181,7 @@ public class GnpBroadcastsTest extends GomActivityUnitTestCase {
                 .getCachedAttributeValue(attrPath));
 
         BroadcastReceiver br;
-        br = GomNotificationHelper.registerObserverAndNotify(attrPath, new GomTestObserver(this),
+        br = GomNotificationHelper.createObserverAndNotify(attrPath, new GomTestObserver(this),
                 gomProxy);
         // you will probably get a delete notification
 

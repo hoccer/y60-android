@@ -53,7 +53,7 @@ public class GnpObserverPathTest extends GomActivityUnitTestCase {
             assertTrue("expected a 404", is404);
         }
 
-        GomNotificationHelper.registerObserverAndNotify(attrPath, mMockGomObserver, helper);
+        GomNotificationHelper.createObserverAndNotify(attrPath, mMockGomObserver, helper);
 
         // check that the observer has arrived in gom
         TestHelper.blockUntilResourceAvailable("Observer should now be in GOM", observerUri);
@@ -81,7 +81,7 @@ public class GnpObserverPathTest extends GomActivityUnitTestCase {
             assertTrue("expected a 404", is404);
         }
 
-        GomNotificationHelper.registerObserverAndNotify(nodePath, mMockGomObserver, helper);
+        GomNotificationHelper.createObserverAndNotify(nodePath, mMockGomObserver, helper);
 
         // check that the observer has arrived in gom
         TestHelper.blockUntilResourceAvailable("Observer should now be in GOM", observerUri);

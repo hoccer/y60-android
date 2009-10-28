@@ -59,7 +59,7 @@ public class GnpRoundtripTest extends GomActivityUnitTestCase {
         assertNotNull(content2);
 
         GomTestObserver observer = new GomTestObserver(this);
-        BroadcastReceiver receiver = GomNotificationHelper.registerObserverAndNotify(observedPath,
+        BroadcastReceiver receiver = GomNotificationHelper.createObserverAndNotify(observedPath,
                 observer, helper, false);
 
         getActivity().registerReceiver(receiver, Constants.Gom.GNP_INTENT_FILTER);
@@ -121,7 +121,7 @@ public class GnpRoundtripTest extends GomActivityUnitTestCase {
         GomHttpWrapper.createNode(Constants.Gom.URI + nodePath);
         assertNotNull("missing node in GOM", HttpHelper.getAsString(Constants.Gom.URI + nodePath));
 
-        BroadcastReceiver receiver = GomNotificationHelper.registerObserverAndNotify(nodePath,
+        BroadcastReceiver receiver = GomNotificationHelper.createObserverAndNotify(nodePath,
                 observer, helper);
         getActivity().registerReceiver(receiver, Constants.Gom.GNP_INTENT_FILTER);
 
@@ -155,7 +155,7 @@ public class GnpRoundtripTest extends GomActivityUnitTestCase {
         assertEquals("update should be called only once", 1, observer.getUpdateCount());
 
         // register multiple times
-        GomNotificationHelper.registerObserverAndNotify(nodePath, observer, helper);
+        GomNotificationHelper.createObserverAndNotify(nodePath, observer, helper);
         TestHelper.blockUntilTrue("update not called", 3000, new TestHelper.Condition() {
             @Override
             public boolean isSatisfied() {
@@ -168,7 +168,7 @@ public class GnpRoundtripTest extends GomActivityUnitTestCase {
         assertEquals("create should be called only once", 1, observer.getCreateCount());
         assertEquals("update should be called 2 times", 2, observer.getUpdateCount());
 
-        GomNotificationHelper.registerObserverAndNotify(nodePath, observer, helper);
+        GomNotificationHelper.createObserverAndNotify(nodePath, observer, helper);
         TestHelper.blockUntilTrue("update not called", 3000, new TestHelper.Condition() {
             @Override
             public boolean isSatisfied() {
@@ -219,7 +219,7 @@ public class GnpRoundtripTest extends GomActivityUnitTestCase {
                 .getAsString(Constants.Gom.URI + attrPath + ".txt"));
 
         final GomTestObserver gto = new GomTestObserver(this);
-        BroadcastReceiver receiver = GomNotificationHelper.registerObserverAndNotify(attrPath, gto,
+        BroadcastReceiver receiver = GomNotificationHelper.createObserverAndNotify(attrPath, gto,
                 helper);
         assertEquals("gnp update callback shuld not have been called", 0, gto.getUpdateCount());
 

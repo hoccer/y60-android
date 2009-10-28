@@ -57,7 +57,7 @@ public class GnpUpdatesGomProxyTest extends GomActivityUnitTestCase {
 
         final GomTestObserver gto = new GomTestObserver(this);
 
-        BroadcastReceiver rec = GomNotificationHelper.registerObserverAndNotify(nodePath, gto,
+        BroadcastReceiver rec = GomNotificationHelper.createObserverAndNotify(nodePath, gto,
                 proxy, true);
         getActivity().registerReceiver(rec, Constants.Gom.GNP_INTENT_FILTER);
 
@@ -109,7 +109,7 @@ public class GnpUpdatesGomProxyTest extends GomActivityUnitTestCase {
                 .getAsString(Constants.Gom.URI + attrPath + ".txt"));
 
         final GomTestObserver gto = new GomTestObserver(this);
-        BroadcastReceiver receiver = GomNotificationHelper.registerObserverAndNotify(nodePath, gto,
+        BroadcastReceiver receiver = GomNotificationHelper.createObserverAndNotify(nodePath, gto,
                 helper);
         getActivity().registerReceiver(receiver, Constants.Gom.GNP_INTENT_FILTER);
 
@@ -203,7 +203,7 @@ public class GnpUpdatesGomProxyTest extends GomActivityUnitTestCase {
         String attrPath = nodePath + ":" + attrName;
 
         final GomTestObserver gto = new GomTestObserver(this);
-        BroadcastReceiver rec = GomNotificationHelper.registerObserverAndNotify(nodePath, gto,
+        BroadcastReceiver rec = GomNotificationHelper.createObserverAndNotify(nodePath, gto,
                 proxy);
         getActivity().registerReceiver(rec, Constants.Gom.GNP_INTENT_FILTER);
 
@@ -253,7 +253,7 @@ public class GnpUpdatesGomProxyTest extends GomActivityUnitTestCase {
         TestHelper.blockUntilResourceAvailable("node should be in gom", nodeRef.url().toString());
 
         final GomTestObserver gto = new GomTestObserver(this);
-        BroadcastReceiver receiver = GomNotificationHelper.registerObserverAndNotify(
+        BroadcastReceiver receiver = GomNotificationHelper.createObserverAndNotify(
                 nodeRef.path(), gto, helper);
         assertEquals("gnp update callback should not have been called", 0, gto.getUpdateCount());
         assertEquals("gnp create callback should not have been called", 0, gto.getCreateCount());
@@ -345,7 +345,7 @@ public class GnpUpdatesGomProxyTest extends GomActivityUnitTestCase {
         GomHttpWrapper.createNode(subNodeUrl);
 
         final GomTestObserver gto = new GomTestObserver(this);
-        BroadcastReceiver rec = GomNotificationHelper.registerObserverAndNotify(nodePath, gto,
+        BroadcastReceiver rec = GomNotificationHelper.createObserverAndNotify(nodePath, gto,
                 proxy);
         getActivity().registerReceiver(rec, Constants.Gom.GNP_INTENT_FILTER);
 
@@ -413,7 +413,7 @@ public class GnpUpdatesGomProxyTest extends GomActivityUnitTestCase {
         TestHelper.blockUntilResourceAvailable("sub sub node should be in GOM", subSubNodeUrl);
 
         final GomTestObserver gto = new GomTestObserver(this);
-        BroadcastReceiver rec = GomNotificationHelper.registerObserverAndNotify(nodePath, gto,
+        BroadcastReceiver rec = GomNotificationHelper.createObserverAndNotify(nodePath, gto,
                 proxy, true);
         getActivity().registerReceiver(rec, Constants.Gom.GNP_INTENT_FILTER);
 
@@ -465,7 +465,7 @@ public class GnpUpdatesGomProxyTest extends GomActivityUnitTestCase {
         TestHelper.blockUntilResourceAvailable("node should be in GOM", nodeUrl);
 
         final GomTestObserver gto = new GomTestObserver(this);
-        BroadcastReceiver rec = GomNotificationHelper.registerObserverAndNotify(nodePath, gto,
+        BroadcastReceiver rec = GomNotificationHelper.createObserverAndNotify(nodePath, gto,
                 proxy, true);
         getActivity().registerReceiver(rec, Constants.Gom.GNP_INTENT_FILTER);
 
@@ -526,7 +526,7 @@ public class GnpUpdatesGomProxyTest extends GomActivityUnitTestCase {
         GomHttpWrapper.updateOrCreateAttribute(attrUri, "who cares?");
 
         final GomTestObserver gto = new GomTestObserver(this);
-        BroadcastReceiver rec = GomNotificationHelper.registerObserverAndNotify(nodePath, gto,
+        BroadcastReceiver rec = GomNotificationHelper.createObserverAndNotify(nodePath, gto,
                 proxy, true);
         getActivity().registerReceiver(rec, Constants.Gom.GNP_INTENT_FILTER);
 
@@ -584,7 +584,7 @@ public class GnpUpdatesGomProxyTest extends GomActivityUnitTestCase {
         TestHelper.blockUntilResourceAvailable("node should be in GOM", attrUrl);
 
         final GomTestObserver gto = new GomTestObserver(this);
-        BroadcastReceiver rec = GomNotificationHelper.registerObserverAndNotify(attrPath, gto,
+        BroadcastReceiver rec = GomNotificationHelper.createObserverAndNotify(attrPath, gto,
                 proxy, true);
         getActivity().registerReceiver(rec, Constants.Gom.GNP_INTENT_FILTER);
 
@@ -629,7 +629,7 @@ public class GnpUpdatesGomProxyTest extends GomActivityUnitTestCase {
         TestHelper.blockUntilResourceAvailable("node should be in GOM", attrUrl);
 
         final GomTestObserver gto = new GomTestObserver(this);
-        BroadcastReceiver rec = GomNotificationHelper.registerObserverAndNotify(attrPath, gto,
+        BroadcastReceiver rec = GomNotificationHelper.createObserverAndNotify(attrPath, gto,
                 proxy, true);
         getActivity().registerReceiver(rec, Constants.Gom.GNP_INTENT_FILTER);
 
