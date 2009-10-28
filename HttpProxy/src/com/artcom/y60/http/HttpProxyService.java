@@ -29,7 +29,7 @@ public class HttpProxyService extends Y60Service {
     // Constants ---------------------------------------------------------
 
     private static final String          LOG_TAG = "HttpProxyService";
-    private static final Cache           CACHE;
+    private Cache           cache;
 
     // Class Variables ---------------------------------------------------
 
@@ -38,8 +38,6 @@ public class HttpProxyService extends Y60Service {
     // Static Initializer ------------------------------------------------
 
     static {
-
-        CACHE = new Cache();
         sInstances = new HashSet<HttpProxyService>();
     }
 
@@ -118,6 +116,8 @@ public class HttpProxyService extends Y60Service {
     @Override
     public void onCreate() {
 
+    	cache = new Cache();
+    	
         DeviceConfiguration conf = DeviceConfiguration.load();
         Logger.setFilterLevel(conf.getLogLevel());
 
@@ -133,7 +133,7 @@ public class HttpProxyService extends Y60Service {
 
         synchronized (sInstances) {
             sInstances.add(this);
-            CACHE.resume();
+            cache.resume();
             Logger.v(tag(), "instances: ", countInstances());
         }
     }
@@ -159,7 +159,7 @@ public class HttpProxyService extends Y60Service {
             sInstances.remove(this);
 
             if (sInstances.size() < 1) {
-                CACHE.stop();
+                cache.stop();
             }
             Logger.d(tag(), "instances: " + countInstances());
         }
@@ -179,26 +179,26 @@ public class HttpProxyService extends Y60Service {
 
     public Bundle get(String pUri) {
 
-        return CACHE.get(pUri);
+        return cache.get(pUri);
     }
 
     public Bundle getDataSyncronously(String pUri) throws HttpClientException, HttpServerException,
             IOException {
-        return CACHE.getDataSyncronously(pUri);
+        return cache.getDataSyncronously(pUri);
     }
 
     public Bundle fetchFromCache(String pUri) {
 
-        return CACHE.fetchFromCache(pUri);
+        return cache.fetchFromCache(pUri);
     }
 
     public boolean isInCache(String pUri) {
 
-        return CACHE.isInCache(pUri);
+        return cache.isInCache(pUri);
     }
 
     public void removeFromCache(String pUri) {
-        CACHE.remove(pUri);
+        cache.remove(pUri);
     }
 
     // Private Instance Methods ------------------------------------------
@@ -211,7 +211,7 @@ public class HttpProxyService extends Y60Service {
     private void clear() {
 
         Logger.d(LOG_TAG, "clearing HTTP cache");
-        CACHE.clear();
+        cache.clear();
         Logger.d(LOG_TAG, "HTTP cache cleared");
     }
 
