@@ -24,7 +24,7 @@ public class RunLevelReceiver extends BroadcastReceiver {
     }
 
     public int getNoOfLevels() {
-        return 9;
+        return 5;
     }
 
     public void toast(Context pContext, String pMessage) {
@@ -87,6 +87,7 @@ public class RunLevelReceiver extends BroadcastReceiver {
 
     private void launchHomeScreenIfReady(Context pContext) {
         if (isEverythingReady()) {
+            Logger.v(LOG_TAG, "everything is ready!");
             Intent intent = new Intent(Y60Action.INIT_READY);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             pContext.startActivity(intent);
@@ -100,8 +101,8 @@ public class RunLevelReceiver extends BroadcastReceiver {
                 " \npreloadBrowse: ", isPreloadBrowseViewsReady, "\nisDeviceControllerReady: ",
                 isDeviceControllerReady, "\nisGomProxyReady: ", isGomProxyReady,
                 "\nisHttpProxyReady: ", isHttpProxyReady, "\naddress: ", this.toString());
-        return isSearchReady && /* isCallReady && */isGlobalObserversReady
-                && isJavaScriptViewsReady && isVideoPreloadReady && isPreloadBrowseViewsReady
+        return /*isSearchReady && isCallReady && */isGlobalObserversReady
+                && isJavaScriptViewsReady /*&& isVideoPreloadReady && isPreloadBrowseViewsReady*/
                 && isGomProxyReady && isHttpProxyReady && isDeviceControllerReady;
     }
 
