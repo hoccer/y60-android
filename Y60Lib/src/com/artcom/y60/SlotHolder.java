@@ -30,7 +30,7 @@ public class SlotHolder {
     private Context           mContext;
     private OnGestureListener mGestureListener;
 
-    private List<Slot>        mSlots;
+    protected List<Slot>      mSlots;
 
     // Constructors ------------------------------------------------------
 
