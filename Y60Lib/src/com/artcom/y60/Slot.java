@@ -41,7 +41,7 @@ public class Slot {
 
     // Constants ---------------------------------------------------------
 
-    private static final String LOG_TAG   = Slot.class.getName();
+    private static final String LOG_TAG   = Slot.class.getSimpleName();
 
     private static final int    PADDING_X = 15;
 
@@ -59,10 +59,10 @@ public class Slot {
     private SlotLauncher        mLauncher;
 
     /** Is used to render a view on this slot. */
-    private SlotViewer          mViewer;
+    private final SlotViewer          mViewer;
 
     /** This slot's name */
-    private String              mName;
+    private final String              mName;
 
     private boolean             mIsInFocus;
 
@@ -96,6 +96,7 @@ public class Slot {
         return mViewer;
     }
 
+    @Override
     public synchronized String toString() {
 
         StringBuffer buf = new StringBuffer();

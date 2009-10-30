@@ -7,7 +7,7 @@ public class VibratingSlotLauncher extends DecoratingSlotLauncher {
 
     // Constants ---------------------------------------------------------
 
-    private static final String LOG_TAG = VibratingSlotLauncher.class.getName();
+    private static final String LOG_TAG             = VibratingSlotLauncher.class.getSimpleName();
 
     private static final long DROPPING_VIBRATION = 100;
     
@@ -36,12 +36,14 @@ public class VibratingSlotLauncher extends DecoratingSlotLauncher {
         vibrator.vibrate(DROPPING_VIBRATION);
     }
 
+    @Override
     public void focusThis() {
         
         Vibrator vibrator = (Vibrator)getContext().getSystemService(Context.VIBRATOR_SERVICE);
         vibrator.vibrate(ON_TARGET_VIBRATION);
     }
 
+    @Override
     public void unfocusThis() {
         
         Vibrator vibrator = (Vibrator)getContext().getSystemService(Context.VIBRATOR_SERVICE);

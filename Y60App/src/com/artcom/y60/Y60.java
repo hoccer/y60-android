@@ -29,6 +29,7 @@
 
 package com.artcom.y60;
 
+import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -190,6 +191,16 @@ public class Y60 extends Activity {
         mChooseLogLevel.setAdapter(mLogLevelArrayAdapter);
         mChooseLogLevel.setSelection(selectedLevelIndex);
         mChooseLogLevel.setOnItemSelectedListener(new LogLevelSelectionListener());
+
+		BufferedReader br;
+		try {
+			br = new BufferedReader(new FileReader(
+					"/sdcard/deployed_version.txt"));
+			setTitle("Y60 " + br.readLine());
+			br.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
     }
 
     private void registerNewRunLevelReceiver() {
