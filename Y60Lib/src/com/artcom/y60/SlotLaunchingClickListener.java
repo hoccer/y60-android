@@ -37,7 +37,7 @@ class SlotLaunchingClickListener implements OnTouchListener {
     @Override
     public boolean onTouch(View pArg0, MotionEvent pArg1) {
         // TODO Auto-generated method stub
-        Logger.d(LOG_TAG, "slot clicked!");
+        Logger.d(LOG_TAG, "slot touched!");
         // try {
         // mLauncher.launch();
         // } catch (GomException gx) {
