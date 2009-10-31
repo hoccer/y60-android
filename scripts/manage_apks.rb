@@ -27,11 +27,8 @@ end
 
 
 def remember_version device_flag
-
   version = get_git_version
-
   puts "remembering version '#{version}'"
-  
   system %(adb #{device_flag} shell "echo '#{version}' > /sdcard/deployed_version.txt")
 end
 
