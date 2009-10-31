@@ -86,7 +86,7 @@ public class DeviceConfiguration {
     }
 
     public String getDeviceId() {
-        return mDevicePath.substring(mDevicePath.lastIndexOf("/"));
+        return mDevicePath.substring(mDevicePath.lastIndexOf("/") + 1);
     }
 
     public Logger.Level getLogLevel() {
