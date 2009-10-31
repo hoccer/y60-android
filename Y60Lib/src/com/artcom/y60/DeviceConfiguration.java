@@ -15,7 +15,7 @@ public class DeviceConfiguration {
     // Constants ---------------------------------------------------------
 
     private static final String LOG_TAG          = "DeviceConfiguration";
-    private static final String CONFIG_FILE_PATH = "/sdcard/device_config.json";
+    public static final String  CONFIG_FILE_PATH = "/sdcard/device_config.json";
 
     private static final String GOM_URL_KEY      = "gom-url";
     private static final String DEVICE_PATH_KEY  = "device-path";

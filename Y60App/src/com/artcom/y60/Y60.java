@@ -194,8 +194,7 @@ public class Y60 extends Activity {
 
 		BufferedReader br;
 		try {
-			br = new BufferedReader(new FileReader(
-					"/sdcard/deployed_version.txt"));
+            br = new BufferedReader(new FileReader(Constants.Device.DEPLOYED_VERSION_FILE));
 			setTitle("Y60 " + br.readLine());
 			br.close();
 		} catch (Exception e) {

@@ -15,6 +15,7 @@ import android.widget.Button;
 import android.widget.TableLayout;
 import android.widget.TextView;
 
+import com.artcom.y60.DeviceConfiguration;
 import com.artcom.y60.ErrorHandling;
 import com.artcom.y60.HttpHelper;
 import com.artcom.y60.Logger;
@@ -24,19 +25,19 @@ import com.artcom.y60.http.HttpException;
 
 public class NetworkChecker extends Activity {
 
-    private static final String CONFIG_FILE = "/sdcard/device_config.json";
-    private static final String LOG_TAG = "NetworkChecker";
+    private static final String CONFIG_FILE   = DeviceConfiguration.CONFIG_FILE_PATH;
+    private static final String LOG_TAG       = "NetworkChecker";
     private static final String TEST_RESOURCE = "/test";
-    private static final int REPEAT = 100;
+    private static final int    REPEAT        = 100;
 
-    private String m_GomUriString;
-    private String m_SelfPath;
-    private TextView m_View;
-    private TableLayout m_Layout;
-    private Button m_Button;
-    private int m_CurrentStep;
-    private GomNode m_SelfNode = null;
-    private static final int NUM_STEPS = 6;
+    private String              m_GomUriString;
+    private String              m_SelfPath;
+    private TextView            m_View;
+    private TableLayout         m_Layout;
+    private Button              m_Button;
+    private int                 m_CurrentStep;
+    private GomNode             m_SelfNode    = null;
+    private static final int    NUM_STEPS     = 6;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -95,29 +96,29 @@ public class NetworkChecker extends Activity {
 
         if (step < 0 || step >= NUM_STEPS) {
             Logger.e(LOG_TAG, "You are trying to execute step ", step,
-                            ", which doesn't exist. Resetting to 0.");
+                    ", which doesn't exist. Resetting to 0.");
             return;
         }
 
         switch (step) {
-        case 0:
-            step0();
-            break;
-        case 1:
-            step1();
-            break;
-        case 2:
-            step2();
-            break;
-        case 3:
-            step3();
-            break;
-        case 4:
-            step4();
-            break;
-        case 5:
-            step5();
-            break;
+            case 0:
+                step0();
+                break;
+            case 1:
+                step1();
+                break;
+            case 2:
+                step2();
+                break;
+            case 3:
+                step3();
+                break;
+            case 4:
+                step4();
+                break;
+            case 5:
+                step5();
+                break;
         }
 
         update_step();
