@@ -50,6 +50,7 @@ public class Constants {
     public static class Device {
 
         public static final String DEPLOYED_VERSION_FILE = "/sdcard/deployed_version.txt";
+        public static final String JSON_CONFIG_FILE      = "/sdcard/device_config.json";
 
     }
 }

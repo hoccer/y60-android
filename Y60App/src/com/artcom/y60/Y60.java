@@ -192,14 +192,14 @@ public class Y60 extends Activity {
         mChooseLogLevel.setSelection(selectedLevelIndex);
         mChooseLogLevel.setOnItemSelectedListener(new LogLevelSelectionListener());
 
-		BufferedReader br;
-		try {
+        BufferedReader br;
+        try {
             br = new BufferedReader(new FileReader(Constants.Device.DEPLOYED_VERSION_FILE));
-			setTitle("Y60 " + br.readLine());
-			br.close();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+            setTitle("Y60 " + br.readLine());
+            br.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private void registerNewRunLevelReceiver() {
@@ -239,7 +239,6 @@ public class Y60 extends Activity {
 
         Intent intent = new Intent("y60.intent.SHOW_LAUNCHERS");
         startActivity(intent);
-
     }
 
     @Override
