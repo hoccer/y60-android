@@ -133,7 +133,7 @@ public class DeviceControllerService extends Y60GomService {
 
         FileReader fr;
         try {
-            fr = new FileReader("/sdcard/deployed_version.txt");
+            fr = new FileReader(Constants.Device.DEPLOYED_VERSION_FILE);
         } catch (FileNotFoundException e) {
             Logger.e(LOG_TAG, "could not find version string on sdcard: ", e);
             return;

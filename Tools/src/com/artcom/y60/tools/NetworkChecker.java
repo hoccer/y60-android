@@ -15,6 +15,7 @@ import android.widget.Button;
 import android.widget.TableLayout;
 import android.widget.TextView;
 
+import com.artcom.y60.Constants;
 import com.artcom.y60.ErrorHandling;
 import com.artcom.y60.HttpHelper;
 import com.artcom.y60.Logger;
@@ -24,7 +25,7 @@ import com.artcom.y60.http.HttpException;
 
 public class NetworkChecker extends Activity {
 
-    private static final String CONFIG_FILE = "/sdcard/device_config.json";
+    private static final String CONFIG_FILE   = Constants.Device.JSON_CONFIG_FILE;
     private static final String LOG_TAG = "NetworkChecker";
     private static final String TEST_RESOURCE = "/test";
     private static final int REPEAT = 100;

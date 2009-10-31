@@ -15,7 +15,6 @@ public class DeviceConfiguration {
     // Constants ---------------------------------------------------------
 
     private static final String LOG_TAG = "DeviceConfiguration";
-    private static final String CONFIG_FILE_PATH = "/sdcard/device_config.json";
 
     private static final String GOM_URL_KEY = "gom-url";
     private static final String DEVICE_PATH_KEY = "device-path";
@@ -39,7 +38,7 @@ public class DeviceConfiguration {
         JSONObject configuration = null;
         try {
 
-            FileReader fr = new FileReader(CONFIG_FILE_PATH);
+            FileReader fr = new FileReader(Constants.Device.JSON_CONFIG_FILE);
             char[] inputBuffer = new char[255];
             fr.read(inputBuffer);
             configuration = new JSONObject(new String(inputBuffer));
@@ -49,18 +48,21 @@ public class DeviceConfiguration {
             fr.close();
 
         } catch (FileNotFoundException e) {
-            Logger.e(LOG_TAG, "Could not find configuration file ", CONFIG_FILE_PATH);
+            Logger.e(LOG_TAG, "Could not find configuration file ",
+                    Constants.Device.JSON_CONFIG_FILE);
             throw new RuntimeException(e);
         } catch (UnsupportedEncodingException e) {
             Logger
-                            .e(LOG_TAG, "Configuration file ", CONFIG_FILE_PATH,
+.e(LOG_TAG, "Configuration file ", Constants.Device.JSON_CONFIG_FILE,
                                             " uses unsupported encoding");
             throw new RuntimeException(e);
         } catch (IOException e) {
-            Logger.e(LOG_TAG, "Error while reading configuration file ", CONFIG_FILE_PATH);
+            Logger.e(LOG_TAG, "Error while reading configuration file ",
+                    Constants.Device.JSON_CONFIG_FILE);
             throw new RuntimeException(e);
         } catch (JSONException e) {
-            Logger.e(LOG_TAG, "Error while parsing configuration file ", CONFIG_FILE_PATH);
+            Logger.e(LOG_TAG, "Error while parsing configuration file ",
+                    Constants.Device.JSON_CONFIG_FILE);
             throw new RuntimeException(e);
         }
     }
@@ -105,7 +107,7 @@ public class DeviceConfiguration {
             configJson.put(GOM_URL_KEY, mGomUrl);
             configJson.put(DEVICE_PATH_KEY, mDevicePath);
             configJson.put(LOG_LEVEL_KEY, mLogLevel.toString());
-            FileWriter writer = new FileWriter(CONFIG_FILE_PATH);
+            FileWriter writer = new FileWriter(Constants.Device.JSON_CONFIG_FILE);
             PrintWriter printer = new PrintWriter(writer);
             printer.println(configJson.toString());
             printer.flush();
