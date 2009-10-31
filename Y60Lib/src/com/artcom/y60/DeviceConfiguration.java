@@ -14,12 +14,12 @@ public class DeviceConfiguration {
 
     // Constants ---------------------------------------------------------
 
-    private static final String LOG_TAG = "DeviceConfiguration";
+    private static final String LOG_TAG          = "DeviceConfiguration";
     private static final String CONFIG_FILE_PATH = "/sdcard/device_config.json";
 
-    private static final String GOM_URL_KEY = "gom-url";
-    private static final String DEVICE_PATH_KEY = "device-path";
-    private static final String LOG_LEVEL_KEY = "log-level";
+    private static final String GOM_URL_KEY      = "gom-url";
+    private static final String DEVICE_PATH_KEY  = "device-path";
+    private static final String LOG_LEVEL_KEY    = "log-level";
 
     // Static Methods ----------------------------------------------------
 
@@ -29,8 +29,8 @@ public class DeviceConfiguration {
 
     // Instance Variables ------------------------------------------------
 
-    private String mGomUrl;
-    private String mDevicePath;
+    private String       mGomUrl;
+    private String       mDevicePath;
     private Logger.Level mLogLevel;
 
     // Constructors ------------------------------------------------------
@@ -53,8 +53,8 @@ public class DeviceConfiguration {
             throw new RuntimeException(e);
         } catch (UnsupportedEncodingException e) {
             Logger
-                            .e(LOG_TAG, "Configuration file ", CONFIG_FILE_PATH,
-                                            " uses unsupported encoding");
+                    .e(LOG_TAG, "Configuration file ", CONFIG_FILE_PATH,
+                            " uses unsupported encoding");
             throw new RuntimeException(e);
         } catch (IOException e) {
             Logger.e(LOG_TAG, "Error while reading configuration file ", CONFIG_FILE_PATH);
@@ -83,6 +83,10 @@ public class DeviceConfiguration {
 
     public String getDevicePath() {
         return mDevicePath;
+    }
+
+    public String getDeviceId() {
+        return mDevicePath.substring(mDevicePath.lastIndexOf("/"));
     }
 
     public Logger.Level getLogLevel() {
