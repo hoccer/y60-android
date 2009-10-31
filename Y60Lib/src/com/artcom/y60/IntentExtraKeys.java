@@ -44,4 +44,6 @@ public class IntentExtraKeys {
     public static final String RETURN_DATA              = "return_data";
     public static final String ACTION                   = "action";
     public static final String RECIPIENT                = "recipient";
+
+    public static final String BROADCAST_SENDER_CLASS   = "broadcast_sender_class";
 }
