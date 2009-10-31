@@ -8,8 +8,6 @@ import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Iterator;
 
-import android.net.Uri;
-
 import com.artcom.y60.gom.GomHttpWrapper;
 
 public class NetworkHelper {
@@ -67,7 +65,7 @@ public class NetworkHelper {
 
             String self = dc.getDevicePath();
             String ipAttrPath = self + ":" + Constants.Network.IP_ADDRESS_ATTRIBUTE;
-            Uri ipAttrUrl = Uri.parse(Constants.Gom.URI + ipAttrPath);
+            String ipAttrUrl = Constants.Gom.URI + ipAttrPath;
             String ipStr = GomHttpWrapper.getAttributeValue(ipAttrUrl);
 
             return InetAddress.getByName(ipStr);
