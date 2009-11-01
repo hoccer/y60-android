@@ -59,6 +59,7 @@ public class DeviceControllerService extends Y60GomService {
                     try {
                         updateIpAdressAttributesForDevice();
                         updateVersionAttributeForDevice();
+                        updateColorCodeForDevice();
                     } catch (BindingException e) {
                         Logger.w(LOG_TAG,
                                 "GomProxy was unbound while processing asynchronous thread");
@@ -144,6 +145,16 @@ public class DeviceControllerService extends Y60GomService {
 
         GomNode device = getGom().getNode(dc.getDevicePath());
         device.getOrCreateAttribute("software_version").putValue(version);
+    }
+
+    private void updateColorCodeForDevice() throws GomException, HttpException, IOException {
+        DeviceConfiguration dc = DeviceConfiguration.load();
+        GomNode device = getGom().getNode(dc.getDevicePath());
+        String colorCode = dc.getColorCode();
+        if (colorCode == null) {
+            colorCode = "orange";
+        }
+        device.getOrCreateAttribute("color_code").putValue(colorCode);
     }
 
     @Override

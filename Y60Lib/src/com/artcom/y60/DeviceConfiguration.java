@@ -20,6 +20,7 @@ public class DeviceConfiguration {
     private static final String GOM_URL_KEY      = "gom-url";
     private static final String DEVICE_PATH_KEY  = "device-path";
     private static final String LOG_LEVEL_KEY    = "log-level";
+    private static final String COLOR_CODE       = "color-code";
 
     // Static Methods ----------------------------------------------------
 
@@ -32,6 +33,7 @@ public class DeviceConfiguration {
     private String       mGomUrl;
     private String       mDevicePath;
     private Logger.Level mLogLevel;
+    private String       mColorCode;
 
     // Constructors ------------------------------------------------------
 
@@ -42,11 +44,14 @@ public class DeviceConfiguration {
             FileReader fr = new FileReader(CONFIG_FILE_PATH);
             char[] inputBuffer = new char[255];
             fr.read(inputBuffer);
+            fr.close();
             configuration = new JSONObject(new String(inputBuffer));
             mGomUrl = configuration.getString(GOM_URL_KEY);
             mDevicePath = configuration.getString(DEVICE_PATH_KEY);
             mLogLevel = Logger.Level.fromString(configuration.getString(LOG_LEVEL_KEY));
-            fr.close();
+            if (configuration.has(COLOR_CODE)) {
+                mColorCode = configuration.getString(COLOR_CODE);
+            }
 
         } catch (FileNotFoundException e) {
             Logger.e(LOG_TAG, "Could not find configuration file ", CONFIG_FILE_PATH);
@@ -92,6 +97,10 @@ public class DeviceConfiguration {
     public Logger.Level getLogLevel() {
 
         return mLogLevel;
+    }
+
+    public String getColorCode() {
+        return mColorCode;
     }
 
     public void saveLogLevel(Logger.Level pLevel) {
