@@ -32,6 +32,12 @@ public class RunLevelReceiver extends BroadcastReceiver {
         // Toast.makeText(pContext, pMessage, Toast.LENGTH_SHORT).show();
     }
 
+    public void updateIfNotNull() {
+        if (mProgressListener != null) {
+            mProgressListener.update();
+        }
+    }
+
     @Override
     public void onReceive(Context pContext, Intent pIntent) {
 
@@ -49,11 +55,13 @@ public class RunLevelReceiver extends BroadcastReceiver {
             isJavaScriptViewsReady = true;
             Logger.v(LOG_TAG, "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ javascript views is ready");
             toast(pContext, "JS VIEWS are ready");
+            updateIfNotNull();
 
         } else if (pIntent.getAction().equals(Y60Action.GLOBAL_OBSERVERS_READY)) {
             isGlobalObserversReady = true;
             Logger.v(LOG_TAG, "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ global observers is ready");
             toast(pContext, "GLOBAL OBSERVERS is ready");
+            updateIfNotNull();
 
         } else if (pIntent.getAction().equals(Y60Action.PRELOAD_BROWSE_READY)) {
             isPreloadBrowseViewsReady = true;
@@ -68,21 +76,20 @@ public class RunLevelReceiver extends BroadcastReceiver {
         } else if (pIntent.getAction().equals(Y60Action.DEVICE_CONTROLLER_READY)) {
             isDeviceControllerReady = true;
             toast(pContext, "DEVICE_CONTROLLER_READY");
+            updateIfNotNull();
 
         } else if (pIntent.getAction().equals(Y60Action.SERVICE_GOM_PROXY_READY)) {
             isGomProxyReady = true;
             toast(pContext, "SERVICE_GOM_PROXY_READY");
+            updateIfNotNull();
 
         } else if (pIntent.getAction().equals(Y60Action.SERVICE_HTTP_PROXY_READY)) {
             isHttpProxyReady = true;
             toast(pContext, "SERVICE_HTTP_PROXY_READY");
+            updateIfNotNull();
 
         }
         launchHomeScreenIfReady(pContext);
-        if (mProgressListener != null) {
-            mProgressListener.update();
-        }
-
     }
 
     private void launchHomeScreenIfReady(Context pContext) {
