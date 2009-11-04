@@ -46,4 +46,7 @@ public class IntentExtraKeys {
     public static final String RECIPIENT                = "recipient";
 
     public static final String BROADCAST_SENDER_CLASS   = "broadcast_sender_class";
+
+    public static final String DETAIL                   = "detail";
+    public static final String MODE                     = "mode";
 }
