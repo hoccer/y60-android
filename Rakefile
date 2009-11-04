@@ -39,7 +39,9 @@ task :removeartcom do
       while (uninst_line = uninst_io.gets)
         raise "uninstalling of #{pkg} failed!" if uninst_line.include? "Failure"
       end
+      uninst_io.close
       sleep 1
     end
   end
+  list_pkgs_io.close
 end

@@ -179,6 +179,7 @@ class Project
       while (line = io.gets)
         return true if line.include? "ssh://gitosis@tg-scm.t-gallery.act/artcom-tg-android.git"
       end
+      io.close
     end
     return false;
   end
@@ -191,7 +192,7 @@ class Project
     
     template = ERB.new IO.read(File.join(File.dirname(__FILE__), template_file_name))
     txt = template.result binding
-    File.open("#{path}/#{target_file_name}", "w") { |fd| fd.write txt }
+    File.open("#{path}/#{target_file_name}", "w") { |fd| fd.write txt; fd.close }
   end
   
   private # --------------------------------------------------------------

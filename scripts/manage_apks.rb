@@ -20,7 +20,9 @@ EOT
 
 
 def get_git_version
-  version = (open "|git log --summary HEAD").gets[7..-1][0..6]
+  log = open "|git log --summary HEAD"
+  version = log.gets[7..-1][0..6]
+  log.close
   puts "got git version '#{version}'"
   return version
 end
