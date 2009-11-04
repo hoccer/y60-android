@@ -136,7 +136,8 @@ public class DeviceControllerServiceTest extends ServiceTestCase<DeviceControlle
         if (ipAddress.startsWith("10.0.2.")) {
             assertTrue("rci_uri should start with 'http://'", rciUri.startsWith("http://"));
             assertTrue("rci_uri '" + rciUri + "' should contain a ip address ", rciUri
-                    .matches("\\d*\\.\\d*\\.\\d\\.\\d"));
+                    .matches(".*\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}.*"));
+
             assertTrue("rci_uri should end with ':4042/commands'", rciUri
                     .endsWith(":4042/commands"));
         } else {
