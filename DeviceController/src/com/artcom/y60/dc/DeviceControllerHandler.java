@@ -15,14 +15,14 @@ import org.mortbay.jetty.handler.DefaultHandler;
 import org.mortbay.util.MultiMap;
 import org.mortbay.util.UrlEncoded;
 
-import android.app.Service;
-import android.content.Intent;
-
 import com.artcom.y60.Constants;
 import com.artcom.y60.ErrorHandling;
 import com.artcom.y60.IntentExtraKeys;
 import com.artcom.y60.Logger;
 import com.artcom.y60.Y60Action;
+
+import android.app.Service;
+import android.content.Intent;
 
 public class DeviceControllerHandler extends DefaultHandler {
 
@@ -38,7 +38,7 @@ public class DeviceControllerHandler extends DefaultHandler {
 
     // Instance Variables ------------------------------------------------
 
-    private Service             mService;
+    private final Service       mService;
 
     // Constructors ------------------------------------------------------
 
@@ -140,16 +140,18 @@ public class DeviceControllerHandler extends DefaultHandler {
         } else if ("voice_control".equals(targetParam)) {
             broadcastIntent = new Intent(Y60Action.VOICE_CONTROL_BC);
 
+        } else if ("movie_player".equals(targetParam)) {
+            broadcastIntent = new Intent(Y60Action.MOVIE_CONTROL_BC);
+
         } else {
-            throw new HandlerException("illegal RCA target: " + targetParam + "from: "
-                    + parameters.get("sender"));
+            Logger.e("illegal RCA target: " + targetParam + "from: " + parameters.get("sender"));
+            return;
         }
 
-        broadcastIntent.putExtra(IntentExtraKeys.SEARCH_TARGET, (String) parameters.get("target"));
-        broadcastIntent.putExtra(IntentExtraKeys.SEARCH_SENDER, (String) parameters.get("sender"));
-        broadcastIntent.putExtra(IntentExtraKeys.SEARCH_RECEIVER, (String) parameters
-                .get("receiver"));
-        broadcastIntent.putExtra(IntentExtraKeys.SEARCH_ARGUMENTS, argumentsJson);
+        broadcastIntent.putExtra(IntentExtraKeys.RCI_TARGET, (String) parameters.get("target"));
+        broadcastIntent.putExtra(IntentExtraKeys.RCI_SENDER, (String) parameters.get("sender"));
+        broadcastIntent.putExtra(IntentExtraKeys.RCI_RECEIVER, (String) parameters.get("receiver"));
+        broadcastIntent.putExtra(IntentExtraKeys.RCI_ARGUMENTS, argumentsJson);
 
         mService.sendBroadcast(broadcastIntent);
     }

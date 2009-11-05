@@ -4,10 +4,9 @@ public class IntentExtraKeys {
     public static final String CALLING_APP              = "calling_app";
     public static final String QUERY_PATH               = "query_path";
     public static final String QUERY_TITLE              = "query_title";
-    public static final String SEARCH_TARGET            = "target";
-    public static final String SEARCH_SENDER            = "sender";
-    public static final String SEARCH_RECEIVER          = "receiver";
-    public static final String SEARCH_ARGUMENTS         = "arguments";
+    public static final String RCI_TARGET            = "target";
+    public static final String RCI_SENDER            = "sender";
+    public static final String RCI_RECEIVER          = "receiver";
     public static final String SEARCH_RESULTS           = "search_results";
 
     public static final String PURCHASE_TITLE           = "title";
@@ -49,4 +48,7 @@ public class IntentExtraKeys {
 
     public static final String DETAIL                   = "detail";
     public static final String MODE                     = "mode";
+
+    public static final String RCI_ARGUMENTS            = "rci_arguments";
+    public static final String RCI_FILE_LOCATION        = "rci_file_location";
 }

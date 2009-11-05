@@ -43,5 +43,7 @@ public abstract class Y60Action {
     public static final String MONITOR_GOM_NOTIFICATION  = "y60.intent.MONITOR_GOM_NOTIFICATION";
     public static final String RESET_BC                  = "y60.intent.RESET";
     public static final String PRELOAD_CACHE             = "y60.intent.PRELOAD_CACHE";
+    public static final String MOVIE_CONTROL_BC          = "y60.intent.MOVIE_CONTROL_BC";
+    public static final Object PICTURE_CONTROL_BC        = "y60.intent.PICTURE_CONTROL_BC";
 
 }
