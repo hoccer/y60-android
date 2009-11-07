@@ -13,9 +13,9 @@ import com.artcom.y60.http.HttpClientException;
 import com.artcom.y60.http.HttpServerException;
 
 /**
- * Represents the state of an attribute resource in the GOM. Some attributes
- * contain references (i.e. paths) to other resources which can be dereferenced
- * by calling resolveReference() on an attribute.
+ * Represents the state of an attribute resource in the GOM. Some attributes contain references
+ * (i.e. paths) to other resources which can be dereferenced by calling resolveReference() on an
+ * attribute.
  * 
  * @author arne
  */
@@ -33,18 +33,17 @@ public class GomAttribute extends GomEntry {
     }
 
     /** The attribute value */
-    private String mValue;
+    private String       mValue;
 
-    private String mNodePath;
+    private final String mNodePath;
 
     // Constructors ------------------------------------------------------
 
     /**
-     * Used internally only. Use the methods of GomRepository to load resource
-     * states.
+     * Used internally only. Use the methods of GomRepository to load resource states.
      */
     protected GomAttribute(String pPath, GomProxyHelper pProxy, String pValue)
-                    throws RemoteException {
+            throws RemoteException {
 
         super(extractNameFromPath(pPath), pPath, pProxy);
 
@@ -65,7 +64,7 @@ public class GomAttribute extends GomEntry {
     }
 
     public void putValue(String pValue) throws IOException, HttpClientException,
-                    HttpServerException {
+            HttpServerException {
 
         GomHttpWrapper.updateOrCreateAttribute(getUri(), pValue);
         mValue = pValue;
@@ -120,13 +119,12 @@ public class GomAttribute extends GomEntry {
      * 
      * @return the referenced resource, if resolution was successful
      * @throws GomResolutionFailedException
-     *             if the resolution failed, e.g. because this attribute didn't
-     *             point a resource
+     *             if the resolution failed, e.g. because this attribute didn't point a resource
      * @throws GomEntryNotFoundException
      * @throws GomEntryTypeMismatchException
      */
     public GomEntry resolveReference() throws GomResolutionFailedException,
-                    GomEntryTypeMismatchException, GomEntryNotFoundException {
+            GomEntryTypeMismatchException, GomEntryNotFoundException {
 
         GomEntry entry = getGomProxyHelper().getEntry(mValue);
 
