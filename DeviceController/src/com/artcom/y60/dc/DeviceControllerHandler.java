@@ -140,8 +140,9 @@ public class DeviceControllerHandler extends DefaultHandler {
         } else if ("voice_control".equals(targetParam)) {
             broadcastIntent = new Intent(Y60Action.VOICE_CONTROL_BC);
 
-        } else if ("movie_player".equals(targetParam)) {
-            broadcastIntent = new Intent(Y60Action.MOVIE_CONTROL_BC);
+        } else if ("movie_player".equals(targetParam) || "music_player".equals(targetParam)
+                || "picture_viewer".equals(targetParam)) {
+            broadcastIntent = new Intent(Y60Action.MEDIA_CONTROL_BC);
 
         } else {
             Logger.e("illegal RCA target: " + targetParam + "from: " + parameters.get("sender"));
