@@ -34,7 +34,7 @@ public class GomProxyHelper {
 
     private BindingListener<GomProxyHelper> mBindingListener;
 
-    private Context                         mContext;
+    protected Context                       mContext;
 
     // Constructors ------------------------------------------------------
 
