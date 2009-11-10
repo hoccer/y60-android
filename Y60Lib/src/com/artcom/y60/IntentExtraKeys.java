@@ -50,5 +50,6 @@ public class IntentExtraKeys {
 
     public static final String DETAIL                   = "detail";
     public static final String MODE                     = "mode";
+    public static final String WIFI_CONNECTED           = "wifi_connected";
 
 }
