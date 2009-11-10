@@ -120,6 +120,21 @@ public class GomProxyHelper {
         }
     }
 
+    public boolean hasAttribute(String pPath) {
+        assertConnected();
+        RpcStatus status = new RpcStatus();
+        try {
+            getProxy().getAttributeValue(pPath, status);
+        } catch (RemoteException e) {
+            e.printStackTrace();
+        }
+        if (status.hasError()) {
+            return false;
+        }
+        return true;
+
+    }
+
     // TODO test this
     public String getCachedAttributeValue(String pPath) throws GomProxyException {
         assertConnected();
