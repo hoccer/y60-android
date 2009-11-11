@@ -69,6 +69,29 @@ public class GomHttpWrapper {
         }
     }
 
+    public static boolean isAttributeExisting(String pUri) {
+        try {
+            getAttributeValue(pUri);
+        } catch (HttpException e) {
+            return false;
+        } catch (IOException e) {
+            return false;
+        }
+        return true;
+    }
+
+    public static String getAttributeValueOrNull(String pAttrUrl) {
+        try {
+            return getAttributeValue(pAttrUrl);
+        } catch (HttpClientException e) {
+            return null;
+        } catch (HttpServerException e) {
+            return null;
+        } catch (IOException e) {
+            return null;
+        }
+    }
+
     public static HttpResponse createNode(String pNodeUrl) throws HttpClientException,
             HttpServerException, IOException {
 
@@ -91,17 +114,6 @@ public class GomHttpWrapper {
         }
         return HttpHelper.putUrlEncoded(pNodeUrl, formData);
 
-    }
-
-    public static boolean isAttributeExisting(String pUri) {
-        try {
-            getAttributeValue(pUri);
-        } catch (HttpException e) {
-            return false;
-        } catch (IOException e) {
-            return false;
-        }
-        return true;
     }
 
 }
