@@ -53,7 +53,7 @@ class AndroidProject < Project
     EOT
   end
 
-  def install device_id=""
+  def install device_id="", additional_install_flags=""
     s = "-s #{device_id}" unless device_id.nil? || device_id.empty?
 
     apk_dir = "#{path}/bin"
@@ -61,15 +61,15 @@ class AndroidProject < Project
     Dir["#{apk_dir}/*.apk"].each do |apk|
       run "installing", <<-EOT
         adb #{s} push #{apk} /data/local/
-        adb #{s} shell pm install -r /data/local/#{File.basename apk}
+        adb #{s} shell pm install #{additional_install_flags} /data/local/#{File.basename apk}
       EOT
     end
   end
 
   def reinstall device_id=""
   
-    # install does automaticly reinstall
-    install device_id
+    # adb can reinstall apps when using the -r flag 
+    install device_id, "-r"
   end
 
   # run adroid instumentation tests; returns true if succsessfull
