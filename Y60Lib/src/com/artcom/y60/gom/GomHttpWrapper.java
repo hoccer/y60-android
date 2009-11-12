@@ -40,6 +40,18 @@ public class GomHttpWrapper {
         return HttpHelper.delete(pUri);
     }
 
+    public static HttpResponse deleteNodeOrNull(String pUri) {
+        try {
+            return HttpHelper.delete(pUri);
+        } catch (HttpClientException e) {
+            return null;
+        } catch (HttpServerException e) {
+            return null;
+        } catch (IOException e) {
+            return null;
+        }
+    }
+
     public static HttpResponse deleteNode(String pUri) throws HttpClientException,
             HttpServerException, IOException {
 
