@@ -7,14 +7,14 @@ import java.util.Map;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import android.content.BroadcastReceiver;
-import android.net.Uri;
-
 import com.artcom.y60.Constants;
 import com.artcom.y60.HttpHelper;
 import com.artcom.y60.Logger;
 import com.artcom.y60.TestHelper;
 import com.artcom.y60.UriHelper;
+
+import android.content.BroadcastReceiver;
+import android.net.Uri;
 
 public class GnpUpdatesGomProxyTest extends GomActivityUnitTestCase {
 
@@ -57,8 +57,8 @@ public class GnpUpdatesGomProxyTest extends GomActivityUnitTestCase {
 
         final GomTestObserver gto = new GomTestObserver(this);
 
-        BroadcastReceiver rec = GomNotificationHelper.createObserverAndNotify(nodePath, gto,
-                proxy, true);
+        BroadcastReceiver rec = GomNotificationHelper.createObserverAndNotify(nodePath, gto, proxy,
+                true);
         getActivity().registerReceiver(rec, Constants.Gom.GNP_INTENT_FILTER);
 
         TestHelper.blockUntilTrue("gnp update callback should have been called once", 5000,
@@ -139,10 +139,7 @@ public class GnpUpdatesGomProxyTest extends GomActivityUnitTestCase {
         TestHelper.blockUntilResourceAvailable("observer node should be registered in gom",
                 GomNotificationHelper.getObserverUriFor(nodePath));
 
-        GomHttpWrapper.updateOrCreateAttribute(Uri.parse(Constants.Gom.URI + attrPath),
-                "changed value");
-        assertEquals("cache should still have the old gom value", "original value", helper
-                .getCachedAttributeValue(attrPath));
+        GomHttpWrapper.updateOrCreateAttribute(Constants.Gom.URI + attrPath, "changed value");
 
         assertEquals("the value should have changed in gom", "changed value", HttpHelper
                 .getAsString(Constants.Gom.URI + attrPath + ".txt"));
@@ -203,8 +200,7 @@ public class GnpUpdatesGomProxyTest extends GomActivityUnitTestCase {
         String attrPath = nodePath + ":" + attrName;
 
         final GomTestObserver gto = new GomTestObserver(this);
-        BroadcastReceiver rec = GomNotificationHelper.createObserverAndNotify(nodePath, gto,
-                proxy);
+        BroadcastReceiver rec = GomNotificationHelper.createObserverAndNotify(nodePath, gto, proxy);
         getActivity().registerReceiver(rec, Constants.Gom.GNP_INTENT_FILTER);
 
         TestHelper.blockUntilTrue("gnp update callback should have been called once", 5000,
@@ -253,8 +249,8 @@ public class GnpUpdatesGomProxyTest extends GomActivityUnitTestCase {
         TestHelper.blockUntilResourceAvailable("node should be in gom", nodeRef.url().toString());
 
         final GomTestObserver gto = new GomTestObserver(this);
-        BroadcastReceiver receiver = GomNotificationHelper.createObserverAndNotify(
-                nodeRef.path(), gto, helper);
+        BroadcastReceiver receiver = GomNotificationHelper.createObserverAndNotify(nodeRef.path(),
+                gto, helper);
         assertEquals("gnp update callback should not have been called", 0, gto.getUpdateCount());
         assertEquals("gnp create callback should not have been called", 0, gto.getCreateCount());
         assertEquals("gnp delete callback should not have been called", 0, gto.getDeleteCount());
@@ -286,12 +282,6 @@ public class GnpUpdatesGomProxyTest extends GomActivityUnitTestCase {
 
         GomReference subNodeRef = nodeRef.subNode("subNode");
         HttpHelper.putXML(subNodeRef.url().toString(), "<node/>");
-
-        subNodeNames = new LinkedList<String>();
-        helper.getCachedNodeData(nodeRef.path(), subNodeNames, new LinkedList<String>());
-        assertEquals(
-                "cache should have the node with zero subNodes after callback was called once", 0,
-                subNodeNames.size());
 
         TestHelper.blockUntilTrue("GNP should notify our observer about the new subnode", 4000,
                 new TestHelper.Condition() {
@@ -345,8 +335,7 @@ public class GnpUpdatesGomProxyTest extends GomActivityUnitTestCase {
         GomHttpWrapper.createNode(subNodeUrl);
 
         final GomTestObserver gto = new GomTestObserver(this);
-        BroadcastReceiver rec = GomNotificationHelper.createObserverAndNotify(nodePath, gto,
-                proxy);
+        BroadcastReceiver rec = GomNotificationHelper.createObserverAndNotify(nodePath, gto, proxy);
         getActivity().registerReceiver(rec, Constants.Gom.GNP_INTENT_FILTER);
 
         TestHelper.blockUntilTrue("gnp update callback should have been called once", 5000,
@@ -413,8 +402,8 @@ public class GnpUpdatesGomProxyTest extends GomActivityUnitTestCase {
         TestHelper.blockUntilResourceAvailable("sub sub node should be in GOM", subSubNodeUrl);
 
         final GomTestObserver gto = new GomTestObserver(this);
-        BroadcastReceiver rec = GomNotificationHelper.createObserverAndNotify(nodePath, gto,
-                proxy, true);
+        BroadcastReceiver rec = GomNotificationHelper.createObserverAndNotify(nodePath, gto, proxy,
+                true);
         getActivity().registerReceiver(rec, Constants.Gom.GNP_INTENT_FILTER);
 
         TestHelper.blockUntilTrue("gnp update callback should have been called once", 5000,
@@ -465,8 +454,8 @@ public class GnpUpdatesGomProxyTest extends GomActivityUnitTestCase {
         TestHelper.blockUntilResourceAvailable("node should be in GOM", nodeUrl);
 
         final GomTestObserver gto = new GomTestObserver(this);
-        BroadcastReceiver rec = GomNotificationHelper.createObserverAndNotify(nodePath, gto,
-                proxy, true);
+        BroadcastReceiver rec = GomNotificationHelper.createObserverAndNotify(nodePath, gto, proxy,
+                true);
         getActivity().registerReceiver(rec, Constants.Gom.GNP_INTENT_FILTER);
 
         TestHelper.blockUntilTrue("gnp update callback should have been called once", 5000,
@@ -526,8 +515,8 @@ public class GnpUpdatesGomProxyTest extends GomActivityUnitTestCase {
         GomHttpWrapper.updateOrCreateAttribute(attrUri, "who cares?");
 
         final GomTestObserver gto = new GomTestObserver(this);
-        BroadcastReceiver rec = GomNotificationHelper.createObserverAndNotify(nodePath, gto,
-                proxy, true);
+        BroadcastReceiver rec = GomNotificationHelper.createObserverAndNotify(nodePath, gto, proxy,
+                true);
         getActivity().registerReceiver(rec, Constants.Gom.GNP_INTENT_FILTER);
 
         TestHelper.blockUntilTrue("gnp update callback should have been called once", 5000,
@@ -584,8 +573,8 @@ public class GnpUpdatesGomProxyTest extends GomActivityUnitTestCase {
         TestHelper.blockUntilResourceAvailable("node should be in GOM", attrUrl);
 
         final GomTestObserver gto = new GomTestObserver(this);
-        BroadcastReceiver rec = GomNotificationHelper.createObserverAndNotify(attrPath, gto,
-                proxy, true);
+        BroadcastReceiver rec = GomNotificationHelper.createObserverAndNotify(attrPath, gto, proxy,
+                true);
         getActivity().registerReceiver(rec, Constants.Gom.GNP_INTENT_FILTER);
 
         TestHelper.blockUntilTrue("gnp update callback should have been called once", 5000,
@@ -629,8 +618,8 @@ public class GnpUpdatesGomProxyTest extends GomActivityUnitTestCase {
         TestHelper.blockUntilResourceAvailable("node should be in GOM", attrUrl);
 
         final GomTestObserver gto = new GomTestObserver(this);
-        BroadcastReceiver rec = GomNotificationHelper.createObserverAndNotify(attrPath, gto,
-                proxy, true);
+        BroadcastReceiver rec = GomNotificationHelper.createObserverAndNotify(attrPath, gto, proxy,
+                true);
         getActivity().registerReceiver(rec, Constants.Gom.GNP_INTENT_FILTER);
 
         TestHelper.blockUntilTrue("gnp update callback should have been called once", 5000,

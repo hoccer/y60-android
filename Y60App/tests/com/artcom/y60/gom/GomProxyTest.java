@@ -1,11 +1,11 @@
 package com.artcom.y60.gom;
 
-import android.net.Uri;
-import android.test.AssertionFailedError;
-
 import com.artcom.y60.Constants;
 import com.artcom.y60.HttpHelper;
 import com.artcom.y60.RpcStatus;
+
+import android.net.Uri;
+import android.test.AssertionFailedError;
 
 public class GomProxyTest extends GomActivityUnitTestCase {
 
@@ -70,6 +70,8 @@ public class GomProxyTest extends GomActivityUnitTestCase {
         RpcStatus rpcStatus = new RpcStatus();
         helper.getProxy().getCachedAttributeValue(attrPath, rpcStatus);
 
+        assertNotNull("RPCStatus should not be null", rpcStatus);
+        assertNotNull("RPCStatus should contain an error", rpcStatus.getError());
         assertTrue("cache should return an exception that attribute is not in cache", rpcStatus
                 .getError() instanceof GomProxyException);
 
