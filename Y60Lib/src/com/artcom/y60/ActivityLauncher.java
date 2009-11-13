@@ -2,9 +2,9 @@ package com.artcom.y60;
 
 import android.content.Intent;
 
-public class IntentLauncher extends SlotLauncher {
+public class ActivityLauncher extends SlotLauncher {
 
-    private static final String LOG_TAG = IntentLauncher.class.getName();
+    private static final String LOG_TAG = ActivityLauncher.class.getName();
 
     // Instance Variables ------------------------------------------------
 
@@ -12,12 +12,12 @@ public class IntentLauncher extends SlotLauncher {
 
     // Constructors ------------------------------------------------------
 
-    public IntentLauncher(Intent pIntent) {
+    public ActivityLauncher(Intent pIntent) {
 
         mIntent = pIntent;
     }
 
-    public IntentLauncher(String pActivityClass) {
+    public ActivityLauncher(String pActivityClass) {
 
         mIntent = IntentHelper.getExplicitIntentForClass(pActivityClass);
     }
