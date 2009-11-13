@@ -20,7 +20,7 @@ public class GomProxyHelper {
 
     // Constants ---------------------------------------------------------
 
-    public static final String              LOG_TAG = "GomProxyHelper";
+    public static final String                    LOG_TAG = "GomProxyHelper";
 
     // Instance Variables ------------------------------------------------
 
@@ -28,13 +28,13 @@ public class GomProxyHelper {
      * The client for this helperProxyHelper
      */
     // private Context mContext;
-    private IGomProxyService                mProxy;
+    private IGomProxyService                      mProxy;
 
-    private GomProxyServiceConnection       mConnection;
+    private final GomProxyServiceConnection       mConnection;
 
-    private BindingListener<GomProxyHelper> mBindingListener;
+    private final BindingListener<GomProxyHelper> mBindingListener;
 
-    protected Context                       mContext;
+    protected Context                             mContext;
 
     // Constructors ------------------------------------------------------
 

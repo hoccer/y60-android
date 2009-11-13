@@ -198,7 +198,7 @@ public class Y60 extends Activity {
             setTitle("Y60 " + br.readLine());
             br.close();
         } catch (Exception e) {
-            e.printStackTrace();
+            // Ok, no version available
         }
     }
 
