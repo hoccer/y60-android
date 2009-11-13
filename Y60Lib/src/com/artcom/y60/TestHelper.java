@@ -14,12 +14,12 @@ import junit.framework.Assert;
 import org.apache.http.conn.HttpHostConnectException;
 import org.json.JSONObject;
 
+import com.artcom.y60.http.HttpClientException;
+
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.test.AssertionFailedError;
-
-import com.artcom.y60.http.HttpClientException;
 
 public class TestHelper {
 
@@ -30,7 +30,6 @@ public class TestHelper {
     // Static Methods ----------------------------------------------------
 
     /**
-     * 
      * @param pFailMessage
      * @param pTimeout
      *            in milliseconds
@@ -59,7 +58,6 @@ public class TestHelper {
     }
 
     /**
-     * 
      * @param pFailMessage
      * @param pTimeout
      *            in milliseconds
@@ -103,7 +101,6 @@ public class TestHelper {
     }
 
     /**
-     * 
      * @param pFailMessage
      * @param pTimeout
      * @param pMeasurement
@@ -369,8 +366,7 @@ public class TestHelper {
     }
 
     /**
-     * Assert two {@linkplain InputStream input streams} to deliver equal
-     * content.
+     * Assert two {@linkplain InputStream input streams} to deliver equal content.
      * 
      * @param message
      *            the error message
