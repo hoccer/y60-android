@@ -474,4 +474,18 @@ public class HttpHelper {
 
         return pUrl;
     }
+
+    public static boolean isReachable(String pUri) {
+
+        HttpHead head = new HttpHead(pUri);
+        try {
+            executeHTTPMethod(head);
+        } catch (HttpException e) {
+            return false;
+        } catch (IOException e) {
+            return false;
+        }
+
+        return true;
+    }
 }
