@@ -24,6 +24,7 @@ public class IoHelper {
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
+        lastPart = lastPart.replaceAll("\\+", "%20");
         return pString.substring(0, separate + 1) + lastPart;
     }
 
