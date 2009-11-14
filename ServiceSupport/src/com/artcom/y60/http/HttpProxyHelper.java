@@ -509,4 +509,13 @@ public class HttpProxyHelper {
             mBindingListener.unbound(HttpProxyHelper.this);
         }
     }
+
+    public int getSizeInCache(Uri pUri) {
+        byte[] bytes = fetchFromCache(pUri);
+        if (bytes == null) {
+            return 0;
+        } else {
+            return bytes.length;
+        }
+    }
 }
