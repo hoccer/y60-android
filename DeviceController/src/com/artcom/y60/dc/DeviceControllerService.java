@@ -15,6 +15,7 @@ import com.artcom.y60.BindingException;
 import com.artcom.y60.Constants;
 import com.artcom.y60.DeviceConfiguration;
 import com.artcom.y60.ErrorHandling;
+import com.artcom.y60.IntentExtraKeys;
 import com.artcom.y60.IpAddressNotFoundException;
 import com.artcom.y60.Logger;
 import com.artcom.y60.NetworkHelper;
@@ -47,6 +48,13 @@ public class DeviceControllerService extends Y60GomService {
         super.onCreate();
         Logger.i(LOG_TAG, "onCreate called");
 
+    }
+
+    @Override
+    public void onStart(Intent pIntent, int startId) {
+        Logger.i(LOG_TAG, "onStart called");
+
+        final Intent intent = pIntent;
         callOnBoundToGom(new Runnable() {
 
             public void run() {
@@ -69,17 +77,16 @@ public class DeviceControllerService extends Y60GomService {
                     ErrorHandling.signalUnspecifiedError(LOG_TAG, ex, DeviceControllerService.this);
                 }
 
-                Logger.v(LOG_TAG,
-                        "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ broadcast device controller ready");
-                sendBroadcast(new Intent(Y60Action.DEVICE_CONTROLLER_READY));
+                Intent dcReadyIntent = new Intent(Y60Action.DEVICE_CONTROLLER_READY);
+                if (intent.hasExtra(IntentExtraKeys.IS_IN_INIT_CHAIN)) {
+                    dcReadyIntent.putExtra(IntentExtraKeys.IS_IN_INIT_CHAIN, intent
+                            .getBooleanExtra(IntentExtraKeys.IS_IN_INIT_CHAIN, false));
+                    Logger.v(LOG_TAG,
+                            "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ broadcast device controller ready");
+                    sendBroadcast(dcReadyIntent);
+                }
             }
         });
-    }
-
-    @Override
-    public void onStart(Intent intent, int startId) {
-        Logger.i(LOG_TAG, "onStart called");
-
         Logger.i(LOG_TAG, "onStart(): DeviceControllerService started");
         super.onStart(intent, startId);
     }

@@ -36,4 +36,5 @@ public class IntentExtraKeys {
 
     public static final String DETAIL                   = "detail";
     public static final String MODE                     = "mode";
+    public static final String IS_IN_INIT_CHAIN         = "is_in_init_chain";
 }

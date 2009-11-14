@@ -1,30 +1,16 @@
 /*
- *  Copyright (C) 1993-2008, ART+COM AG Berlin, Germany <www.artcom.de>
- * 
- *  These coded instructions, statements, and computer programs contain
- *  proprietary information of ART+COM AG Berlin, and are copy protected
- *  by law. They may be used, modified and redistributed under the terms
- *  of GNU General Public License referenced below. 
- *     
- *  Alternative licensing without the obligations of the GPL is
- *  available upon request.
- * 
- *  GPL v3 Licensing:
- * 
- *  This file is part of the ART+COM Y60 Platform.
- * 
- *  ART+COM Y60 is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  ART+COM Y60 is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with ART+COM Y60.  If not, see <http: * www.gnu.org/licenses/>.
+ * Copyright (C) 1993-2008, ART+COM AG Berlin, Germany <www.artcom.de> These coded instructions,
+ * statements, and computer programs contain proprietary information of ART+COM AG Berlin, and are
+ * copy protected by law. They may be used, modified and redistributed under the terms of GNU
+ * General Public License referenced below. Alternative licensing without the obligations of the GPL
+ * is available upon request. GPL v3 Licensing: This file is part of the ART+COM Y60 Platform.
+ * ART+COM Y60 is free software: you can redistribute it and/or modify it under the terms of the GNU
+ * General Public License as published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version. ART+COM Y60 is distributed in the hope that it
+ * will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details. You should
+ * have received a copy of the GNU General Public License along with ART+COM Y60. If not, see <http:
+ * * www.gnu.org/licenses/>.
  */
 
 package com.artcom.y60;
@@ -61,8 +47,6 @@ public class Y60 extends Activity {
 
     private static final String                LOG_TAG  = "Y60";
 
-    private RunLevelReceiver                   mRunLevelReceiver;
-
     private EditText                           mDeviceIdEdit;
     private Button                             mSetDeviceIdButton;
     private Button                             mInitButton;
@@ -82,7 +66,6 @@ public class Y60 extends Activity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        registerNewRunLevelReceiver();
         setContentView(R.layout.y60_layout);
 
         mDeviceIdEdit = (EditText) findViewById(R.id.device_path_edit);
@@ -107,25 +90,6 @@ public class Y60 extends Activity {
         mInitButton.setOnClickListener(new OnClickListener() {
             // @Override
             public void onClick(View v) {
-                /*
-                 * unregisterRunLevelReceiver();
-                 * 
-                 * new Thread(new Runnable() {
-                 * 
-                 * @Override public void run() {
-                 * 
-                 * stopService(new Intent(Y60Action.SERVICE_DEVICE_CONTROLLER));
-                 * sendBroadcast(new Intent(Y60Action.SHUTDOWN_SERVICES_BC));
-                 * 
-                 * // TODO block until shutdown complete try {
-                 * Thread.sleep(10000); } catch (InterruptedException e) { //
-                 * TODO Auto-generated catch block e.printStackTrace(); }
-                 * 
-                 * registerNewRunLevelReceiver(); sendBroadcast(new
-                 * Intent(Y60Action.INIT_PROXY_SERVICES)); }
-                 * 
-                 * }).start();
-                 */
                 startActivity(new Intent(INIT_APP));
             }
         });
@@ -202,28 +166,6 @@ public class Y60 extends Activity {
         }
     }
 
-    private void registerNewRunLevelReceiver() {
-        mRunLevelReceiver = new RunLevelReceiver();
-        registerReceiver(mRunLevelReceiver, new IntentFilter(Y60Action.GLOBAL_OBSERVERS_READY));
-        registerReceiver(mRunLevelReceiver, new IntentFilter(Y60Action.JAVASCRIPT_VIEWS_READY));
-        registerReceiver(mRunLevelReceiver, new IntentFilter(Y60Action.SEARCH_READY));
-        registerReceiver(mRunLevelReceiver, new IntentFilter(Y60Action.CALL_READY));
-        registerReceiver(mRunLevelReceiver, new IntentFilter(Y60Action.VIDEO_PRELOAD_READY));
-        registerReceiver(mRunLevelReceiver, new IntentFilter(Y60Action.PRELOAD_BROWSE_READY));
-
-        registerReceiver(mRunLevelReceiver, new IntentFilter(Y60Action.DEVICE_CONTROLLER_READY));
-        registerReceiver(mRunLevelReceiver, new IntentFilter(Y60Action.SERVICE_GOM_PROXY_READY));
-        registerReceiver(mRunLevelReceiver, new IntentFilter(Y60Action.SERVICE_HTTP_PROXY_READY));
-    }
-
-    private void unregisterRunLevelReceiver() {
-        // mRunLevelReceiver.reset();
-        if (mRunLevelReceiver != null) {
-            unregisterReceiver(mRunLevelReceiver);
-        }
-        mRunLevelReceiver = null;
-    }
-
     @Override
     public void onResume() {
         super.onResume();
@@ -243,8 +185,6 @@ public class Y60 extends Activity {
 
     @Override
     protected void onDestroy() {
-        unregisterReceiver(mRunLevelReceiver);
-        mRunLevelReceiver = null;
         super.onDestroy();
     }
 

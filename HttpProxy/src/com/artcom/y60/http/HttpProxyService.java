@@ -4,6 +4,13 @@ import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 
+import com.artcom.y60.DeviceConfiguration;
+import com.artcom.y60.IntentExtraKeys;
+import com.artcom.y60.Logger;
+import com.artcom.y60.RpcStatus;
+import com.artcom.y60.Y60Action;
+import com.artcom.y60.Y60Service;
+
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -11,12 +18,6 @@ import android.content.IntentFilter;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
-
-import com.artcom.y60.DeviceConfiguration;
-import com.artcom.y60.Logger;
-import com.artcom.y60.RpcStatus;
-import com.artcom.y60.Y60Action;
-import com.artcom.y60.Y60Service;
 
 /**
  * Implementation of client-side caching for HTTP resources.
@@ -29,7 +30,7 @@ public class HttpProxyService extends Y60Service {
     // Constants ---------------------------------------------------------
 
     private static final String          LOG_TAG = "HttpProxyService";
-    private Cache           cache;
+    private Cache                        cache;
 
     // Class Variables ---------------------------------------------------
 
@@ -108,7 +109,6 @@ public class HttpProxyService extends Y60Service {
     public HttpProxyService() {
 
         mId = String.valueOf(System.currentTimeMillis());
-        Logger.v(tag(), "HttpProxyService instantiated");
     }
 
     // Public Instance Methods -------------------------------------------
@@ -116,12 +116,10 @@ public class HttpProxyService extends Y60Service {
     @Override
     public void onCreate() {
 
-    	cache = new Cache();
-    	
+        cache = new Cache();
+
         DeviceConfiguration conf = DeviceConfiguration.load();
         Logger.setFilterLevel(conf.getLogLevel());
-
-        Logger.i(tag(), "HttpProxyService.onCreate");
 
         super.onCreate();
 
@@ -134,26 +132,25 @@ public class HttpProxyService extends Y60Service {
         synchronized (sInstances) {
             sInstances.add(this);
             cache.resume();
-            Logger.v(tag(), "instances: ", countInstances());
         }
     }
 
     @Override
-    public void onStart(Intent intent, int startId) {
-        Logger.v(LOG_TAG, "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ send broadcast HTTP PROXY READY");
-        sendBroadcast(new Intent(Y60Action.SERVICE_HTTP_PROXY_READY));
-        // Toast.makeText(this, "HTTP PROXY is ready",
-        // Toast.LENGTH_SHORT).show();
-        Logger.i(tag(), "HttpProxyService.onStart");
-        super.onStart(intent, startId);
-        Logger.d(tag(), "instances: " + countInstances());
+    public void onStart(Intent pIntent, int startId) {
 
+        Intent intent = new Intent(Y60Action.SERVICE_HTTP_PROXY_READY);
+        if (pIntent.hasExtra(IntentExtraKeys.IS_IN_INIT_CHAIN)) {
+            intent.putExtra(IntentExtraKeys.IS_IN_INIT_CHAIN, pIntent.getBooleanExtra(
+                    IntentExtraKeys.IS_IN_INIT_CHAIN, false));
+            Logger.v(LOG_TAG, "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ send broadcast HTTP PROXY READY");
+            sendBroadcast(intent);
+        }
+
+        super.onStart(intent, startId);
     }
 
     @Override
     public void onDestroy() {
-
-        Logger.i(tag(), "HttpProxyService.onDestroy");
 
         synchronized (sInstances) {
             sInstances.remove(this);
@@ -161,7 +158,6 @@ public class HttpProxyService extends Y60Service {
             if (sInstances.size() < 1) {
                 cache.stop();
             }
-            Logger.d(tag(), "instances: " + countInstances());
         }
 
         unregisterReceiver(mResetReceiver);
@@ -202,11 +198,6 @@ public class HttpProxyService extends Y60Service {
     }
 
     // Private Instance Methods ------------------------------------------
-
-    private String tag() {
-
-        return LOG_TAG + "[instance " + mId + "]";
-    }
 
     private void clear() {
 

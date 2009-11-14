@@ -24,7 +24,7 @@ public abstract class Y60Activity extends Activity {
 
     // Package Protected Instance Methods --------------------------------
 
-    void kill() {
+    protected void kill() {
 
         Logger.i(LOG_TAG, "finishing activity ", Y60Activity.this.getClass().getName());
         finish();

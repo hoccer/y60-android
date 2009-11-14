@@ -41,59 +41,82 @@ public class RunLevelReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context pContext, Intent pIntent) {
 
-        if (pIntent.getAction().equals(Y60Action.SEARCH_READY)) {
-            isSearchReady = true;
-            Logger.v(LOG_TAG, "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ search is ready");
-            toast(pContext, "SEARCH is ready");
+        Logger.v(LOG_TAG, "onReceive: ", pIntent,
+                "has pIntent.hasExtra(IntentExtraKeys.IS_IN_INIT_CHAIN)", pIntent
+                        .hasExtra(IntentExtraKeys.IS_IN_INIT_CHAIN));
 
-        } else if (pIntent.getAction().equals(Y60Action.CALL_READY)) {
-            isCallReady = true;
-            Logger.v(LOG_TAG, "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ call is ready");
-            toast(pContext, "CALL is ready");
+        if (pIntent.hasExtra(IntentExtraKeys.IS_IN_INIT_CHAIN)) {
 
-        } else if (pIntent.getAction().equals(Y60Action.JAVASCRIPT_VIEWS_READY)) {
-            isJavaScriptViewsReady = true;
-            Logger.v(LOG_TAG, "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ javascript views is ready");
-            toast(pContext, "JS VIEWS are ready");
-            updateIfNotNull();
+            Logger.v(LOG_TAG, "in init chain: ", pIntent.getBooleanExtra(
+                    IntentExtraKeys.IS_IN_INIT_CHAIN, false), " the action: ", pIntent.getAction());
 
-        } else if (pIntent.getAction().equals(Y60Action.GLOBAL_OBSERVERS_READY)) {
-            isGlobalObserversReady = true;
-            Logger.v(LOG_TAG, "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ global observers is ready");
-            toast(pContext, "GLOBAL OBSERVERS is ready");
-            updateIfNotNull();
+            if (pIntent.getAction().equals(Y60Action.SEARCH_READY)) {
+                isSearchReady = true;
+                Logger.v(LOG_TAG, "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ search is ready");
+                toast(pContext, "SEARCH is ready");
 
-        } else if (pIntent.getAction().equals(Y60Action.PRELOAD_BROWSE_READY)) {
-            isPreloadBrowseViewsReady = true;
-            Logger.v(LOG_TAG, "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ preload browse is ready");
-            toast(pContext, "PRELOAD_BROWSE_READY is ready");
+            } else if (pIntent.getAction().equals(Y60Action.CALL_READY)) {
+                isCallReady = true;
+                Logger.v(LOG_TAG, "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ call is ready");
+                toast(pContext, "CALL is ready");
 
-        } else if (pIntent.getAction().equals(Y60Action.VIDEO_PRELOAD_READY)) {
-            isVideoPreloadReady = true;
-            Logger.v(LOG_TAG, "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ video preload is ready");
-            toast(pContext, "VIDEO_PRELOAD_READY is ready");
+            } else if (pIntent.getAction().equals(Y60Action.JAVASCRIPT_VIEWS_READY)) {
+                isJavaScriptViewsReady = true;
+                Logger.v(LOG_TAG, "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ javascript views is ready");
+                toast(pContext, "JS VIEWS are ready");
+                updateIfNotNull();
 
-        } else if (pIntent.getAction().equals(Y60Action.DEVICE_CONTROLLER_READY)) {
-            isDeviceControllerReady = true;
-            toast(pContext, "DEVICE_CONTROLLER_READY");
-            updateIfNotNull();
+            } else if (pIntent.getAction().equals(Y60Action.GLOBAL_OBSERVERS_READY)) {
+                isGlobalObserversReady = true;
+                Logger.v(LOG_TAG, "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ global observers is ready");
+                toast(pContext, "GLOBAL OBSERVERS is ready");
+                updateIfNotNull();
 
-        } else if (pIntent.getAction().equals(Y60Action.SERVICE_GOM_PROXY_READY)) {
-            isGomProxyReady = true;
-            toast(pContext, "SERVICE_GOM_PROXY_READY");
-            updateIfNotNull();
+            } else if (pIntent.getAction().equals(Y60Action.PRELOAD_BROWSE_READY)) {
+                isPreloadBrowseViewsReady = true;
+                Logger.v(LOG_TAG, "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ preload browse is ready");
+                toast(pContext, "PRELOAD_BROWSE_READY is ready");
 
-        } else if (pIntent.getAction().equals(Y60Action.SERVICE_HTTP_PROXY_READY)) {
-            isHttpProxyReady = true;
-            toast(pContext, "SERVICE_HTTP_PROXY_READY");
-            updateIfNotNull();
+            } else if (pIntent.getAction().equals(Y60Action.VIDEO_PRELOAD_READY)) {
+                isVideoPreloadReady = true;
+                Logger.v(LOG_TAG, "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ video preload is ready");
+                toast(pContext, "VIDEO_PRELOAD_READY is ready");
 
+            } else if (pIntent.getAction().equals(Y60Action.DEVICE_CONTROLLER_READY)) {
+                isDeviceControllerReady = true;
+                Logger.v(LOG_TAG,
+                        "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ DEVICE_CONTROLLER_READY is ready");
+                toast(pContext, "DEVICE_CONTROLLER_READY");
+                updateIfNotNull();
+
+            } else if (pIntent.getAction().equals(Y60Action.SERVICE_GOM_PROXY_READY)) {
+                isGomProxyReady = true;
+                Logger.v(LOG_TAG,
+                        "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ SERVICE_GOM_PROXY_READY is ready");
+                toast(pContext, "SERVICE_GOM_PROXY_READY");
+                updateIfNotNull();
+
+            } else if (pIntent.getAction().equals(Y60Action.SERVICE_HTTP_PROXY_READY)) {
+                isHttpProxyReady = true;
+                Logger.v(LOG_TAG,
+                        "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ SERVICE_HTTP_PROXY_READY is ready");
+                toast(pContext, "SERVICE_HTTP_PROXY_READY");
+                updateIfNotNull();
+
+            }
+
+            launchHomeScreenIfReady(pContext);
         }
-        launchHomeScreenIfReady(pContext);
     }
 
     private void launchHomeScreenIfReady(Context pContext) {
         if (isEverythingReady()) {
+            Logger.v(LOG_TAG, "isEveryThingReady? \n search: ", isSearchReady, " \ncall: ",
+                    isCallReady, " \nglobalObservers: ", isGlobalObserversReady, " \njsViews: ",
+                    isJavaScriptViewsReady, " \nvideoPreload: ", isVideoPreloadReady,
+                    " \npreloadBrowse: ", isPreloadBrowseViewsReady, "\nisDeviceControllerReady: ",
+                    isDeviceControllerReady, "\nisGomProxyReady: ", isGomProxyReady,
+                    "\nisHttpProxyReady: ", isHttpProxyReady, "\naddress: ", this.toString());
             Logger.v(LOG_TAG, "everything is ready!");
             Intent intent = new Intent(Y60Action.INIT_READY);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -102,14 +125,8 @@ public class RunLevelReceiver extends BroadcastReceiver {
     }
 
     public boolean isEverythingReady() {
-        Logger.v(LOG_TAG, "isEveryThingReady? \n search: ", isSearchReady, " \ncall: ",
-                isCallReady, " \nglobalObservers: ", isGlobalObserversReady, " \njsViews: ",
-                isJavaScriptViewsReady, " \nvideoPreload: ", isVideoPreloadReady,
-                " \npreloadBrowse: ", isPreloadBrowseViewsReady, "\nisDeviceControllerReady: ",
-                isDeviceControllerReady, "\nisGomProxyReady: ", isGomProxyReady,
-                "\nisHttpProxyReady: ", isHttpProxyReady, "\naddress: ", this.toString());
-        return /*isSearchReady && isCallReady && */isGlobalObserversReady
-                && isJavaScriptViewsReady /*&& isVideoPreloadReady && isPreloadBrowseViewsReady*/
+        return /* isSearchReady && isCallReady && */isGlobalObserversReady
+                && isJavaScriptViewsReady /* && isVideoPreloadReady && isPreloadBrowseViewsReady */
                 && isGomProxyReady && isHttpProxyReady && isDeviceControllerReady;
     }
 

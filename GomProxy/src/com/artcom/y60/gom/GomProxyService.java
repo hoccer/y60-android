@@ -9,6 +9,17 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import com.artcom.y60.Constants;
+import com.artcom.y60.DeviceConfiguration;
+import com.artcom.y60.HttpHelper;
+import com.artcom.y60.IntentExtraKeys;
+import com.artcom.y60.JsonHelper;
+import com.artcom.y60.Logger;
+import com.artcom.y60.RpcStatus;
+import com.artcom.y60.Y60Action;
+import com.artcom.y60.Y60Service;
+import com.artcom.y60.http.HttpClientException;
+
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -17,35 +28,25 @@ import android.net.Uri;
 import android.os.IBinder;
 import android.os.RemoteException;
 
-import com.artcom.y60.Constants;
-import com.artcom.y60.DeviceConfiguration;
-import com.artcom.y60.HttpHelper;
-import com.artcom.y60.JsonHelper;
-import com.artcom.y60.Logger;
-import com.artcom.y60.RpcStatus;
-import com.artcom.y60.Y60Action;
-import com.artcom.y60.Y60Service;
-import com.artcom.y60.http.HttpClientException;
-
 public class GomProxyService extends Y60Service {
 
     // Constants ---------------------------------------------------------
 
-    private static final String   LOG_TAG           = "GomProxyService";
+    private static final String         LOG_TAG           = "GomProxyService";
 
     // Instance Variables ------------------------------------------------
 
-    private GomProxyRemote        mRemote;
+    private GomProxyRemote              mRemote;
 
-    private Map<String, NodeData> mNodes;
+    private final Map<String, NodeData> mNodes;
 
-    private Map<String, String>   mAttributes;
+    private final Map<String, String>   mAttributes;
 
-    private Uri                   mBaseUri;
+    private final Uri                   mBaseUri;
 
-    private BroadcastReceiver     mResetReceiver;
+    private BroadcastReceiver           mResetReceiver;
 
-    protected boolean             mIsStartedForTest = false;
+    protected boolean                   mIsStartedForTest = false;
 
     // Constructors ------------------------------------------------------
 
@@ -78,13 +79,16 @@ public class GomProxyService extends Y60Service {
     }
 
     @Override
-    public void onStart(Intent intent, int startId) {
+    public void onStart(Intent pIntent, int startId) {
         Logger.v(LOG_TAG, "onStart: threadid: ", Thread.currentThread().getId());
-        Logger.v(LOG_TAG, "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ send broadcast GOM PROXY READY");
-        sendBroadcast(new Intent(Y60Action.SERVICE_GOM_PROXY_READY));
-        // Toast.makeText(this, "GOM PROXY is ready",
-        // Toast.LENGTH_SHORT).show();
 
+        Intent intent = new Intent(Y60Action.SERVICE_GOM_PROXY_READY);
+        if (pIntent.hasExtra(IntentExtraKeys.IS_IN_INIT_CHAIN)) {
+            intent.putExtra(IntentExtraKeys.IS_IN_INIT_CHAIN, pIntent.getBooleanExtra(
+                    IntentExtraKeys.IS_IN_INIT_CHAIN, false));
+            Logger.v(LOG_TAG, "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ send broadcast GOM PROXY READY");
+            sendBroadcast(intent);
+        }
         mIsStartedForTest = true;
 
         super.onStart(intent, startId);
