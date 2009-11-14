@@ -11,12 +11,6 @@ import org.mortbay.jetty.bio.SocketConnector;
 import org.mortbay.jetty.handler.HandlerCollection;
 import org.mortbay.thread.QueuedThreadPool;
 
-import android.app.ActivityManager;
-import android.app.ActivityManager.MemoryInfo;
-import android.content.Intent;
-import android.os.Binder;
-import android.os.IBinder;
-
 import com.artcom.y60.BindingException;
 import com.artcom.y60.Constants;
 import com.artcom.y60.DeviceConfiguration;
@@ -30,6 +24,12 @@ import com.artcom.y60.gom.GomHttpWrapper;
 import com.artcom.y60.gom.GomNode;
 import com.artcom.y60.gom.Y60GomService;
 import com.artcom.y60.http.HttpException;
+
+import android.app.ActivityManager;
+import android.app.ActivityManager.MemoryInfo;
+import android.content.Intent;
+import android.os.Binder;
+import android.os.IBinder;
 
 public class DeviceControllerService extends Y60GomService {
 
@@ -101,6 +101,10 @@ public class DeviceControllerService extends Y60GomService {
                 device.getOrCreateAttribute("rtp_address").putValue(ipAddress);
                 device.getOrCreateAttribute("rtp_port").putValue("16384");
             } else {
+                GomNode device = getGom().getNode(dc.getDevicePath());
+                device.getOrCreateAttribute("ip_address").putValue("");
+                device.getOrCreateAttribute("rtp_address").putValue("");
+                device.getOrCreateAttribute("rtp_port").putValue("");
                 Logger.i(LOG_TAG, "I'm running in the emulator. Not publishing my ip address.");
             }
         } catch (IpAddressNotFoundException e) {
