@@ -24,7 +24,7 @@ public class RunLevelReceiver extends BroadcastReceiver {
     }
 
     public int getNoOfLevels() {
-        return 5;
+        return 4;
     }
 
     public void updateIfNotNull() {

@@ -7,6 +7,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -14,9 +16,16 @@ import org.json.JSONObject;
 public class IoHelper {
     private static final String LOG_TAG = "IoHelper";
 
-    public static String encodeUrlBlanks(String pString) {
-        pString = pString.replaceAll(" ", "%20");
-        return pString;
+    public static String encodeUrl(String pString) {
+        int separate = pString.lastIndexOf("/");
+        String lastPart = pString.substring(separate + 1);
+        try {
+            lastPart = URLEncoder.encode(lastPart, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+        lastPart = lastPart.replaceAll("\\+", "%20");
+        return pString.substring(0, separate + 1) + lastPart;
     }
 
     public static String cutString(String pString, int pMaxWidth) {
