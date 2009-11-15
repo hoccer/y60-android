@@ -19,8 +19,7 @@ public class HttpProxyInitReceiver extends BroadcastReceiver {
 
         Intent startHttpProxyIntent = new Intent(Y60Action.SERVICE_HTTP_PROXY);
         if (pIntent.hasExtra(IntentExtraKeys.IS_IN_INIT_CHAIN)) {
-            startHttpProxyIntent.putExtra(IntentExtraKeys.IS_IN_INIT_CHAIN, pIntent
-                    .getBooleanExtra(IntentExtraKeys.IS_IN_INIT_CHAIN, false));
+            startHttpProxyIntent.putExtra(IntentExtraKeys.IS_IN_INIT_CHAIN, true);
         }
         pCtx.startService(startHttpProxyIntent);
     }

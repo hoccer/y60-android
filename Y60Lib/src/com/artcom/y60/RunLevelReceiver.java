@@ -27,11 +27,6 @@ public class RunLevelReceiver extends BroadcastReceiver {
         return 5;
     }
 
-    public void toast(Context pContext, String pMessage) {
-        // if (mProgressListener == null)
-        // Toast.makeText(pContext, pMessage, Toast.LENGTH_SHORT).show();
-    }
-
     public void updateIfNotNull() {
         if (mProgressListener != null) {
             mProgressListener.update();
@@ -53,71 +48,71 @@ public class RunLevelReceiver extends BroadcastReceiver {
             if (pIntent.getAction().equals(Y60Action.SEARCH_READY)) {
                 isSearchReady = true;
                 Logger.v(LOG_TAG, "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ search is ready");
-                toast(pContext, "SEARCH is ready");
 
             } else if (pIntent.getAction().equals(Y60Action.CALL_READY)) {
                 isCallReady = true;
                 Logger.v(LOG_TAG, "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ call is ready");
-                toast(pContext, "CALL is ready");
 
             } else if (pIntent.getAction().equals(Y60Action.JAVASCRIPT_VIEWS_READY)) {
                 isJavaScriptViewsReady = true;
                 Logger.v(LOG_TAG, "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ javascript views is ready");
-                toast(pContext, "JS VIEWS are ready");
                 updateIfNotNull();
 
             } else if (pIntent.getAction().equals(Y60Action.GLOBAL_OBSERVERS_READY)) {
                 isGlobalObserversReady = true;
                 Logger.v(LOG_TAG, "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ global observers is ready");
-                toast(pContext, "GLOBAL OBSERVERS is ready");
                 updateIfNotNull();
 
             } else if (pIntent.getAction().equals(Y60Action.PRELOAD_BROWSE_READY)) {
                 isPreloadBrowseViewsReady = true;
                 Logger.v(LOG_TAG, "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ preload browse is ready");
-                toast(pContext, "PRELOAD_BROWSE_READY is ready");
 
             } else if (pIntent.getAction().equals(Y60Action.VIDEO_PRELOAD_READY)) {
                 isVideoPreloadReady = true;
                 Logger.v(LOG_TAG, "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ video preload is ready");
-                toast(pContext, "VIDEO_PRELOAD_READY is ready");
 
             } else if (pIntent.getAction().equals(Y60Action.DEVICE_CONTROLLER_READY)) {
                 isDeviceControllerReady = true;
                 Logger.v(LOG_TAG,
                         "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ DEVICE_CONTROLLER_READY is ready");
-                toast(pContext, "DEVICE_CONTROLLER_READY");
                 updateIfNotNull();
 
             } else if (pIntent.getAction().equals(Y60Action.SERVICE_GOM_PROXY_READY)) {
                 isGomProxyReady = true;
                 Logger.v(LOG_TAG,
                         "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ SERVICE_GOM_PROXY_READY is ready");
-                toast(pContext, "SERVICE_GOM_PROXY_READY");
                 updateIfNotNull();
 
             } else if (pIntent.getAction().equals(Y60Action.SERVICE_HTTP_PROXY_READY)) {
                 isHttpProxyReady = true;
                 Logger.v(LOG_TAG,
                         "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ SERVICE_HTTP_PROXY_READY is ready");
-                toast(pContext, "SERVICE_HTTP_PROXY_READY");
                 updateIfNotNull();
 
             }
 
             launchHomeScreenIfReady(pContext);
+            if (isEverythingReady()) {
+                Logger.v(LOG_TAG, "EveryThingReady!!!, YES! \nsearch: ", isSearchReady,
+                        " \ncall: ", isCallReady, " \nglobalObservers: ", isGlobalObserversReady,
+                        " \njsViews: ", isJavaScriptViewsReady, " \nvideoPreload: ",
+                        isVideoPreloadReady, " \npreloadBrowse: ", isPreloadBrowseViewsReady,
+                        "\nisDeviceControllerReady: ", isDeviceControllerReady,
+                        "\nisGomProxyReady: ", isGomProxyReady, "\nisHttpProxyReady: ",
+                        isHttpProxyReady, "\naddress: ", this.toString());
+            }
         }
     }
 
     private void launchHomeScreenIfReady(Context pContext) {
-        if (isEverythingReady()) {
-            Logger.v(LOG_TAG, "isEveryThingReady? \n search: ", isSearchReady, " \ncall: ",
+        if (areEssentialComponentsReady()) {
+            Logger.v(LOG_TAG, "isEveryThingReady? \nsearch: ", isSearchReady, " \ncall: ",
                     isCallReady, " \nglobalObservers: ", isGlobalObserversReady, " \njsViews: ",
                     isJavaScriptViewsReady, " \nvideoPreload: ", isVideoPreloadReady,
                     " \npreloadBrowse: ", isPreloadBrowseViewsReady, "\nisDeviceControllerReady: ",
                     isDeviceControllerReady, "\nisGomProxyReady: ", isGomProxyReady,
                     "\nisHttpProxyReady: ", isHttpProxyReady, "\naddress: ", this.toString());
-            Logger.v(LOG_TAG, "everything is ready!");
+            Logger.v(LOG_TAG, "essential components are ready!");
             Intent intent = new Intent(Y60Action.INIT_READY);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             pContext.startActivity(intent);
@@ -125,9 +120,14 @@ public class RunLevelReceiver extends BroadcastReceiver {
     }
 
     public boolean isEverythingReady() {
-        return /* isSearchReady && isCallReady && */isGlobalObserversReady
-                && isJavaScriptViewsReady /* && isVideoPreloadReady && isPreloadBrowseViewsReady */
-                && isGomProxyReady && isHttpProxyReady && isDeviceControllerReady;
+        return isSearchReady && isCallReady && isGlobalObserversReady && isJavaScriptViewsReady
+                && isVideoPreloadReady && isPreloadBrowseViewsReady && isGomProxyReady
+                && isHttpProxyReady && isDeviceControllerReady;
+    }
+
+    public boolean areEssentialComponentsReady() {
+        return isGlobalObserversReady && isJavaScriptViewsReady && isGomProxyReady
+                && isHttpProxyReady && isDeviceControllerReady;
     }
 
     public void reset() {
