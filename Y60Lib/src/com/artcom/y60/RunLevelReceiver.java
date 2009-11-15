@@ -12,19 +12,20 @@ public class RunLevelReceiver extends BroadcastReceiver {
     private boolean             isCallReady               = false;
     private boolean             isGlobalObserversReady    = false;
     private boolean             isJavaScriptViewsReady    = false;
-    private boolean             isVideoPreloadReady       = false;
     private boolean             isPreloadBrowseViewsReady = false;
     private boolean             isDeviceControllerReady   = false;
     private boolean             isGomProxyReady           = false;
     private boolean             isHttpProxyReady          = false;
     private ProgressListener    mProgressListener;
 
+    private boolean             mIsHomescreenStarted      = false;
+
     public void setProgressListener(ProgressListener pProgressListener) {
         mProgressListener = pProgressListener;
     }
 
     public int getNoOfLevels() {
-        return 4;
+        return 5;
     }
 
     public void updateIfNotNull() {
@@ -67,10 +68,6 @@ public class RunLevelReceiver extends BroadcastReceiver {
                 isPreloadBrowseViewsReady = true;
                 Logger.v(LOG_TAG, "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ preload browse is ready");
 
-            } else if (pIntent.getAction().equals(Y60Action.VIDEO_PRELOAD_READY)) {
-                isVideoPreloadReady = true;
-                Logger.v(LOG_TAG, "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ video preload is ready");
-
             } else if (pIntent.getAction().equals(Y60Action.DEVICE_CONTROLLER_READY)) {
                 isDeviceControllerReady = true;
                 Logger.v(LOG_TAG,
@@ -92,26 +89,27 @@ public class RunLevelReceiver extends BroadcastReceiver {
             }
 
             launchHomeScreenIfReady(pContext);
+
             if (isEverythingReady()) {
                 Logger.v(LOG_TAG, "EveryThingReady!!!, YES! \nsearch: ", isSearchReady,
                         " \ncall: ", isCallReady, " \nglobalObservers: ", isGlobalObserversReady,
-                        " \njsViews: ", isJavaScriptViewsReady, " \nvideoPreload: ",
-                        isVideoPreloadReady, " \npreloadBrowse: ", isPreloadBrowseViewsReady,
-                        "\nisDeviceControllerReady: ", isDeviceControllerReady,
-                        "\nisGomProxyReady: ", isGomProxyReady, "\nisHttpProxyReady: ",
-                        isHttpProxyReady, "\naddress: ", this.toString());
+                        " \njsViews: ", isJavaScriptViewsReady, " \npreloadBrowse: ",
+                        isPreloadBrowseViewsReady, "\nisDeviceControllerReady: ",
+                        isDeviceControllerReady, "\nisGomProxyReady: ", isGomProxyReady,
+                        "\nisHttpProxyReady: ", isHttpProxyReady, "\naddress: ", this.toString());
             }
         }
     }
 
     private void launchHomeScreenIfReady(Context pContext) {
-        if (areEssentialComponentsReady()) {
-            Logger.v(LOG_TAG, "isEveryThingReady? \nsearch: ", isSearchReady, " \ncall: ",
+        if (areEssentialComponentsReady() && !mIsHomescreenStarted) {
+            mIsHomescreenStarted = true;
+            Logger.v(LOG_TAG, "Essential components +x? \nsearch: ", isSearchReady, " \ncall: ",
                     isCallReady, " \nglobalObservers: ", isGlobalObserversReady, " \njsViews: ",
-                    isJavaScriptViewsReady, " \nvideoPreload: ", isVideoPreloadReady,
-                    " \npreloadBrowse: ", isPreloadBrowseViewsReady, "\nisDeviceControllerReady: ",
-                    isDeviceControllerReady, "\nisGomProxyReady: ", isGomProxyReady,
-                    "\nisHttpProxyReady: ", isHttpProxyReady, "\naddress: ", this.toString());
+                    isJavaScriptViewsReady, " \npreload browse: ", isPreloadBrowseViewsReady,
+                    "\nisDeviceControllerReady: ", isDeviceControllerReady, "\nisGomProxyReady: ",
+                    isGomProxyReady, "\nisHttpProxyReady: ", isHttpProxyReady, "\naddress: ", this
+                            .toString());
             Logger.v(LOG_TAG, "essential components are ready!");
             Intent intent = new Intent(Y60Action.INIT_READY);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -121,8 +119,8 @@ public class RunLevelReceiver extends BroadcastReceiver {
 
     public boolean isEverythingReady() {
         return isSearchReady && isCallReady && isGlobalObserversReady && isJavaScriptViewsReady
-                && isVideoPreloadReady && isPreloadBrowseViewsReady && isGomProxyReady
-                && isHttpProxyReady && isDeviceControllerReady;
+                && isPreloadBrowseViewsReady && isGomProxyReady && isHttpProxyReady
+                && isDeviceControllerReady;
     }
 
     public boolean areEssentialComponentsReady() {
@@ -135,7 +133,6 @@ public class RunLevelReceiver extends BroadcastReceiver {
         isCallReady = false;
         isGlobalObserversReady = false;
         isJavaScriptViewsReady = false;
-        isVideoPreloadReady = false;
         isPreloadBrowseViewsReady = false;
         isGomProxyReady = false;
         isHttpProxyReady = false;
@@ -143,8 +140,8 @@ public class RunLevelReceiver extends BroadcastReceiver {
 
         Logger.v(LOG_TAG, "RESET!?\n search: ", isSearchReady, " \ncall: ", isCallReady,
                 " \nglobalObservers: ", isGlobalObserversReady, " \njsViews: ",
-                isJavaScriptViewsReady, " \nvideoPreload: ", isVideoPreloadReady,
-                " \npreloadBrowse: ", isPreloadBrowseViewsReady, "\naddress: ", this.toString());
+                isJavaScriptViewsReady, " \nbrowsePreload: ", isPreloadBrowseViewsReady,
+                "\naddress: ", this.toString());
     }
 
     public boolean isSearchReady() {
@@ -161,10 +158,6 @@ public class RunLevelReceiver extends BroadcastReceiver {
 
     public boolean isJavaScriptViewsReady() {
         return isJavaScriptViewsReady;
-    }
-
-    public boolean isVideoPreloadReady() {
-        return isVideoPreloadReady;
     }
 
     public boolean isPreloadBrowseViewsReady() {

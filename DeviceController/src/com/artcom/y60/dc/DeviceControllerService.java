@@ -45,16 +45,6 @@ public class DeviceControllerService extends Y60GomService {
     @Override
     public void onCreate() {
 
-        super.onCreate();
-        Logger.i(LOG_TAG, "onCreate called");
-
-    }
-
-    @Override
-    public void onStart(Intent pIntent, int startId) {
-        Logger.i(LOG_TAG, "onStart called");
-
-        final Intent intent = pIntent;
         callOnBoundToGom(new Runnable() {
 
             public void run() {
@@ -76,19 +66,35 @@ public class DeviceControllerService extends Y60GomService {
 
                     ErrorHandling.signalUnspecifiedError(LOG_TAG, ex, DeviceControllerService.this);
                 }
-
-                Intent dcReadyIntent = new Intent(Y60Action.DEVICE_CONTROLLER_READY);
-                if (intent.hasExtra(IntentExtraKeys.IS_IN_INIT_CHAIN)) {
-                    dcReadyIntent.putExtra(IntentExtraKeys.IS_IN_INIT_CHAIN, intent
-                            .getBooleanExtra(IntentExtraKeys.IS_IN_INIT_CHAIN, false));
-                    Logger.v(LOG_TAG,
-                            "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ broadcast device controller ready");
-                    sendBroadcast(dcReadyIntent);
-                }
             }
         });
-        Logger.i(LOG_TAG, "onStart(): DeviceControllerService started");
-        super.onStart(intent, startId);
+
+        super.onCreate();
+    }
+
+    @Override
+    public void onStart(final Intent pIntent, int startId) {
+        Logger.i(LOG_TAG, "onStart called");
+
+        int i = 0;
+        while (!isBoundToGom() && i < 50) {
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                Logger.e(LOG_TAG, e);
+            }
+            i++;
+        }
+
+        Intent dcReadyIntent = new Intent(Y60Action.DEVICE_CONTROLLER_READY);
+        if (pIntent.hasExtra(IntentExtraKeys.IS_IN_INIT_CHAIN)) {
+            dcReadyIntent.putExtra(IntentExtraKeys.IS_IN_INIT_CHAIN, pIntent.getBooleanExtra(
+                    IntentExtraKeys.IS_IN_INIT_CHAIN, false));
+            Logger.v(LOG_TAG, "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ broadcast device controller ready");
+            sendBroadcast(dcReadyIntent);
+        }
+
+        super.onStart(pIntent, startId);
     }
 
     private void updateIpAdressAttributesForDevice() throws GomException, IOException,

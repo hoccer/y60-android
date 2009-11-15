@@ -142,7 +142,8 @@ public class HttpProxyService extends Y60Service {
 
         Intent intent = new Intent(Y60Action.SERVICE_HTTP_PROXY_READY);
         if (pIntent.hasExtra(IntentExtraKeys.IS_IN_INIT_CHAIN)) {
-            intent.putExtra(IntentExtraKeys.IS_IN_INIT_CHAIN, true);
+            intent.putExtra(IntentExtraKeys.IS_IN_INIT_CHAIN, pIntent.getBooleanExtra(
+                    IntentExtraKeys.IS_IN_INIT_CHAIN, false));
             Logger.v(LOG_TAG,
                     "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ send INIT CHAIN broadcast HTTP PROXY READY");
             sendBroadcast(intent);
