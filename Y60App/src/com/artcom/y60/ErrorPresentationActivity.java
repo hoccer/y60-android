@@ -38,6 +38,14 @@ public class ErrorPresentationActivity extends Activity {
     }
 
     @Override
+    protected void onPause() {
+        // nothing else seems to work to avoid stacking when task affinity no
+        // longer is an option due to the possibility of arbitrary web apps
+        finish();
+        super.onPause();
+    }
+
+    @Override
     protected void onResume() {
         super.onResume();
 
