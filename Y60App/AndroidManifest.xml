@@ -29,7 +29,6 @@
         <activity 
         	android:name=".ErrorPresentationActivity"  
         	android:exported="true"
-        	android:launchMode="singleTop"
         	>
             <intent-filter>
                 <action android:name="y60.intent.ERROR_PRESENTATION" />

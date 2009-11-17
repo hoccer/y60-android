@@ -9,6 +9,8 @@ import android.widget.TextView;
 
 public class ErrorPresentationActivity extends Activity {
 
+    private static final String LOG_TAG = "ErrorPresentationActivity";
+
     enum Mode {
         DEBUG, PRODUCTION
     }
@@ -21,10 +23,9 @@ public class ErrorPresentationActivity extends Activity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        Logger.v(LOG_TAG, "oncreate");
         super.onCreate(savedInstanceState);
-
         setContentView(R.layout.error_presentation);
-
         mTextView = (TextView) findViewById(R.id.error_text);
         Button okButton = (Button) findViewById(R.id.error_ok_button);
 
@@ -35,23 +36,33 @@ public class ErrorPresentationActivity extends Activity {
         });
 
         ErrorHandling.cancelErrorNotification(this);
+
+        updateText(getIntent());
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        Logger.v(LOG_TAG, "onNewIntent");
+        updateText(intent);
+        super.onNewIntent(intent);
     }
 
     @Override
     protected void onPause() {
-        // nothing else seems to work to avoid stacking when task affinity no
-        // longer is an option due to the possibility of arbitrary web apps
-        finish();
         super.onPause();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
+        Logger.v(LOG_TAG, "errorPresentation on Resume");
 
-        Intent intent = getIntent();
+    }
+
+    private void updateText(Intent pIntent) {
+
+        Intent intent = pIntent;
         if (mMode == Mode.DEBUG) {
-
             String logTag = "[unknown source]";
             if (intent.hasExtra(ErrorHandling.ID_LOGTAG)) {
                 logTag = intent.getStringExtra(ErrorHandling.ID_LOGTAG);
@@ -74,7 +85,6 @@ public class ErrorPresentationActivity extends Activity {
             mTextView.setText("Oops! " + logTag + " says: " + message + "\n\n" + stacktrace);
 
         } else if (mMode == Mode.PRODUCTION) {
-
             mTextView.setText(R.string.err_user_general);
         }
     }
