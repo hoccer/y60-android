@@ -219,6 +219,8 @@ public class ErrorHandling {
         intent.putExtra(ID_LOGTAG, pLogTag);
         intent.putExtra(ID_CATEGORY, pCategory);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        intent.setFlags(Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
+        intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
 
         String stacktrace = "";
         StackTraceElement[] trace = pError.getStackTrace();
@@ -236,7 +238,7 @@ public class ErrorHandling {
         NotificationManager notifier = (NotificationManager) pContext
                 .getSystemService(pContext.NOTIFICATION_SERVICE);
         PendingIntent pint = PendingIntent.getActivity(pContext, 0, pErrorPresentationIntent,
-                PendingIntent.FLAG_ONE_SHOT);
+                PendingIntent.FLAG_UPDATE_CURRENT);
         Notification notification = new Notification(android.R.drawable.stat_notify_error, "Error",
                 System.currentTimeMillis());
         notification.setLatestEventInfo(pContext, "Error", pLogTag + ": " + pError.getMessage(),
