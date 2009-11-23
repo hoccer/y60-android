@@ -181,7 +181,7 @@ public class DeviceControllerServiceTest extends ServiceTestCase<DeviceControlle
         Intent startIntent = new Intent("y60.intent.SERVICE_DEVICE_CONTROLLER");
         startService(startIntent);
 
-        TestHelper.blockUntilEquals("webserver should present expected status code", 3000, 404,
+        TestHelper.blockUntilEquals("webserver should present expected status code", 6000, 404,
                 new TestHelper.Measurement() {
 
                     @Override

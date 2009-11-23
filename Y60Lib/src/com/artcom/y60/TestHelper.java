@@ -14,12 +14,12 @@ import junit.framework.Assert;
 import org.apache.http.conn.HttpHostConnectException;
 import org.json.JSONObject;
 
-import com.artcom.y60.http.HttpClientException;
-
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.test.AssertionFailedError;
+
+import com.artcom.y60.http.HttpClientException;
 
 public class TestHelper {
 
@@ -236,7 +236,7 @@ public class TestHelper {
     }
 
     public static void blockUntilDeviceControllerIsRunning() throws Exception {
-        blockUntilDeviceControllerIsRunning(5000);
+        blockUntilDeviceControllerIsRunning(10000);
     }
 
     public static void blockUntilDeviceControllerIsRunning(long pTimeout) throws Exception {

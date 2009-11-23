@@ -67,7 +67,7 @@
         
         <activity android:name="DnDTestActivity"  android:exported="true" 
                   android:theme="@android:style/Theme.NoTitleBar"
-                  android:label="Y60:DnDTestActivity" android:icon="@drawable/default_icon">
+                  android:label="Y60:DnDTestActivity" android:icon="@drawable/default_icon" android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
             </intent-filter>

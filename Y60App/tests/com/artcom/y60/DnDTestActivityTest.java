@@ -12,6 +12,7 @@ public class DnDTestActivityTest extends Y60ActivityInstrumentationTest<DnDTestA
     private DraggingAbortedEvent  mDraggingAboarted;
     private DraggedEvent          mDragged;
 
+    @Override
     public void setUp() throws Exception {
         super.setUp();
         mDraggingStarted = null;
@@ -34,9 +35,12 @@ public class DnDTestActivityTest extends Y60ActivityInstrumentationTest<DnDTestA
 
         assertEquals("y callback param equals view value", mDraggingAboarted.y,
                 mDraggingAboarted.draggedView.getTop());
-        assertEquals("dragged to y = 200 ", 200.0, mDraggingAboarted.draggedView.getTop()
+        assertEquals(
+                "dragged to y = 200 ",
+                200,
+                (int) (mDraggingAboarted.draggedView.getTop()
                 + (mDraggingAboarted.draggedView.getHeight() / 2.0)
-                + DragAndDropHelper.VERTICAL_OFFSET);
+ + DragAndDropHelper.VERTICAL_OFFSET));
     }
 
     public void testReleaseLongPress() throws InterruptedException {
@@ -45,7 +49,7 @@ public class DnDTestActivityTest extends Y60ActivityInstrumentationTest<DnDTestA
         touch(getActivity().getDragResource());
         waitForDragStarted(1500);
         release(getActivity().getDragResource());
-        assertDragWasAborted(100);
+        assertDragWasAborted(200);
         assertEquals(View.VISIBLE, mDraggingAboarted.origin.getVisibility());
         // assertEquals("item should stay visible -- animation will follow",
         // View.VISIBLE,

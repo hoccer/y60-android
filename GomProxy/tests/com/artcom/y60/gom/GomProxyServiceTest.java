@@ -12,6 +12,7 @@ import android.content.Intent;
 import android.test.ServiceTestCase;
 
 import com.artcom.y60.Constants;
+import com.artcom.y60.DeviceConfiguration;
 import com.artcom.y60.HttpHelper;
 import com.artcom.y60.Logger;
 import com.artcom.y60.UriHelper;
@@ -63,7 +64,7 @@ public class GomProxyServiceTest extends ServiceTestCase<GomProxyService> {
         GomProxyService service = getService();
         assertNotNull("service must not be null", service);
 
-        assertEquals("http://t-gom.service.t-gallery.act", service.getBaseUri());
+        assertEquals(DeviceConfiguration.load().getGomUrl(), service.getBaseUri());
     }
 
     public void testCreateAttributeEntry() throws Exception {

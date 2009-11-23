@@ -52,7 +52,7 @@ public class HttpHelper {
 
     private static final int    PUT_TIMEOUT  = 15 * 1000;
     private static final int    POST_TIMEOUT = 40 * 1000;
-    private static final int    GET_TIMEOUT  = 30 * 1000;
+    private static final int    GET_TIMEOUT  = 60 * 1000;
     private static final String LOG_TAG      = "HttpHelper";
 
     public static HttpResponse putXML(String uri, String body) throws IOException,

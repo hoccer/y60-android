@@ -31,6 +31,7 @@ public class HttpProxyServiceTest extends ServiceTestCase<HttpProxyService> {
 
     // Protected Instance Methods ----------------------------------------
 
+    @Override
     protected void setUp() throws Exception {
 
         super.setUp();
@@ -40,6 +41,7 @@ public class HttpProxyServiceTest extends ServiceTestCase<HttpProxyService> {
         dir.delete();
     }
 
+    @Override
     protected void tearDown() throws Exception {
 
         super.tearDown();
@@ -64,7 +66,7 @@ public class HttpProxyServiceTest extends ServiceTestCase<HttpProxyService> {
         Bundle cached = null;
         while (cached == null) {
             cached = service.get(uri.toString());
-            if (System.currentTimeMillis() - requestStartTime > 4000) {
+            if (System.currentTimeMillis() - requestStartTime > 8000) {
                 throw new TimeoutException("Timeout while laoding:" + uri);
             }
             Thread.sleep(10);
