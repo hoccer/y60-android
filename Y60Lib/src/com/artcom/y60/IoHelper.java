@@ -28,6 +28,14 @@ public class IoHelper {
         return pString.substring(0, separate + 1) + lastPart;
     }
 
+    public static String getColonSplittedItem(String pString, int pReturnItem, int pExpectedNumber) {
+        String[] tmp = pString.split(",");
+        if (tmp.length != pExpectedNumber) {
+            return null;
+        }
+        return tmp[pReturnItem];
+    }
+
     public static String cutString(String pString, int pMaxWidth) {
         pMaxWidth -= 3;
         if (pString.length() > pMaxWidth) {
