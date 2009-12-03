@@ -66,6 +66,7 @@ public class ProjectResourceBundle extends ResourceBundle {
     private final ResourceBundle   resourceBundle;
     private final String           resourceName;
 
+    @Override
     protected Object handleGetObject(String key) throws MissingResourceException {
 
         // return resourceBundle.handleGetObject(key);
@@ -82,6 +83,7 @@ public class ProjectResourceBundle extends ResourceBundle {
         return obj;
     }
 
+    @Override
     public Enumeration getKeys() {
         Enumeration myKeys = resourceBundle.getKeys();
         if (parent == null) {
@@ -98,7 +100,7 @@ public class ProjectResourceBundle extends ResourceBundle {
             }
 
             return new Enumeration() {
-                private Iterator it = set.iterator();
+                private final Iterator it = set.iterator();
 
                 public boolean hasMoreElements() {
                     return it.hasNext();
@@ -329,13 +331,7 @@ public class ProjectResourceBundle extends ResourceBundle {
         return resourceName;
     }
 
-    /**
-     * Clears the internal cache
-     */
-    public static void clearCache() {
-        bundleCache.clear();
-    }
-
+    @Override
     public String toString() {
         return resourceName;
     }
