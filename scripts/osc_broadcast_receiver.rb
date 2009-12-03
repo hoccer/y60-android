@@ -3,7 +3,7 @@ require 'socket'
 require 'osc'
 require 'time'
 
-ADDR = ['0.0.0.0', 33333]  # host, port
+ADDR = ['127.0.0.1', 6567]  # host, port
 BasicSocket.do_not_reverse_lookup = true
 
 UDPSock = UDPSocket.new
