@@ -49,5 +49,4 @@ public class GraphicsHelper {
         }
         return dst;
     }
-
 }

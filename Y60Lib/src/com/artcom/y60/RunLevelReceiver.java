@@ -11,7 +11,6 @@ public class RunLevelReceiver extends BroadcastReceiver {
     private boolean             isSearchReady             = false;
     private boolean             isCallReady               = false;
     private boolean             isGlobalObserversReady    = false;
-    private boolean             isJavaScriptViewsReady    = false;
     private boolean             isPreloadBrowseViewsReady = false;
     private boolean             isDeviceControllerReady   = false;
     private boolean             isGomProxyReady           = false;
@@ -54,11 +53,6 @@ public class RunLevelReceiver extends BroadcastReceiver {
                 isCallReady = true;
                 Logger.v(LOG_TAG, "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ call is ready");
 
-            } else if (pIntent.getAction().equals(Y60Action.JAVASCRIPT_VIEWS_READY)) {
-                isJavaScriptViewsReady = true;
-                Logger.v(LOG_TAG, "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ javascript views is ready");
-                updateIfNotNull();
-
             } else if (pIntent.getAction().equals(Y60Action.GLOBAL_OBSERVERS_READY)) {
                 isGlobalObserversReady = true;
                 Logger.v(LOG_TAG, "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ global observers is ready");
@@ -93,7 +87,7 @@ public class RunLevelReceiver extends BroadcastReceiver {
             if (isEverythingReady()) {
                 Logger.v(LOG_TAG, "EveryThingReady!!!, YES! \nsearch: ", isSearchReady,
                         " \ncall: ", isCallReady, " \nglobalObservers: ", isGlobalObserversReady,
-                        " \njsViews: ", isJavaScriptViewsReady, " \npreloadBrowse: ",
+                        " \npreloadBrowse: ",
                         isPreloadBrowseViewsReady, "\nisDeviceControllerReady: ",
                         isDeviceControllerReady, "\nisGomProxyReady: ", isGomProxyReady,
                         "\nisHttpProxyReady: ", isHttpProxyReady, "\naddress: ", this.toString());
@@ -105,8 +99,8 @@ public class RunLevelReceiver extends BroadcastReceiver {
         if (areEssentialComponentsReady() && !mIsHomescreenStarted) {
             mIsHomescreenStarted = true;
             Logger.v(LOG_TAG, "Essential components +x? \nsearch: ", isSearchReady, " \ncall: ",
-                    isCallReady, " \nglobalObservers: ", isGlobalObserversReady, " \njsViews: ",
-                    isJavaScriptViewsReady, " \npreload browse: ", isPreloadBrowseViewsReady,
+                    isCallReady, " \nglobalObservers: ", isGlobalObserversReady,
+                    " \npreload browse: ", isPreloadBrowseViewsReady,
                     "\nisDeviceControllerReady: ", isDeviceControllerReady, "\nisGomProxyReady: ",
                     isGomProxyReady, "\nisHttpProxyReady: ", isHttpProxyReady, "\naddress: ", this
                             .toString());
@@ -118,13 +112,13 @@ public class RunLevelReceiver extends BroadcastReceiver {
     }
 
     public boolean isEverythingReady() {
-        return isSearchReady && isCallReady && isGlobalObserversReady && isJavaScriptViewsReady
+        return isSearchReady && isCallReady && isGlobalObserversReady
                 && isPreloadBrowseViewsReady && isGomProxyReady && isHttpProxyReady
                 && isDeviceControllerReady;
     }
 
     public boolean areEssentialComponentsReady() {
-        return isGlobalObserversReady && isJavaScriptViewsReady && isGomProxyReady
+        return isGlobalObserversReady && isGomProxyReady
                 && isHttpProxyReady && isDeviceControllerReady;
     }
 
@@ -132,15 +126,14 @@ public class RunLevelReceiver extends BroadcastReceiver {
         isSearchReady = false;
         isCallReady = false;
         isGlobalObserversReady = false;
-        isJavaScriptViewsReady = false;
         isPreloadBrowseViewsReady = false;
         isGomProxyReady = false;
         isHttpProxyReady = false;
         isDeviceControllerReady = false;
 
         Logger.v(LOG_TAG, "RESET!?\n search: ", isSearchReady, " \ncall: ", isCallReady,
-                " \nglobalObservers: ", isGlobalObserversReady, " \njsViews: ",
-                isJavaScriptViewsReady, " \nbrowsePreload: ", isPreloadBrowseViewsReady,
+                " \nglobalObservers: ", isGlobalObserversReady, " \nbrowsePreload: ",
+                isPreloadBrowseViewsReady,
                 "\naddress: ", this.toString());
     }
 
@@ -154,10 +147,6 @@ public class RunLevelReceiver extends BroadcastReceiver {
 
     public boolean isGlobalObserversReady() {
         return isGlobalObserversReady;
-    }
-
-    public boolean isJavaScriptViewsReady() {
-        return isJavaScriptViewsReady;
     }
 
     public boolean isPreloadBrowseViewsReady() {
