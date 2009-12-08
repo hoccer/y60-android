@@ -42,11 +42,12 @@ public class GraphicsHelper {
         int width = pSrc.getWidth();
         int height = pSrc.getHeight();
         Bitmap dst = Bitmap.createBitmap(height, width, pSrc.getConfig());
-        int[] pixels = new int[height];
+        int[] pixels = new int[Math.max(width, height)];
         for (int j = 0; j < height; ++j) {
             pSrc.getPixels(pixels, 0, width, 0, j, width, 1);
             dst.setPixels(pixels, 0, 1, height - 1 - j, 0, 1, width);
         }
         return dst;
     }
+
 }
