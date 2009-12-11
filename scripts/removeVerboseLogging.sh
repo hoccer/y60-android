@@ -1,5 +1,8 @@
 #!/bin/sh
 
+echo "removeVerboseLogging.sh called with argument:"
+echo $1
+
 FILE=$1
 
 cat $FILE | \
