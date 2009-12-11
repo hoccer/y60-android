@@ -169,7 +169,7 @@ class Project
     EOT
     if File.exists?("#{path}/bin/#{name}-debug.apk")
       run "aligning", <<-EOT
-        cd #{path} && mv bin/#{name}-debug.apk bin/#{name}-unaligned.apk && zipalign 4 bin/#{name}-unaligned.apk bin/#{name}-debug.apk
+        cd #{path} && mv bin/#{name}-debug.apk bin/#{name}-unaligned.apk && zipalign 4 bin/#{name}-unaligned.apk bin/#{name}-debug.apk && rm bin/#{name}-unaligned.apk
       EOT
     end
   end
