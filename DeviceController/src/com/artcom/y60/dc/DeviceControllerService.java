@@ -11,7 +11,6 @@ import org.mortbay.jetty.bio.SocketConnector;
 import org.mortbay.jetty.handler.HandlerCollection;
 import org.mortbay.thread.QueuedThreadPool;
 
-import com.artcom.y60.BindingException;
 import com.artcom.y60.Constants;
 import com.artcom.y60.DeviceConfiguration;
 import com.artcom.y60.ErrorHandling;
@@ -20,7 +19,6 @@ import com.artcom.y60.Logger;
 import com.artcom.y60.NetworkHelper;
 import com.artcom.y60.Y60Action;
 import com.artcom.y60.Y60Service;
-import com.artcom.y60.gom.GomException;
 import com.artcom.y60.gom.GomHttpWrapper;
 import com.artcom.y60.http.HttpException;
 
@@ -46,19 +44,18 @@ public class DeviceControllerService extends Y60Service {
         try {
             if (mServer == null) {
                 mServer = startServer(Constants.Network.DEFAULT_PORT);
-                Logger.v(LOG_TAG, "bound() to GomProxyHelper: Server will be started now");
             }
-
-            try {
-                updateIpAdressAttributesForDevice();
-                updateVersionAttributeForDevice();
-            } catch (BindingException e) {
-                Logger.w(LOG_TAG, "GomProxy was unbound while processing asynchronous thread");
-            }
-
         } catch (Exception ex) {
+            ErrorHandling.signalUnspecifiedError(LOG_TAG, ex, this);
+        }
 
-            ErrorHandling.signalUnspecifiedError(LOG_TAG, ex, DeviceControllerService.this);
+        try {
+            updateIpAdressAttributesForDevice();
+            updateVersionAttributeForDevice();
+        } catch (IOException e) {
+            ErrorHandling.signalIOError(LOG_TAG, e, this);
+        } catch (HttpException e) {
+            ErrorHandling.signalHttpError(LOG_TAG, e, this);
         }
         super.onCreate();
     }
@@ -67,15 +64,16 @@ public class DeviceControllerService extends Y60Service {
     public void onStart(final Intent pIntent, int startId) {
         Logger.i(LOG_TAG, "onStart called");
 
-        Intent dcReadyIntent = new Intent(Y60Action.DEVICE_CONTROLLER_READY);
-        sendBroadcast(dcReadyIntent);
+        DeviceConfiguration conf = DeviceConfiguration.load();
+        Logger.setFilterLevel(conf.getLogLevel());
+
+        sendBroadcast(new Intent(Y60Action.DEVICE_CONTROLLER_READY));
         Logger.v(LOG_TAG, "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ sent broadcast device controller ready");
 
         super.onStart(pIntent, startId);
     }
 
-    private void updateIpAdressAttributesForDevice() throws GomException, IOException,
-            HttpException {
+    private void updateIpAdressAttributesForDevice() throws IOException, HttpException {
 
         Logger.v(LOG_TAG, "updateGomAttributes for Device");
         String ipAddress = "";
@@ -110,7 +108,7 @@ public class DeviceControllerService extends Y60Service {
         }
     }
 
-    private void updateVersionAttributeForDevice() throws GomException, HttpException, IOException {
+    private void updateVersionAttributeForDevice() throws HttpException, IOException {
 
         String deviceUri = Constants.Gom.URI + Constants.Gom.DEVICE_PATH;
 
@@ -188,7 +186,7 @@ public class DeviceControllerService extends Y60Service {
     @Override
     public IBinder onBind(Intent intent) {
         Logger.d(LOG_TAG, "onBind called");
-
+        sendBroadcast(new Intent(Y60Action.DEVICE_CONTROLLER_READY));
         return mBinder;
     }
 

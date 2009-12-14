@@ -23,9 +23,13 @@ public abstract class Y60Action {
     public static final String SHUTDOWN_SERVICES_BC       = "y60.intent.SHUTDOWN_SERVICES_BC";
     public static final String SERVICE_GOM_PROXY_READY    = "y60.intent.SERVICE_GOM_PROXY_READY";
     public static final String SERVICE_GOM_PROXY_CLEARED  = "y60.intent.SERVICE_GOM_PROXY_CLEARED";
+    public static final String SERVICE_GOM_PROXY_DOWN     = "y60.intent.SERVICE_GOM_PROXY_DOWN";
     public static final String SERVICE_HTTP_PROXY_READY   = "y60.intent.SERVICE_HTTP_PROXY_READY";
     public static final String SERVICE_HTTP_PROXY_CLEARED = "y60.intent.SERVICE_HTTP_PROXY_CLEARED";
+    public static final String SERVICE_HTTP_PROXY_DOWN    = "y60.intent.SERVICE_HTTP_PROXY_DOWN";
+
     public static final String DEVICE_CONTROLLER_READY    = "y60.intent.DEVICE_CONTROLLER_READY";
+    public static final String DEVICE_CONTROLLER_DOWN     = "y60.intent.DEVICE_CONTROLLER_DOWN";
     public static final String JAVASCRIPT_VIEWS_READY     = "y60.intent.JAVASCRIPT_VIEWS_READY";
     public static final String GLOBAL_OBSERVERS_READY     = "y60.intent.GLOBAL_OBSERVERS_READY";
     public static final String SEARCH_READY               = "y60.intent.SEARCH_READY";

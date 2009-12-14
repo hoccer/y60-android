@@ -28,7 +28,7 @@ public abstract class Y60GomService extends Y60Service {
 
         super.onCreate();
         bindToGom();
-        // bindToHttpProxy();
+        bindToHttpProxy();
 
     }
 
