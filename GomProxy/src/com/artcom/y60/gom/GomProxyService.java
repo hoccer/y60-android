@@ -258,12 +258,12 @@ public class GomProxyService extends Y60Service {
 
         synchronized (mAttributes) {
             synchronized (mNodes) {
-
                 mAttributes.clear();
                 mNodes.clear();
+                sendBroadcast(new Intent(Y60Action.SERVICE_GOM_PROXY_CLEARED));
             }
-
         }
+
     }
 
     // Private Instance Methods ------------------------------------------
