@@ -1,5 +1,6 @@
 package com.artcom.y60;
 
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 
@@ -22,7 +23,7 @@ public abstract class Y60Service extends Service {
     @Override
     public void onCreate() {
 
-        monitorMyLifecycleOnSdcard();
+        writeMyLifecycleOnSdcard();
 
         mShutdownReceiver = new BroadcastReceiver() {
             @Override
@@ -38,16 +39,54 @@ public abstract class Y60Service extends Service {
         super.onCreate();
     }
 
-    private void monitorMyLifecycleOnSdcard() {
-        FileWriter fw;
-        try {
-            fw = new FileWriter(Constants.Device.ALIVE_SERVICES_PATH + "/" + getClass().getName());
-            fw.close();
-            Logger.v(LOG_TAG, "Wrote: ", Constants.Device.ALIVE_SERVICES_PATH + "/"
-                    + getClass().getName(), " on sdcard");
-        } catch (IOException e) {
-            ErrorHandling.signalIOError(LOG_TAG, e, this);
+    boolean monitorMyLifecycleOnSdcard() {
+        return true;
+    }
+
+    private void writeMyLifecycleOnSdcard() {
+        if (monitorMyLifecycleOnSdcard()) {
+            FileWriter fw;
+            try {
+                fw = new FileWriter(Constants.Device.ALIVE_SERVICES_PATH + "/"
+                        + getClass().getName());
+                fw.close();
+                Logger.v(LOG_TAG, "Wrote: ", Constants.Device.ALIVE_SERVICES_PATH + "/"
+                        + getClass().getName(), " on sdcard");
+            } catch (IOException e) {
+                ErrorHandling.signalIOError(LOG_TAG, e, this);
+            }
         }
+    }
+
+    private void deleteMyLifecycleFromSdcard() {
+        boolean deletedMySelf = false;
+        if (monitorMyLifecycleOnSdcard()) {
+            String aliveServicesDirectory = Constants.Device.ALIVE_SERVICES_PATH;
+
+            File dir = new File(aliveServicesDirectory);
+            String[] children = dir.list();
+            if (children == null) {
+                ErrorHandling.signalServiceError(LOG_TAG, new Exception(
+                        "No services at all listed in alive services on sdcard"), this);
+            } else {
+                for (String filename : children) {
+                    Logger.v(LOG_TAG, "deleteMyLifecycleFromSdcard: ", filename, ", i am: ",
+                            getClass().getName());
+
+                    if (filename.equals(getClass().getName())) {
+                        File myClassName = new File(aliveServicesDirectory + "/" + filename);
+                        myClassName.delete();
+                        Logger.v(LOG_TAG, "deleted: ", filename);
+                        deletedMySelf = true;
+                    }
+                }
+            }
+        }
+        if (deletedMySelf) {
+            return;
+        }
+        ErrorHandling.signalServiceError(LOG_TAG, new Exception(
+                "No services at all listed in alive services on sdcard"), this);
     }
 
     @Override
@@ -58,6 +97,7 @@ public abstract class Y60Service extends Service {
         }
         Logger.d(LOG_TAG, "------------ onDestroy called for service ", getClass());
 
+        deleteMyLifecycleFromSdcard();
         super.onDestroy();
     }
 
