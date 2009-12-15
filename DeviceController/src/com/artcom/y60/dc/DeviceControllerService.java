@@ -141,6 +141,11 @@ public class DeviceControllerService extends Y60Service {
     }
 
     @Override
+    protected void kill() {
+        // do not kill me upon shutdown services bc
+    }
+
+    @Override
     public void onLowMemory() {
         ActivityManager actMgr = (ActivityManager) getSystemService(ACTIVITY_SERVICE);
         MemoryInfo memInfo = new MemoryInfo();

@@ -13,7 +13,7 @@ public abstract class Y60Activity extends Activity {
 
     private static final String LOG_TAG                                  = "Y60Activity";
 
-    private BroadcastReceiver   mReceiver;
+    private BroadcastReceiver   mShutdownReceiver;
 
     private boolean             mIsDestroyed                             = false;
     private int                 mResponsivnessCounterForTestPurposesOnly = 0;
@@ -70,25 +70,23 @@ public abstract class Y60Activity extends Activity {
         super.onCreate(pSavedInstanceState);
         startDeviceController();
 
-        mReceiver = new BroadcastReceiver() {
-
+        mShutdownReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context pArg0, Intent pArg1) {
-
                 kill();
             }
 
         };
 
         IntentFilter intentFilter = new IntentFilter(Y60Action.SHUTDOWN_ACTIVITIES_BC);
-        registerReceiver(mReceiver, intentFilter);
+        registerReceiver(mShutdownReceiver, intentFilter);
     }
 
     @Override
     protected void onDestroy() {
 
-        if (mReceiver != null) {
-            unregisterReceiver(mReceiver);
+        if (mShutdownReceiver != null) {
+            unregisterReceiver(mShutdownReceiver);
         }
         super.onDestroy();
 

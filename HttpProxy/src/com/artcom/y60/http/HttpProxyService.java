@@ -164,6 +164,11 @@ public class HttpProxyService extends Y60Service {
     }
 
     @Override
+    protected void kill() {
+        // do not kill me upon shutdown services bc
+    }
+
+    @Override
     public IBinder onBind(Intent pIntent) {
         sendBroadcast(new Intent(Y60Action.SERVICE_HTTP_PROXY_READY));
 
