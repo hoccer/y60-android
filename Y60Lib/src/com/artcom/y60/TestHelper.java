@@ -8,18 +8,19 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.SocketTimeoutException;
+import java.util.LinkedList;
 
 import junit.framework.Assert;
 
 import org.apache.http.conn.HttpHostConnectException;
 import org.json.JSONObject;
 
+import com.artcom.y60.http.HttpClientException;
+
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.test.AssertionFailedError;
-
-import com.artcom.y60.http.HttpClientException;
 
 public class TestHelper {
 
@@ -446,6 +447,83 @@ public class TestHelper {
                 return pActivity.isFinishing();
             }
         });
+
+    }
+
+    public static void blockUntilAllServiceClassNamesAreDeletedFromSdcard(long pTimeout,
+            final LinkedList<String> pClassNames) throws Exception {
+
+        blockUntilTrue("Not all services are deleted on sdcard", pTimeout, new Condition() {
+            @Override
+            public boolean isSatisfied() throws Exception {
+                boolean areAllWantedServicesDeleted = true;
+                String[] sdcardFiles = getAliveServicesFromSdcard();
+
+                for (String filename : sdcardFiles) {
+                    for (String wantedService : pClassNames) {
+                        if (filename.equals(wantedService)) {
+                            areAllWantedServicesDeleted = false;
+                        }
+                    }
+                }
+                return areAllWantedServicesDeleted;
+            }
+        });
+
+    }
+
+    public static boolean isWantedServiceClassNameOnSdcard(String pWantedService) throws Exception {
+        String[] sdcardFiles = getAliveServicesFromSdcard();
+        for (String filename : sdcardFiles) {
+            if (filename.equals(pWantedService)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static String[] getAliveServicesFromSdcard() throws Exception {
+        String aliveServicesDirectory = Constants.Device.ALIVE_SERVICES_PATH;
+
+        File dir = new File(aliveServicesDirectory);
+        String[] children = dir.list();
+        if (children == null) {
+            throw new Exception("Either " + aliveServicesDirectory
+                    + " does not exist or is not a directory");
+        } else {
+            return children;
+        }
+    }
+
+    public static void logServicesOnSdcard(String pLOG_TAG, String additionalLog) throws Exception {
+        String aliveServicesDirectory = Constants.Device.ALIVE_SERVICES_PATH;
+
+        File dir = new File(aliveServicesDirectory);
+        String[] children = dir.list();
+        if (children == null) {
+            throw new Exception("Either " + aliveServicesDirectory
+                    + " does not exist or is not a directory");
+        } else {
+            Logger.v(pLOG_TAG, "_____", additionalLog, ": ");
+            for (String filename : children) {
+                Logger.v(pLOG_TAG, filename);
+            }
+        }
+    }
+
+    public static void cleanAllServicesOnSdcard() throws Exception {
+        String aliveServicesDirectory = Constants.Device.ALIVE_SERVICES_PATH;
+        File dir = new File(aliveServicesDirectory);
+        String[] children = dir.list();
+        if (children == null) {
+            throw new Exception("Either " + aliveServicesDirectory
+                    + " does not exist or is not a directory");
+        } else {
+            for (String filename : children) {
+                Logger.v(LOG_TAG, "deleting: ", filename);
+                new File(aliveServicesDirectory + "/" + filename).delete();
+            }
+        }
 
     }
 }

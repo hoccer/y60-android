@@ -39,7 +39,7 @@ public abstract class Y60Service extends Service {
         super.onCreate();
     }
 
-    boolean monitorMyLifecycleOnSdcard() {
+    protected boolean monitorMyLifecycleOnSdcard() {
         return true;
     }
 
