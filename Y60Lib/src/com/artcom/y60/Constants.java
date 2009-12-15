@@ -14,6 +14,11 @@ public class Constants {
         public static final String IP_ADDRESS_ATTRIBUTE = "ip_address";
     }
 
+    public static class Languages {
+        public static final String GERMAN  = "deu";
+        public static final String ENGLISH = "eng";
+    }
+
     public static class Gom {
 
         public static class Keywords {
