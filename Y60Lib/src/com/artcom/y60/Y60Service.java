@@ -50,7 +50,7 @@ public abstract class Y60Service extends Service {
                 fw = new FileWriter(Constants.Device.ALIVE_SERVICES_PATH + "/"
                         + getClass().getName());
                 fw.close();
-                Logger.v(LOG_TAG, "Wrote: ", Constants.Device.ALIVE_SERVICES_PATH + "/"
+                Logger.v(LOG_TAG, "____ Wrote: ", Constants.Device.ALIVE_SERVICES_PATH + "/"
                         + getClass().getName(), " on sdcard");
             } catch (IOException e) {
                 ErrorHandling.signalIOError(LOG_TAG, e, this);
@@ -58,7 +58,7 @@ public abstract class Y60Service extends Service {
         }
     }
 
-    private void deleteMyLifecycleFromSdcard() {
+    protected void deleteMyLifecycleFromSdcard() {
         boolean deletedMySelf = false;
         if (monitorMyLifecycleOnSdcard()) {
             String aliveServicesDirectory = Constants.Device.ALIVE_SERVICES_PATH;
@@ -66,8 +66,7 @@ public abstract class Y60Service extends Service {
             File dir = new File(aliveServicesDirectory);
             String[] children = dir.list();
             if (children == null) {
-                ErrorHandling.signalServiceError(LOG_TAG, new Exception(
-                        "No services at all listed in alive services on sdcard"), this);
+                Logger.e(LOG_TAG, "No services at all listed in alive services on sdcard");
             } else {
                 for (String filename : children) {
                     Logger.v(LOG_TAG, "deleteMyLifecycleFromSdcard: ", filename, ", i am: ",
@@ -81,12 +80,12 @@ public abstract class Y60Service extends Service {
                     }
                 }
             }
+            if (deletedMySelf) {
+                return;
+            }
+            Logger.e(LOG_TAG, "I am not listed in alive services on sdcard");
         }
-        if (deletedMySelf) {
-            return;
-        }
-        ErrorHandling.signalServiceError(LOG_TAG, new Exception(
-                "No services at all listed in alive services on sdcard"), this);
+        Logger.e(LOG_TAG, "Not monitoring: ", getClass().getName());
     }
 
     @Override
@@ -95,8 +94,8 @@ public abstract class Y60Service extends Service {
         if (mShutdownReceiver != null) {
             unregisterReceiver(mShutdownReceiver);
         }
-        Logger.d(LOG_TAG, "------------ onDestroy called for service ", getClass());
-
+        Logger.d(LOG_TAG, "------------ onDestroy called for service ", getClass(),
+                " which is monitored? ", monitorMyLifecycleOnSdcard());
         deleteMyLifecycleFromSdcard();
         super.onDestroy();
     }

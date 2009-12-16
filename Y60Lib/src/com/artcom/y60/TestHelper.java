@@ -457,7 +457,7 @@ public class TestHelper {
             @Override
             public boolean isSatisfied() throws Exception {
                 boolean areAllWantedServicesDeleted = true;
-                String[] sdcardFiles = getAliveServicesFromSdcard();
+                String[] sdcardFiles = IoHelper.getAliveServicesFromSdcard();
 
                 for (String filename : sdcardFiles) {
                     for (String wantedService : pClassNames) {
@@ -469,30 +469,6 @@ public class TestHelper {
                 return areAllWantedServicesDeleted;
             }
         });
-
-    }
-
-    public static boolean isWantedServiceClassNameOnSdcard(String pWantedService) throws Exception {
-        String[] sdcardFiles = getAliveServicesFromSdcard();
-        for (String filename : sdcardFiles) {
-            if (filename.equals(pWantedService)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private static String[] getAliveServicesFromSdcard() throws Exception {
-        String aliveServicesDirectory = Constants.Device.ALIVE_SERVICES_PATH;
-
-        File dir = new File(aliveServicesDirectory);
-        String[] children = dir.list();
-        if (children == null) {
-            throw new Exception("Either " + aliveServicesDirectory
-                    + " does not exist or is not a directory");
-        } else {
-            return children;
-        }
     }
 
     public static void logServicesOnSdcard(String pLOG_TAG, String additionalLog) throws Exception {

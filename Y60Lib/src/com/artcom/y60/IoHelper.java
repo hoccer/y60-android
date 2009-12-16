@@ -3,6 +3,7 @@ package com.artcom.y60;
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -83,8 +84,8 @@ public class IoHelper {
     public static void deleteDir(File file) {
         if (file.isDirectory()) {
             String[] children = file.list();
-            for (int i = 0; i < children.length; i++) {
-                deleteDir(new File(file, children[i]));
+            for (String element : children) {
+                deleteDir(new File(file, element));
             }
         }
         file.delete();
@@ -95,6 +96,30 @@ public class IoHelper {
             return jo.getString(name);
         }
         return "";
+    }
+
+    public static boolean isWantedServiceClassNameOnSdcard(String pWantedService)
+            throws FileNotFoundException {
+        String[] sdcardFiles = getAliveServicesFromSdcard();
+        for (String filename : sdcardFiles) {
+            if (filename.equals(pWantedService)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    static String[] getAliveServicesFromSdcard() throws FileNotFoundException {
+        String aliveServicesDirectory = Constants.Device.ALIVE_SERVICES_PATH;
+
+        File dir = new File(aliveServicesDirectory);
+        String[] children = dir.list();
+        if (children == null) {
+            throw new FileNotFoundException("Either " + aliveServicesDirectory
+                    + " does not exist or is not a directory");
+        } else {
+            return children;
+        }
     }
 
 }
