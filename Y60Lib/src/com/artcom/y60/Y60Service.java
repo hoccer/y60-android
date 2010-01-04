@@ -45,10 +45,18 @@ public abstract class Y60Service extends Service {
 
     private void writeMyLifecycleOnSdcard() {
         if (monitorMyLifecycleOnSdcard()) {
+
+            File f = new File(Constants.Device.ALIVE_SERVICES_PATH);
+            if (f.exists() == false) {
+                f.mkdirs();
+            }
+
             FileWriter fw;
             try {
                 fw = new FileWriter(Constants.Device.ALIVE_SERVICES_PATH + "/"
                         + getClass().getName());
+                fw.write("");
+                fw.flush();
                 fw.close();
                 Logger.v(LOG_TAG, "____ Wrote: ", Constants.Device.ALIVE_SERVICES_PATH + "/"
                         + getClass().getName(), " on sdcard");
