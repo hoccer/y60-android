@@ -98,12 +98,11 @@ public abstract class Y60Service extends Service {
 
     @Override
     public void onDestroy() {
-
+        Logger.d(LOG_TAG, "------------ onDestroy called for service ", getClass(),
+                " which is monitored? ", monitorMyLifecycleOnSdcard());
         if (mShutdownReceiver != null) {
             unregisterReceiver(mShutdownReceiver);
         }
-        Logger.d(LOG_TAG, "------------ onDestroy called for service ", getClass(),
-                " which is monitored? ", monitorMyLifecycleOnSdcard());
         deleteMyLifecycleFromSdcard();
         super.onDestroy();
     }

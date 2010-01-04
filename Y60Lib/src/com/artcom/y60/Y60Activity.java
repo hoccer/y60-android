@@ -6,7 +6,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
-import android.os.Process;
 import android.view.KeyEvent;
 
 public abstract class Y60Activity extends Activity {
@@ -29,37 +28,37 @@ public abstract class Y60Activity extends Activity {
         Logger.i(LOG_TAG, "finishing activity ", Y60Activity.this.getClass().getName());
         finish();
 
-        new Thread(new Runnable() {
-            public void run() {
-
-                long start = System.currentTimeMillis();
-                while (!mIsDestroyed) {
-
-                    if (System.currentTimeMillis() - start > 7000) {
-                        Logger.w(LOG_TAG, "finishing activity ", Y60Activity.this.getClass()
-                                .getName(), " took too long");
-                        break;
-                    }
-
-                    try {
-                        Thread.sleep(100);
-                    } catch (Exception e) {
-                        Logger.w(LOG_TAG, e);
-                    }
-                }
-
-                try {
-                    Thread.sleep(250);
-                } catch (Exception e) {
-                    Logger.w(LOG_TAG, e);
-                }
-
-                Logger
-                        .i(LOG_TAG, "killing process ", Process.myPid(), " for activity ",
-                                getClass());
-                Process.killProcess(Process.myPid());
-            }
-        }).start();
+        // new Thread(new Runnable() {
+        // public void run() {
+        //
+        // long start = System.currentTimeMillis();
+        // while (!mIsDestroyed) {
+        //
+        // if (System.currentTimeMillis() - start > 7000) {
+        // Logger.w(LOG_TAG, "finishing activity ", Y60Activity.this.getClass()
+        // .getName(), " took too long");
+        // break;
+        // }
+        //
+        // try {
+        // Thread.sleep(100);
+        // } catch (Exception e) {
+        // Logger.w(LOG_TAG, e);
+        // }
+        // }
+        //
+        // try {
+        // Thread.sleep(250);
+        // } catch (Exception e) {
+        // Logger.w(LOG_TAG, e);
+        // }
+        //
+        // Logger
+        // .i(LOG_TAG, "killing process ", Process.myPid(), " for activity ",
+        // getClass());
+        // Process.killProcess(Process.myPid());
+        // }
+        // }).start();
     }
 
     @Override

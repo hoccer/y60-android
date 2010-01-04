@@ -475,6 +475,11 @@ public class TestHelper {
         String aliveServicesDirectory = Constants.Device.ALIVE_SERVICES_PATH;
 
         File dir = new File(aliveServicesDirectory);
+        if (!dir.exists()) {
+            Logger.v(pLOG_TAG, "_____ no alive services folder");
+            return;
+        }
+
         String[] children = dir.list();
         if (children == null) {
             throw new Exception("Either " + aliveServicesDirectory
@@ -488,6 +493,12 @@ public class TestHelper {
     }
 
     public static void cleanAllServicesOnSdcard() throws Exception {
+
+        File f = new File(Constants.Device.ALIVE_SERVICES_PATH);
+        if (!f.exists()) {
+            return;
+        }
+
         String aliveServicesDirectory = Constants.Device.ALIVE_SERVICES_PATH;
         File dir = new File(aliveServicesDirectory);
         String[] children = dir.list();
