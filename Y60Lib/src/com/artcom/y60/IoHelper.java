@@ -109,7 +109,7 @@ public class IoHelper {
         return false;
     }
 
-    static String[] getAliveServicesFromSdcard() throws FileNotFoundException {
+    public static String[] getAliveServicesFromSdcard() throws FileNotFoundException {
         String aliveServicesDirectory = Constants.Device.ALIVE_SERVICES_PATH;
 
         File dir = new File(aliveServicesDirectory);

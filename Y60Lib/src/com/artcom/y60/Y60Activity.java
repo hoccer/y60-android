@@ -64,14 +64,13 @@ public abstract class Y60Activity extends Activity {
     @Override
     protected void onCreate(Bundle pSavedInstanceState) {
 
-        Logger.v(LOG_TAG, "onCreate called for activity ", getClass());
-
         super.onCreate(pSavedInstanceState);
         startDeviceController();
 
         mShutdownReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context pArg0, Intent pArg1) {
+                Logger.v(LOG_TAG, "received a kill bc for activity ", getClass());
                 kill();
             }
 

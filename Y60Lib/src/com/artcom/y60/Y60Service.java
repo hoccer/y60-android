@@ -28,7 +28,6 @@ public abstract class Y60Service extends Service {
         mShutdownReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context pContext, Intent pIntent) {
-                Logger.v(LOG_TAG, "stop self");
                 kill();
             }
         };

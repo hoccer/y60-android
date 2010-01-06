@@ -62,7 +62,7 @@ public class GomProxyService extends Y60Service {
         Logger.i(LOG_TAG, "GomProxyService.onCreate");
         mRemote = new GomProxyRemote();
 
-        IntentFilter filter = new IntentFilter(Y60Action.RESET_BC);
+        IntentFilter filter = new IntentFilter(Y60Action.RESET_BC_GOM_PROXY);
         mResetReceiver = new ResetReceiver();
         registerReceiver(mResetReceiver, filter);
 
@@ -75,12 +75,13 @@ public class GomProxyService extends Y60Service {
     public void onStart(Intent pIntent, int startId) {
         Logger.v(LOG_TAG, "onStart: threadid: ", Thread.currentThread().getId());
         sendBroadcast(new Intent(Y60Action.SERVICE_GOM_PROXY_READY));
+        Logger.v(LOG_TAG, "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ sent broadcast gom proxy ready");
         super.onStart(pIntent, startId);
     }
 
     @Override
     public void onDestroy() {
-        Logger.i(LOG_TAG, "onDestroy");
+        Logger.v(LOG_TAG, "onDestroy");
         unregisterReceiver(mResetReceiver);
         sendBroadcast(new Intent(Y60Action.SERVICE_GOM_PROXY_DOWN));
         super.onDestroy();
@@ -98,7 +99,9 @@ public class GomProxyService extends Y60Service {
 
     @Override
     public IBinder onBind(Intent pIntent) {
+        Logger.v(LOG_TAG, "onBind");
         sendBroadcast(new Intent(Y60Action.SERVICE_GOM_PROXY_READY));
+        Logger.v(LOG_TAG, "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ sent broadcast gom proxy ready");
         return mRemote;
     }
 
@@ -254,6 +257,7 @@ public class GomProxyService extends Y60Service {
                 mAttributes.clear();
                 mNodes.clear();
                 sendBroadcast(new Intent(Y60Action.SERVICE_GOM_PROXY_CLEARED));
+                Logger.v(LOG_TAG, "################ sent gom proxy cleared");
             }
         }
 

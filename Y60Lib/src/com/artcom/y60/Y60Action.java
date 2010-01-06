@@ -1,5 +1,6 @@
 package com.artcom.y60;
 
+
 public abstract class Y60Action {
 
     public static final String SEARCH                     = "y60.intent.SEARCH";
@@ -49,6 +50,8 @@ public abstract class Y60Action {
 
     public static final String MONITOR_GOM_NOTIFICATION   = "y60.intent.MONITOR_GOM_NOTIFICATION";
     public static final String RESET_BC                   = "y60.intent.RESET";
+    public static final String RESET_BC_GOM_PROXY         = "y60.intent.RESET_BC_GOM_PROXY";
+    public static final String RESET_BC_HTTP_PROXY        = "y60.intent.RESET_BC_HTTP_PROXY";
     public static final String PRELOAD_CACHE              = "y60.intent.PRELOAD_CACHE";
     public static final String MEDIA_CONTROL_BC           = "y60.intent.MOVIE_CONTROL_BC";
     public static final String PICTURE_CONTROL_BC         = "y60.intent.PICTURE_CONTROL_BC";

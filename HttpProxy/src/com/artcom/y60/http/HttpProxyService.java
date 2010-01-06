@@ -5,7 +5,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 import com.artcom.y60.DeviceConfiguration;
-import com.artcom.y60.IntentExtraKeys;
 import com.artcom.y60.Logger;
 import com.artcom.y60.RpcStatus;
 import com.artcom.y60.Y60Action;
@@ -125,7 +124,7 @@ public class HttpProxyService extends Y60Service {
 
         mRemote = new HttpProxyRemote();
 
-        IntentFilter filter = new IntentFilter(Y60Action.RESET_BC);
+        IntentFilter filter = new IntentFilter(Y60Action.RESET_BC_HTTP_PROXY);
         mResetReceiver = new ResetReceiver();
         registerReceiver(mResetReceiver, filter);
 
@@ -138,9 +137,10 @@ public class HttpProxyService extends Y60Service {
     @Override
     public void onStart(Intent pIntent, int startId) {
 
-        Logger.v(LOG_TAG, "on start, ", pIntent.hasExtra(IntentExtraKeys.IS_IN_INIT_CHAIN));
+        Logger.v(LOG_TAG, "on start");
 
         sendBroadcast(new Intent(Y60Action.SERVICE_HTTP_PROXY_READY));
+        Logger.v(LOG_TAG, "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ sent broadcast http proxy ready");
 
         super.onStart(pIntent, startId);
     }
@@ -176,6 +176,7 @@ public class HttpProxyService extends Y60Service {
     @Override
     public IBinder onBind(Intent pIntent) {
         sendBroadcast(new Intent(Y60Action.SERVICE_HTTP_PROXY_READY));
+        Logger.v(LOG_TAG, "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ sent broadcast http proxy ready");
 
         return mRemote;
     }
@@ -210,6 +211,7 @@ public class HttpProxyService extends Y60Service {
 
         Logger.d(LOG_TAG, "clearing HTTP cache");
         cache.clear();
+        sendBroadcast(new Intent(Y60Action.SERVICE_HTTP_PROXY_CLEARED));
         Logger.d(LOG_TAG, "HTTP cache cleared");
     }
 
