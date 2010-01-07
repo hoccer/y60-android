@@ -14,6 +14,8 @@ import java.net.URLEncoder;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import com.artcom.y60.Constants.Device;
+
 public class IoHelper {
     private static final String LOG_TAG = "IoHelper";
 
@@ -120,6 +122,28 @@ public class IoHelper {
         } else {
             return children;
         }
+    }
+
+    public static void cleanAllServicesOnSdcard() throws Exception {
+    
+        File f = new File(Constants.Device.ALIVE_SERVICES_PATH);
+        if (!f.exists()) {
+            return;
+        }
+    
+        String aliveServicesDirectory = Constants.Device.ALIVE_SERVICES_PATH;
+        File dir = new File(aliveServicesDirectory);
+        String[] children = dir.list();
+        if (children == null) {
+            throw new Exception("Either " + aliveServicesDirectory
+                    + " does not exist or is not a directory");
+        } else {
+            for (String filename : children) {
+                Logger.v(TestHelper.LOG_TAG, "deleting: ", filename);
+                new File(aliveServicesDirectory + "/" + filename).delete();
+            }
+        }
+    
     }
 
 }

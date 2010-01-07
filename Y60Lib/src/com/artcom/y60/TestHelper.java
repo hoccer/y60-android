@@ -26,7 +26,7 @@ public class TestHelper {
 
     // Constants ---------------------------------------------------------
 
-    private static final String LOG_TAG = "TestHelper";
+    static final String LOG_TAG = "TestHelper";
 
     // Static Methods ----------------------------------------------------
 
@@ -490,27 +490,5 @@ public class TestHelper {
                 Logger.v(pLOG_TAG, filename);
             }
         }
-    }
-
-    public static void cleanAllServicesOnSdcard() throws Exception {
-
-        File f = new File(Constants.Device.ALIVE_SERVICES_PATH);
-        if (!f.exists()) {
-            return;
-        }
-
-        String aliveServicesDirectory = Constants.Device.ALIVE_SERVICES_PATH;
-        File dir = new File(aliveServicesDirectory);
-        String[] children = dir.list();
-        if (children == null) {
-            throw new Exception("Either " + aliveServicesDirectory
-                    + " does not exist or is not a directory");
-        } else {
-            for (String filename : children) {
-                Logger.v(LOG_TAG, "deleting: ", filename);
-                new File(aliveServicesDirectory + "/" + filename).delete();
-            }
-        }
-
     }
 }

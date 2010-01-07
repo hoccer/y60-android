@@ -144,7 +144,7 @@ public abstract class Y60GomService extends Y60Service {
             }
 
             public void unbound(GomProxyHelper helper) {
-                Logger.v(LOG_TAG, "GomProxy unbound");
+                Logger.v(LOG_TAG, "GomProxy unbound: ", getClass().getSimpleName());
                 mGom = null;
             }
         });
