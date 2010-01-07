@@ -16,13 +16,6 @@
             <intent-filter><action android:name="y60.intent.SERVICE_HTTP_PROXY"/></intent-filter> 
         </service>
         
-        <receiver android:enabled="true"
-          android:exported="true"
-          android:name="HttpProxyInitReceiver">
-            <intent-filter>
-                <action android:name="y60.intent.INIT_PROXY_SERVICES" /> 
-            </intent-filter>
-        </receiver>
     </application>
     
     <uses-permission android:name="android.permission.INTERNET" />
