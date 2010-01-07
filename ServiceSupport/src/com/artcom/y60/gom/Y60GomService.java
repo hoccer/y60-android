@@ -40,7 +40,7 @@ public abstract class Y60GomService extends Y60Service {
         super.onDestroy();
     }
 
-    protected GomProxyHelper getGom() {
+    public GomProxyHelper getGom() {
         if (mGom == null || !mGom.isBound()) {
             throw new BindingException("requested gom, but it is not bound");
         }
