@@ -11,19 +11,15 @@ import org.mortbay.jetty.bio.SocketConnector;
 import org.mortbay.jetty.handler.HandlerCollection;
 import org.mortbay.thread.QueuedThreadPool;
 
-import com.artcom.y60.BindingException;
 import com.artcom.y60.Constants;
 import com.artcom.y60.DeviceConfiguration;
 import com.artcom.y60.ErrorHandling;
-import com.artcom.y60.IntentExtraKeys;
 import com.artcom.y60.IpAddressNotFoundException;
 import com.artcom.y60.Logger;
 import com.artcom.y60.NetworkHelper;
 import com.artcom.y60.Y60Action;
-import com.artcom.y60.gom.GomException;
+import com.artcom.y60.Y60Service;
 import com.artcom.y60.gom.GomHttpWrapper;
-import com.artcom.y60.gom.GomNode;
-import com.artcom.y60.gom.Y60GomService;
 import com.artcom.y60.http.HttpException;
 
 import android.app.ActivityManager;
@@ -32,7 +28,7 @@ import android.content.Intent;
 import android.os.Binder;
 import android.os.IBinder;
 
-public class DeviceControllerService extends Y60GomService {
+public class DeviceControllerService extends Y60Service {
 
     public static final String  DEFAULT_NIONAME  = "com.artcom.y60.dc.nio";
     public static final String  DEFAULT_PORTNAME = "com.artcom.y60.dc.port";
@@ -45,30 +41,22 @@ public class DeviceControllerService extends Y60GomService {
     @Override
     public void onCreate() {
 
-        callOnBoundToGom(new Runnable() {
-
-            public void run() {
-                Logger.v(LOG_TAG, "call on bound to gom");
-                try {
-                    if (mServer == null) {
-                        mServer = startServer(Constants.Network.DEFAULT_PORT);
-                        Logger.v(LOG_TAG, "bound() to GomProxyHelper: Server will be started now");
-                    }
-                    try {
-                        updateIpAdressAttributesForDevice();
-                        updateVersionAttributeForDevice();
-                    } catch (BindingException e) {
-                        Logger.w(LOG_TAG,
-                                "GomProxy was unbound while processing asynchronous thread");
-                    }
-
-                } catch (Exception ex) {
-
-                    ErrorHandling.signalUnspecifiedError(LOG_TAG, ex, DeviceControllerService.this);
-                }
+        try {
+            if (mServer == null) {
+                mServer = startServer(Constants.Network.DEFAULT_PORT);
             }
-        });
+        } catch (Exception ex) {
+            ErrorHandling.signalUnspecifiedError(LOG_TAG, ex, this);
+        }
 
+        try {
+            updateIpAdressAttributesForDevice();
+            updateVersionAttributeForDevice();
+        } catch (IOException e) {
+            ErrorHandling.signalIOError(LOG_TAG, e, this);
+        } catch (HttpException e) {
+            ErrorHandling.signalHttpError(LOG_TAG, e, this);
+        }
         super.onCreate();
     }
 
@@ -76,60 +64,49 @@ public class DeviceControllerService extends Y60GomService {
     public void onStart(final Intent pIntent, int startId) {
         Logger.i(LOG_TAG, "onStart called");
 
-        int i = 0;
-        while (!isBoundToGom() && i < 50) {
-            try {
-                Thread.sleep(100);
-            } catch (InterruptedException e) {
-                Logger.e(LOG_TAG, e);
-            }
-            i++;
-        }
+        DeviceConfiguration conf = DeviceConfiguration.load();
+        Logger.setFilterLevel(conf.getLogLevel());
 
-        Intent dcReadyIntent = new Intent(Y60Action.DEVICE_CONTROLLER_READY);
-        if (pIntent.hasExtra(IntentExtraKeys.IS_IN_INIT_CHAIN)) {
-            dcReadyIntent.putExtra(IntentExtraKeys.IS_IN_INIT_CHAIN, pIntent.getBooleanExtra(
-                    IntentExtraKeys.IS_IN_INIT_CHAIN, false));
-            Logger.v(LOG_TAG, "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ broadcast device controller ready");
-            sendBroadcast(dcReadyIntent);
-        }
+        sendBroadcast(new Intent(Y60Action.DEVICE_CONTROLLER_READY));
+        Logger.v(LOG_TAG, "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ sent broadcast device controller ready");
 
         super.onStart(pIntent, startId);
     }
 
-    private void updateIpAdressAttributesForDevice() throws GomException, IOException,
-            HttpException {
+    @Override
+    protected void kill() {
+        // do not kill me upon shutdown services bc
+    }
+
+    @Override
+    protected boolean monitorMyLifecycleOnSdcard() {
+        return false;
+    }
+
+    private void updateIpAdressAttributesForDevice() throws IOException, HttpException {
 
         Logger.v(LOG_TAG, "updateGomAttributes for Device");
-        DeviceConfiguration dc = DeviceConfiguration.load();
-        String ipAddress;
+        String ipAddress = "";
+        String deviceUri = Constants.Gom.URI + Constants.Gom.DEVICE_PATH;
 
         try {
             // do not update uri if executed in the emulator; the host will need
             // to take care of this
             if (!DeviceConfiguration.isRunningAsEmulator()) {
                 ipAddress = NetworkHelper.getDeviceIpAddress();
-                GomNode device = getGom().getNode(dc.getDevicePath());
-                device.getOrCreateAttribute("ip_address").putValue(ipAddress);
-                device.getOrCreateAttribute("rtp_address").putValue(ipAddress);
-                device.getOrCreateAttribute("rtp_port").putValue("16384");
+                GomHttpWrapper.updateOrCreateAttribute(deviceUri + ":ip_address", ipAddress);
+                GomHttpWrapper.updateOrCreateAttribute(deviceUri + ":rtp_address", ipAddress);
+                GomHttpWrapper.updateOrCreateAttribute(deviceUri + ":rtp_port", "16384");
             } else {
-                GomNode device = getGom().getNode(dc.getDevicePath());
                 Logger.i(LOG_TAG, "I'm running in the emulator. Not publishing my ip address.");
             }
-        } catch (IpAddressNotFoundException e) {
-            ErrorHandling.signalNetworkError(LOG_TAG, e, this);
-        }
 
-        try {
             ipAddress = NetworkHelper.getStagingIp().getHostAddress();
-
             String command_uri = "http://" + ipAddress + ":" + Constants.Network.DEFAULT_PORT
                     + "/commands";
             Logger.v(LOG_TAG, "command_uri of local device controller is ", command_uri);
+            GomHttpWrapper.updateOrCreateAttribute(deviceUri + ":rci_uri", command_uri);
 
-            GomNode device = getGom().getNode(dc.getDevicePath());
-            device.getOrCreateAttribute("rci_uri").putValue(command_uri);
             if (!GomHttpWrapper.isAttributeExisting(Constants.Gom.URI + Constants.Gom.DEVICE_PATH
                     + ":enable_odp")) {
                 GomHttpWrapper.updateOrCreateAttribute(Constants.Gom.URI
@@ -141,9 +118,9 @@ public class DeviceControllerService extends Y60GomService {
         }
     }
 
-    private void updateVersionAttributeForDevice() throws GomException, HttpException, IOException {
+    private void updateVersionAttributeForDevice() throws HttpException, IOException {
 
-        DeviceConfiguration dc = DeviceConfiguration.load();
+        String deviceUri = Constants.Gom.URI + Constants.Gom.DEVICE_PATH;
 
         FileReader fr;
         try {
@@ -156,33 +133,20 @@ public class DeviceControllerService extends Y60GomService {
         fr.read(inputBuffer);
         String version = new String(inputBuffer);
 
-        GomNode device = getGom().getNode(dc.getDevicePath());
-        device.getOrCreateAttribute("software_version").putValue(version);
+        GomHttpWrapper.updateOrCreateAttribute(deviceUri + ":software_version", version);
     }
 
     @Override
     public void onDestroy() {
         Logger.v(LOG_TAG, "onDestroy");
-
-        if (mServer == null) {
-            Logger.i(LOG_TAG, "onDestroy(): Jetty not running, Server is null");
-            // Toast.makeText(DeviceControllerService.this,
-            // R.string.jetty_not_running,
-            // Toast.LENGTH_SHORT).show();
-
-            super.onDestroy();
-            return;
+        if (mServer != null) {
+            try {
+                Logger.v(LOG_TAG, "stopping Jetty");
+                stopServer();
+            } catch (Exception e) {
+                ErrorHandling.signalServiceError(LOG_TAG, e, this);
+            }
         }
-
-        try {
-            stopServer();
-
-        } catch (Exception e) {
-            ErrorHandling.signalServiceError(LOG_TAG, e, this);
-            // Toast.makeText(this, getText(R.string.jetty_not_stopped),
-            // Toast.LENGTH_SHORT).show();
-        }
-
         super.onDestroy();
     }
 
@@ -226,15 +190,13 @@ public class DeviceControllerService extends Y60GomService {
         mServer.stop();
         mServer.join();
         Logger.i(LOG_TAG, "stopServer(): Jetty Server stopped. done.");
-
-        // Toast.makeText(this, getText(R.string.jetty_stopped), Toast.LENGTH_SHORT).show();
         mServer = null;
     }
 
     @Override
     public IBinder onBind(Intent intent) {
         Logger.d(LOG_TAG, "onBind called");
-
+        sendBroadcast(new Intent(Y60Action.DEVICE_CONTROLLER_READY));
         return mBinder;
     }
 

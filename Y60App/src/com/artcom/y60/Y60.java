@@ -90,7 +90,7 @@ public class Y60 extends Activity {
         mInitButton.setOnClickListener(new OnClickListener() {
             // @Override
             public void onClick(View v) {
-                startActivity(new Intent(INIT_APP));
+                startService(new Intent("tgallery.intent.TG_INIT_SERVICE"));
             }
         });
 

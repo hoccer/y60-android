@@ -11,10 +11,6 @@
                   android:multiprocess="false"
                   android:launchMode="singleInstance">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-            <intent-filter>
                 <action android:name="y60.intent.CONFIGURE_DEVICE_CONTROLLER" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
@@ -42,14 +38,6 @@
             </intent-filter>
             <intent-filter>
                 <action android:name="android.intent.action.SCREEN_OFF" /> 
-            </intent-filter>
-        </receiver>
-        
-        <receiver android:enabled="true"
-          android:exported="true"
-          android:name="DeviceControllerInitReceiver">
-            <intent-filter>
-                <action android:name="y60.intent.SERVICE_GOM_PROXY_READY" /> 
             </intent-filter>
         </receiver>
 

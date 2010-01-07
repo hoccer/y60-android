@@ -25,7 +25,7 @@ public class ErrorHandling {
     public enum Category {
 
         // system or software errors
-        FILE_NOT_FOUND, MALFORMED_URI, MALFORMED_DATA, UNSUPPORTED_ENCODING, SAX_ERROR, JSON_ERROR, MISSING_GOM_ENTRY, MISSING_MANDATORY_OBJECT, LOW_ON_MEMORY_ERROR,
+        FILE_NOT_FOUND, MALFORMED_URI, MALFORMED_DATA, UNSUPPORTED_ENCODING, SAX_ERROR, JSON_ERROR, MISSING_GOM_ENTRY, MISSING_MANDATORY_OBJECT, LOW_ON_MEMORY_ERROR, INIT_ERROR,
 
         // development and environmental errors
         COMPONENT_NOT_FOUND, NETWORK_ERROR, IO_ERROR, ILLEGAL_ARGUMENT, GOM_ERROR, BACKEND_ERROR, SERVICE_ERROR, DEFECTIVE_CONTENT_ERROR, NOT_IMPLEMENTED, HTTP_ERROR, UNKNOWN_ASSET, ASSET_CREATION,
@@ -202,6 +202,11 @@ public class ErrorHandling {
     public static void signalUnknownAssetError(String pLogTag, UnknownAssetException pE,
             Context pContext) {
         signalError(pLogTag, pE, pContext, Category.UNKNOWN_ASSET);
+    }
+
+    public static void signalInitProcessError(String pLogTag,
+            InitProcessException initProcessException, Context tgInitService) {
+        signalError(pLogTag, initProcessException, tgInitService, Category.INIT_ERROR);
     }
 
     static void cancelErrorNotification(Context pContext) {

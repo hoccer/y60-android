@@ -5,9 +5,11 @@ import com.artcom.y60.BindingListener;
 import com.artcom.y60.ErrorHandling;
 import com.artcom.y60.Logger;
 import com.artcom.y60.TestHelper;
+import com.artcom.y60.Y60Action;
 import com.artcom.y60.Y60Service;
 import com.artcom.y60.http.HttpProxyHelper;
 
+import android.content.Intent;
 import android.os.AsyncTask;
 
 public abstract class Y60GomService extends Y60Service {
@@ -28,8 +30,7 @@ public abstract class Y60GomService extends Y60Service {
 
         super.onCreate();
         bindToGom();
-        // bindToHttpProxy();
-
+        bindToHttpProxy();
     }
 
     @Override
@@ -39,7 +40,7 @@ public abstract class Y60GomService extends Y60Service {
         super.onDestroy();
     }
 
-    protected GomProxyHelper getGom() {
+    public GomProxyHelper getGom() {
         if (mGom == null || !mGom.isBound()) {
             throw new BindingException("requested gom, but it is not bound");
         }
@@ -66,10 +67,14 @@ public abstract class Y60GomService extends Y60Service {
     }
 
     public Thread callOnBoundToGom(Runnable pRunnable) {
+
         mNotificationCallbackForBindToGom = pRunnable;
+        Logger.v(LOG_TAG, "callOnBoundToGom() with Runnable: ", mNotificationCallbackForBindToGom);
 
         Thread thread = new Thread(mNotificationCallbackForBindToGom);
         if (isBoundToGom()) {
+            Logger.v(LOG_TAG, "callOnBoundToGom() and bound to gom, got Runnable, executing it: ",
+                    mNotificationCallbackForBindToGom);
             thread.start();
             return thread;
         }
@@ -86,8 +91,13 @@ public abstract class Y60GomService extends Y60Service {
 
     public void callOnBoundToHttpProxy(Runnable pRunnable) {
         mNotificationCallbackForBindToHttpProxy = pRunnable;
+        Logger.v(LOG_TAG, "callOnBoundToHttpProxy() with Runnable: ",
+                mNotificationCallbackForBindToHttpProxy);
 
         if (isBoundToHttpProxy()) {
+            Logger.v(LOG_TAG,
+                    "callOnBoundToHttpProxy() and bound http, got Runnable, executing it: ",
+                    mNotificationCallbackForBindToHttpProxy);
             new Thread(mNotificationCallbackForBindToHttpProxy).start();
         }
     }
@@ -110,12 +120,20 @@ public abstract class Y60GomService extends Y60Service {
 
     public void bindToGom() {
 
+        Logger.v(LOG_TAG, "bindToGom()");
+
         new GomProxyHelper(this, new BindingListener<GomProxyHelper>() {
 
             public void bound(GomProxyHelper phelper) {
+
+                sendBroadcast(new Intent(Y60Action.SERVICE_GOM_PROXY_READY));
+                Logger.v(LOG_TAG, "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ sent broadcast gom proxy ready");
+
                 Logger.v(LOG_TAG, "GomProxy bound");
                 mGom = phelper;
                 if (mNotificationCallbackForBindToGom != null) {
+                    Logger.v(LOG_TAG, "bindToGom(), got Runnable, executing it: ",
+                            mNotificationCallbackForBindToGom.toString());
                     new Thread(mNotificationCallbackForBindToGom).start();
                 }
 
@@ -126,7 +144,7 @@ public abstract class Y60GomService extends Y60Service {
             }
 
             public void unbound(GomProxyHelper helper) {
-                Logger.v(LOG_TAG, "GomProxy unbound");
+                Logger.v(LOG_TAG, "GomProxy unbound: ", getClass().getSimpleName());
                 mGom = null;
             }
         });
@@ -134,12 +152,20 @@ public abstract class Y60GomService extends Y60Service {
 
     public void bindToHttpProxy() {
 
+        Logger.v(LOG_TAG, "bindToHttpProxy()");
+
         new HttpProxyHelper(this, new BindingListener<HttpProxyHelper>() {
 
             public void bound(HttpProxyHelper phelper) {
+
+                sendBroadcast(new Intent(Y60Action.SERVICE_HTTP_PROXY_READY));
+                Logger.v(LOG_TAG, "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ sent broadcast http proxy ready");
+
                 Logger.v(LOG_TAG, "HttpProxy bound");
                 mHttpProxy = phelper;
                 if (mNotificationCallbackForBindToHttpProxy != null) {
+                    Logger.v(LOG_TAG, "bindToHttp(), got Runnable, executing it: ",
+                            mNotificationCallbackForBindToHttpProxy);
                     new Thread(mNotificationCallbackForBindToHttpProxy).start();
                 }
             }

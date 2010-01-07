@@ -10,9 +10,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.artcom.y60.Constants;
-import com.artcom.y60.DeviceConfiguration;
 import com.artcom.y60.HttpHelper;
-import com.artcom.y60.IntentExtraKeys;
 import com.artcom.y60.JsonHelper;
 import com.artcom.y60.Logger;
 import com.artcom.y60.RpcStatus;
@@ -30,9 +28,9 @@ import android.os.RemoteException;
 
 public class GomProxyService extends Y60Service {
 
-    // Constants ---------------------------------------------------------
+    // Constants --- ------------------------------------------------------
 
-    private static final String         LOG_TAG           = "GomProxyService";
+    private static final String         LOG_TAG = "GomProxyService";
 
     // Instance Variables ------------------------------------------------
 
@@ -46,8 +44,6 @@ public class GomProxyService extends Y60Service {
 
     private BroadcastReceiver           mResetReceiver;
 
-    protected boolean                   mIsStartedForTest = false;
-
     // Constructors ------------------------------------------------------
 
     public GomProxyService() {
@@ -55,7 +51,6 @@ public class GomProxyService extends Y60Service {
         mNodes = new HashMap<String, NodeData>();
         mAttributes = new HashMap<String, String>();
         Logger.v(LOG_TAG, "GomProxyService instantiated");
-
         mBaseUri = Uri.parse(Constants.Gom.URI);
     }
 
@@ -64,48 +59,49 @@ public class GomProxyService extends Y60Service {
     @Override
     public void onCreate() {
 
-        DeviceConfiguration conf = DeviceConfiguration.load();
-        Logger.setFilterLevel(conf.getLogLevel());
-
         Logger.i(LOG_TAG, "GomProxyService.onCreate");
+        mRemote = new GomProxyRemote();
+
+        IntentFilter filter = new IntentFilter(Y60Action.RESET_BC_GOM_PROXY);
+        mResetReceiver = new ResetReceiver();
+        registerReceiver(mResetReceiver, filter);
 
         super.onCreate();
 
-        mRemote = new GomProxyRemote();
-
-        IntentFilter filter = new IntentFilter(Y60Action.RESET_BC);
-        mResetReceiver = new ResetReceiver();
-        registerReceiver(mResetReceiver, filter);
+        Logger.i(LOG_TAG, "<<< GomProxyService.onCreate");
     }
 
     @Override
     public void onStart(Intent pIntent, int startId) {
         Logger.v(LOG_TAG, "onStart: threadid: ", Thread.currentThread().getId());
-
-        Intent intent = new Intent(Y60Action.SERVICE_GOM_PROXY_READY);
-        if (pIntent.hasExtra(IntentExtraKeys.IS_IN_INIT_CHAIN)) {
-            intent.putExtra(IntentExtraKeys.IS_IN_INIT_CHAIN, pIntent.getBooleanExtra(
-                    IntentExtraKeys.IS_IN_INIT_CHAIN, false));
-            Logger.v(LOG_TAG, "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ send broadcast GOM PROXY READY");
-            sendBroadcast(intent);
-        }
-        mIsStartedForTest = true;
-
-        super.onStart(intent, startId);
+        sendBroadcast(new Intent(Y60Action.SERVICE_GOM_PROXY_READY));
+        Logger.v(LOG_TAG, "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ sent broadcast gom proxy ready");
+        super.onStart(pIntent, startId);
     }
 
     @Override
     public void onDestroy() {
-
-        Logger.i(LOG_TAG, "onDestroy");
-
+        Logger.v(LOG_TAG, "onDestroy");
         unregisterReceiver(mResetReceiver);
+        sendBroadcast(new Intent(Y60Action.SERVICE_GOM_PROXY_DOWN));
         super.onDestroy();
     }
 
     @Override
-    public IBinder onBind(Intent pIntent) {
+    protected void kill() {
+        // do not kill me upon shutdown services bc
+    }
 
+    @Override
+    protected boolean monitorMyLifecycleOnSdcard() {
+        return false;
+    }
+
+    @Override
+    public IBinder onBind(Intent pIntent) {
+        Logger.v(LOG_TAG, "onBind");
+        sendBroadcast(new Intent(Y60Action.SERVICE_GOM_PROXY_READY));
+        Logger.v(LOG_TAG, "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ sent broadcast gom proxy ready");
         return mRemote;
     }
 
@@ -258,12 +254,13 @@ public class GomProxyService extends Y60Service {
 
         synchronized (mAttributes) {
             synchronized (mNodes) {
-
                 mAttributes.clear();
                 mNodes.clear();
+                sendBroadcast(new Intent(Y60Action.SERVICE_GOM_PROXY_CLEARED));
+                Logger.v(LOG_TAG, "################ sent gom proxy cleared");
             }
-
         }
+
     }
 
     // Private Instance Methods ------------------------------------------

@@ -6,14 +6,13 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
-import android.os.Process;
 import android.view.KeyEvent;
 
 public abstract class Y60Activity extends Activity {
 
     private static final String LOG_TAG                                  = "Y60Activity";
 
-    private BroadcastReceiver   mReceiver;
+    private BroadcastReceiver   mShutdownReceiver;
 
     private boolean             mIsDestroyed                             = false;
     private int                 mResponsivnessCounterForTestPurposesOnly = 0;
@@ -29,66 +28,63 @@ public abstract class Y60Activity extends Activity {
         Logger.i(LOG_TAG, "finishing activity ", Y60Activity.this.getClass().getName());
         finish();
 
-        new Thread(new Runnable() {
-            public void run() {
-
-                long start = System.currentTimeMillis();
-                while (!mIsDestroyed) {
-
-                    if (System.currentTimeMillis() - start > 7000) {
-                        Logger.w(LOG_TAG, "finishing activity ", Y60Activity.this.getClass()
-                                .getName(), " took too long");
-                        break;
-                    }
-
-                    try {
-                        Thread.sleep(100);
-                    } catch (Exception e) {
-                        Logger.w(LOG_TAG, e);
-                    }
-                }
-
-                try {
-                    Thread.sleep(250);
-                } catch (Exception e) {
-                    Logger.w(LOG_TAG, e);
-                }
-
-                Logger
-                        .i(LOG_TAG, "killing process ", Process.myPid(), " for activity ",
-                                getClass());
-                Process.killProcess(Process.myPid());
-            }
-        }).start();
+        // new Thread(new Runnable() {
+        // public void run() {
+        //
+        // long start = System.currentTimeMillis();
+        // while (!mIsDestroyed) {
+        //
+        // if (System.currentTimeMillis() - start > 7000) {
+        // Logger.w(LOG_TAG, "finishing activity ", Y60Activity.this.getClass()
+        // .getName(), " took too long");
+        // break;
+        // }
+        //
+        // try {
+        // Thread.sleep(100);
+        // } catch (Exception e) {
+        // Logger.w(LOG_TAG, e);
+        // }
+        // }
+        //
+        // try {
+        // Thread.sleep(250);
+        // } catch (Exception e) {
+        // Logger.w(LOG_TAG, e);
+        // }
+        //
+        // Logger
+        // .i(LOG_TAG, "killing process ", Process.myPid(), " for activity ",
+        // getClass());
+        // Process.killProcess(Process.myPid());
+        // }
+        // }).start();
     }
 
     @Override
     protected void onCreate(Bundle pSavedInstanceState) {
 
-        Logger.v(LOG_TAG, "onCreate called for activity ", getClass());
-
         super.onCreate(pSavedInstanceState);
         startDeviceController();
 
-        mReceiver = new BroadcastReceiver() {
-
+        mShutdownReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context pArg0, Intent pArg1) {
-
+                Logger.v(LOG_TAG, "received a kill bc for activity ", getClass());
                 kill();
             }
 
         };
 
         IntentFilter intentFilter = new IntentFilter(Y60Action.SHUTDOWN_ACTIVITIES_BC);
-        registerReceiver(mReceiver, intentFilter);
+        registerReceiver(mShutdownReceiver, intentFilter);
     }
 
     @Override
     protected void onDestroy() {
 
-        if (mReceiver != null) {
-            unregisterReceiver(mReceiver);
+        if (mShutdownReceiver != null) {
+            unregisterReceiver(mShutdownReceiver);
         }
         super.onDestroy();
 

@@ -6,17 +6,17 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.artcom.y60.DeviceConfiguration;
+import com.artcom.y60.ErrorHandling;
+import com.artcom.y60.Logger;
+import com.artcom.y60.gom.Y60GomService;
+
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.IBinder;
-
-import com.artcom.y60.DeviceConfiguration;
-import com.artcom.y60.ErrorHandling;
-import com.artcom.y60.Logger;
-import com.artcom.y60.gom.Y60GomService;
 
 public class StatusWatcher extends Y60GomService {
 
@@ -64,6 +64,16 @@ public class StatusWatcher extends Y60GomService {
         mIsHeartbeatLoopRunning = false;
 
         super.onDestroy();
+    }
+
+    @Override
+    protected void kill() {
+        // do not kill me upon shutdown services bc
+    }
+
+    @Override
+    protected boolean monitorMyLifecycleOnSdcard() {
+        return false;
     }
 
     @Override

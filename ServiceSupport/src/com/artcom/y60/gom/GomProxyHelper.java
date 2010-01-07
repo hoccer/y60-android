@@ -3,6 +3,11 @@ package com.artcom.y60.gom;
 import java.util.LinkedList;
 import java.util.List;
 
+import com.artcom.y60.BindingException;
+import com.artcom.y60.BindingListener;
+import com.artcom.y60.Logger;
+import com.artcom.y60.RpcStatus;
+
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -10,11 +15,6 @@ import android.content.ServiceConnection;
 import android.net.Uri;
 import android.os.IBinder;
 import android.os.RemoteException;
-
-import com.artcom.y60.BindingException;
-import com.artcom.y60.BindingListener;
-import com.artcom.y60.Logger;
-import com.artcom.y60.RpcStatus;
 
 public class GomProxyHelper {
 
@@ -431,7 +431,7 @@ public class GomProxyHelper {
 
         public void onServiceConnected(ComponentName pName, IBinder pBinder) {
 
-            Logger.v("GomProxyServiceConnection", "onServiceConnected(", pName, ")");
+            Logger.v(LOG_TAG, "onServiceConnected(", pName, ")");
             mProxy = IGomProxyService.Stub.asInterface(pBinder);
 
             if (mBindingListener != null) {
