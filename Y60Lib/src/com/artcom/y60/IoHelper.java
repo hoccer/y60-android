@@ -5,16 +5,21 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.util.LinkedList;
+import java.util.List;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.artcom.y60.Constants.Device;
+import android.app.ActivityManager;
+import android.app.ActivityManager.RunningServiceInfo;
+import android.content.Context;
 
 public class IoHelper {
     private static final String LOG_TAG = "IoHelper";
@@ -125,12 +130,12 @@ public class IoHelper {
     }
 
     public static void cleanAllServicesOnSdcard() throws Exception {
-    
+
         File f = new File(Constants.Device.ALIVE_SERVICES_PATH);
         if (!f.exists()) {
             return;
         }
-    
+
         String aliveServicesDirectory = Constants.Device.ALIVE_SERVICES_PATH;
         File dir = new File(aliveServicesDirectory);
         String[] children = dir.list();
@@ -143,7 +148,104 @@ public class IoHelper {
                 new File(aliveServicesDirectory + "/" + filename).delete();
             }
         }
-    
+
+    }
+
+    private void writeMyLifecycleOnSdcard() {
+
+        File f = new File(Constants.Device.ALIVE_SERVICES_PATH);
+        if (f.exists() == false) {
+            f.mkdirs();
+        }
+
+        FileWriter fw;
+        try {
+            fw = new FileWriter(Constants.Device.ALIVE_SERVICES_PATH + "/" + getClass().getName());
+            fw.write("");
+            fw.flush();
+            fw.close();
+            Logger.v(LOG_TAG, "____ Wrote: ", Constants.Device.ALIVE_SERVICES_PATH + "/"
+                    + getClass().getName(), " on sdcard");
+        } catch (IOException e) {
+            // ErrorHandling.signalIOError(LOG_TAG, e, this);
+        }
+    }
+
+    protected void deleteMyLifecycleFromSdcard() {
+        boolean deletedMySelf = false;
+        String aliveServicesDirectory = Constants.Device.ALIVE_SERVICES_PATH;
+
+        File dir = new File(aliveServicesDirectory);
+        String[] children = dir.list();
+        if (children == null) {
+            Logger.e(LOG_TAG, "No services at all listed in alive services on sdcard");
+        } else {
+            for (String filename : children) {
+                Logger.v(LOG_TAG, "deleteMyLifecycleFromSdcard: ", filename, ", i am: ", getClass()
+                        .getName());
+
+                if (filename.equals(getClass().getName())) {
+                    File myClassName = new File(aliveServicesDirectory + "/" + filename);
+                    myClassName.delete();
+                    Logger.v(LOG_TAG, "deleted: ", filename);
+                    deletedMySelf = true;
+                }
+            }
+        }
+        if (deletedMySelf) {
+            return;
+        }
+        Logger.e(LOG_TAG, "I am not listed in alive services on sdcard");
+    }
+
+    public static boolean areGivenServicesFinished(String[] pServices,
+            List<RunningServiceInfo> runningServices) {
+
+        for (String service : pServices) {
+            if (isThisParticularServiceInRunningServiceList(service, runningServices)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public static LinkedList<String> getRunningServicesFromList(String[] pServices,
+            List<RunningServiceInfo> runningServices) {
+
+        LinkedList<String> stillRunning = new LinkedList<String>();
+
+        for (String service : pServices) {
+            if (isThisParticularServiceInRunningServiceList(service, runningServices)) {
+                stillRunning.add(service);
+            }
+        }
+        return stillRunning;
+    }
+
+    public static boolean isThisParticularServiceInRunningServiceList(String service,
+            List<RunningServiceInfo> runningServices) {
+        for (RunningServiceInfo runningService : runningServices) {
+            if (runningService.service.getClassName().equals(service)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static boolean areAllMonitoredServicesInRunningServices(String[] pMonitoredServices,
+            List<RunningServiceInfo> runningServices) {
+
+        for (String service : pMonitoredServices) {
+            if (!isThisParticularServiceInRunningServiceList(service, runningServices)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public static List<RunningServiceInfo> getRunningServices(Context pContext) {
+        ActivityManager am = (ActivityManager) pContext.getSystemService(pContext.ACTIVITY_SERVICE);
+        return am.getRunningServices(100);
     }
 
 }

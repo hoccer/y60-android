@@ -78,11 +78,6 @@ public class DeviceControllerService extends Y60Service {
         // do not kill me upon shutdown services bc
     }
 
-    @Override
-    protected boolean monitorMyLifecycleOnSdcard() {
-        return false;
-    }
-
     private void updateIpAdressAttributesForDevice() throws IOException, HttpException {
 
         Logger.v(LOG_TAG, "updateGomAttributes for Device");

@@ -72,11 +72,6 @@ public class StatusWatcher extends Y60GomService {
     }
 
     @Override
-    protected boolean monitorMyLifecycleOnSdcard() {
-        return false;
-    }
-
-    @Override
     public IBinder onBind(Intent pIntent) {
         Logger
                 .w(LOG_TAG,

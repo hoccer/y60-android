@@ -169,11 +169,6 @@ public class HttpProxyService extends Y60Service {
     }
 
     @Override
-    protected boolean monitorMyLifecycleOnSdcard() {
-        return false;
-    }
-
-    @Override
     public IBinder onBind(Intent pIntent) {
         sendBroadcast(new Intent(Y60Action.SERVICE_HTTP_PROXY_READY));
         Logger.v(LOG_TAG, "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ sent broadcast http proxy ready");
