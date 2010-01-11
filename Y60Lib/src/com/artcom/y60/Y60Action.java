@@ -1,5 +1,6 @@
 package com.artcom.y60;
 
+
 public abstract class Y60Action {
 
     public static final String SEARCH                     = "y60.intent.SEARCH";
@@ -55,5 +56,6 @@ public abstract class Y60Action {
     public static final String MEDIA_CONTROL_BC           = "y60.intent.MOVIE_CONTROL_BC";
     public static final String PICTURE_CONTROL_BC         = "y60.intent.PICTURE_CONTROL_BC";
     public static final String BOOTED_FIRST_LEVEL         = "y60.intent.BOOTED_FIRST_LEVEL";
+    public static final String INIT_ALREADY_IN_PROGRESS        = "y60.intent.ALREADY_IN_PROGRESS";
 
 }
