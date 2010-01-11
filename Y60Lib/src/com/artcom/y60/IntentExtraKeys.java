@@ -39,4 +39,6 @@ public class IntentExtraKeys {
     public static final String IS_IN_INIT_CHAIN         = "is_in_init_chain";
     public static final String TRACK_NUMBER             = "track_number";
     public static final String TRACK_POSITION           = "track_position";
+
+    public static final String PROFILING                = "profiling";
 }

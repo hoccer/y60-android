@@ -59,5 +59,6 @@ public abstract class Y60Action {
     public static final String BOOT_NO_OWNER              = "y60.intent.BOOT_NO_OWNER";
     public static final String BOOT_OWNER                 = "y60.intent.BOOT_OWNER";
     public static final String BOOT_START_DEPENDEND_LEVEL = "y60.intent.BOOT_START_DEPENDENT_LEVEL";
+    public static final String BOOT_PROFILING_UPDATED     = "y60.intent.BOOT_PROFILING_UPDATED";
 
 }
