@@ -93,11 +93,6 @@ public class GomProxyService extends Y60Service {
     }
 
     @Override
-    protected boolean monitorMyLifecycleOnSdcard() {
-        return false;
-    }
-
-    @Override
     public IBinder onBind(Intent pIntent) {
         Logger.v(LOG_TAG, "onBind");
         sendBroadcast(new Intent(Y60Action.SERVICE_GOM_PROXY_READY));

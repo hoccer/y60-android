@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.SocketTimeoutException;
 import java.util.LinkedList;
+import java.util.List;
 
 import junit.framework.Assert;
 
@@ -18,6 +19,7 @@ import org.json.JSONObject;
 import com.artcom.y60.http.HttpClientException;
 
 import android.app.Activity;
+import android.app.ActivityManager.RunningServiceInfo;
 import android.content.Context;
 import android.content.Intent;
 import android.test.AssertionFailedError;
@@ -489,6 +491,17 @@ public class TestHelper {
             for (String filename : children) {
                 Logger.v(pLOG_TAG, filename);
             }
+        }
+    }
+
+    public static void logServices(String pLOG_TAG, List<RunningServiceInfo> runningServices) {
+        logServices(pLOG_TAG, "", runningServices);
+    }
+
+    public static void logServices(String pLOG_TAG, String additionalTag,
+            List<RunningServiceInfo> runningServices) {
+        for (RunningServiceInfo runningService : runningServices) {
+            Logger.v(pLOG_TAG, additionalTag, " ", runningService.service.getClassName());
         }
     }
 }

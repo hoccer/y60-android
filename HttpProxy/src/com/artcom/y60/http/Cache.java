@@ -7,12 +7,12 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import android.net.Uri;
-import android.os.Bundle;
-
 import com.artcom.y60.HttpHelper;
 import com.artcom.y60.IoHelper;
 import com.artcom.y60.Logger;
+
+import android.net.Uri;
+import android.os.Bundle;
 
 public class Cache {
 
@@ -151,6 +151,11 @@ public class Cache {
                 mPendingResources.clear();
 
                 IoHelper.deleteDir(new File(CACHE_DIR));
+                File dir = new File(CACHE_DIR);
+                if (!dir.exists()) {
+                    dir.mkdirs();
+                    Logger.e(LOG_TAG, "creating dir " + dir.toString());
+                }
             }
         }
     }
