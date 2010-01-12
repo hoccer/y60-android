@@ -1,9 +1,9 @@
 package com.artcom.y60;
 
+import com.artcom.y60.gom.Y60GomService;
+
 import android.content.Intent;
 import android.os.IBinder;
-
-import com.artcom.y60.gom.Y60GomService;
 
 public class DemoY60GomService extends Y60GomService {
 
@@ -13,4 +13,7 @@ public class DemoY60GomService extends Y60GomService {
         return null;
     }
 
+    @Override
+    protected void bindProxys() {
+    }
 }

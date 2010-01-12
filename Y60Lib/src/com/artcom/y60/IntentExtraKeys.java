@@ -41,4 +41,6 @@ public class IntentExtraKeys {
     public static final String TRACK_POSITION           = "track_position";
 
     public static final String PROFILING                = "profiling";
+
+    public static final String INIT_PROGRESS            = "progress";
 }

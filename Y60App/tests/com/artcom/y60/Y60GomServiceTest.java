@@ -5,7 +5,8 @@ import android.test.ServiceTestCase;
 
 public class Y60GomServiceTest extends ServiceTestCase<DemoY60GomService> {
 
-    boolean mHasCallbackBeenCalled = false;
+    boolean mHasCallbackBeenCalled      = false;
+    boolean mHasCallbackBeenCalledAgain = false;
 
     public Y60GomServiceTest() {
         super(DemoY60GomService.class);
@@ -15,6 +16,7 @@ public class Y60GomServiceTest extends ServiceTestCase<DemoY60GomService> {
         startService(new Intent("com.artcom.y60.DemoY60GomService"));
         assertNotNull(getService());
 
+        bindWithProxys(getService());
         getService().blockUntilBoundToGom();
 
         assertTrue("service should have bounded to gom", getService().isBoundToGom());
@@ -22,7 +24,7 @@ public class Y60GomServiceTest extends ServiceTestCase<DemoY60GomService> {
 
     public void testSettingACallbackForBindToGom() throws Exception {
         startService(new Intent("com.artcom.y60.DemoY60GomService"));
-
+        bindWithProxys(getService());
         getService().callOnBoundToGom(new Runnable() {
             @Override
             public void run() {
@@ -42,7 +44,7 @@ public class Y60GomServiceTest extends ServiceTestCase<DemoY60GomService> {
 
     public void testSettingACallbackForBindToGomAfterBoundToGom() throws Exception {
         startService(new Intent("com.artcom.y60.DemoY60GomService"));
-
+        bindWithProxys(getService());
         getService().blockUntilBoundToGom();
 
         getService().callOnBoundToGom(new Runnable() {
@@ -55,4 +57,47 @@ public class Y60GomServiceTest extends ServiceTestCase<DemoY60GomService> {
         assertTrue("callback should have been called", mHasCallbackBeenCalled);
 
     }
+
+    public void testSettingTwoCallbacksForBindToGom() throws Exception {
+        startService(new Intent("com.artcom.y60.DemoY60GomService"));
+
+        getService().callOnBoundToGom(new Runnable() {
+            @Override
+            public void run() {
+                mHasCallbackBeenCalled = true;
+            }
+        });
+
+        getService().callOnBoundToGom(new Runnable() {
+            @Override
+            public void run() {
+                mHasCallbackBeenCalledAgain = true;
+            }
+        });
+
+        bindWithProxys(getService());
+
+        TestHelper.blockUntilTrue("runnable shoud have been called", 4000,
+                new TestHelper.Condition() {
+                    @Override
+                    public boolean isSatisfied() throws Exception {
+                        return mHasCallbackBeenCalled;
+                    }
+                });
+
+        TestHelper.blockUntilTrue("runnable shoud have been called again", 4000,
+                new TestHelper.Condition() {
+                    @Override
+                    public boolean isSatisfied() throws Exception {
+                        return mHasCallbackBeenCalledAgain;
+                    }
+                });
+
+    }
+
+    private void bindWithProxys(DemoY60GomService service) {
+        service.bindToGom();
+        service.bindToHttpProxy();
+    }
+
 }
