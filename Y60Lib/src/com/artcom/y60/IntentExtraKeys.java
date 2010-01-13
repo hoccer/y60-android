@@ -43,4 +43,5 @@ public class IntentExtraKeys {
     public static final String PROFILING                = "profiling";
 
     public static final String INIT_PROGRESS            = "progress";
+    public static final String SEARCH_QUERY             = "search_query";
 }
