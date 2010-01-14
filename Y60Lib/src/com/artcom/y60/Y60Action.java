@@ -33,6 +33,7 @@ public abstract class Y60Action {
     public static final String JAVASCRIPT_VIEWS_READY     = "y60.intent.JAVASCRIPT_VIEWS_READY";
     public static final String GLOBAL_OBSERVERS_READY     = "y60.intent.GLOBAL_OBSERVERS_READY";
     public static final String SEARCH_READY               = "y60.intent.SEARCH_READY";
+    public static final String SEARCH_CONNECTION_FAILED   = "y60.intent.SEARCH_CONNECTION_FAILED";
     public static final String SEARCH_DOWN                = "y60.intent.SEARCH_DOWN";
     public static final String CALL_READY                 = "y60.intent.CALL_READY";
     public static final String CALL_DOWN                  = "y60.intent.CALL_DOWN";
