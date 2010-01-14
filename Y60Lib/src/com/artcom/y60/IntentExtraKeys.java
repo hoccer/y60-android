@@ -45,4 +45,5 @@ public class IntentExtraKeys {
     public static final String INIT_PROGRESS            = "progress";
     public static final String INIT_LOG_MSG             = "init_log_msg";
     public static final String INIT_IN_DEBUG_MODE       = "init_in_debug_mode";
+    public static final String SEARCH_QUERY             = "search_query";
 }
