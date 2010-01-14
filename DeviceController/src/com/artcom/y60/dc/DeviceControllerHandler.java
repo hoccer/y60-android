@@ -15,14 +15,14 @@ import org.mortbay.jetty.handler.DefaultHandler;
 import org.mortbay.util.MultiMap;
 import org.mortbay.util.UrlEncoded;
 
+import android.app.Service;
+import android.content.Intent;
+
 import com.artcom.y60.Constants;
 import com.artcom.y60.ErrorHandling;
 import com.artcom.y60.IntentExtraKeys;
 import com.artcom.y60.Logger;
 import com.artcom.y60.Y60Action;
-
-import android.app.Service;
-import android.content.Intent;
 
 public class DeviceControllerHandler extends DefaultHandler {
 
@@ -143,6 +143,14 @@ public class DeviceControllerHandler extends DefaultHandler {
         } else if ("movie_player".equals(targetParam) || "music_player".equals(targetParam)
                 || "picture_viewer".equals(targetParam)) {
             broadcastIntent = new Intent(Y60Action.MEDIA_CONTROL_BC);
+
+        } else if ("video_conf".equals(targetParam)) {
+            final String ACCEPTANCE_DIALOG = "tgallery.intent.AcceptanceDialog";
+            Intent intent = new Intent(ACCEPTANCE_DIALOG);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            intent.putExtra(IntentExtraKeys.RCI_SENDER, (String) parameters.get("sender"));
+            mService.startActivity(intent);
+            return;
 
         } else {
             Logger.e("illegal RCA target: " + targetParam + "from: " + parameters.get("sender"));
