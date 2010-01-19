@@ -7,8 +7,6 @@ import java.util.HashMap;
 import org.apache.http.HttpResponse;
 import org.apache.http.StatusLine;
 
-import android.content.BroadcastReceiver;
-
 import com.artcom.y60.BindingException;
 import com.artcom.y60.Constants;
 import com.artcom.y60.DeviceConfiguration;
@@ -19,6 +17,8 @@ import com.artcom.y60.Logger;
 import com.artcom.y60.NetworkHelper;
 import com.artcom.y60.http.HttpClientException;
 import com.artcom.y60.http.HttpServerException;
+
+import android.content.BroadcastReceiver;
 
 public class GomNotificationHelper {
 
@@ -83,8 +83,7 @@ public class GomNotificationHelper {
     }
 
     /**
-     * Register a GOM observer for a given path. Filtering options are currently
-     * not supported.
+     * Register a GOM observer for a given path. Filtering options are currently not supported.
      * 
      * @param pPath
      *            Gom path to observe
@@ -92,7 +91,6 @@ public class GomNotificationHelper {
      *            the observer??? Don't know!
      * @param pErrorHandler
      *            pass your own error handling code to the registration thread
-     * 
      */
     public static BroadcastReceiver createObserverAndNotify(final String pPath,
             final GomObserver pGomObserver, final GomProxyHelper pGom, final boolean pBubbleUp,
@@ -153,6 +151,60 @@ public class GomNotificationHelper {
         return receiver;
     }
 
+    /**
+     * Register a GOM observer for a given path. Filtering options are currently not supported.
+     * 
+     * @param pPath
+     *            Gom path to observe
+     * @param pGomObserver
+     *            the observer??? Don't know!
+     * @param pErrorHandler
+     *            pass your own error handling code to the registration thread
+     */
+    public static BroadcastReceiver createObserverAndNotifyLazy(final String pPath,
+            final GomObserver pGomObserver, final GomProxyHelper pGom, final boolean pBubbleUp,
+            final ErrorHandler pErrorHandler) throws IOException, IpAddressNotFoundException {
+
+        BroadcastReceiver receiver = createBroadcastReceiver(pPath, pGomObserver, pBubbleUp, pGom);
+
+        if (!pGom.isBound() || pGom == null) {
+            throw new IllegalStateException("GomProxyHelper " + pGom.toString() + " is not bound!");
+        }
+
+        new Thread(new Runnable() {
+            public void run() {
+
+                try {
+                    putObserverToGom(pPath, pBubbleUp);
+                    boolean hasInCache = pGom.hasInCache(pPath);
+                    if (!hasInCache) {
+                        pGom.refreshEntry(pPath);
+                    }
+                    GomEntry entry = pGom.getEntry(pPath);
+                    if (entry instanceof GomNode) {
+                        ((GomNode) entry).entries();
+                    }
+                    Logger.v(LOG_TAG, "in lazy gnp: , update: ", entry.toJson(), " ppath: ", pPath,
+                            " was in cache?: ", hasInCache);
+                    pGomObserver.onEntryUpdated(pPath, entry.toJson());
+
+                } catch (GomEntryNotFoundException gx) {
+                    pGom.deleteEntry(pPath);
+                    Logger.v(LOG_TAG, "pGomObserver.onEntryDeleted( ", pPath, " )");
+                    pGomObserver.onEntryDeleted(pPath, null);
+                } catch (BindingException be) {
+                    Logger.w(LOG_TAG, "GomProxy was unbound while processing asynchronous thread");
+                } catch (Exception ex) {
+                    pErrorHandler.handle(ex);
+                } catch (Throwable t) {
+                    Logger.v(LOG_TAG, t.toString());
+                }
+            }
+        }).start();
+
+        return receiver;
+    }
+
     public static BroadcastReceiver registerObserver(final String pPath,
             final GomObserver pGomObserver, final GomProxyHelper pGom,
             final ErrorHandler pErrorHandler) throws IOException, IpAddressNotFoundException {
@@ -161,8 +213,7 @@ public class GomNotificationHelper {
     }
 
     /**
-     * Use this with care, the callback will not immediately return with the
-     * latest data
+     * Use this with care, the callback will not immediately return with the latest data
      * 
      * @param pPath
      *            Gom path to observe
@@ -170,7 +221,6 @@ public class GomNotificationHelper {
      *            the observer??? Don't know!
      * @param pErrorHandler
      *            pass your own error handling code to the registration thread
-     * 
      */
     public static BroadcastReceiver registerObserver(final String pPath,
             final GomObserver pGomObserver, final GomProxyHelper pGom, final boolean pBubbleUp,
@@ -272,8 +322,8 @@ public class GomNotificationHelper {
     }
 
     /**
-     * Convenience Method which returns the path to the node in which all the
-     * observers of the given path reside.
+     * Convenience Method which returns the path to the node in which all the observers of the given
+     * path reside.
      * 
      * @param pGomEntryPath
      * @return
