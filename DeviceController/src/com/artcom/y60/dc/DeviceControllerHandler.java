@@ -130,20 +130,18 @@ public class DeviceControllerHandler extends DefaultHandler {
                 + (String) parameters.get("sender") + ", receiver = "
                 + (String) parameters.get("receiver") + ", arguments = " + argumentsJson);
 
-        Intent broadcastIntent;
+        Intent broadcastIntent = null;
 
-        Object targetParam = parameters.get("target");
+        String targetParam = (String) parameters.get("target");
+        Logger.v(LOG_TAG, "target: ", targetParam);
 
         if ("search".equals(targetParam)) {
             broadcastIntent = new Intent(Y60Action.SEARCH_BC);
-
         } else if ("voice_control".equals(targetParam)) {
             broadcastIntent = new Intent(Y60Action.VOICE_CONTROL_BC);
-
         } else if ("movie_player".equals(targetParam) || "music_player".equals(targetParam)
                 || "picture_viewer".equals(targetParam)) {
-            broadcastIntent = new Intent(Y60Action.MEDIA_CONTROL_BC);
-
+            broadcastIntent = new Intent(Y60Action.MOVIE_CONTROL_BC);
         } else if ("video_conf".equals(targetParam)) {
             final String ACCEPTANCE_DIALOG = "tgallery.intent.AcceptanceDialog";
             Intent intent = new Intent(ACCEPTANCE_DIALOG);
@@ -151,7 +149,9 @@ public class DeviceControllerHandler extends DefaultHandler {
             intent.putExtra(IntentExtraKeys.RCI_SENDER, (String) parameters.get("sender"));
             mService.startActivity(intent);
             return;
-
+        } else if ("user_feedback".equals(targetParam)) {
+            Logger.v(LOG_TAG, "handle user_feedback rc event");
+            broadcastIntent = new Intent(Y60Action.USER_FEEDBACK_BC);
         } else {
             Logger.e("illegal RCA target: " + targetParam + "from: " + parameters.get("sender"));
             return;

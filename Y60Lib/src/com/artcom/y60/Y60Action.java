@@ -53,6 +53,7 @@ public abstract class Y60Action {
     public static final String RESET_BC_GOM_PROXY         = "y60.intent.RESET_BC_GOM_PROXY";
     public static final String RESET_BC_HTTP_PROXY        = "y60.intent.RESET_BC_HTTP_PROXY";
     public static final String PRELOAD_CACHE              = "y60.intent.PRELOAD_CACHE";
-    public static final String MEDIA_CONTROL_BC           = "y60.intent.MOVIE_CONTROL_BC";
+    public static final String MOVIE_CONTROL_BC           = "y60.intent.MOVIE_CONTROL_BC";
     public static final String PICTURE_CONTROL_BC         = "y60.intent.PICTURE_CONTROL_BC";
+    public static final String USER_FEEDBACK_BC           = "y60.intent.USER_FEEDBACK_BC";
 }
