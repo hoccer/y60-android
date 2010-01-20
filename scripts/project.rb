@@ -167,11 +167,12 @@ class Project
     run "building", <<-EOT
       cd #{path} && ant debug
     EOT
-    if File.exists?("#{path}/bin/#{name}-debug.apk")
-      run "aligning", <<-EOT
-        cd #{path} && mv bin/#{name}-debug.apk bin/#{name}-unaligned.apk && zipalign 4 bin/#{name}-unaligned.apk bin/#{name}-debug.apk && rm bin/#{name}-unaligned.apk
-      EOT
-    end
+# unnecessary since 1.6:
+#    if File.exists?("#{path}/bin/#{name}-debug.apk")
+#      run "aligning", <<-EOT
+#        cd #{path} && mv bin/#{name}-debug.apk bin/#{name}-unaligned.apk && zipalign 4 bin/#{name}-unaligned.apk bin/#{name}-debug.apk && rm bin/#{name}-unaligned.apk
+#      EOT
+#    end
   end
   
   
