@@ -173,6 +173,7 @@ class Project
 #        cd #{path} && mv bin/#{name}-debug.apk bin/#{name}-unaligned.apk && zipalign 4 bin/#{name}-unaligned.apk bin/#{name}-debug.apk && rm bin/#{name}-unaligned.apk
 #      EOT
 #    end
+puts "apk_unaligned=#{apk_unaligned}"
     apk_unaligned="#{path}/bin/#{name}-debug-unaligned.apk"
     if File.exists?(apk_unaligned)
       run "removing unaligned SDK 1.6 leftover", <<-EOT
