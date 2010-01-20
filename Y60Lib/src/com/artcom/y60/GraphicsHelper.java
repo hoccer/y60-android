@@ -1,11 +1,13 @@
 package com.artcom.y60;
 
+import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.util.DisplayMetrics;
 import android.view.View;
 import android.widget.ImageView;
 
@@ -48,5 +50,11 @@ public class GraphicsHelper {
             dst.setPixels(pixels, 0, 1, height - 1 - j, 0, 1, width);
         }
         return dst;
+    }
+
+    public static int scalePixelDim(Activity pa, int p) {
+        DisplayMetrics metrics = new DisplayMetrics();
+        pa.getWindowManager().getDefaultDisplay().getMetrics(metrics);
+        return (int) (p * metrics.density + 0.5f);
     }
 }
