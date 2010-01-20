@@ -174,7 +174,6 @@ class Project
 #      EOT
 #    end
     apk_unaligned="#{path}/bin/#{name}-debug-unaligned.apk"
-puts "apk_unaligned=#{apk_unaligned}"
     if File.exists?(apk_unaligned)
       run "removing unaligned SDK 1.6 leftover", <<-EOT
         rm #{apk_unaligned}
