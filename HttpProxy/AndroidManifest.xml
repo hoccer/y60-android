@@ -23,4 +23,5 @@
       android:targetPackage="com.artcom.y60.http" 
       android:label="HttpProxy">
     </instrumentation>
+<uses-sdk android:targetSdkVersion="4" android:minSdkVersion="4"></uses-sdk>
 </manifest>
