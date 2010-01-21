@@ -167,9 +167,17 @@ class Project
     run "building", <<-EOT
       cd #{path} && ant debug
     EOT
-    if File.exists?("#{path}/bin/#{name}-debug.apk")
-      run "aligning", <<-EOT
-        cd #{path} && mv bin/#{name}-debug.apk bin/#{name}-unaligned.apk && zipalign 4 bin/#{name}-unaligned.apk bin/#{name}-debug.apk && rm bin/#{name}-unaligned.apk
+# unnecessary since 1.6:
+#    if File.exists?("#{path}/bin/#{name}-debug.apk")
+#      run "aligning", <<-EOT
+#        cd #{path} && mv bin/#{name}-debug.apk bin/#{name}-unaligned.apk && zipalign 4 bin/#{name}-unaligned.apk bin/#{name}-debug.apk && rm bin/#{name}-unaligned.apk
+#      EOT
+#    end
+    apk_unaligned="#{path}/bin/#{name}-debug-unaligned.apk"
+puts "apk_unaligned=#{apk_unaligned}"
+    if File.exists?(apk_unaligned)
+      run "removing unaligned SDK 1.6 leftover", <<-EOT
+        rm #{apk_unaligned}
       EOT
     end
   end

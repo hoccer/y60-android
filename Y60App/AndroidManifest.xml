@@ -96,5 +96,8 @@
       android:targetPackage="com.artcom.y60" 
       android:label="Y60 Infrastructure Tests">
     </instrumentation>
+
+
+<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"></uses-permission>
 </manifest> 
 
