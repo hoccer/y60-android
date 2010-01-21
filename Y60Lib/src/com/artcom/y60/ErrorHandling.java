@@ -66,6 +66,13 @@ public class ErrorHandling {
         }
     }
 
+    public static void signalWarning(String logTag, String warning, Context context,
+            Category category) {
+        Logger.e(LOG_TAG, "signaling warning: ", warning);
+        Intent intent = createWarningPresentationIntent(logTag, warning, category);
+        sendWarningNotification(logTag, warning, context, intent);
+    }
+
     private static void saveErrorOnSdcard(String pLogTag, Throwable pError, Category pCategory) {
 
         try {
@@ -237,6 +244,20 @@ public class ErrorHandling {
         return intent;
     }
 
+    private static Intent createWarningPresentationIntent(String pLogTag, String pWarning,
+            Category pCategory) {
+        Intent intent = new Intent("y60.intent.ERROR_PRESENTATION");
+        intent.putExtra(ID_MESSAGE, pWarning.toString());
+
+        intent.putExtra(ID_LOGTAG, pLogTag);
+        intent.putExtra(ID_CATEGORY, pCategory);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        intent.setFlags(Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
+        intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+
+        return intent;
+    }
+
     private static void sendErrorNotification(String pLogTag, Throwable pError, Context pContext,
             Intent pErrorPresentationIntent) {
 
@@ -251,10 +272,28 @@ public class ErrorHandling {
         notifier.notify(Y60_ERROR_NOTIFICATION_ID, notification);
     }
 
-    public static void signalWarning(String pLogTag, String pMsg, Context pContext) {
+    private static void sendWarningNotification(String pLogTag, String pWarning, Context pContext,
+            Intent pErrorPresentationIntent) {
+
+        NotificationManager notifier = (NotificationManager) pContext
+                .getSystemService(pContext.NOTIFICATION_SERVICE);
+        PendingIntent pint = PendingIntent.getActivity(pContext, 0, pErrorPresentationIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT);
+        Notification notification = new Notification(android.R.drawable.stat_sys_warning,
+                "Warning", System.currentTimeMillis());
+        notification.setLatestEventInfo(pContext, "Warning", pLogTag + ": " + pWarning, pint);
+        notifier.notify(Y60_ERROR_NOTIFICATION_ID, notification);
+    }
+
+    public static void signalWarningToLog(String pLogTag, String pMsg, Context pContext) {
 
         // by now, we just log it as a warning
         Logger.w(pLogTag, pMsg);
+    }
+
+    public static void signalInitProcessWarning(String pLogTag, String initProcessWarning,
+            Context tgInitService) {
+        signalWarning(pLogTag, initProcessWarning, tgInitService, Category.INIT_ERROR);
     }
 
 }

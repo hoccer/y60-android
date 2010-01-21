@@ -150,7 +150,7 @@ public class DeviceControllerService extends Y60Service {
         ActivityManager actMgr = (ActivityManager) getSystemService(ACTIVITY_SERVICE);
         MemoryInfo memInfo = new MemoryInfo();
         actMgr.getMemoryInfo(memInfo);
-        ErrorHandling.signalWarning(LOG_TAG, "Memory low - " + memInfo.availMem + "!", this);
+        ErrorHandling.signalWarningToLog(LOG_TAG, "Memory low - " + memInfo.availMem + "!", this);
         Logger.logMemoryInfo(LOG_TAG, this);
         super.onLowMemory();
     }
