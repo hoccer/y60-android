@@ -1,5 +1,7 @@
 package com.artcom.y60;
 
+import java.util.ArrayList;
+
 import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -15,6 +17,8 @@ public abstract class Y60Service extends Service {
     private BroadcastReceiver   mShutdownReceiver = null;
     private BroadcastReceiver   mStatusReceiver   = null;
 
+    protected ArrayList<String> mStatusList       = null;
+
     // Public Instance Methods -------------------------------------------
 
     @Override
@@ -27,14 +31,6 @@ public abstract class Y60Service extends Service {
             }
         };
         registerReceiver(mShutdownReceiver, new IntentFilter(Y60Action.SHUTDOWN_SERVICES_BC));
-
-        mStatusReceiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context pContext, Intent pIntent) {
-                broadcastStatus();
-            }
-        };
-        registerReceiver(mStatusReceiver, new IntentFilter(Y60Action.REQUEST_STATUS_BC));
 
         super.onCreate();
     }
@@ -60,7 +56,25 @@ public abstract class Y60Service extends Service {
 
     private void broadcastStatus() {
         Logger.i(LOG_TAG, "broadcasting my status: ", getClass().getName());
-
+        if (mStatusList != null && !mStatusList.isEmpty()) {
+            Intent reportStatusIntent = new Intent(Y60Action.REPORT_STATUS_BC);
+            reportStatusIntent.putStringArrayListExtra(IntentExtraKeys.RETURN_DATA_LIST,
+                    mStatusList);
+            sendBroadcast(reportStatusIntent);
+        }
     }
 
+    protected void addToStatusList(String pStatusMessage) {
+        if (mStatusList == null) {
+            mStatusList = new ArrayList<String>();
+            mStatusReceiver = new BroadcastReceiver() {
+                @Override
+                public void onReceive(Context pContext, Intent pIntent) {
+                    broadcastStatus();
+                }
+            };
+            registerReceiver(mStatusReceiver, new IntentFilter(Y60Action.REQUEST_STATUS_BC));
+        }
+        mStatusList.add(pStatusMessage);
+    }
 }
