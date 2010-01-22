@@ -216,8 +216,7 @@ public class ErrorHandling {
         signalError(pLogTag, initProcessException, tgInitService, Category.INIT_ERROR);
     }
 
-    static void cancelErrorNotification(Context pContext) {
-
+    public static void clearErrorAndWarningNotifications(Context pContext) {
         NotificationManager notifier = (NotificationManager) pContext
                 .getSystemService(pContext.NOTIFICATION_SERVICE);
         notifier.cancel(Y60_ERROR_NOTIFICATION_ID);

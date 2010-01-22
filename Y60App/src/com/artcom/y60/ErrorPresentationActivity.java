@@ -35,7 +35,7 @@ public class ErrorPresentationActivity extends Activity {
             }
         });
 
-        ErrorHandling.cancelErrorNotification(this);
+        ErrorHandling.clearErrorAndWarningNotifications(this);
 
         updateText(getIntent());
     }

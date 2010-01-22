@@ -21,6 +21,7 @@ public abstract class Y60Action {
     public static final String SERVICE_GOM_PROXY          = "y60.intent.SERVICE_GOM_PROXY";
 
     public static final String SHUTDOWN_SERVICES_BC       = "y60.intent.SHUTDOWN_SERVICES_BC";
+    public static final String REQUEST_STATUS_BC          = "y60.intent.REQUEST_STATUS_BC";
     public static final String SERVICE_GOM_PROXY_READY    = "y60.intent.SERVICE_GOM_PROXY_READY";
     public static final String SERVICE_GOM_PROXY_CLEARED  = "y60.intent.SERVICE_GOM_PROXY_CLEARED";
     public static final String SERVICE_GOM_PROXY_DOWN     = "y60.intent.SERVICE_GOM_PROXY_DOWN";

@@ -10,9 +10,10 @@ public abstract class Y60Service extends Service {
 
     // Constants ---------------------------------------------------------
 
-    private static final String LOG_TAG = "Y60Service";
+    private static final String LOG_TAG           = "Y60Service";
 
-    private BroadcastReceiver   mShutdownReceiver;
+    private BroadcastReceiver   mShutdownReceiver = null;
+    private BroadcastReceiver   mStatusReceiver   = null;
 
     // Public Instance Methods -------------------------------------------
 
@@ -27,6 +28,14 @@ public abstract class Y60Service extends Service {
         };
         registerReceiver(mShutdownReceiver, new IntentFilter(Y60Action.SHUTDOWN_SERVICES_BC));
 
+        mStatusReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context pContext, Intent pIntent) {
+                broadcastStatus();
+            }
+        };
+        registerReceiver(mStatusReceiver, new IntentFilter(Y60Action.REQUEST_STATUS_BC));
+
         super.onCreate();
     }
 
@@ -34,6 +43,12 @@ public abstract class Y60Service extends Service {
     public void onDestroy() {
         if (mShutdownReceiver != null) {
             unregisterReceiver(mShutdownReceiver);
+            mShutdownReceiver = null;
+        }
+
+        if (mStatusReceiver != null) {
+            unregisterReceiver(mStatusReceiver);
+            mStatusReceiver = null;
         }
         super.onDestroy();
     }
@@ -41,6 +56,11 @@ public abstract class Y60Service extends Service {
     protected void kill() {
         Logger.i(LOG_TAG, "stopping service: ", getClass().getName());
         stopSelf();
+    }
+
+    private void broadcastStatus() {
+        Logger.i(LOG_TAG, "broadcasting my status: ", getClass().getName());
+
     }
 
 }
