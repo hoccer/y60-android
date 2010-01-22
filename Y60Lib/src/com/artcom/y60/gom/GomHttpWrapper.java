@@ -8,13 +8,13 @@ import org.apache.http.HttpResponse;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.net.Uri;
-
 import com.artcom.y60.Constants;
 import com.artcom.y60.HttpHelper;
 import com.artcom.y60.http.HttpClientException;
 import com.artcom.y60.http.HttpException;
 import com.artcom.y60.http.HttpServerException;
+
+import android.net.Uri;
 
 public class GomHttpWrapper {
 
@@ -89,6 +89,24 @@ public class GomHttpWrapper {
         } catch (JSONException jsx) {
 
             throw new RuntimeException(jsx);
+        }
+    }
+
+    public static JSONObject getAttributeJsonOrNull(String pAttrUrl) {
+
+        try {
+            JSONObject wrapper = HttpHelper.getJson(pAttrUrl);
+            JSONObject attr = wrapper.getJSONObject(Constants.Gom.Keywords.ATTRIBUTE);
+            return attr;
+
+        } catch (JSONException jsx) {
+            return null;
+        } catch (HttpClientException e) {
+            return null;
+        } catch (HttpServerException e) {
+            return null;
+        } catch (IOException e) {
+            return null;
         }
     }
 

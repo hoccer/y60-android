@@ -26,6 +26,7 @@ public class Constants {
             public static final String NODE         = "node";
             public static final String URI          = "uri";
             public static final String ATTRIBUTE    = "attribute";
+            public static final String C_TIME       = "ctime";
             public static final String ENTRIES      = "entries";
             public static final String NAME         = "name";
             public static final String VALUE        = "value";

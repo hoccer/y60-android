@@ -38,13 +38,13 @@ import org.apache.http.protocol.HttpContext;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
-import android.net.Uri;
-
 import com.artcom.y60.http.HttpClientException;
 import com.artcom.y60.http.HttpException;
 import com.artcom.y60.http.HttpServerException;
+
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
+import android.net.Uri;
 
 public class HttpHelper {
 
