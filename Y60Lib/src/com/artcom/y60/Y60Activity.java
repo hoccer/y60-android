@@ -14,7 +14,6 @@ public abstract class Y60Activity extends Activity {
 
     private BroadcastReceiver   mShutdownReceiver;
 
-    private boolean             mIsDestroyed                             = false;
     private int                 mResponsivnessCounterForTestPurposesOnly = 0;
 
     public abstract boolean hasBackendAvailableBeenCalled();
@@ -88,7 +87,6 @@ public abstract class Y60Activity extends Activity {
         }
         super.onDestroy();
 
-        mIsDestroyed = true;
         Logger.d(LOG_TAG, "onDestroy called for activity ", getClass());
     }
 
