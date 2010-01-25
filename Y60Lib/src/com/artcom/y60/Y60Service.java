@@ -17,8 +17,6 @@ public abstract class Y60Service extends Service {
     private BroadcastReceiver   mShutdownReceiver = null;
     private BroadcastReceiver   mStatusReceiver   = null;
 
-    protected ArrayList<String> mStatusList       = null;
-
     // Public Instance Methods -------------------------------------------
 
     @Override
@@ -31,6 +29,27 @@ public abstract class Y60Service extends Service {
             }
         };
         registerReceiver(mShutdownReceiver, new IntentFilter(Y60Action.SHUTDOWN_SERVICES_BC));
+
+        if (isReportingStatusService()) {
+            mStatusReceiver = new BroadcastReceiver() {
+                @Override
+                public void onReceive(Context pContext, Intent pIntent) {
+                    Logger.v(LOG_TAG, "on receive ", getClass().getName());
+                    if (pIntent.hasExtra(IntentExtraKeys.REPORT_SINGLE)) {
+                        Logger.v(LOG_TAG, "intent extra: ", pIntent
+                                .getStringExtra(IntentExtraKeys.REPORT_SINGLE));
+                    }
+                    if ((pIntent.hasExtra(IntentExtraKeys.REPORT_SINGLE) && pIntent.getStringExtra(
+                            IntentExtraKeys.REPORT_SINGLE).equals(
+                            Y60Service.this.getClass().getName()))
+                            || !pIntent.hasExtra(IntentExtraKeys.REPORT_SINGLE)) {
+                        broadcastStatus();
+                    }
+                }
+            };
+            registerReceiver(mStatusReceiver, new IntentFilter(Y60Action.REQUEST_STATUS_BC));
+            Logger.v(LOG_TAG, "registered request status receiver ", getClass().getName());
+        }
 
         super.onCreate();
     }
@@ -55,26 +74,27 @@ public abstract class Y60Service extends Service {
     }
 
     private void broadcastStatus() {
-        Logger.i(LOG_TAG, "broadcasting my status: ", getClass().getName());
-        if (mStatusList != null && !mStatusList.isEmpty()) {
+        ArrayList<String> statusList = new ArrayList<String>();
+
+        boolean success = fillStatusList(statusList);
+        if (statusList != null && !statusList.isEmpty()) {
             Intent reportStatusIntent = new Intent(Y60Action.REPORT_STATUS_BC);
-            reportStatusIntent.putStringArrayListExtra(IntentExtraKeys.RETURN_DATA_LIST,
-                    mStatusList);
+            reportStatusIntent
+                    .putStringArrayListExtra(IntentExtraKeys.RETURN_DATA_LIST, statusList);
+            reportStatusIntent.putExtra(IntentExtraKeys.RETURN_SUCCESS, success);
+            reportStatusIntent.putExtra(IntentExtraKeys.RETURN_SERVICE, this.getClass().getName());
             sendBroadcast(reportStatusIntent);
         }
+        Logger.v(LOG_TAG, "broadcasting my status: ", getClass().getName(), " statuslist:",
+                statusList);
     }
 
-    protected void addToStatusList(String pStatusMessage) {
-        if (mStatusList == null) {
-            mStatusList = new ArrayList<String>();
-            mStatusReceiver = new BroadcastReceiver() {
-                @Override
-                public void onReceive(Context pContext, Intent pIntent) {
-                    broadcastStatus();
-                }
-            };
-            registerReceiver(mStatusReceiver, new IntentFilter(Y60Action.REQUEST_STATUS_BC));
-        }
-        mStatusList.add(pStatusMessage);
+    protected boolean fillStatusList(ArrayList<String> pStatusList) {
+        return false;
     }
+
+    protected boolean isReportingStatusService() {
+        return false;
+    }
+
 }

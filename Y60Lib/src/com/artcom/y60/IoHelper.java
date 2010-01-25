@@ -11,6 +11,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -241,6 +242,19 @@ public class IoHelper {
             }
         }
         return true;
+    }
+
+    public static List<String> getAllServicesFromListThatAreNotRunning(String[] pMonitoredServices,
+            List<RunningServiceInfo> runningServices) {
+
+        List<String> servicesNotRunning = new ArrayList<String>();
+
+        for (String service : pMonitoredServices) {
+            if (!isThisParticularServiceInRunningServiceList(service, runningServices)) {
+                servicesNotRunning.add(service);
+            }
+        }
+        return servicesNotRunning;
     }
 
     public static List<RunningServiceInfo> getRunningServices(Context pContext) {
