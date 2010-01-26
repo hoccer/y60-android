@@ -25,7 +25,11 @@ public abstract class Y60Service extends Service {
         mShutdownReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context pContext, Intent pIntent) {
-                kill();
+                if (!pIntent.hasExtra(IntentExtraKeys.EXCLUDE_LIST)
+                        || !pIntent.getStringArrayListExtra(IntentExtraKeys.EXCLUDE_LIST).contains(
+                                getClass().getName())) {
+                    kill();
+                }
             }
         };
         registerReceiver(mShutdownReceiver, new IntentFilter(Y60Action.SHUTDOWN_SERVICES_BC));
