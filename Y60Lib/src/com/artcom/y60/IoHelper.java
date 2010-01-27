@@ -210,7 +210,31 @@ public class IoHelper {
         return true;
     }
 
+    public static boolean areGivenServicesFinished(List<String> pServices,
+            List<RunningServiceInfo> runningServices) {
+
+        for (String service : pServices) {
+            if (isThisParticularServiceInRunningServiceList(service, runningServices)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     public static LinkedList<String> getRunningServicesFromList(String[] pServices,
+            List<RunningServiceInfo> runningServices) {
+
+        LinkedList<String> stillRunning = new LinkedList<String>();
+
+        for (String service : pServices) {
+            if (isThisParticularServiceInRunningServiceList(service, runningServices)) {
+                stillRunning.add(service);
+            }
+        }
+        return stillRunning;
+    }
+
+    public static LinkedList<String> getRunningServicesFromList(List<String> pServices,
             List<RunningServiceInfo> runningServices) {
 
         LinkedList<String> stillRunning = new LinkedList<String>();

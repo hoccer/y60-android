@@ -51,4 +51,5 @@ public class IntentExtraKeys {
     public static final String INIT_IN_DEBUG_MODE       = "init_in_debug_mode";
     public static final String INIT_CHECK_SERVICE       = "init_check_service";
     public static final String SEARCH_QUERY             = "search_query";
+    public static final String EXCLUDE_LIST             = "exclude_list";
 }
