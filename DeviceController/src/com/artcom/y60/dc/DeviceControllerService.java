@@ -108,6 +108,12 @@ public class DeviceControllerService extends Y60Service {
                         + Constants.Gom.DEVICE_PATH + ":enable_odp", "false");
             }
 
+            if (!GomHttpWrapper.isAttributeExisting(Constants.Gom.URI
+                    + Constants.Gom.DEBUG_MODE_ATTR)) {
+                GomHttpWrapper.updateOrCreateAttribute(Constants.Gom.URI
+                        + Constants.Gom.DEBUG_MODE_ATTR, "false");
+            }
+
         } catch (IpAddressNotFoundException e) {
             ErrorHandling.signalNetworkError(LOG_TAG, e, this);
         }
