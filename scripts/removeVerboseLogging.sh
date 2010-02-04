@@ -1,4 +1,8 @@
 #!/bin/sh
+#
+# to use this script for all java files do a
+#  $ find . -name "*java" -exec scripts/removeVerboseLogging.sh \{\} \;
+
 
 echo "removeVerboseLogging.sh called with argument:"
 echo $1
