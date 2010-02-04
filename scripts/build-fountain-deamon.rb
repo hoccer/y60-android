@@ -6,19 +6,26 @@ require 'open-uri'
 
 $socket_number = 1
 
-def fetch_build_state_from uri
+def fetch_hudson_build_state_from uri
   doc = Hpricot(open(uri))
   title = doc.at("//entry/title")
   title.to_s.gsub /.*\((.*)\).*/, '\1'
 end
 
+def fetch_integrity_build_state_from uri
+  html = open(uri).read
+  html.match(/<div class='(.*)' id='last_build'>/)[1].upcase
+end
+
 def fetch_build_states
 
-  tg_build_state = fetch_build_state_from "http://tg-svn.t-gallery.act:8080/job/T-Gallery%20Android%20Projects/rssAll"
-  y60_build_state = fetch_build_state_from "http://tg-svn.t-gallery.act/job/Y60%20Android%20Projects/rssAll/"
-
-  puts y60_build_state
-  [tg_build_state, y60_build_state]
+  #tg_build_state = fetch_hudson_build_state_from "http://tg-svn.t-gallery.act:8080/job/T-Gallery%20Android%20Projects/rssAll"
+  #y60_build_state = fetch_hudson_build_state_from "http://tg-svn.t-gallery.act/job/Y60%20Android%20Projects/rssAll/"
+  hoccer_android_build_state = fetch_integrity_build_state_from "http://td-integrity/hoccer-android-client"
+  hoccer_server_build_state = fetch_integrity_build_state_from "http://td-integrity/hoccer-server"
+  
+  #[tg_build_state, y60_build_state]
+  [hoccer_android_build_state, hoccer_server_build_state]
 end
 
 def build_succsessful?
@@ -55,7 +62,7 @@ def main
   while true
     
     begin
-      sleep sleep_time
+      #sleep sleep_time
 
       if fountain_off? and build_succsessful? then
         puts "starting fountain"
@@ -66,6 +73,7 @@ def main
       end
     rescue => e
       puts "There was an error:\n#{e.backtrace.join "\n"}\nTrying again."
+      sleep 5
       retry
     end
   end
