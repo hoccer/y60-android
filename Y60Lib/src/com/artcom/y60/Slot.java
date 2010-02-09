@@ -59,10 +59,10 @@ public class Slot {
     private SlotLauncher        mLauncher;
 
     /** Is used to render a view on this slot. */
-    private final SlotViewer          mViewer;
+    private final SlotViewer    mViewer;
 
     /** This slot's name */
-    private final String              mName;
+    private final String        mName;
 
     private boolean             mIsInFocus;
 
@@ -126,7 +126,7 @@ public class Slot {
         assertProperlyInitialized();
 
         View view = mViewer.view();
-        view.setOnTouchListener(new SlotLaunchingClickListener(mLauncher, mHolder));
+        view.setOnTouchListener(new SlotLaunchingTouchListener(mLauncher, mHolder));
     }
 
     /**
@@ -140,13 +140,14 @@ public class Slot {
 
         View view = mViewer.view();
         view.setOnClickListener(null);
+        view.setOnTouchListener(null);
     }
 
     public boolean isOnFocus(View pThumbView) {
 
         assertProperlyInitialized();
         int x = pThumbView.getLeft() + pThumbView.getWidth() / 2; // mid of
-                                                                  // thumb
+        // thumb
         int y = (pThumbView.getTop() + PADDING_Y);
 
         View view = getViewer().view();

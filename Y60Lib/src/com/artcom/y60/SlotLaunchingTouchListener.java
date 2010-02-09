@@ -9,7 +9,7 @@ import android.view.View;
 import android.view.GestureDetector.OnGestureListener;
 import android.view.View.OnTouchListener;
 
-class SlotLaunchingClickListener implements OnTouchListener {
+class SlotLaunchingTouchListener implements OnTouchListener {
 
     // Constants ---------------------------------------------------------
 
@@ -24,7 +24,7 @@ class SlotLaunchingClickListener implements OnTouchListener {
 
     // Constructors ------------------------------------------------------
 
-    public SlotLaunchingClickListener(SlotLauncher pLauncher, SlotHolder pHolder) {
+    public SlotLaunchingTouchListener(SlotLauncher pLauncher, SlotHolder pHolder) {
 
         mLauncher = pLauncher;
         mHolder = pHolder;

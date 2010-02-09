@@ -197,6 +197,12 @@ public class DragAndDropHelper implements OnTouchListener {
         mDropTargetCollection.invalidate();
     }
 
+    public void removeAllDropTargets() {
+        mDragListenerList.clear();
+        mIsDropTargetEnabled = false;
+        mDropTargetCollection.removeSlots();
+    }
+
     // Private Instance Methods ------------------------------------------
 
     private void drag(MotionEvent pEvent) {
