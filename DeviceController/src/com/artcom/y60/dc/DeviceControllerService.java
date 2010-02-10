@@ -11,6 +11,12 @@ import org.mortbay.jetty.bio.SocketConnector;
 import org.mortbay.jetty.handler.HandlerCollection;
 import org.mortbay.thread.QueuedThreadPool;
 
+import android.app.ActivityManager;
+import android.app.ActivityManager.MemoryInfo;
+import android.content.Intent;
+import android.os.Binder;
+import android.os.IBinder;
+
 import com.artcom.y60.Constants;
 import com.artcom.y60.DeviceConfiguration;
 import com.artcom.y60.ErrorHandling;
@@ -21,12 +27,6 @@ import com.artcom.y60.Y60Action;
 import com.artcom.y60.Y60Service;
 import com.artcom.y60.gom.GomHttpWrapper;
 import com.artcom.y60.http.HttpException;
-
-import android.app.ActivityManager;
-import android.app.ActivityManager.MemoryInfo;
-import android.content.Intent;
-import android.os.Binder;
-import android.os.IBinder;
 
 public class DeviceControllerService extends Y60Service {
 
@@ -40,6 +40,9 @@ public class DeviceControllerService extends Y60Service {
 
     @Override
     public void onCreate() {
+
+        // this helps to prevent this service from being killed
+        setForeground(true);
 
         try {
             if (mServer == null) {
