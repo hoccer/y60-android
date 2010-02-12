@@ -7,12 +7,11 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import com.artcom.y60.HttpHelper;
+import android.os.Bundle;
+
 import com.artcom.y60.IoHelper;
 import com.artcom.y60.Logger;
-
-import android.net.Uri;
-import android.os.Bundle;
+import com.artcom.y60.ResourceBundleHelper;
 
 public class Cache {
 
@@ -70,20 +69,7 @@ public class Cache {
     public Bundle getDataSyncronously(String pUri) throws HttpClientException, HttpServerException,
             IOException {
 
-        Bundle newContent = new Bundle(2);
-
-        long size = HttpHelper.getSize(pUri);
-        newContent.putLong(HttpProxyConstants.SIZE_TAG, size);
-
-        if (size > HttpProxyConstants.MAX_IN_MEMORY_SIZE) {
-            String localResourcePath = CACHE_DIR + Uri.parse(pUri).getLastPathSegment();
-
-            HttpHelper.fetchUriToFile(pUri, localResourcePath);
-            newContent.putString(HttpProxyConstants.LOCAL_RESOURCE_PATH_TAG, localResourcePath);
-        } else {
-            byte[] array = HttpHelper.getAsByteArray(Uri.parse(pUri));
-            newContent.putByteArray(HttpProxyConstants.BYTE_ARRAY_TAG, array);
-        }
+        Bundle newContent = ResourceBundleHelper.createResourceBundle(CACHE_DIR, pUri);
 
         mCachedContent.put(pUri, newContent);
 
@@ -112,10 +98,8 @@ public class Cache {
     }
 
     public boolean isInCache(String pUri) {
-
         Logger.v(LOG_TAG, "isInCache(", pUri, ")");
         synchronized (mCachedContent) {
-
             return mCachedContent.containsKey(pUri);
         }
     }
@@ -168,7 +152,8 @@ public class Cache {
     // Private Instance Methods ------------------------------------------
 
     /**
-     * Stores the uri in a bundle. Big files will be written to sdcard, small ones a kept in memory.
+     * Stores the uri in a bundle. Big files will be written to sdcard, small
+     * ones a kept in memory.
      * 
      * @throws Exception
      */
@@ -180,24 +165,13 @@ public class Cache {
             synchronized (mCachedContent) {
                 Bundle oldContent = mCachedContent.get(pUri);
 
-                long size = HttpHelper.getSize(pUri);
-                Bundle newContent = new Bundle(2);
-                newContent.putLong(HttpProxyConstants.SIZE_TAG, size);
-
-                if (size > HttpProxyConstants.MAX_IN_MEMORY_SIZE) {
-                    String localResourcePath = CACHE_DIR + Uri.parse(pUri).getLastPathSegment();
-
-                    HttpHelper.fetchUriToFile(pUri, localResourcePath);
-                    newContent.putString(HttpProxyConstants.LOCAL_RESOURCE_PATH_TAG,
-                            localResourcePath);
-                } else {
-                    byte[] array = HttpHelper.getAsByteArray(Uri.parse(pUri));
-                    newContent.putByteArray(HttpProxyConstants.BYTE_ARRAY_TAG, array);
-                }
+                Bundle newContent = ResourceBundleHelper.createResourceBundle(CACHE_DIR, pUri);
 
                 // if resource has changed (TODO get header and check the
                 // modification date)
-                if (oldContent == null || oldContent.getLong(HttpProxyConstants.SIZE_TAG) != size) {
+                if (oldContent == null
+                        || oldContent.getLong(HttpProxyConstants.SIZE_TAG) != newContent
+                                .getLong(HttpProxyConstants.SIZE_TAG)) {
 
                     Logger.v(LOG_TAG, "storing new content for '", pUri, "'");
                     mCachedContent.put(pUri, newContent);

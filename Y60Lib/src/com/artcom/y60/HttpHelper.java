@@ -38,13 +38,13 @@ import org.apache.http.protocol.HttpContext;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.artcom.y60.http.HttpClientException;
-import com.artcom.y60.http.HttpException;
-import com.artcom.y60.http.HttpServerException;
-
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
+
+import com.artcom.y60.http.HttpClientException;
+import com.artcom.y60.http.HttpException;
+import com.artcom.y60.http.HttpServerException;
 
 public class HttpHelper {
 
@@ -211,13 +211,11 @@ public class HttpHelper {
         HttpResponse response = executeHTTPMethod(get);
         HttpEntity entity = response.getEntity();
 
-        // Generate a random filename to store the data
-        // Logger.v(LOG_TAG, "Storing content under filename " + filename);
-
         FileOutputStream fstream = new FileOutputStream(filename);
         entity.writeTo(fstream);
         fstream.flush();
         fstream.close();
+        Logger.v(LOG_TAG, "_____fetchUri to file finished for ", filename);
         return response;
     }
 
