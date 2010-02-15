@@ -51,8 +51,9 @@ public class NetworkHelper {
                 }
             }
 
-            if (ip != null)
+            if (ip != null) {
                 return ip;
+            }
 
         } catch (SocketException e) {
 
@@ -67,6 +68,7 @@ public class NetworkHelper {
             String ipAttrPath = self + ":" + Constants.Network.IP_ADDRESS_ATTRIBUTE;
             String ipAttrUrl = Constants.Gom.URI + ipAttrPath;
             String ipStr = GomHttpWrapper.getAttributeValue(ipAttrUrl);
+            Logger.v(LOG_TAG, "ip str '", ipStr, "'");
 
             return InetAddress.getByName(ipStr);
 
