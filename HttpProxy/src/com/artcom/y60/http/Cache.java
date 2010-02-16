@@ -7,11 +7,11 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import android.os.Bundle;
-
 import com.artcom.y60.IoHelper;
 import com.artcom.y60.Logger;
 import com.artcom.y60.ResourceBundleHelper;
+
+import android.os.Bundle;
 
 public class Cache {
 
@@ -50,7 +50,7 @@ public class Cache {
      */
     public Bundle get(String pUri) {
 
-        Logger.v(LOG_TAG, "HttpProxyService.get(", pUri, ")");
+        Logger.v(LOG_TAG, "adding to pending resources and getting: ", pUri);
         synchronized (mPendingResources) {
 
             if (!mPendingResources.contains(pUri)) {
@@ -98,7 +98,6 @@ public class Cache {
     }
 
     public boolean isInCache(String pUri) {
-        Logger.v(LOG_TAG, "isInCache(", pUri, ")");
         synchronized (mCachedContent) {
             return mCachedContent.containsKey(pUri);
         }
@@ -144,6 +143,11 @@ public class Cache {
         }
     }
 
+    public long getNumberOfEntries() {
+        logCache();
+        return mCachedContent.size();
+    }
+
     void logCache() {
 
         Logger.v(LOG_TAG, "cached content: ", mCachedContent);
@@ -152,32 +156,43 @@ public class Cache {
     // Private Instance Methods ------------------------------------------
 
     /**
-     * Stores the uri in a bundle. Big files will be written to sdcard, small
-     * ones a kept in memory.
+     * Stores the uri in a bundle. Big files will be written to sdcard, small ones a kept in memory.
      * 
      * @throws Exception
      */
     private void refresh(String pUri) {
 
-        Logger.v(LOG_TAG, "refresh(", pUri, ")");
+        Logger.v(LOG_TAG, "refreshing (", pUri, ")");
         try {
 
             synchronized (mCachedContent) {
                 Bundle oldContent = mCachedContent.get(pUri);
 
+                Logger.v(LOG_TAG, "before createResourceBundle ", pUri);
                 Bundle newContent = ResourceBundleHelper.createResourceBundle(CACHE_DIR, pUri);
+                Logger.v(LOG_TAG, "after createResourceBundle ", pUri);
 
                 // if resource has changed (TODO get header and check the
                 // modification date)
+                if (oldContent != null) {
+                    Logger.v(LOG_TAG, "size of old: ", oldContent
+                            .getLong(HttpProxyConstants.SIZE_TAG), " size of new: ", newContent
+                            .getLong(HttpProxyConstants.SIZE_TAG));
+                } else {
+                    Logger.v(LOG_TAG, "cached content for for '", pUri, "' is null");
+
+                }
+
                 if (oldContent == null
                         || oldContent.getLong(HttpProxyConstants.SIZE_TAG) != newContent
                                 .getLong(HttpProxyConstants.SIZE_TAG)) {
 
-                    Logger.v(LOG_TAG, "storing new content for '", pUri, "'");
+                    Logger.v(LOG_TAG, "storing new content and sending bc 'updated' for '", pUri,
+                            "'");
                     mCachedContent.put(pUri, newContent);
-
-                    Logger.v(LOG_TAG, "broadcast update for resource '", pUri, "'");
                     HttpProxyService.resourceUpdated(pUri);
+                } else {
+                    Logger.v(LOG_TAG, "NO new content and sending bc 'updated' for '", pUri, "'");
                 }
             }
 
@@ -191,7 +206,7 @@ public class Cache {
 
         public void run() {
 
-            Logger.v("ResourceRefresher", "refresher thread for HttpServiceProxy starts");
+            Logger.v(LOG_TAG, "ResourceRefresher, refresher thread for HttpServiceProxy starts");
             while (!mShutdown) {
 
                 // Logger.v("ResourceRefresher",
@@ -203,7 +218,7 @@ public class Cache {
                     if (mPendingResources.size() > 0) {
 
                         uri = mPendingResources.remove(0);
-                        Logger.v("ResourceRefresher", "found uri: ", uri);
+                        Logger.v(LOG_TAG, "ResourceRefresher, removing and processing uri: ", uri);
 
                     } else {
 
@@ -227,8 +242,7 @@ public class Cache {
                     // not interested
                 }
             }
-            Logger.v("ResourceRefresher", "refresher thread STOPS ------------ ");
+            Logger.v(LOG_TAG, "ResourceRefresher, refresher thread STOPS ------------ ");
         }
     }
-
 }

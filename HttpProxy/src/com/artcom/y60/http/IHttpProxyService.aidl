@@ -4,7 +4,6 @@ import com.artcom.y60.RpcStatus;
 
 interface IHttpProxyService {
 
-    
     Bundle get(String pUri, out RpcStatus status);
     
     Bundle fetchFromCache(String pUri, out RpcStatus status);
@@ -14,4 +13,9 @@ interface IHttpProxyService {
     void removeFromCache(String pUri, out RpcStatus status);
     
     Bundle getDataSyncronously(String pUri, out RpcStatus status);
+    
+    void clear(out RpcStatus status);
+    
+    long getNumberOfEntries(out RpcStatus status);
+    
 }

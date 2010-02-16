@@ -59,7 +59,7 @@ public class HttpProxyService extends Y60Service {
                 HttpProxyService service = sInstances.iterator().next();
                 Intent intent = new Intent(HttpProxyConstants.RESOURCE_UPDATE_ACTION);
                 intent.putExtra(HttpProxyConstants.URI_EXTRA, pUri);
-                Logger.v(LOG_TAG, "Broadcasting 'update' for resource " + pUri);
+                // Logger.v(LOG_TAG, "Broadcasting 'update' for resource " + pUri);
                 service.sendBroadcast(intent);
             }
         }
@@ -210,6 +210,10 @@ public class HttpProxyService extends Y60Service {
         Logger.d(LOG_TAG, "HTTP cache cleared");
     }
 
+    public long getNumberOfEntries() {
+        return cache.getNumberOfEntries();
+    }
+
     // Inner Classes -----------------------------------------------------
 
     class HttpProxyRemote extends IHttpProxyService.Stub {
@@ -260,6 +264,26 @@ public class HttpProxyService extends Y60Service {
             } catch (Exception e) {
                 pStatus.setError(e);
                 return null;
+            }
+        }
+
+        @Override
+        public void clear(RpcStatus status) throws RemoteException {
+            try {
+                HttpProxyService.this.clear();
+            } catch (Exception e) {
+                status.setError(e);
+            }
+
+        }
+
+        @Override
+        public long getNumberOfEntries(RpcStatus status) throws RemoteException {
+            try {
+                return HttpProxyService.this.getNumberOfEntries();
+            } catch (Exception e) {
+                status.setError(e);
+                return 0;
             }
         }
     }

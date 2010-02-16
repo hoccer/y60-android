@@ -5,12 +5,12 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.UUID;
 
-import android.net.Uri;
-import android.os.Bundle;
-
 import com.artcom.y60.http.HttpClientException;
 import com.artcom.y60.http.HttpProxyConstants;
 import com.artcom.y60.http.HttpServerException;
+
+import android.net.Uri;
+import android.os.Bundle;
 
 public class ResourceBundleHelper {
 

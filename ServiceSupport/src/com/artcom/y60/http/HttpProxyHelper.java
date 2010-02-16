@@ -11,6 +11,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.artcom.y60.BindingListener;
+import com.artcom.y60.ErrorHandling;
+import com.artcom.y60.Logger;
+import com.artcom.y60.ResourceBundleHelper;
+import com.artcom.y60.RpcStatus;
+
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
@@ -25,17 +31,10 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
 
-import com.artcom.y60.BindingListener;
-import com.artcom.y60.ErrorHandling;
-import com.artcom.y60.Logger;
-import com.artcom.y60.ResourceBundleHelper;
-import com.artcom.y60.RpcStatus;
-
 /**
- * Helper class for activities which encapsulates the interaction with the
- * HttpProxyService, especially the listening to resou.rce update broadcasts.
- * Activities can register listeners to this helper for particular URI which
- * they are interested in.
+ * Helper class for activities which encapsulates the interaction with the HttpProxyService,
+ * especially the listening to resou.rce update broadcasts. Activities can register listeners to
+ * this helper for particular URI which they are interested in.
  * 
  * @author arne
  * @see HttpProxyService
@@ -44,46 +43,45 @@ public class HttpProxyHelper {
 
     // Instance Variables ------------------------------------------------
 
-    private static final String              LOG_TAG = "HttpProxyHelper";
+    private static final String                    LOG_TAG = "HttpProxyHelper";
 
     /**
      * The client for this HttpProxyHelper
      */
-    private Context                          mContext;
+    private final Context                          mContext;
 
     /**
-     * Handler for resource updates, which are received as broadcasts from the
-     * HttpProxy
+     * Handler for resource updates, which are received as broadcasts from the HttpProxy
      */
-    private Map<Uri, Set<ResourceListener>>  mListeners;
+    private final Map<Uri, Set<ResourceListener>>  mListeners;
 
     /**
      * Thread for dispatching incoming broadcasts to the resource update handler
      */
-    private Thread                           mUpdateThread;
+    private final Thread                           mUpdateThread;
 
     /**
      * The queue of URIs of resources which have been updated
      */
-    private List<Uri>                        mUpdateNotificationQueue;
+    private final List<Uri>                        mUpdateNotificationQueue;
     /**
      * The queue of URIs of resources which are not available
      */
-    private List<Uri>                        mNotAvailableNotificationQueue;
+    private final List<Uri>                        mNotAvailableNotificationQueue;
 
     /**
      * Flag indicating if the updater thread should shutdown
      */
-    private boolean                          mShutdown;
+    private boolean                                mShutdown;
 
-    private IHttpProxyService                mProxy;
+    private IHttpProxyService                      mProxy;
 
-    private HttpProxyServiceConnection       mConnection;
+    private final HttpProxyServiceConnection       mConnection;
 
-    private BindingListener<HttpProxyHelper> mBindingListener;
+    private final BindingListener<HttpProxyHelper> mBindingListener;
 
-    private HttpResourceUpdateReceiver       mUpdateReceiver;
-    private HttpResourceNotAvailableReceiver mNotAvailableReceiver;
+    private final HttpResourceUpdateReceiver       mUpdateReceiver;
+    private final HttpResourceNotAvailableReceiver mNotAvailableReceiver;
 
     // Constructors ------------------------------------------------------
 
@@ -250,12 +248,31 @@ public class HttpProxyHelper {
         return fetchStringFromCache(pUri);
     }
 
+    @Deprecated
     public boolean isInCache(Uri pUri) {
 
         boolean isInCache;
         RpcStatus status = new RpcStatus();
         try {
             isInCache = mProxy.isInCache(pUri.toString(), status);
+        } catch (RemoteException rex) {
+            Logger.e(logTag(), "isInCache(", pUri, ") failed", rex);
+            throw new RuntimeException(rex);
+        }
+
+        if (status.hasError()) {
+            throw new RuntimeException(status.getError());
+        }
+
+        return isInCache;
+    }
+
+    public boolean isInCache(String pUri) {
+
+        boolean isInCache;
+        RpcStatus status = new RpcStatus();
+        try {
+            isInCache = mProxy.isInCache(pUri, status);
         } catch (RemoteException rex) {
             Logger.e(logTag(), "isInCache(", pUri, ") failed", rex);
             throw new RuntimeException(rex);
@@ -361,6 +378,34 @@ public class HttpProxyHelper {
         }
     }
 
+    public void clear() {
+        RpcStatus status = new RpcStatus();
+        try {
+            mProxy.clear(status);
+        } catch (RemoteException rex) {
+            Logger.e(logTag(), "clear failed", rex);
+            throw new RuntimeException(rex);
+        }
+        if (status.hasError()) {
+            throw new RuntimeException(status.getError());
+        }
+    }
+
+    public long getNumberOfEntries() {
+        long numberOfEntries = 0;
+        RpcStatus status = new RpcStatus();
+        try {
+            numberOfEntries = mProxy.getNumberOfEntries(status);
+        } catch (RemoteException rex) {
+            Logger.e(logTag(), "getNumberOfEntries failed", rex);
+            throw new RuntimeException(rex);
+        }
+        if (status.hasError()) {
+            throw new RuntimeException(status.getError());
+        }
+        return numberOfEntries;
+    }
+
     public void addResourceChangeListener(Uri pUri, ResourceListener pListener) {
 
         Set<ResourceListener> listeners = getOrCreateListenersFor(pUri);
@@ -368,8 +413,18 @@ public class HttpProxyHelper {
 
             listeners.add(pListener);
             if (isInCache(pUri)) {
+                Logger
+                        .v(
+                                LOG_TAG,
+                                "addResourceChangeListener: calling onResourceAvailable immediately, uri is in cache: ",
+                                pUri);
                 pListener.onResourceAvailable(pUri);
             }
+            Logger
+                    .v(
+                            LOG_TAG,
+                            "addResourceChangeListener: not calling onResourceAvailable, uri is not in cache: ",
+                            pUri);
         }
     }
 
@@ -417,7 +472,7 @@ public class HttpProxyHelper {
         public void onReceive(Context pCtx, Intent pIntent) {
             synchronized (mUpdateNotificationQueue) {
                 String uri = pIntent.getStringExtra(HttpProxyConstants.URI_EXTRA);
-                Logger.v(logTag(), "received update broadcast for uri ", uri);
+                // Logger.v(logTag(), "received update broadcast for uri ", uri);
                 mUpdateNotificationQueue.add(Uri.parse(uri));
             }
         }
@@ -450,8 +505,8 @@ public class HttpProxyHelper {
                 // that the broadcast receiver gets blocked when
                 // adding new URIs
                 if (updatedUri != null) {
-                    Logger.v(logTag(), "registered listeners: ", mListeners.keySet());
-                    Logger.v(logTag(), "updating listeners for uri ", updatedUri);
+                    // Logger.v(logTag(), "registered listeners: ", mListeners.keySet());
+                    // Logger.v(logTag(), "updating listeners for uri ", updatedUri);
                     Set<ResourceListener> listeners = getListenersFor(updatedUri);
                     if (listeners != null) {
                         synchronized (listeners) {
