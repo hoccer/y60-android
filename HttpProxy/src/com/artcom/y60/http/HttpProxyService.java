@@ -2,6 +2,7 @@ package com.artcom.y60.http;
 
 import java.io.IOException;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import com.artcom.y60.DeviceConfiguration;
@@ -108,6 +109,10 @@ public class HttpProxyService extends Y60Service {
     public HttpProxyService() {
 
         mId = String.valueOf(System.currentTimeMillis());
+    }
+
+    protected Map<String, Bundle> getCachedContent() {
+        return cache.getCachedContent();
     }
 
     // Public Instance Methods -------------------------------------------

@@ -69,7 +69,7 @@ public class Cache {
     public Bundle getDataSyncronously(String pUri) throws HttpClientException, HttpServerException,
             IOException {
 
-        Bundle newContent = ResourceBundleHelper.createResourceBundle(CACHE_DIR, pUri);
+        Bundle newContent = ResourceBundleHelper.downloadAndCreateResourceBundle(CACHE_DIR, pUri);
 
         mCachedContent.put(pUri, newContent);
 
@@ -169,7 +169,8 @@ public class Cache {
                 Bundle oldContent = mCachedContent.get(pUri);
 
                 Logger.v(LOG_TAG, "before createResourceBundle ", pUri);
-                Bundle newContent = ResourceBundleHelper.createResourceBundle(CACHE_DIR, pUri);
+                Bundle newContent = ResourceBundleHelper.downloadAndCreateResourceBundle(CACHE_DIR,
+                        pUri);
                 Logger.v(LOG_TAG, "after createResourceBundle ", pUri);
 
                 // if resource has changed (TODO get header and check the
@@ -244,5 +245,9 @@ public class Cache {
             }
             Logger.v(LOG_TAG, "ResourceRefresher, refresher thread STOPS ------------ ");
         }
+    }
+
+    public Map<String, Bundle> getCachedContent() {
+        return mCachedContent;
     }
 }

@@ -42,7 +42,7 @@ public class ResourceBundleHelper {
         return buffer;
     }
 
-    public static Bundle createResourceBundle(String pBasePath, String pUri) throws IOException,
+    public static Bundle downloadAndCreateResourceBundle(String pBasePath, String pUri) throws IOException,
             HttpClientException, HttpServerException {
         long size = HttpHelper.getSize(pUri);
         Bundle newContent = new Bundle(2);

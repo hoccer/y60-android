@@ -38,13 +38,13 @@ import org.apache.http.protocol.HttpContext;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
-import android.net.Uri;
-
 import com.artcom.y60.http.HttpClientException;
 import com.artcom.y60.http.HttpException;
 import com.artcom.y60.http.HttpServerException;
+
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
+import android.net.Uri;
 
 public class HttpHelper {
 
@@ -175,14 +175,25 @@ public class HttpHelper {
         }
     }
 
+    @Deprecated
     public static String getAsString(Uri uri) throws IOException, HttpClientException,
             HttpServerException {
+        return getAsString(uri.toString());
+    }
 
+    public static String getAsString(String uri) throws IOException, HttpClientException,
+            HttpServerException {
         HttpEntity result = getAsHttpEntity(uri);
         return extractBodyAsString(result);
     }
 
+    @Deprecated
     public static byte[] getAsByteArray(Uri uri) throws IllegalStateException, IOException,
+            HttpClientException, HttpServerException {
+        return getAsByteArray(uri.toString());
+    }
+
+    public static byte[] getAsByteArray(String uri) throws IllegalStateException, IOException,
             HttpClientException, HttpServerException {
 
         HttpEntity result = getAsHttpEntity(uri);
@@ -194,11 +205,6 @@ public class HttpHelper {
 
         HttpGet get = new HttpGet(pUri);
         return executeHTTPMethod(get);
-    }
-
-    public static String getAsString(String uri) throws IOException, HttpClientException,
-            HttpServerException {
-        return getAsString(Uri.parse(uri));
     }
 
     public static HttpResponse fetchUriToFile(String uriString, String filename)
@@ -324,10 +330,10 @@ public class HttpHelper {
 
     // Private Instance Methods ------------------------------------------
 
-    private static HttpEntity getAsHttpEntity(Uri uri) throws IOException, HttpClientException,
+    private static HttpEntity getAsHttpEntity(String uri) throws IOException, HttpClientException,
             HttpServerException {
 
-        HttpGet get = new HttpGet(uri.toString());
+        HttpGet get = new HttpGet(uri);
         HttpResponse response = executeHTTPMethod(get);
         return response.getEntity();
     }
