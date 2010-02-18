@@ -8,6 +8,8 @@ import android.content.IntentFilter;
 import android.os.Bundle;
 import android.view.KeyEvent;
 
+import com.artcom.y60.error.FallbackExceptionHandler;
+
 public abstract class Y60Activity extends Activity {
 
     private static final String LOG_TAG                                  = "Y60Activity";
@@ -65,6 +67,7 @@ public abstract class Y60Activity extends Activity {
 
         super.onCreate(pSavedInstanceState);
         startDeviceController();
+        FallbackExceptionHandler.register(this);
 
         mShutdownReceiver = new BroadcastReceiver() {
             @Override
