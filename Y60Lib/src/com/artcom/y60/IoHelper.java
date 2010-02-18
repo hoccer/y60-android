@@ -3,6 +3,7 @@ package com.artcom.y60;
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
@@ -18,9 +19,12 @@ import java.util.List;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import com.artcom.y60.http.HttpProxyConstants;
+
 import android.app.ActivityManager;
 import android.app.ActivityManager.RunningServiceInfo;
 import android.content.Context;
+import android.os.Bundle;
 
 public class IoHelper {
     private static final String LOG_TAG = "IoHelper";
@@ -197,6 +201,55 @@ public class IoHelper {
             return;
         }
         Logger.e(LOG_TAG, "I am not listed in alive services on sdcard");
+    }
+
+    public static boolean areWeEqual(byte[] pArray1, byte[] pArray2) {
+        if (pArray1 == null && pArray2 == null) {
+            return true;
+        }
+        if (pArray1 == null || pArray2 == null) {
+            return false;
+        }
+        if (pArray1.length != pArray2.length) {
+            return false;
+        }
+
+        for (int i = 0; i < pArray1.length; ++i) {
+            if (pArray1[i] != pArray2[i]) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public static byte[] convertResourceBundleToByteArray(Bundle resourceDescription) {
+
+        if (resourceDescription == null) {
+            return null;
+        }
+
+        String resourcePath = resourceDescription
+                .getString(HttpProxyConstants.LOCAL_RESOURCE_PATH_TAG);
+        if (resourcePath == null) {
+            return resourceDescription.getByteArray(HttpProxyConstants.BYTE_ARRAY_TAG);
+        }
+
+        byte[] buffer;
+        try {
+            File file = new File(resourcePath);
+            FileInputStream stream = new FileInputStream(file);
+            if (file.length() > Integer.MAX_VALUE) {
+                throw new RuntimeException("file '" + file + "' is to big");
+            }
+            buffer = new byte[(int) file.length()];
+            stream.read(buffer);
+        } catch (IOException e) {
+            Logger.e(ResourceDownloadHelper.LOG_TAG, "io error: " + e.getMessage());
+            e.printStackTrace();
+            return null;
+        }
+
+        return buffer;
     }
 
     public static boolean areGivenServicesFinished(String[] pServices,

@@ -13,8 +13,8 @@ import java.util.Set;
 
 import com.artcom.y60.BindingListener;
 import com.artcom.y60.ErrorHandling;
+import com.artcom.y60.IoHelper;
 import com.artcom.y60.Logger;
-import com.artcom.y60.ResourceBundleHelper;
 import com.artcom.y60.RpcStatus;
 
 import android.content.BroadcastReceiver;
@@ -130,7 +130,7 @@ public class HttpProxyHelper {
     }
 
     public void requestDownload(Uri pUri) {
-        get(pUri);
+        requestResourceWhichIsDeprecated(pUri);
     }
 
     public String getDataSyncronously(Uri pUri) {
@@ -151,19 +151,19 @@ public class HttpProxyHelper {
         if (resourceDescription == null) {
             return null;
         }
-        return new String(ResourceBundleHelper
+        return new String(IoHelper
                 .convertResourceBundleToByteArray(resourceDescription));
     }
 
     @Deprecated
-    public byte[] get(Uri pUri) {
+    public void requestResourceWhichIsDeprecated(Uri pUri) {
+        requestResource(pUri.toString());
+    }
 
-        String uri = pUri.toString();
-
-        Bundle resourceDescription;
+    public void requestResource(String pUri) {
         RpcStatus status = new RpcStatus();
         try {
-            resourceDescription = mProxy.get(uri, status);
+            mProxy.requestResource(pUri, status);
         } catch (RemoteException rex) {
             Logger.e(logTag(), "get(", pUri, ") failed", rex);
             throw new RuntimeException(rex);
@@ -171,81 +171,10 @@ public class HttpProxyHelper {
         if (status.hasError()) {
             throw new RuntimeException(status.getError());
         }
-        if (resourceDescription == null) {
-            return null;
-        }
-        return ResourceBundleHelper.convertResourceBundleToByteArray(resourceDescription);
-    }
-
-    public byte[] get(String pUri) {
-
-        Bundle resourceDescription;
-        RpcStatus status = new RpcStatus();
-        try {
-            resourceDescription = mProxy.get(pUri, status);
-        } catch (RemoteException rex) {
-            Logger.e(logTag(), "get(", pUri, ") failed", rex);
-            throw new RuntimeException(rex);
-        }
-        if (status.hasError()) {
-            throw new RuntimeException(status.getError());
-        }
-        if (resourceDescription == null) {
-            return null;
-        }
-        return ResourceBundleHelper.convertResourceBundleToByteArray(resourceDescription);
-    }
-
-    public Drawable get(Uri pUri, Drawable pDefault) {
-
-        if (mProxy == null) {
-            Logger.v(LOG_TAG, "get called, but proxy is still null - returning fallback");
-            return pDefault;
-        }
-
-        byte[] bytes = get(pUri);
-
-        if (bytes == null) {
-
-            Logger.v(LOG_TAG,
-                    "''''''''''''''''''''get called, but result is empty - returning fallback");
-            return pDefault;
-        }
-
-        Logger.v(LOG_TAG, "return drawable from bytestrem");
-        InputStream is = new ByteArrayInputStream(bytes);
-        return Drawable.createFromStream(is, pUri.toString());
     }
 
     public boolean isBound() {
         return mProxy != null;
-    }
-
-    public String get(Uri pUri, String pDefault) {
-
-        if (mProxy == null) {
-            return pDefault;
-        }
-
-        byte[] bytes = get(pUri);
-        if (bytes == null) {
-            return pDefault;
-        }
-
-        return new String(bytes);
-    }
-
-    public String getSynchronouslyFromCache(Uri pUri) {
-        requestDownload(pUri); // trigger
-        int i = 0;
-        while (!isInCache(pUri) && i < 600) {
-            try {
-                Thread.sleep(50);
-            } catch (InterruptedException e) {
-            }
-            i++;
-        }
-        return fetchStringFromCache(pUri);
     }
 
     @Deprecated
@@ -290,7 +219,6 @@ public class HttpProxyHelper {
         RpcStatus status = new RpcStatus();
         Bundle content;
         try {
-            // mProxy.fetchFromCache(pUri.toString(), status);
             content = mProxy.fetchFromCache(pUri.toString(), status);
         } catch (RemoteException rex) {
             Logger.e(logTag(), "fetchFromCache(", pUri, ") failed", rex);
@@ -300,11 +228,12 @@ public class HttpProxyHelper {
         if (status.hasError()) {
             throw new RuntimeException(status.getError());
         }
+
         if (content == null) {
             throw new RuntimeException("content bundle is null");
         }
 
-        return ResourceBundleHelper.convertResourceBundleToByteArray(content);
+        return IoHelper.convertResourceBundleToByteArray(content);
     }
 
     public File fetchFromCacheAsFile(Uri pUri) throws IOException {
@@ -313,12 +242,9 @@ public class HttpProxyHelper {
         Bundle bundle;
 
         try {
-            bundle = mProxy.get(pUri.toString(), status);
-
+            bundle = mProxy.fetchFromCache(pUri.toString(), status);
         } catch (RemoteException rx) {
-
             ErrorHandling.signalServiceError(LOG_TAG, rx, mContext);
-
             // this should never be reached:
             Logger.e(LOG_TAG, "ErrorHandling didn't abort thread after error!");
             throw new IllegalStateException("ErrorHandling didn't abort thread after error", rx);
@@ -334,7 +260,6 @@ public class HttpProxyHelper {
         }
 
         return new File(resourcePath);
-
     }
 
     public Drawable fetchDrawableFromCache(Uri pUri) {

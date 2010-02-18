@@ -7,9 +7,10 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import com.artcom.y60.ErrorHandling;
 import com.artcom.y60.IoHelper;
 import com.artcom.y60.Logger;
-import com.artcom.y60.ResourceBundleHelper;
+import com.artcom.y60.ResourceDownloadHelper;
 
 import android.os.Bundle;
 
@@ -19,18 +20,20 @@ public class Cache {
 
     public static final String        LOG_TAG   = "Cache";
     static final String               CACHE_DIR = "/sdcard/HttpProxyCache/";
-    private final Map<String, Bundle> mCachedContent;                       // _the_
-    // cache
+    private final Map<String, Bundle> mCachedContent;
 
     private final List<String>        mPendingResources;
 
     private Thread                    mRefresher;
 
     private boolean                   mShutdown;
+    private final HttpProxyService    mService;
 
     // Constructors ------------------------------------------------------
 
-    public Cache() {
+    public Cache(HttpProxyService pService) {
+
+        mService = pService;
 
         mCachedContent = new HashMap<String, Bundle>();
         mPendingResources = new LinkedList<String>();
@@ -48,31 +51,22 @@ public class Cache {
     /**
      * @return parcelable key/value list describing the resource
      */
-    public Bundle get(String pUri) {
-
+    public void requestResource(String pUri) {
         Logger.v(LOG_TAG, "adding to pending resources and getting: ", pUri);
+
         synchronized (mPendingResources) {
-
             if (!mPendingResources.contains(pUri)) {
-
                 mPendingResources.add(pUri);
             }
             Logger.v(LOG_TAG, "pending resources: ", mPendingResources.size());
-        }
-
-        synchronized (mCachedContent) {
-
-            return mCachedContent.get(pUri);
         }
     }
 
     public Bundle getDataSyncronously(String pUri) throws HttpClientException, HttpServerException,
             IOException {
 
-        Bundle newContent = ResourceBundleHelper.downloadAndCreateResourceBundle(CACHE_DIR, pUri);
-
+        Bundle newContent = ResourceDownloadHelper.downloadAndCreateResourceBundle(CACHE_DIR, pUri);
         mCachedContent.put(pUri, newContent);
-
         return newContent;
     }
 
@@ -83,7 +77,6 @@ public class Cache {
 
         Logger.v(LOG_TAG, "fetchFromCache(", pUri, ")");
         synchronized (mCachedContent) {
-
             return mCachedContent.get(pUri);
         }
     }
@@ -91,7 +84,6 @@ public class Cache {
     public void remove(String pUri) {
         Logger.v(LOG_TAG, "removeFromCache(", pUri, ")");
         synchronized (mCachedContent) {
-
             mCachedContent.remove(pUri);
         }
 
@@ -103,18 +95,15 @@ public class Cache {
         }
     }
 
-    public void stop() {
-
+    public void deactivate() {
         mShutdown = true;
         synchronized (this) {
             mRefresher = null;
         }
     }
 
-    public void resume() {
-
+    public void activate() {
         mShutdown = false;
-
         synchronized (this) {
             if (mRefresher == null) {
                 mRefresher = new Thread(new ResourceRefresher());
@@ -126,13 +115,10 @@ public class Cache {
     // Package Protected Instance Methods --------------------------------
 
     void clear() {
-
         synchronized (mPendingResources) {
             synchronized (mCachedContent) {
-
                 mCachedContent.clear();
                 mPendingResources.clear();
-
                 IoHelper.deleteDir(new File(CACHE_DIR));
                 File dir = new File(CACHE_DIR);
                 if (!dir.exists()) {
@@ -163,43 +149,42 @@ public class Cache {
     private void refresh(String pUri) {
 
         Logger.v(LOG_TAG, "refreshing (", pUri, ")");
-        try {
+        synchronized (mCachedContent) {
 
-            synchronized (mCachedContent) {
-                Bundle oldContent = mCachedContent.get(pUri);
+            Bundle oldContent = mCachedContent.get(pUri);
+            Bundle newContent = null;
+            try {
+                newContent = ResourceDownloadHelper
+                        .downloadAndCreateResourceBundle(CACHE_DIR, pUri);
+            } catch (HttpException e) {
+                ErrorHandling.signalHttpError(LOG_TAG, e, mService);
+                mService.resourceNotAvailable(pUri);
+                Logger.e(LOG_TAG, "refreshing ", pUri, " failed!");
+            } catch (IOException e) {
+                ErrorHandling.signalIOError(LOG_TAG, e, mService);
+                mService.resourceNotAvailable(pUri);
+                Logger.e(LOG_TAG, "refreshing ", pUri, " failed!");
+            }
 
-                Logger.v(LOG_TAG, "before createResourceBundle ", pUri);
-                Bundle newContent = ResourceBundleHelper.downloadAndCreateResourceBundle(CACHE_DIR,
-                        pUri);
-                Logger.v(LOG_TAG, "after createResourceBundle ", pUri);
+            byte[] oldContentBytes = IoHelper.convertResourceBundleToByteArray(oldContent);
+            byte[] newContentBytes = IoHelper.convertResourceBundleToByteArray(newContent);
 
-                // if resource has changed (TODO get header and check the
-                // modification date)
-                if (oldContent != null) {
-                    Logger.v(LOG_TAG, "size of old: ", oldContent
-                            .getLong(HttpProxyConstants.SIZE_TAG), " size of new: ", newContent
-                            .getLong(HttpProxyConstants.SIZE_TAG));
+            if (!IoHelper.areWeEqual(oldContentBytes, newContentBytes)) {
+
+                if (newContentBytes == null) {
+                    mCachedContent.remove(pUri);
+                    mService.resourceNotAvailable(pUri);
+                    Logger.e(LOG_TAG, "refreshing ", pUri, " failed!");
+
                 } else {
-                    Logger.v(LOG_TAG, "cached content for for '", pUri, "' is null");
-
-                }
-
-                if (oldContent == null
-                        || oldContent.getLong(HttpProxyConstants.SIZE_TAG) != newContent
-                                .getLong(HttpProxyConstants.SIZE_TAG)) {
-
                     Logger.v(LOG_TAG, "storing new content and sending bc 'updated' for '", pUri,
                             "'");
                     mCachedContent.put(pUri, newContent);
-                    HttpProxyService.resourceUpdated(pUri);
-                } else {
-                    Logger.v(LOG_TAG, "NO new content and sending bc 'updated' for '", pUri, "'");
+                    mService.resourceAvailable(pUri);
                 }
+            } else {
+                Logger.v(LOG_TAG, "NO new content for '", pUri, "'");
             }
-
-        } catch (Exception e) {
-            HttpProxyService.resourceNotAvailable(pUri);
-            Logger.e(LOG_TAG, "refreshing ", pUri, " failed!", e);
         }
     }
 
@@ -210,37 +195,23 @@ public class Cache {
             Logger.v(LOG_TAG, "ResourceRefresher, refresher thread for HttpServiceProxy starts");
             while (!mShutdown) {
 
-                // Logger.v("ResourceRefresher",
-                // "refresher thread is waking up");
-
                 String uri = null;
                 synchronized (mPendingResources) {
-
                     if (mPendingResources.size() > 0) {
-
                         uri = mPendingResources.remove(0);
                         Logger.v(LOG_TAG, "ResourceRefresher, removing and processing uri: ", uri);
-
-                    } else {
-
-                        // Logger.v("ResourceRefresher", "nothing to do");
                     }
                 }
 
                 // do processing out of synchronization to avoid
                 // that clients get blocked
                 if (uri != null) {
-
                     refresh(uri);
-                }
-
-                try {
-
-                    Thread.sleep(20);
-
-                } catch (InterruptedException ix) {
-
-                    // not interested
+                } else {
+                    try {
+                        Thread.sleep(20);
+                    } catch (InterruptedException ix) {
+                    }
                 }
             }
             Logger.v(LOG_TAG, "ResourceRefresher, refresher thread STOPS ------------ ");

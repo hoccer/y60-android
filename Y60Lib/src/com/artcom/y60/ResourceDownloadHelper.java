@@ -1,7 +1,5 @@
 package com.artcom.y60;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.UUID;
 
@@ -12,35 +10,9 @@ import com.artcom.y60.http.HttpServerException;
 import android.net.Uri;
 import android.os.Bundle;
 
-public class ResourceBundleHelper {
+public class ResourceDownloadHelper {
 
-    private static final String LOG_TAG = ResourceBundleHelper.class.getName();
-
-    public static byte[] convertResourceBundleToByteArray(Bundle resourceDescription) {
-
-        String resourcePath = resourceDescription
-                .getString(HttpProxyConstants.LOCAL_RESOURCE_PATH_TAG);
-        if (resourcePath == null) {
-            return resourceDescription.getByteArray(HttpProxyConstants.BYTE_ARRAY_TAG);
-        }
-
-        byte[] buffer;
-        try {
-            File file = new File(resourcePath);
-            FileInputStream stream = new FileInputStream(file);
-            if (file.length() > Integer.MAX_VALUE) {
-                throw new RuntimeException("file '" + file + "' is to big");
-            }
-            buffer = new byte[(int) file.length()];
-            stream.read(buffer);
-        } catch (IOException e) {
-            Logger.e(LOG_TAG, "io error: " + e.getMessage());
-            e.printStackTrace();
-            return null;
-        }
-
-        return buffer;
-    }
+    static final String LOG_TAG = ResourceDownloadHelper.class.getName();
 
     public static Bundle downloadAndCreateResourceBundle(String pBasePath, String pUri) throws IOException,
             HttpClientException, HttpServerException {

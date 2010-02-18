@@ -1,11 +1,8 @@
 package com.artcom.y60.http;
 
 import java.io.IOException;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
-import com.artcom.y60.DeviceConfiguration;
 import com.artcom.y60.Logger;
 import com.artcom.y60.RpcStatus;
 import com.artcom.y60.Y60Action;
@@ -29,87 +26,31 @@ public class HttpProxyService extends Y60Service {
 
     // Constants ---------------------------------------------------------
 
-    private static final String          LOG_TAG = "HttpProxyService";
-    private Cache                        cache;
-
-    // Class Variables ---------------------------------------------------
-
-    private static Set<HttpProxyService> sInstances;
-
-    // Static Initializer ------------------------------------------------
-
-    static {
-        sInstances = new HashSet<HttpProxyService>();
-    }
+    private static final String LOG_TAG = "HttpProxyService";
+    private Cache               cache;
 
     // Static Methods ----------------------------------------------------
 
     /**
      * Helper to notify about resource changes via intent broadcast.
      */
-    static void resourceUpdated(String pUri) {
-
-        synchronized (sInstances) {
-
-            if (sInstances.size() == 0) {
-
-                // this must never happen!
-                Logger.e(LOG_TAG, "Can't send broadcast since all services have died!");
-
-            } else {
-                HttpProxyService service = sInstances.iterator().next();
-                Intent intent = new Intent(HttpProxyConstants.RESOURCE_UPDATE_ACTION);
-                intent.putExtra(HttpProxyConstants.URI_EXTRA, pUri);
-                // Logger.v(LOG_TAG, "Broadcasting 'update' for resource " + pUri);
-                service.sendBroadcast(intent);
-            }
-        }
+    void resourceAvailable(String pUri) {
+        Intent intent = new Intent(HttpProxyConstants.RESOURCE_UPDATE_ACTION);
+        intent.putExtra(HttpProxyConstants.URI_EXTRA, pUri);
+        // Logger.v(LOG_TAG, "Broadcasting 'update' for resource " + pUri);
+        sendBroadcast(intent);
     }
 
-    /**
-     * Helper to notify about resource changes via intent broadcast.
-     */
-    static void resourceNotAvailable(String pUri) {
-
-        synchronized (sInstances) {
-
-            if (sInstances.size() == 0) {
-
-                // this must never happen!
-                Logger.e(LOG_TAG, "Can't send broadcast since all services have died!");
-
-            } else {
-                HttpProxyService service = sInstances.iterator().next();
-                Intent intent = new Intent(HttpProxyConstants.RESOURCE_NOT_AVAILABLE_ACTION);
-                intent.putExtra(HttpProxyConstants.URI_EXTRA, pUri);
-                Logger.v(LOG_TAG, "Broadcasting 'not available' for resource " + pUri);
-                service.sendBroadcast(intent);
-            }
-        }
-    }
-
-    private static int countInstances() {
-
-        synchronized (sInstances) {
-
-            return sInstances.size();
-        }
+    void resourceNotAvailable(String pUri) {
+        Intent intent = new Intent(HttpProxyConstants.RESOURCE_NOT_AVAILABLE_ACTION);
+        intent.putExtra(HttpProxyConstants.URI_EXTRA, pUri);
+        sendBroadcast(intent);
     }
 
     // Instance Variables ------------------------------------------------
 
     private HttpProxyRemote mRemote;
-
-    private final String    mId;
-
     private ResetReceiver   mResetReceiver;
-
-    // Constructors ------------------------------------------------------
-
-    public HttpProxyService() {
-
-        mId = String.valueOf(System.currentTimeMillis());
-    }
 
     protected Map<String, Bundle> getCachedContent() {
         return cache.getCachedContent();
@@ -120,12 +61,8 @@ public class HttpProxyService extends Y60Service {
     @Override
     public void onCreate() {
 
-        cache = new Cache();
-
-        DeviceConfiguration conf = DeviceConfiguration.load();
-        Logger.setFilterLevel(conf.getLogLevel());
-
-        super.onCreate();
+        cache = new Cache(this);
+        cache.activate();
 
         mRemote = new HttpProxyRemote();
 
@@ -133,10 +70,7 @@ public class HttpProxyService extends Y60Service {
         mResetReceiver = new ResetReceiver();
         registerReceiver(mResetReceiver, filter);
 
-        synchronized (sInstances) {
-            sInstances.add(this);
-            cache.resume();
-        }
+        super.onCreate();
     }
 
     @Override
@@ -152,17 +86,8 @@ public class HttpProxyService extends Y60Service {
 
     @Override
     public void onDestroy() {
-
-        synchronized (sInstances) {
-            sInstances.remove(this);
-
-            if (sInstances.size() < 1) {
-                cache.stop();
-            }
-        }
-
         unregisterReceiver(mResetReceiver);
-
+        cache.deactivate();
         clear();
 
         super.onDestroy();
@@ -181,9 +106,8 @@ public class HttpProxyService extends Y60Service {
         return mRemote;
     }
 
-    public Bundle get(String pUri) {
-
-        return cache.get(pUri);
+    public void requestResource(String pUri) {
+        cache.requestResource(pUri);
     }
 
     public Bundle getDataSyncronously(String pUri) throws HttpClientException, HttpServerException,
@@ -192,7 +116,6 @@ public class HttpProxyService extends Y60Service {
     }
 
     public Bundle fetchFromCache(String pUri) {
-
         return cache.fetchFromCache(pUri);
     }
 
@@ -208,7 +131,6 @@ public class HttpProxyService extends Y60Service {
     // Private Instance Methods ------------------------------------------
 
     private void clear() {
-
         Logger.d(LOG_TAG, "clearing HTTP cache");
         cache.clear();
         sendBroadcast(new Intent(Y60Action.SERVICE_HTTP_PROXY_CLEARED));
@@ -224,12 +146,11 @@ public class HttpProxyService extends Y60Service {
     class HttpProxyRemote extends IHttpProxyService.Stub {
 
         @Override
-        public Bundle get(String pUri, RpcStatus status) {
+        public void requestResource(String pUri, RpcStatus status) {
             try {
-                return HttpProxyService.this.get(pUri);
+                HttpProxyService.this.requestResource(pUri);
             } catch (Exception e) {
                 status.setError(e);
-                return null;
             }
         }
 
