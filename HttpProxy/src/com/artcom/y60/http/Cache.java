@@ -156,12 +156,8 @@ public class Cache {
             try {
                 newContent = ResourceDownloadHelper
                         .downloadAndCreateResourceBundle(CACHE_DIR, pUri);
-            } catch (HttpException e) {
+            } catch (Exception e) {
                 ErrorHandling.signalHttpError(LOG_TAG, e, mService);
-                mService.resourceNotAvailable(pUri);
-                Logger.e(LOG_TAG, "refreshing ", pUri, " failed!");
-            } catch (IOException e) {
-                ErrorHandling.signalIOError(LOG_TAG, e, mService);
                 mService.resourceNotAvailable(pUri);
                 Logger.e(LOG_TAG, "refreshing ", pUri, " failed!");
             }
