@@ -1,9 +1,14 @@
 package com.artcom.y60.http;
 
+import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Map;
 
+import com.artcom.y60.ErrorHandling;
+import com.artcom.y60.IoHelper;
 import com.artcom.y60.Logger;
+import com.artcom.y60.ResourceDownloadHelper;
 import com.artcom.y60.RpcStatus;
 import com.artcom.y60.Y60Action;
 import com.artcom.y60.Y60Service;
@@ -24,45 +29,26 @@ import android.os.RemoteException;
  */
 public class HttpProxyService extends Y60Service {
 
-    // Constants ---------------------------------------------------------
+    private static final String LOG_TAG        = "HttpProxyService";
+    static final String         CACHE_DIR      = "/sdcard/HttpProxyCache/";
+    private ResourceManager     mResourceManager;
+    private Map<String, Bundle> mCachedContent = null;
 
-    private static final String LOG_TAG = "HttpProxyService";
-    private Cache               cache;
-
-    // Static Methods ----------------------------------------------------
-
-    /**
-     * Helper to notify about resource changes via intent broadcast.
-     */
-    void resourceAvailable(String pUri) {
-        Intent intent = new Intent(HttpProxyConstants.RESOURCE_UPDATE_ACTION);
-        intent.putExtra(HttpProxyConstants.URI_EXTRA, pUri);
-        // Logger.v(LOG_TAG, "Broadcasting 'update' for resource " + pUri);
-        sendBroadcast(intent);
-    }
-
-    void resourceNotAvailable(String pUri) {
-        Intent intent = new Intent(HttpProxyConstants.RESOURCE_NOT_AVAILABLE_ACTION);
-        intent.putExtra(HttpProxyConstants.URI_EXTRA, pUri);
-        sendBroadcast(intent);
-    }
-
-    // Instance Variables ------------------------------------------------
-
-    private HttpProxyRemote mRemote;
-    private ResetReceiver   mResetReceiver;
-
-    protected Map<String, Bundle> getCachedContent() {
-        return cache.getCachedContent();
-    }
-
-    // Public Instance Methods -------------------------------------------
+    private HttpProxyRemote     mRemote;
+    private ResetReceiver       mResetReceiver;
 
     @Override
     public void onCreate() {
 
-        cache = new Cache(this);
-        cache.activate();
+        File dir = new File(CACHE_DIR);
+        if (!dir.exists()) {
+            dir.mkdirs();
+            Logger.e(LOG_TAG, "creating dir " + dir.toString());
+        }
+        mCachedContent = new HashMap<String, Bundle>();
+
+        mResourceManager = new ResourceManager(this);
+        mResourceManager.activate();
 
         mRemote = new HttpProxyRemote();
 
@@ -75,21 +61,16 @@ public class HttpProxyService extends Y60Service {
 
     @Override
     public void onStart(Intent pIntent, int startId) {
-
-        Logger.v(LOG_TAG, "on start");
-
         sendBroadcast(new Intent(Y60Action.SERVICE_HTTP_PROXY_READY));
         Logger.v(LOG_TAG, "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ sent broadcast http proxy ready");
-
         super.onStart(pIntent, startId);
     }
 
     @Override
     public void onDestroy() {
         unregisterReceiver(mResetReceiver);
-        cache.deactivate();
+        mResourceManager.deactivate();
         clear();
-
         super.onDestroy();
     }
 
@@ -102,43 +83,130 @@ public class HttpProxyService extends Y60Service {
     public IBinder onBind(Intent pIntent) {
         sendBroadcast(new Intent(Y60Action.SERVICE_HTTP_PROXY_READY));
         Logger.v(LOG_TAG, "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ sent broadcast http proxy ready");
-
         return mRemote;
     }
 
     public void requestResource(String pUri) {
-        cache.requestResource(pUri);
+        mResourceManager.requestResource(pUri);
     }
+
+    /**
+     * Stores the uri in a bundle. Big files will be written to sdcard, small ones a kept in memory.
+     * 
+     * @throws Exception
+     */
+    void refreshResource(final String pUri) {
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                Logger.v(LOG_TAG, "refreshing (", pUri, ")");
+                synchronized (mCachedContent) {
+
+                    Bundle oldContent = mCachedContent.get(pUri);
+                    Bundle newContent = null;
+                    try {
+                        newContent = ResourceDownloadHelper.downloadAndCreateResourceBundle(
+                                CACHE_DIR, pUri);
+                    } catch (Exception e) {
+                        ErrorHandling.signalHttpError(LOG_TAG, e, HttpProxyService.this);
+                        sendResourceNotAvailableBc(pUri);
+                        Logger.e(LOG_TAG, "refreshing ", pUri, " failed!");
+                    }
+
+                    byte[] oldContentBytes = IoHelper.convertResourceBundleToByteArray(oldContent);
+                    byte[] newContentBytes = IoHelper.convertResourceBundleToByteArray(newContent);
+
+                    if (!IoHelper.areWeEqual(oldContentBytes, newContentBytes)) {
+
+                        if (newContentBytes == null) {
+                            mCachedContent.remove(pUri);
+                            sendResourceNotAvailableBc(pUri);
+                            Logger.e(LOG_TAG, "refreshing ", pUri, " failed!");
+
+                        } else {
+                            Logger.v(LOG_TAG, "storing new content and sending bc 'updated' for '",
+                                    pUri, "'");
+                            mCachedContent.put(pUri, newContent);
+                            sendResourceAvailableBc(pUri);
+                        }
+                    } else {
+                        Logger.v(LOG_TAG, "NO new content for '", pUri, "'");
+                    }
+                }
+            }
+        }).start();
+    }
+
+    /**
+     * Helper to notify about resource changes via intent broadcast.
+     */
+    void sendResourceAvailableBc(String pUri) {
+        Intent intent = new Intent(HttpProxyConstants.RESOURCE_UPDATE_ACTION);
+        intent.putExtra(HttpProxyConstants.URI_EXTRA, pUri);
+        // Logger.v(LOG_TAG, "Broadcasting 'update' for resource " + pUri);
+        sendBroadcast(intent);
+    }
+
+    void sendResourceNotAvailableBc(String pUri) {
+        Intent intent = new Intent(HttpProxyConstants.RESOURCE_NOT_AVAILABLE_ACTION);
+        intent.putExtra(HttpProxyConstants.URI_EXTRA, pUri);
+        sendBroadcast(intent);
+    }
+
+    // Implementation of aidl methods -------------------------------------------------
 
     public Bundle getDataSyncronously(String pUri) throws HttpClientException, HttpServerException,
             IOException {
-        return cache.getDataSyncronously(pUri);
+        Bundle newContent = ResourceDownloadHelper.downloadAndCreateResourceBundle(CACHE_DIR, pUri);
+        mCachedContent.put(pUri, newContent);
+        return newContent;
     }
 
     public Bundle fetchFromCache(String pUri) {
-        return cache.fetchFromCache(pUri);
+        Logger.v(LOG_TAG, "fetchFromCache(", pUri, ")");
+        synchronized (mCachedContent) {
+            return mCachedContent.get(pUri);
+        }
     }
 
     public boolean isInCache(String pUri) {
-
-        return cache.isInCache(pUri);
+        synchronized (mCachedContent) {
+            return mCachedContent.containsKey(pUri);
+        }
     }
 
     public void removeFromCache(String pUri) {
-        cache.remove(pUri);
+        Logger.v(LOG_TAG, "removeFromCache(", pUri, ")");
+        synchronized (mCachedContent) {
+            mCachedContent.remove(pUri);
+        }
     }
 
     // Private Instance Methods ------------------------------------------
 
     private void clear() {
         Logger.d(LOG_TAG, "clearing HTTP cache");
-        cache.clear();
+        synchronized (mCachedContent) {
+            mCachedContent.clear();
+            mResourceManager.clear();
+            IoHelper.deleteDir(new File(CACHE_DIR));
+            File dir = new File(CACHE_DIR);
+            if (!dir.exists()) {
+                dir.mkdirs();
+                Logger.e(LOG_TAG, "creating dir " + dir.toString());
+            }
+        }
         sendBroadcast(new Intent(Y60Action.SERVICE_HTTP_PROXY_CLEARED));
         Logger.d(LOG_TAG, "HTTP cache cleared");
     }
 
     public long getNumberOfEntries() {
-        return cache.getNumberOfEntries();
+        return mCachedContent.size();
+    }
+
+    protected Map<String, Bundle> getCachedContent() {
+        return mCachedContent;
     }
 
     // Inner Classes -----------------------------------------------------

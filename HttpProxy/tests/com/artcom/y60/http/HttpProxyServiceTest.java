@@ -1,6 +1,5 @@
 package com.artcom.y60.http;
 
-import java.io.File;
 import java.util.Arrays;
 import java.util.concurrent.TimeoutException;
 
@@ -38,9 +37,6 @@ public class HttpProxyServiceTest extends ServiceTestCase<HttpProxyService> {
 
         super.setUp();
         mIntent = new Intent(getContext(), HttpProxyService.class);
-
-        File dir = new File(Cache.CACHE_DIR);
-        dir.delete();
     }
 
     @Override
@@ -111,8 +107,7 @@ public class HttpProxyServiceTest extends ServiceTestCase<HttpProxyService> {
                         .get(HttpProxyConstants.LOCAL_RESOURCE_PATH_TAG));
 
         byte[] dataFromWeb = HttpHelper.getAsByteArray(resourceUri);
-        byte[] dataFromCache = IoHelper
-                .convertResourceBundleToByteArray(resourceDescription);
+        byte[] dataFromCache = IoHelper.convertResourceBundleToByteArray(resourceDescription);
         Logger.v(LOG_TAG, "websize: ", dataFromWeb.length, " cachesize: ", dataFromCache.length);
         assertTrue("content doesn't match", Arrays.equals(dataFromCache, dataFromWeb));
     }
