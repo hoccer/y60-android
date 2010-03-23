@@ -105,7 +105,7 @@ class Project
 
   # load's the list of project names this project depends on from the eclipse classpath
   def resolve_dependencies
-    classpath = File.new "#{path}/.classpath"
+    classpath = File.new "#{path}/.classpath" rescue puts "no dependencies for this projects"
     cp_xml = REXML::Document.new classpath
     cp_xml.elements.each("*/classpathentry | */*[local-name()='hidden-build-dependency']") do |path_entry| 
       if path_entry.attributes["kind"] == "src" then
