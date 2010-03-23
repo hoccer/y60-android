@@ -30,4 +30,8 @@ class Device
   def eql?(other)
     hash.eql? other.hash
   end
+  
+  def to_s
+    @id
+  end
 end

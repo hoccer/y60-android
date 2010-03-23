@@ -28,8 +28,7 @@ class DeviceExecutor
     @in_processing = []
   end
   
-  def execution_loop *args
-  puts args
+  def execution_loop
     while (true)
       process_devices
       sleep 3
@@ -63,8 +62,6 @@ class DeviceExecutor
     device.wait
   end
 
-  #private
-
   def get_connected_devices
     connected = []
     adb_in = open "|adb devices"
@@ -75,6 +72,8 @@ class DeviceExecutor
 
     return connected
   end
+  
+  private
   
   def extract_device_id line
     line.strip.split[0]
@@ -91,7 +90,7 @@ def main args
 
   params = Hash.from_argv(args)
   args = (params.delete :arguments) || []
-  (DeviceExecutor.new).send "execution_loop", *(args << params)
+  (DeviceExecutor.new).send "execution_loop"
 
 rescue => e
   puts "oops: #{e}\n#{e.backtrace.join "\n"}"
