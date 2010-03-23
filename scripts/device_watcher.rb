@@ -1,5 +1,6 @@
 require 'rubygems'
 require 'sinatra'
+require 'erb'
 
 require 'device_executor'
 
@@ -10,11 +11,12 @@ end
 
 
 def main
-  dw = DeviceWatcher.new
   
+  dw = DeviceWatcher.new
   get '/' do
-    dw.process_devices
-    dw.get_connected_devices.map{|d| d.to_s}.join ", "
+  
+  @dw = dw 
+    erb :device_watcher
   end
   
 rescue => e
