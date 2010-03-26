@@ -1,4 +1,5 @@
 require 'os-helper'
+require 'tempfile'
 
 class Device
   include Comparable
@@ -17,6 +18,10 @@ class Device
   
   def execute
     OS::execute "adb -s #{@id} shell "
+  end
+  
+  def screenshot path
+    OS::execute "./external/screenshot/screenshot2 -s #{@id} #{path}", "taking screenshot"
   end
   
   def <=>(other)

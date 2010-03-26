@@ -9,6 +9,10 @@
     %>
 	
 	<h1><%= device.id %></h1>
+    <%
+        device.screenshot "#{Dir.pwd}/public/#{device.id}.png" 
+    %>
+	<img src="<%= "#{device.id}.png" %>" />
 
 <% end %>
 </body>
