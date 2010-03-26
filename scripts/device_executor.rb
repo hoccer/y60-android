@@ -25,7 +25,6 @@ end
 class DeviceExecutor
   
   def initialize
-    @in_processing ||= []
     @connected_devices ||= []
   end
   
@@ -42,25 +41,14 @@ class DeviceExecutor
   end
   
   def process_devices
-    connected = refresh_device_list
-    connected.each do |device|
-      unless @in_processing.include? device
-        putsf "device #{device} connected!"
-        connected2 = refresh_device_list
-        if connected2.include? device
-          MyTimer.timeout(600.seconds) do
-            execute_cmds_for device
-          end
+    devices.each {|device|
+        MyTimer.timeout(600.seconds) do
+          execute_cmds_for device
         end
-      end
-    end
-    
-    disconnected = @in_processing - connected
-    
+    }
   end
   
   def execute_cmds_for device
-    @in_processing << device
     putsf "executing tasks for #{device}"
     device.wait
   end
