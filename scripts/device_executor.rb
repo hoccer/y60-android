@@ -23,10 +23,15 @@ rescue LoadError
 end
 
 class DeviceExecutor
-
+  
   def initialize
     @in_processing ||= []
     @connected_devices ||= []
+  end
+  
+  def devices
+    refresh_device_list
+    @connected_devices
   end
   
   def execution_loop
@@ -35,13 +40,13 @@ class DeviceExecutor
       sleep 3
     end
   end
-
+  
   def process_devices
-    connected = get_connected_devices
+    connected = refresh_device_list
     connected.each do |device|
       unless @in_processing.include? device
         putsf "device #{device} connected!"
-        connected2 = get_connected_devices
+        connected2 = refresh_device_list
         if connected2.include? device
           MyTimer.timeout(600.seconds) do
             execute_cmds_for device
@@ -49,32 +54,36 @@ class DeviceExecutor
         end
       end
     end
-
+    
     disconnected = @in_processing - connected
-    disconnected.each do |device|
-      putsf "device #{device} disconnected!"
-      @in_processing.delete(device)
-    end
+    
   end
-
+  
   def execute_cmds_for device
     @in_processing << device
     putsf "executing tasks for #{device}"
     device.wait
   end
-
-  def get_connected_devices
+  
+  def refresh_device_list
+    known_device_ids = @connected_devices.map {|d| d.id }
     adb_in = open "|adb devices"
     while (line = adb_in.gets)
       next unless line.strip.end_with? 'device' 
-      device_id = extract_device_id(line)
-      next if @connected_devices.map {|d| d.id }.include? device_id
-      
-      @connected_devices << Device.new(device_id)
+      device_id = extract_device_id line
+      if known_device_ids.include? device_id
+        known_device_ids.delete device_id
+      else
+        @connected_devices << Device.new(device_id)
+      end
     end
     adb_in.close
-
-    puts @connected_devices 
+    
+    known_device_ids.each do |id|
+      putsf "device #{id} has been disconnected!"
+      @connected_devices = @connected_devices.reject {|device| device.id == id}
+    end
+    
     return @connected_devices
   end
   
@@ -83,24 +92,24 @@ class DeviceExecutor
   def extract_device_id line
     line.strip.split[0]
   end
-
+  
   def is_connected? device
-    get_connected_devices.include? device
+    refresh_device_list.include? device
   end
-
+  
 end
 
 
 def main args
-
+  
   params = Hash.from_argv(args)
   args = (params.delete :arguments) || []
-  (DeviceExecutor.new).send "execution_loop"
-
+   (DeviceExecutor.new).send "execution_loop"
+  
 rescue => e
   puts "oops: #{e}\n#{e.backtrace.join "\n"}"
   puts "type '#{__FILE__} --help' for help"
   exit 1
 end
 
-(__FILE__ == $0) and (main ARGV) #end.
+ (__FILE__ == $0) and (main ARGV) #end.

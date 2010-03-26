@@ -5,7 +5,7 @@
 
 <body>
 <% @dw.process_devices
-    @dw.get_connected_devices.each do |device|
+    @dw.devices.each do |device|
     %>
 	
 	<h1><%= device.id %></h1>
