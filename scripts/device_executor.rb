@@ -25,7 +25,8 @@ end
 class DeviceExecutor
 
   def initialize
-    @in_processing = []
+    @in_processing ||= []
+    @connected_devices ||= []
   end
   
   def execution_loop
@@ -63,14 +64,18 @@ class DeviceExecutor
   end
 
   def get_connected_devices
-    connected = []
     adb_in = open "|adb devices"
     while (line = adb_in.gets)
-      connected << Device.new(extract_device_id(line)) if (line.strip.end_with? 'device')
+      next unless line.strip.end_with? 'device' 
+      device_id = extract_device_id(line)
+      next if @connected_devices.map {|d| d.id }.include? device_id
+      
+      @connected_devices << Device.new(device_id)
     end
     adb_in.close
 
-    return connected
+    puts @connected_devices 
+    return @connected_devices
   end
   
   private

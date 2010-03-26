@@ -32,6 +32,6 @@ class Device
   end
   
   def to_s
-    @id
+    "#{@id}"
   end
 end
