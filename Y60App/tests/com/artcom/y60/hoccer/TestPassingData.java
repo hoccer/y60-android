@@ -12,26 +12,28 @@ public class TestPassingData extends AndroidTestCase {
         Peer peer = new Peer();
         mEvent = peer.sweepOut();
         
-        TestHelper.blockUntilTrue("sweepOut event created", 1000, new TestHelper.Condition() {
-            
-            @Override
-            public boolean isSatisfied() throws Exception {
-                return mEvent.isAlive();
-            }
-        });
+        TestHelper.blockUntilTrue("sweepOut event should have been created", 1000,
+                new TestHelper.Condition() {
+                    
+                    @Override
+                    public boolean isSatisfied() throws Exception {
+                        return mEvent.isAlive();
+                    }
+                });
         
-        float lifetime = mEvent.getLifetime();
-        assertTrue("lifetime is still fine", lifetime > 5 * 1000);
+        double lifetime = mEvent.getLifetime();
+        TestHelper.assertGreater("lifetime should be fine", 5, lifetime);
         Thread.sleep(1000);
-        assertTrue("lifetime is decreasing", mEvent.getLifetime() < lifetime);
+        assertTrue("lifetime should be decreasing", mEvent.getLifetime() < lifetime);
         
-        TestHelper.blockUntilFalse("sweepOut event expired", 7000, new TestHelper.Condition() {
-            
-            @Override
-            public boolean isSatisfied() throws Exception {
-                return mEvent.isAlive();
-            }
-        });
-        assertEquals("lifetime is zero", 0, mEvent.getLifetime());
+        TestHelper.blockUntilFalse("sweepOut event shuld be expired by now", 7000,
+                new TestHelper.Condition() {
+                    
+                    @Override
+                    public boolean isSatisfied() throws Exception {
+                        return mEvent.isAlive();
+                    }
+                });
+        assertEquals("lifetime should be down to zero", 0, mEvent.getLifetime());
     }
 }
