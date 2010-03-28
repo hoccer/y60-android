@@ -124,18 +124,18 @@ public class HttpHelper {
         return executeHTTPMethod(post, POST_TIMEOUT, false);
     }
     
-    public static String post(String uri, String body, String pContentType, String pAccept)
+    public static String post(String uri, String body, String pContentType, String pAcceptMimeType)
             throws IOException, HttpClientException, HttpServerException {
         
-        HttpResponse response = post(uri, body, pContentType, pAccept, POST_TIMEOUT);
+        HttpResponse response = post(uri, body, pContentType, pAcceptMimeType, POST_TIMEOUT);
         return extractBodyAsString(response.getEntity());
     }
     
-    public static HttpResponse post(String uri, String body, String pContentType, String pAccept,
+    public static HttpResponse post(String uri, String body, String pContentType, String pAcceptMimeType,
             int pTimeout) throws IOException, HttpClientException, HttpServerException {
         
         HttpPost post = new HttpPost(uri);
-        insert(body, pContentType, pAccept, post);
+        insert(body, pContentType, pAcceptMimeType, post);
         return executeHTTPMethod(post, pTimeout);
     }
     
@@ -356,7 +356,7 @@ public class HttpHelper {
         insert(pEncodedBody, "application/x-www-form-urlencoded", "application/json", method);
     }
     
-    private static void insert(String pBody, String pContentType, String pAccept,
+    private static void insert(String pBody, String pContentType, String pAcceptMimeType,
             HttpEntityEnclosingRequestBase pMethod) {
         
         // Logger.v(LOG_TAG, "inserting for content type " + pContentType
@@ -368,7 +368,7 @@ public class HttpHelper {
             entity = new StringEntity(pBody);
             pMethod.setEntity(entity);
             pMethod.addHeader("Content-Type", pContentType);
-            pMethod.addHeader("Accept", pAccept);
+            pMethod.addHeader("Accept", pAcceptMimeType);
             
         } catch (UnsupportedEncodingException e) {
             
