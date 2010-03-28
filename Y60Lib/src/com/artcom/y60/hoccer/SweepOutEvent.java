@@ -27,8 +27,12 @@ public class SweepOutEvent extends HocEvent {
         try {
             HttpResponse response;
             response = HttpHelper.postUrlEncoded(getRemoteServer() + "/events", eventParams);
+            
+            Logger.v(LOG_TAG, "response header is: \n", HttpHelper.getHeadersAsString(response
+                    .getAllHeaders()));
+            
             String body = HttpHelper.extractBodyAsString(response.getEntity());
-            Logger.v(LOG_TAG, "response is ", body);
+            Logger.v(LOG_TAG, "response body is: \n", body);
             
             JSONObject jsonBody = new JSONObject(body);
             setState(jsonBody.getString("state"));

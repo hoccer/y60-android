@@ -21,6 +21,9 @@ public class TestPassingData extends AndroidTestCase {
                     }
                 });
         
+        assertEquals("event shuld have a valid resource location", HocEvent.getRemoteServer()
+                + "/events/", mEvent.getResourceLocation());
+        
         double lifetime = mEvent.getLifetime();
         TestHelper.assertGreater("lifetime should be fine", 5, lifetime);
         Thread.sleep(1000);
