@@ -223,21 +223,21 @@ class Project
 
     raise "no y60 path defined" unless self.y60_path
     puts "adding '#{y60_path}' to project search path"
-    dirs = Dir["#{y60_path}/*/.project"]
+    dirs = Dir["#{y60_path}/*/.classpath"]
 
     my_path = File.expand_path Dir.getwd
     if my_path != y60_path
       puts "adding '#{my_path}' to project search path"
-      dirs.concat Dir["#{my_path}/*/.project"]
+      dirs.concat Dir["#{my_path}/*/.classpath"]
     end
-
+    
     dirs.each do |project_path|
       pj_path_list = project_path.split("/")
-      pj_path_list.pop # remove manifest from path
+      pj_path_list.pop # remove file from path
       pj_path = pj_path_list.join("/")
       pj_name = pj_path_list.pop
     
-      puts pj_path
+      puts "found" + pj_path
       
       # add to paths only if all project paths are to be loaded
       @@project_paths[pj_name] = pj_path if (all_or_names == :all) or all_or_names.member? pj_name
