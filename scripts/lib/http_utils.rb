@@ -1,4 +1,3 @@
-require 'hpricot'
 require 'net/https'
 require 'uri'
 
