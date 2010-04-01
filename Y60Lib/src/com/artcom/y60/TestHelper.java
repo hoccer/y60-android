@@ -45,16 +45,9 @@ public class TestHelper {
         while (System.currentTimeMillis() - start < pTimeout) {
             
             if (pCon.isSatisfied()) {
-                
                 return;
             }
-            
-            try {
-                Thread.sleep(20);
-            } catch (InterruptedException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
+            Thread.sleep(200);
         }
         
         throw new AssertionError(pFailMessage);
