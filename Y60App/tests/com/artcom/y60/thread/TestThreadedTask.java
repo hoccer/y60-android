@@ -26,12 +26,62 @@ public class TestThreadedTask extends AndroidTestCase {
             @Override
             public void run() {
                 setProgress(1);
+                sleep();
+                setProgress(53);
+                sleep();
+                setProgress(99);
+                sleep();
+                setProgress(100);
+            }
+            
+            private void sleep() {
+                try {
+                    Thread.sleep(200);
+                } catch (InterruptedException e) {
+                    // this is fine for testing purposes
+                    throw new RuntimeException(e);
+                }
             }
         };
-        assertEquals("task should start with zero progress", 0, mTask.getProgress());
         
+        assertEquals("task should start with zero progress", 0, mTask.getProgress());
         mTask.start();
-        Thread.sleep(1000);
-        TestHelper.assertGreater("progress should increase", 1, mTask.getProgress());
+        
+        TestHelper.blockUntilEquals("progress should increase", 300, 1,
+                new TestHelper.Measurement() {
+                    
+                    @Override
+                    public Object getActualValue() throws Exception {
+                        return mTask.getProgress();
+                    }
+                });
+        
+        TestHelper.blockUntilEquals("progress should increase", 300, 53,
+                new TestHelper.Measurement() {
+                    
+                    @Override
+                    public Object getActualValue() throws Exception {
+                        return mTask.getProgress();
+                    }
+                });
+        
+        TestHelper.blockUntilEquals("progress should increase", 300, 99,
+                new TestHelper.Measurement() {
+                    
+                    @Override
+                    public Object getActualValue() throws Exception {
+                        return mTask.getProgress();
+                    }
+                });
+        
+        TestHelper.blockUntilEquals("progress should increase", 300, 100,
+                new TestHelper.Measurement() {
+                    
+                    @Override
+                    public Object getActualValue() throws Exception {
+                        return mTask.getProgress();
+                    }
+                });
+        
     }
 }
