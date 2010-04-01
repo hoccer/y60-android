@@ -397,6 +397,24 @@ public class TestHelper {
         }
     }
     
+    public static void assertGreater(String message, int minimum, int measured) {
+        if (minimum > measured) {
+            Assert.fail(message + " but " + minimum + " is greater than " + measured);
+        }
+    }
+    
+    public static void assertSmaller(String message, double maximum, double measured) {
+        if (maximum < measured) {
+            Assert.fail(message + " but " + maximum + " is smaller than " + measured);
+        }
+    }
+    
+    public static void assertSmaller(String message, int maximum, int measured) {
+        if (maximum < measured) {
+            Assert.fail(message + " but " + maximum + " is smaller than " + measured);
+        }
+    }
+    
     public static void assertEquals(final String message, final byte[] expected,
             final byte[] current) {
         
