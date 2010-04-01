@@ -8,12 +8,17 @@ public class TestThreadedTask extends AndroidTestCase {
     
     ThreadedTask mTask = null;
     
+    @Override
+    public void tearDown() {
+        mTask = null;
+    }
+    
     public void testConstruction() throws Exception {
         
         assertNull(mTask);
         mTask = new ThreadedTask() {
             @Override
-            public void run() {
+            public void doInBackground() {
             }
         };
         assertNotNull(mTask);
@@ -24,14 +29,13 @@ public class TestThreadedTask extends AndroidTestCase {
     public void testProgressWithSaneValues() throws Exception {
         mTask = new ThreadedTaskForTesting() {
             @Override
-            public void run() {
+            public void doInBackground() {
                 setProgress(1);
                 sleep();
                 setProgress(53);
                 sleep();
                 setProgress(99);
                 sleep();
-                setProgress(100);
             }
         };
         
@@ -41,13 +45,13 @@ public class TestThreadedTask extends AndroidTestCase {
         assertProgress("progress should increase", 1);
         assertProgress("progress should increase", 53);
         assertProgress("progress should increase", 99);
-        assertProgress("progress should increase", 100);
+        assertProgress("progress should automaticly be setted to 100% if task is done", 100);
     }
     
     public void testProgressWithBadValues() throws Exception {
         mTask = new ThreadedTaskForTesting() {
             @Override
-            public void run() {
+            public void doInBackground() {
                 setProgress(-1);
                 sleep();
                 setProgress(2011);
@@ -68,6 +72,23 @@ public class TestThreadedTask extends AndroidTestCase {
                 return mTask.getProgress();
             }
         });
+    }
+    
+    public void testAskingForSuccess() throws Exception {
+        mTask = new ThreadedTaskForTesting() {
+            @Override
+            public void doInBackground() {
+            }
+        };
+        mTask.start();
+        TestHelper.blockUntilTrue("Task should tell about it's success", 200,
+                new TestHelper.Condition() {
+                    
+                    @Override
+                    public boolean isSatisfied() throws Exception {
+                        return mTask.wasSuccessful();
+                    }
+                });
     }
     
     private abstract class ThreadedTaskForTesting extends ThreadedTask {
