@@ -65,15 +65,6 @@ public class TestThreadedTask extends AndroidTestCase {
         assertEquals("task should clamp at 100% progress", 100, mTask.getProgress());
     }
     
-    private void assertProgress(String pMessage, int pExpectedPercent) throws Exception {
-        TestHelper.blockUntilEquals(pMessage, 300, pExpectedPercent, new TestHelper.Measurement() {
-            @Override
-            public Object getActualValue() throws Exception {
-                return mTask.getProgress();
-            }
-        });
-    }
-    
     public void testAskingForSuccess() throws Exception {
         mTask = new ThreadedTaskForTesting() {
             @Override
@@ -89,6 +80,15 @@ public class TestThreadedTask extends AndroidTestCase {
                         return mTask.wasSuccessful();
                     }
                 });
+    }
+    
+    private void assertProgress(String pMessage, int pExpectedPercent) throws Exception {
+        TestHelper.blockUntilEquals(pMessage, 300, pExpectedPercent, new TestHelper.Measurement() {
+            @Override
+            public Object getActualValue() throws Exception {
+                return mTask.getProgress();
+            }
+        });
     }
     
     private abstract class ThreadedTaskForTesting extends ThreadedTask {
