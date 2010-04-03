@@ -13,10 +13,10 @@ import android.test.suitebuilder.annotation.Suppress;
 
 import com.artcom.y60.Constants;
 import com.artcom.y60.DeviceConfiguration;
-import com.artcom.y60.HttpHelper;
 import com.artcom.y60.Logger;
 import com.artcom.y60.NetworkHelper;
 import com.artcom.y60.TestHelper;
+import com.artcom.y60.http.HttpHelper;
 
 public class DeviceControllerServiceTest extends ServiceTestCase<DeviceControllerService> {
 

@@ -3,15 +3,14 @@ package com.artcom.y60.http;
 import java.util.Arrays;
 import java.util.concurrent.TimeoutException;
 
-import com.artcom.y60.HttpHelper;
-import com.artcom.y60.IoHelper;
-import com.artcom.y60.Logger;
-
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.test.AssertionFailedError;
 import android.test.ServiceTestCase;
+
+import com.artcom.y60.IoHelper;
+import com.artcom.y60.Logger;
 
 /**
  * Direct service testing. No binding, no inter-vm-communication with aidl.

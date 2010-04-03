@@ -8,9 +8,9 @@ import org.apache.http.HttpResponse;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.artcom.y60.HttpHelper;
 import com.artcom.y60.Logger;
 import com.artcom.y60.http.HttpClientException;
+import com.artcom.y60.http.HttpHelper;
 import com.artcom.y60.http.HttpServerException;
 
 public class SweepOutEvent extends HocEvent {

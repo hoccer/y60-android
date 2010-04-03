@@ -23,6 +23,7 @@ import android.content.Intent;
 import android.test.AssertionFailedError;
 
 import com.artcom.y60.http.HttpClientException;
+import com.artcom.y60.http.HttpHelper;
 
 public class TestHelper {
     

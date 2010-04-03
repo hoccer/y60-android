@@ -11,12 +11,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import com.artcom.y60.BindingListener;
-import com.artcom.y60.ErrorHandling;
-import com.artcom.y60.IoHelper;
-import com.artcom.y60.Logger;
-import com.artcom.y60.RpcStatus;
-
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
@@ -30,6 +24,12 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
+
+import com.artcom.y60.BindingListener;
+import com.artcom.y60.ErrorHandling;
+import com.artcom.y60.IoHelper;
+import com.artcom.y60.Logger;
+import com.artcom.y60.RpcStatus;
 
 /**
  * Helper class for activities which encapsulates the interaction with the HttpProxyService,

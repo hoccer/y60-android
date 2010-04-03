@@ -18,8 +18,8 @@ import org.mortbay.jetty.handler.AbstractHandler;
 import org.mortbay.jetty.handler.DefaultHandler;
 import org.mortbay.thread.QueuedThreadPool;
 
-import com.artcom.y60.HttpHelper;
 import com.artcom.y60.Logger;
+import com.artcom.y60.http.HttpHelper;
 
 public class DeviceControllerUnitTest extends TestCase {
 

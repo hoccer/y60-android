@@ -5,14 +5,6 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.artcom.y60.ErrorHandling;
-import com.artcom.y60.IoHelper;
-import com.artcom.y60.Logger;
-import com.artcom.y60.ResourceDownloadHelper;
-import com.artcom.y60.RpcStatus;
-import com.artcom.y60.Y60Action;
-import com.artcom.y60.Y60Service;
-
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -20,6 +12,14 @@ import android.content.IntentFilter;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
+
+import com.artcom.y60.ErrorHandling;
+import com.artcom.y60.IoHelper;
+import com.artcom.y60.Logger;
+import com.artcom.y60.ResourceDownloadHelper;
+import com.artcom.y60.RpcStatus;
+import com.artcom.y60.Y60Action;
+import com.artcom.y60.Y60Service;
 
 /**
  * Implementation of client-side caching for HTTP resources.

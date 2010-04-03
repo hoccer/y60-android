@@ -3,6 +3,9 @@ package com.artcom.y60.gom;
 import java.util.LinkedList;
 import java.util.List;
 
+import android.content.Intent;
+import android.os.AsyncTask;
+
 import com.artcom.y60.BindingException;
 import com.artcom.y60.BindingListener;
 import com.artcom.y60.ErrorHandling;
@@ -11,9 +14,6 @@ import com.artcom.y60.TestHelper;
 import com.artcom.y60.Y60Action;
 import com.artcom.y60.Y60Service;
 import com.artcom.y60.http.HttpProxyHelper;
-
-import android.content.Intent;
-import android.os.AsyncTask;
 
 public abstract class Y60GomService extends Y60Service {
 

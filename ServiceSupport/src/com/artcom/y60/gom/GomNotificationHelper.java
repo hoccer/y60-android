@@ -7,18 +7,18 @@ import java.util.HashMap;
 import org.apache.http.HttpResponse;
 import org.apache.http.StatusLine;
 
+import android.content.BroadcastReceiver;
+
 import com.artcom.y60.BindingException;
 import com.artcom.y60.Constants;
 import com.artcom.y60.DeviceConfiguration;
 import com.artcom.y60.ErrorHandler;
-import com.artcom.y60.HttpHelper;
 import com.artcom.y60.IpAddressNotFoundException;
 import com.artcom.y60.Logger;
 import com.artcom.y60.NetworkHelper;
 import com.artcom.y60.http.HttpClientException;
+import com.artcom.y60.http.HttpHelper;
 import com.artcom.y60.http.HttpServerException;
-
-import android.content.BroadcastReceiver;
 
 public class GomNotificationHelper {
 

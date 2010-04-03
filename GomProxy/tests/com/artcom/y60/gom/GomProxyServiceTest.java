@@ -13,9 +13,9 @@ import android.test.ServiceTestCase;
 
 import com.artcom.y60.Constants;
 import com.artcom.y60.DeviceConfiguration;
-import com.artcom.y60.HttpHelper;
 import com.artcom.y60.Logger;
 import com.artcom.y60.UriHelper;
+import com.artcom.y60.http.HttpHelper;
 
 public class GomProxyServiceTest extends ServiceTestCase<GomProxyService> {
 

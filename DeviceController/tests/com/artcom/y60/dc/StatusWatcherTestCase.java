@@ -9,9 +9,9 @@ import android.test.ServiceTestCase;
 import android.test.suitebuilder.annotation.Suppress;
 
 import com.artcom.y60.DeviceConfiguration;
-import com.artcom.y60.HttpHelper;
 import com.artcom.y60.Logger;
 import com.artcom.y60.Y60Action;
+import com.artcom.y60.http.HttpHelper;
 
 public class StatusWatcherTestCase extends ServiceTestCase<StatusWatcher> {
 
