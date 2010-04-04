@@ -48,7 +48,7 @@ public class TestHelper {
             if (pCon.isSatisfied()) {
                 return;
             }
-            Thread.sleep(200);
+            Thread.sleep(20);
         }
         
         throw new AssertionError(pFailMessage);
