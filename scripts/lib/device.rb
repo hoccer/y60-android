@@ -21,7 +21,7 @@ class Device
   end
   
   def screenshot path
-    OS::execute "./external/screenshot/screenshot2 -s #{@id} #{path}", "taking screenshot"
+    OS::execute "#{File.dirname(__FILE__)}/../external/screenshot/screenshot2 -s #{@id} #{path}", "taking screenshot"
   end
   
   def <=>(other)
