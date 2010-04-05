@@ -9,7 +9,7 @@ public class TestPassingData extends AndroidTestCase {
     HocEvent mEvent;
     
     public void testLonelySweepOutEvent() throws Exception {
-        Peer peer = new Peer();
+        Peer peer = new Peer("Y60/Hoccer Unit Test on Android");
         mEvent = peer.sweepOut();
         
         TestHelper.blockUntilTrue("sweepOut event should have been created", 1000,

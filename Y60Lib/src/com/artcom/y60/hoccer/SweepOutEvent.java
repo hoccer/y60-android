@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -17,7 +18,8 @@ public class SweepOutEvent extends HocEvent {
     
     private static final String LOG_TAG = "SweepOutEvent";
     
-    public SweepOutEvent() {
+    SweepOutEvent(HttpClient pHttpClient) {
+        super(pHttpClient);
         
         Map<String, String> eventParams = new HashMap<String, String>();
         eventParams.put("event[type]", "SweepOut");
