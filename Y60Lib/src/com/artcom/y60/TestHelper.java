@@ -416,6 +416,12 @@ public class TestHelper {
         }
     }
     
+    public static void assertIncludes(String message, String substring, String measured) {
+        if (!measured.contains(substring)) {
+            Assert.fail(message + " but '" + measured + "' does not contain '" + substring + "'");
+        }
+    }
+    
     public static void assertEquals(final String message, final byte[] expected,
             final byte[] current) {
         
@@ -522,5 +528,4 @@ public class TestHelper {
             Logger.v(pLOG_TAG, additionalTag, " ", runningService.service.getClassName());
         }
     }
-    
 }
