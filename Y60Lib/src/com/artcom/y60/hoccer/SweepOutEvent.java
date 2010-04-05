@@ -21,10 +21,7 @@ public class SweepOutEvent extends HocEvent {
     SweepOutEvent(HttpClient pHttpClient) {
         super(pHttpClient);
         
-        Map<String, String> eventParams = new HashMap<String, String>();
-        eventParams.put("event[type]", "SweepOut");
-        eventParams.put("event[latitude]", "23");
-        eventParams.put("event[longitude]", "34");
+        Map<String, String> eventParams = getHttpParameters();
         
         try {
             HttpResponse response;
@@ -49,5 +46,13 @@ public class SweepOutEvent extends HocEvent {
         } catch (JSONException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    protected Map<String, String> getHttpParameters() {
+        Map<String, String> eventParams = new HashMap<String, String>();
+        eventParams.put("event[type]", "SweepOut");
+        eventParams.put("event[latitude]", "23");
+        eventParams.put("event[longitude]", "34");
+        return eventParams;
     }
 }
