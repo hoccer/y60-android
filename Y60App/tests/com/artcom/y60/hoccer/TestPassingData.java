@@ -12,7 +12,7 @@ public class TestPassingData extends AndroidTestCase {
         Peer peer = new Peer("Y60/Hoccer Unit Test on Android");
         mEvent = peer.sweepOut();
         
-        TestHelper.blockUntilTrue("sweepOut event should have been created", 1000,
+        TestHelper.blockUntilTrue("sweepOut event should have been created", 10000,
                 new TestHelper.Condition() {
                     
                     @Override
