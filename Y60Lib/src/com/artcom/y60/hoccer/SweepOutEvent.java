@@ -4,6 +4,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.http.client.HttpClient;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 public class SweepOutEvent extends HocEvent {
     
@@ -11,8 +13,6 @@ public class SweepOutEvent extends HocEvent {
     
     SweepOutEvent(HttpClient pHttpClient) {
         super(pHttpClient);
-        
-        Map<String, String> eventParams = getHttpParameters();
         
         // try {
         // HttpResponse response;
@@ -46,5 +46,15 @@ public class SweepOutEvent extends HocEvent {
         eventParams.put("event[latitude]", "23");
         eventParams.put("event[longitude]", "34");
         return eventParams;
+    }
+    
+    @Override
+    protected void updateStatusFromJson(JSONObject status) throws JSONException {
+        if (status.has("state")) {
+            setState(status.getString("state"));
+        }
+        if (status.has("expires")) {
+            setLiftime(Double.parseDouble(status.getString("expires")));
+        }
     }
 }

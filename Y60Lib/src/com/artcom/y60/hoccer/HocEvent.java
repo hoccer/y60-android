@@ -4,6 +4,8 @@ import java.io.OutputStream;
 import java.util.Map;
 
 import org.apache.http.client.HttpClient;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import com.artcom.y60.Logger;
 import com.artcom.y60.http.AsyncHttpPost;
@@ -24,30 +26,7 @@ public abstract class HocEvent {
         AsyncHttpPost eventCreation = new AsyncHttpPost(getRemoteServer() + "/events", pHttpClient);
         eventCreation.setAcceptedMimeType("application/json");
         eventCreation.setBody(getHttpParameters());
-        eventCreation.registerResponseHandler(new HttpResponseHandler() {
-            
-            @Override
-            public void onSuccess(int statusCode, OutputStream body) {
-                Logger.v(LOG_TAG, body);
-            }
-            
-            @Override
-            public void onReceiving(double progress) {
-                // TODO Auto-generated method stub
-                
-            }
-            
-            @Override
-            public void onError(int statusCode, OutputStream body) {
-                Logger.e(LOG_TAG, body);
-            }
-            
-            @Override
-            public void onConnecting() {
-                // TODO Auto-generated method stub
-                
-            }
-        });
+        eventCreation.registerResponseHandler(createResponseHandler());
         eventCreation.start();
         mStatusPollingRequest = eventCreation;
     }
@@ -82,4 +61,37 @@ public abstract class HocEvent {
         return mRemoteServer;
     }
     
+    abstract protected void updateStatusFromJson(JSONObject jsonObject) throws JSONException;
+    
+    private HttpResponseHandler createResponseHandler() {
+        return new HttpResponseHandler() {
+            
+            @Override
+            public void onSuccess(int statusCode, OutputStream body) {
+                Logger.v(LOG_TAG, "success with data: ", body);
+                try {
+                    updateStatusFromJson(new JSONObject(body.toString()));
+                } catch (JSONException e) {
+                    Logger.e(LOG_TAG, e);
+                }
+            }
+            
+            @Override
+            public void onReceiving(double progress) {
+                // TODO Auto-generated method stub
+                
+            }
+            
+            @Override
+            public void onError(int statusCode, OutputStream body) {
+                Logger.e(LOG_TAG, body);
+            }
+            
+            @Override
+            public void onConnecting() {
+                // TODO Auto-generated method stub
+                
+            }
+        };
+    }
 }
