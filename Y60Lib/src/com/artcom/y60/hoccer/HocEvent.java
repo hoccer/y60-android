@@ -3,7 +3,7 @@ package com.artcom.y60.hoccer;
 import java.io.OutputStream;
 import java.util.Map;
 
-import org.apache.http.client.HttpClient;
+import org.apache.http.impl.client.DefaultHttpClient;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -14,14 +14,13 @@ import com.artcom.y60.http.HttpResponseHandler;
 
 public abstract class HocEvent {
     
-    private static final String    LOG_TAG           = "HocEvent";
-    private static String          mRemoteServer     = "http://beta.hoccer.com";
-    private String                 mState            = "unborn";
-    private double                 mLifetime         = -1;
-    private final String           mResourceLocation = null;
+    private static final String    LOG_TAG       = "HocEvent";
+    private static String          mRemoteServer = "http://beta.hoccer.com";
+    private String                 mState        = "unborn";
+    private double                 mLifetime     = -1;
     private final AsyncHttpRequest mStatusPollingRequest;
     
-    HocEvent(HttpClient pHttpClient) {
+    HocEvent(DefaultHttpClient pHttpClient) {
         Logger.v(LOG_TAG, "creating new hoc event");
         AsyncHttpPost eventCreation = new AsyncHttpPost(getRemoteServer() + "/events", pHttpClient);
         eventCreation.setAcceptedMimeType("application/json");
@@ -50,7 +49,7 @@ public abstract class HocEvent {
     }
     
     public String getResourceLocation() {
-        return mResourceLocation;
+        return mStatusPollingRequest.getUri();
     }
     
     protected void setLiftime(double pLifetime) {

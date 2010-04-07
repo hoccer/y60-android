@@ -1,13 +1,12 @@
 package com.artcom.y60.hoccer;
 
-import org.apache.http.client.HttpClient;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpParams;
 
 public class Peer {
     
-    HttpClient mHttpClient;
+    DefaultHttpClient mHttpClient;
     
     public Peer(String clientName) {
         HttpParams httpParams = new BasicHttpParams();
