@@ -27,7 +27,7 @@ public class TestPassingData extends AndroidTestCase {
         
         double lifetime = mEvent.getLifetime();
         TestHelper.assertGreater("lifetime should be fine", 5, lifetime);
-        Thread.sleep(1000);
+        Thread.sleep(2000);
         assertTrue("lifetime should be decreasing", mEvent.getLifetime() < lifetime);
         
         TestHelper.blockUntilFalse("sweepOut event shuld be expired by now", 7000,
@@ -38,6 +38,6 @@ public class TestPassingData extends AndroidTestCase {
                         return mEvent.isAlive();
                     }
                 });
-        assertEquals("lifetime should be down to zero", 0, mEvent.getLifetime());
+        assertEquals("lifetime should be down to zero", 0.0, mEvent.getLifetime());
     }
 }
