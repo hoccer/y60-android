@@ -31,12 +31,22 @@ public abstract class HocEvent {
         mStatusPollingRequest = eventCreation;
     }
     
+    /**
+     * Must be implemented by derived classes to define the key-value pairs which should be send to
+     * the server
+     */
     protected abstract Map<String, String> getHttpParameters();
     
+    /**
+     * @return true if lifetime is positive
+     */
     public boolean isAlive() {
         return getLifetime() > 0;
     }
     
+    /**
+     * @return lifetime on the server; encodes as 'expires' in the hoccer protocol
+     */
     public double getLifetime() {
         return mLifetime;
     }
@@ -49,6 +59,9 @@ public abstract class HocEvent {
         return mState;
     }
     
+    /**
+     * @return uri to the event location
+     */
     public String getResourceLocation() {
         return mStatusPollingRequest.getUri();
     }
@@ -79,6 +92,11 @@ public abstract class HocEvent {
                 }
             }
             
+            /**
+             * Creates a new asyncHttpGet request which replaces the old one. This reponseHandler
+             * object is passed to the new request to enable fibonacci-based increasing of the delay
+             * between polling requesets
+             */
             private void launchNewPollingRequest() {
                 try {
                     Thread.sleep(mRequestDelay * 1000);
