@@ -422,6 +422,12 @@ public class TestHelper {
         }
     }
     
+    public static void assertMatches(String message, String regexp, String measured) {
+        if (!measured.matches(regexp)) {
+            Assert.fail(message + " but '" + regexp + "' does not match '" + measured + "'");
+        }
+    }
+    
     public static void assertEquals(final String message, final byte[] expected,
             final byte[] current) {
         
