@@ -19,4 +19,7 @@ public class Peer {
         return new SweepOutEvent(mHttpClient);
     }
     
+    public HocEvent sweepIn() {
+        return new SweepInEvent(mHttpClient);
+    }
 }

@@ -74,7 +74,14 @@ public abstract class HocEvent {
         return mRemoteServer;
     }
     
-    abstract protected void updateStatusFromJson(JSONObject jsonObject) throws JSONException;
+    protected void updateStatusFromJson(JSONObject status) throws JSONException {
+        if (status.has("state")) {
+            setState(status.getString("state"));
+        }
+        if (status.has("expires")) {
+            setLiftime(Double.parseDouble(status.getString("expires")));
+        }
+    };
     
     private HttpResponseHandler createResponseHandler() {
         return new HttpResponseHandler() {

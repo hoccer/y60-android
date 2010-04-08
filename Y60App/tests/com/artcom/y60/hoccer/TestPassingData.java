@@ -1,25 +1,14 @@
 package com.artcom.y60.hoccer;
 
-import android.test.AndroidTestCase;
-
 import com.artcom.y60.TestHelper;
 
-public class TestPassingData extends AndroidTestCase {
+public class TestPassingData extends HocEventTestCase {
     
-    HocEvent mEvent;
+    private HocEvent mEvent;
     
     public void testLonelySweepOutEvent() throws Exception {
-        Peer peer = new Peer("Y60/Hoccer Unit Test on Android");
-        mEvent = peer.sweepOut();
-        
-        TestHelper.blockUntilTrue("sweepOut event should have been created", 10000,
-                new TestHelper.Condition() {
-                    
-                    @Override
-                    public boolean isSatisfied() throws Exception {
-                        return mEvent.isAlive();
-                    }
-                });
+        mEvent = getPeer().sweepOut();
+        assertEventIsAlive("sweepOut", mEvent);
         
         TestHelper.assertMatches("event shuld have a valid resource location", HocEvent
                 .getRemoteServer()
@@ -30,14 +19,25 @@ public class TestPassingData extends AndroidTestCase {
         Thread.sleep(2000);
         assertTrue("lifetime should be decreasing", mEvent.getLifetime() < lifetime);
         
-        TestHelper.blockUntilFalse("sweepOut event shuld be expired by now", 7000,
-                new TestHelper.Condition() {
-                    
-                    @Override
-                    public boolean isSatisfied() throws Exception {
-                        return mEvent.isAlive();
-                    }
-                });
+        assertEventIsExpired("sweepOut", mEvent);
         assertEquals("lifetime should be down to zero", 0.0, mEvent.getLifetime());
     }
+    
+    public void testLonelySweepInEvent() throws Exception {
+        mEvent = getPeer().sweepIn();
+        assertEventIsAlive("sweepIn", mEvent);
+        
+        TestHelper.assertMatches("event shuld have a valid resource location", HocEvent
+                .getRemoteServer()
+                + "/events/\\w*", mEvent.getResourceLocation());
+        
+        double lifetime = mEvent.getLifetime();
+        TestHelper.assertGreater("lifetime should be fine", 5, lifetime);
+        Thread.sleep(2000);
+        assertTrue("lifetime should be decreasing", mEvent.getLifetime() < lifetime);
+        
+        assertEventIsExpired("sweepIn", mEvent);
+        assertEquals("lifetime should be down to zero", 0.0, mEvent.getLifetime());
+    }
+    
 }

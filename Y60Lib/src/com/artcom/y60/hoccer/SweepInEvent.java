@@ -5,20 +5,19 @@ import java.util.Map;
 
 import org.apache.http.impl.client.DefaultHttpClient;
 
-public class SweepOutEvent extends HocEvent {
+public class SweepInEvent extends HocEvent {
     
-    private static final String LOG_TAG = "SweepOutEvent";
-    
-    SweepOutEvent(DefaultHttpClient pHttpClient) {
+    SweepInEvent(DefaultHttpClient pHttpClient) {
         super(pHttpClient);
     }
     
     @Override
     protected Map<String, String> getHttpParameters() {
         Map<String, String> eventParams = new HashMap<String, String>();
-        eventParams.put("event[type]", "SweepOut");
+        eventParams.put("event[type]", "SweepIn");
         eventParams.put("event[latitude]", "23");
         eventParams.put("event[longitude]", "34");
         return eventParams;
     }
+    
 }
