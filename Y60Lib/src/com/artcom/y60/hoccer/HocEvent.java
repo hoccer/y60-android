@@ -23,11 +23,15 @@ public abstract class HocEvent {
     
     private AsyncHttpRequest    mStatusPollingRequest;
     
-    HocEvent(DefaultHttpClient pHttpClient) {
+    HocEvent(HocLocation pLocation, DefaultHttpClient pHttpClient) {
         Logger.v(LOG_TAG, "creating new hoc event");
         AsyncHttpPost eventCreation = new AsyncHttpPost(getRemoteServer() + "/events", pHttpClient);
         eventCreation.setAcceptedMimeType("application/json");
-        eventCreation.setBody(getHttpParameters());
+        
+        Map<String, String> parameters = getEventParameters();
+        parameters.put("event[latitude]", Double.toString(pLocation.getLatitude()));
+        parameters.put("event[longitude]", Double.toString(pLocation.getLongitude()));
+        eventCreation.setBody(parameters);
         eventCreation.registerResponseHandler(createResponseHandler());
         eventCreation.start();
         mStatusPollingRequest = eventCreation;
@@ -37,7 +41,7 @@ public abstract class HocEvent {
      * Must be implemented by derived classes to define the key-value pairs which should be send to
      * the server
      */
-    protected abstract Map<String, String> getHttpParameters();
+    protected abstract Map<String, String> getEventParameters();
     
     /**
      * @return true if lifetime is positive
@@ -154,5 +158,9 @@ public abstract class HocEvent {
                 
             }
         };
+    }
+    
+    public boolean hasCollision() {
+        return mState.equals("collision");
     }
 }
