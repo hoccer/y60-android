@@ -40,4 +40,14 @@ public class TestPassingData extends HocEventTestCase {
         assertEquals("lifetime should be down to zero", 0.0, mEvent.getLifetime());
     }
     
+    public void testLinkingSweepInAndOutEvents() throws Exception {
+        SweepOutEvent sweepOut = getPeer().sweepOut();
+        assertEventIsAlive("sweepOut", sweepOut);
+        SweepInEvent sweepIn = getPeer().sweepIn();
+        assertEventIsAlive("sweepIn", sweepIn);
+        
+        assertEventHasNumberOfPeers(sweepOut, 1);
+        assertEventHasNumberOfPeers(sweepIn, 1);
+    }
+    
 }

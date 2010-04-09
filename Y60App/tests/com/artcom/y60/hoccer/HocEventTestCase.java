@@ -44,4 +44,16 @@ public class HocEventTestCase extends AndroidTestCase {
                 });
     }
     
+    protected void assertEventHasNumberOfPeers(final HocEvent pEvent, int expectedPeerCount)
+            throws Exception {
+        TestHelper.blockUntilEquals(" HocEvent shuld have " + expectedPeerCount + " peers by now",
+                7000, expectedPeerCount, new TestHelper.Measurement() {
+                    
+                    @Override
+                    public Object getActualValue() throws Exception {
+                        return pEvent.getPeers();
+                    }
+                });
+    }
+    
 }

@@ -19,6 +19,8 @@ public abstract class HocEvent {
     private static String       mRemoteServer = "http://beta.hoccer.com";
     private String              mState        = "unborn";
     private double              mLifetime     = -1;
+    private int                 mPeers        = 0;
+    
     private AsyncHttpRequest    mStatusPollingRequest;
     
     HocEvent(DefaultHttpClient pHttpClient) {
@@ -70,6 +72,14 @@ public abstract class HocEvent {
         mLifetime = pLifetime;
     }
     
+    public int getPeers() {
+        return mPeers;
+    }
+    
+    protected void setPeers(int count) {
+        mPeers = count;
+    }
+    
     protected static String getRemoteServer() {
         return mRemoteServer;
     }
@@ -80,6 +90,9 @@ public abstract class HocEvent {
         }
         if (status.has("expires")) {
             setLiftime(Double.parseDouble(status.getString("expires")));
+        }
+        if (status.has("peers")) {
+            setPeers(Integer.parseInt(status.getString("peers")));
         }
     };
     

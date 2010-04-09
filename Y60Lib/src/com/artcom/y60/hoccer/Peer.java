@@ -12,11 +12,11 @@ public class Peer {
         mHttpClient.getParams().setParameter("http.useragent", clientName);
     }
     
-    public HocEvent sweepOut() {
+    public SweepOutEvent sweepOut() {
         return new SweepOutEvent(mHttpClient);
     }
     
-    public HocEvent sweepIn() {
+    public SweepInEvent sweepIn() {
         return new SweepInEvent(mHttpClient);
     }
 }
