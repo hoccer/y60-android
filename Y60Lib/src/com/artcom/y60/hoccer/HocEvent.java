@@ -1,5 +1,6 @@
 package com.artcom.y60.hoccer;
 
+import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Map;
 
@@ -21,7 +22,7 @@ public abstract class HocEvent {
     private double              mLifetime     = -1;
     private int                 mPeers        = 0;
     
-    private AsyncHttpRequest    mStatusPollingRequest;
+    private AsyncHttpRequest    mStatusFetcher;
     
     HocEvent(HocLocation pLocation, DefaultHttpClient pHttpClient) {
         Logger.v(LOG_TAG, "creating new hoc event");
@@ -34,7 +35,7 @@ public abstract class HocEvent {
         eventCreation.setBody(parameters);
         eventCreation.registerResponseHandler(createResponseHandler());
         eventCreation.start();
-        mStatusPollingRequest = eventCreation;
+        mStatusFetcher = eventCreation;
     }
     
     /**
@@ -69,7 +70,7 @@ public abstract class HocEvent {
      * @return uri to the event location
      */
     public String getResourceLocation() {
-        return mStatusPollingRequest.getUri();
+        return mStatusFetcher.getUri();
     }
     
     protected void setLiftime(double pLifetime) {
@@ -88,7 +89,7 @@ public abstract class HocEvent {
         return mRemoteServer;
     }
     
-    protected void updateStatusFromJson(JSONObject status) throws JSONException {
+    protected void updateStatusFromJson(JSONObject status) throws JSONException, IOException {
         if (status.has("state")) {
             setState(status.getString("state"));
         }
@@ -107,12 +108,19 @@ public abstract class HocEvent {
             @Override
             public void onSuccess(int statusCode, OutputStream body) {
                 Logger.v(LOG_TAG, "success with data: ", body);
+                processServerResponse(body);
+            }
+            
+            private void processServerResponse(OutputStream body) {
                 try {
                     updateStatusFromJson(new JSONObject(body.toString()));
                     launchNewPollingRequest();
                 } catch (JSONException e) {
                     Logger.e(LOG_TAG, e);
                     mState = "json error";
+                } catch (IOException e) {
+                    Logger.e(LOG_TAG, e);
+                    mState = "io error";
                 }
             }
             
@@ -128,9 +136,9 @@ public abstract class HocEvent {
                     Logger.e(LOG_TAG, e);
                 }
                 mRequestDelay += mRequestDelay;
-                mStatusPollingRequest = new AsyncHttpGet(mStatusPollingRequest.getUri());
-                mStatusPollingRequest.registerResponseHandler(this);
-                mStatusPollingRequest.start();
+                mStatusFetcher = new AsyncHttpGet(mStatusFetcher.getUri());
+                mStatusFetcher.registerResponseHandler(this);
+                mStatusFetcher.start();
             }
             
             @Override
@@ -141,15 +149,8 @@ public abstract class HocEvent {
             
             @Override
             public void onError(int statusCode, OutputStream body) {
-                Logger.e(LOG_TAG, body);
-                Logger.v(LOG_TAG, "failure with data: ", body);
-                try {
-                    updateStatusFromJson(new JSONObject(body.toString()));
-                    launchNewPollingRequest();
-                } catch (JSONException e) {
-                    Logger.e(LOG_TAG, e);
-                    mState = "json error";
-                }
+                Logger.e(LOG_TAG, "error from server: ", body);
+                processServerResponse(body);
             }
             
             @Override

@@ -4,6 +4,7 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.params.BasicHttpParams;
 
 import com.artcom.y60.Logger;
+import com.artcom.y60.data.Streamable;
 
 public class Peer {
     
@@ -17,8 +18,8 @@ public class Peer {
         mHttpClient.getParams().setParameter("http.useragent", clientName);
     }
     
-    public SweepOutEvent sweepOut() {
-        return new SweepOutEvent(mHocLocation, mHttpClient);
+    public SweepOutEvent sweepOut(Streamable pStreamableData) {
+        return new SweepOutEvent(mHocLocation, pStreamableData, mHttpClient);
     }
     
     public SweepInEvent sweepIn() {
