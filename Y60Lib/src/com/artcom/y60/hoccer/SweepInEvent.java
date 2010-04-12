@@ -76,4 +76,11 @@ public class SweepInEvent extends HocEvent {
         return mDataDownloader.wasSuccessful();
     }
     
+    public String getIncommingData() {
+        if (mDataDownloader == null) {
+            return null;
+        }
+        return mDataDownloader.getBodyAsString();
+    }
+    
 }
