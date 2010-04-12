@@ -46,27 +46,23 @@ public class SweepOutEvent extends HocEvent {
         Logger.v(LOG_TAG, "starting upload to " + uri);
         mDataUploader = new AsyncHttpPut(uri);
         MultipartHttpEntity multipart = new MultipartHttpEntity();
-        multipart.addPart("hoc data", "somefilename.txt", "text/plain", mOutgoingData);
+        multipart.addPart("upload[attachment]", "somefilename.txt", "text/plain", mOutgoingData);
         mDataUploader.setBody(multipart);
         
         mDataUploader.registerResponseHandler(new HttpResponseHandler() {
             
             @Override
             public void onSuccess(int statusCode, OutputStream body) {
-                // TODO Auto-generated method stub
-                
+                Logger.v(LOG_TAG, "upload successful with: ", body);
             }
             
             @Override
             public void onReceiving(double progress) {
-                // TODO Auto-generated method stub
-                
             }
             
             @Override
             public void onError(int statusCode, OutputStream body) {
-                // TODO Auto-generated method stub
-                
+                Logger.e(LOG_TAG, "upload failed with: ", body);
             }
             
             @Override

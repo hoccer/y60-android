@@ -74,10 +74,11 @@ public class TestPassingData extends HocEventTestCase {
         assertEventHasNumberOfPeers(sweepIn, 1);
         
         assertDataHasBeenUploaded(sweepOut);
+        assertDataHasBeenDownloaded(sweepIn);
     }
     
     private void assertDataHasBeenUploaded(final SweepOutEvent sweepOut) throws Exception {
-        TestHelper.blockUntilTrue("uploader request should been created", 10000,
+        TestHelper.blockUntilTrue("uploader request should have been created", 10000,
                 new TestHelper.Condition() {
                     
                     @Override
@@ -93,5 +94,25 @@ public class TestPassingData extends HocEventTestCase {
                 return sweepOut.hasDataBeenUploaded();
             }
         });
+    }
+    
+    private void assertDataHasBeenDownloaded(final SweepInEvent sweepIn) throws Exception {
+        TestHelper.blockUntilTrue("downloader request should have been created", 10000,
+                new TestHelper.Condition() {
+                    
+                    @Override
+                    public boolean isSatisfied() throws Exception {
+                        return sweepIn.mDataDownloader != null;
+                    }
+                });
+        
+        TestHelper.blockUntilTrue("download should have finished", 10000,
+                new TestHelper.Condition() {
+                    
+                    @Override
+                    public boolean isSatisfied() throws Exception {
+                        return sweepIn.hasDataBeenDownloaded();
+                    }
+                });
     }
 }
