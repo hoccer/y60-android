@@ -23,6 +23,7 @@ import android.content.Intent;
 import android.test.AssertionFailedError;
 
 import com.artcom.y60.http.HttpClientException;
+import com.artcom.y60.http.HttpHelper;
 
 public class TestHelper {
     
@@ -45,16 +46,9 @@ public class TestHelper {
         while (System.currentTimeMillis() - start < pTimeout) {
             
             if (pCon.isSatisfied()) {
-                
                 return;
             }
-            
-            try {
-                Thread.sleep(20);
-            } catch (InterruptedException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
+            Thread.sleep(20);
         }
         
         throw new AssertionError(pFailMessage);
@@ -404,6 +398,36 @@ public class TestHelper {
         }
     }
     
+    public static void assertGreater(String message, int minimum, int measured) {
+        if (minimum > measured) {
+            Assert.fail(message + " but " + minimum + " is greater than " + measured);
+        }
+    }
+    
+    public static void assertSmaller(String message, double maximum, double measured) {
+        if (maximum < measured) {
+            Assert.fail(message + " but " + maximum + " is smaller than " + measured);
+        }
+    }
+    
+    public static void assertSmaller(String message, int maximum, int measured) {
+        if (maximum < measured) {
+            Assert.fail(message + " but " + maximum + " is smaller than " + measured);
+        }
+    }
+    
+    public static void assertIncludes(String message, String substring, String measured) {
+        if (!measured.contains(substring)) {
+            Assert.fail(message + " but '" + measured + "' does not contain '" + substring + "'");
+        }
+    }
+    
+    public static void assertMatches(String message, String regexp, String measured) {
+        if (!measured.matches(regexp)) {
+            Assert.fail(message + " but '" + regexp + "' does not match '" + measured + "'");
+        }
+    }
+    
     public static void assertEquals(final String message, final byte[] expected,
             final byte[] current) {
         
@@ -510,5 +534,4 @@ public class TestHelper {
             Logger.v(pLOG_TAG, additionalTag, " ", runningService.service.getClassName());
         }
     }
-    
 }

@@ -9,15 +9,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.artcom.y60.Constants;
-import com.artcom.y60.HttpHelper;
-import com.artcom.y60.JsonHelper;
-import com.artcom.y60.Logger;
-import com.artcom.y60.RpcStatus;
-import com.artcom.y60.Y60Action;
-import com.artcom.y60.Y60Service;
-import com.artcom.y60.http.HttpClientException;
-
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -25,6 +16,15 @@ import android.content.IntentFilter;
 import android.net.Uri;
 import android.os.IBinder;
 import android.os.RemoteException;
+
+import com.artcom.y60.Constants;
+import com.artcom.y60.JsonHelper;
+import com.artcom.y60.Logger;
+import com.artcom.y60.RpcStatus;
+import com.artcom.y60.Y60Action;
+import com.artcom.y60.Y60Service;
+import com.artcom.y60.http.HttpClientException;
+import com.artcom.y60.http.HttpHelper;
 
 public class GomProxyService extends Y60Service {
 

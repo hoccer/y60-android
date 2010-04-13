@@ -1,4 +1,4 @@
-package com.artcom.y60;
+package com.artcom.y60.http;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -42,9 +42,7 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 
-import com.artcom.y60.http.HttpClientException;
-import com.artcom.y60.http.HttpException;
-import com.artcom.y60.http.HttpServerException;
+import com.artcom.y60.Logger;
 
 public class HttpHelper {
     
@@ -65,29 +63,10 @@ public class HttpHelper {
     public static HttpResponse putUrlEncoded(String pUrl, Map<String, String> pData)
             throws IOException, HttpClientException, HttpServerException {
         
-        StringBuffer tmp = new StringBuffer();
-        Set<String> keys = pData.keySet();
-        int idx = 0;
-        for (String key : keys) {
-            
-            tmp.append(URLEncoder.encode(key));
-            tmp.append("=");
-            tmp.append(URLEncoder.encode(pData.get(key)));
-            
-            idx += 1;
-            
-            if (idx < keys.size()) {
-                
-                tmp.append("&");
-            }
-        }
-        
         HttpPut put = new HttpPut(pUrl);
-        String body = tmp.toString();
+        String body = urlEncodeKeysAndValues(pData);
+        insertUrlEncodedAcceptingJson(body, put);
         
-        // Logger.v(LOG_TAG, "PUT " + pUrl + " with body " + body);
-        
-        insertUrlEncoded(body, put);
         return executeHTTPMethod(put, PUT_TIMEOUT);
     }
     
@@ -95,6 +74,14 @@ public class HttpHelper {
             HttpClientException, HttpServerException {
         HttpPut put = new HttpPut(pUri);
         insert(pData, "text/xml", "text/xml", put);
+        StatusLine statusLine = executeHTTPMethod(put, PUT_TIMEOUT).getStatusLine();
+        return statusLine.getStatusCode() + " " + statusLine.getReasonPhrase();
+    }
+    
+    public static String putAsString(String pUri, String pData) throws IOException,
+            HttpClientException, HttpServerException {
+        HttpPut put = new HttpPut(pUri);
+        insert(pData, "text/plain", "text/plain", put);
         StatusLine statusLine = executeHTTPMethod(put, PUT_TIMEOUT).getStatusLine();
         return statusLine.getStatusCode() + " " + statusLine.getReasonPhrase();
     }
@@ -131,8 +118,9 @@ public class HttpHelper {
         return extractBodyAsString(response.getEntity());
     }
     
-    public static HttpResponse post(String uri, String body, String pContentType, String pAcceptMimeType,
-            int pTimeout) throws IOException, HttpClientException, HttpServerException {
+    public static HttpResponse post(String uri, String body, String pContentType,
+            String pAcceptMimeType, int pTimeout) throws IOException, HttpClientException,
+            HttpServerException {
         
         HttpPost post = new HttpPost(uri);
         insert(body, pContentType, pAcceptMimeType, post);
@@ -282,7 +270,7 @@ public class HttpHelper {
     public static HttpResponse postUrlEncoded(String pUrl, Map<String, String> pData)
             throws IOException, HttpClientException, HttpServerException {
         
-        String body = urlEncode(pData);
+        String body = urlEncodeKeysAndValues(pData);
         return postUrlEncoded(pUrl, body);
     }
     
@@ -291,25 +279,41 @@ public class HttpHelper {
         
         HttpPost post = new HttpPost(pUrl);
         
-        insertUrlEncoded(pUrlEncodedData, post);
+        insertUrlEncodedAcceptingJson(pUrlEncodedData, post);
         return executeHTTPMethod(post);
     }
     
-    public static String urlEncode(Map pData) {
+    public static String urlEncodeKeysAndValues(Map<String, String> pData) {
         
         StringBuffer tmp = new StringBuffer();
         Set keys = pData.keySet();
         int idx = 0;
         for (Object key : keys) {
-            
             tmp.append(URLEncoder.encode(String.valueOf(key)));
             tmp.append("=");
             tmp.append(URLEncoder.encode(String.valueOf(pData.get(key))));
             
             idx += 1;
-            
             if (idx < keys.size()) {
-                
+                tmp.append("&");
+            }
+        }
+        
+        return tmp.toString();
+    }
+    
+    public static String urlEncodeValues(Map<String, String> pData) {
+        
+        StringBuffer tmp = new StringBuffer();
+        Set keys = pData.keySet();
+        int idx = 0;
+        for (Object key : keys) {
+            tmp.append(String.valueOf(key));
+            tmp.append("=");
+            tmp.append(URLEncoder.encode(String.valueOf(pData.get(key))));
+            
+            idx += 1;
+            if (idx < keys.size()) {
                 tmp.append("&");
             }
         }
@@ -328,9 +332,7 @@ public class HttpHelper {
         return extractBody(entity).toByteArray();
     }
     
-    // Private Instance Methods ------------------------------------------
-    
-    private static HttpEntity getAsHttpEntity(String uri) throws IOException, HttpClientException,
+    static HttpEntity getAsHttpEntity(String uri) throws IOException, HttpClientException,
             HttpServerException {
         
         HttpGet get = new HttpGet(uri);
@@ -338,7 +340,7 @@ public class HttpHelper {
         return response.getEntity();
     }
     
-    private static ByteArrayOutputStream extractBody(HttpEntity entity) throws IOException {
+    static ByteArrayOutputStream extractBody(HttpEntity entity) throws IOException {
         
         ByteArrayOutputStream ostream = new ByteArrayOutputStream();
         entity.writeTo(ostream);
@@ -346,32 +348,32 @@ public class HttpHelper {
         return ostream;
     }
     
-    private static void insertXML(String body, HttpEntityEnclosingRequestBase method) {
+    static void insertXML(String body, HttpEntityEnclosingRequestBase method) {
         
         insert(body, "text/xml", "text/xml", method);
     }
     
-    private static void insertUrlEncoded(String pEncodedBody, HttpEntityEnclosingRequestBase method) {
+    static void insertUrlEncodedAcceptingJson(String pEncodedBody,
+            HttpEntityEnclosingRequestBase method) {
         
         insert(pEncodedBody, "application/x-www-form-urlencoded", "application/json", method);
     }
     
-    private static void insert(String pBody, String pContentType, String pAcceptMimeType,
+    static void insert(String pBody, String pContentType, String pAcceptMimeType,
             HttpEntityEnclosingRequestBase pMethod) {
         
-        // Logger.v(LOG_TAG, "inserting for content type " + pContentType
-        // + ", body is " + pBody);
+        insert(pBody, pContentType, pMethod);
+        pMethod.addHeader("Accept", pAcceptMimeType);
+    }
+    
+    static void insert(String pBody, String pContentType, HttpEntityEnclosingRequestBase pMethod) {
         
         StringEntity entity;
         try {
-            
             entity = new StringEntity(pBody);
             pMethod.setEntity(entity);
             pMethod.addHeader("Content-Type", pContentType);
-            pMethod.addHeader("Accept", pAcceptMimeType);
-            
         } catch (UnsupportedEncodingException e) {
-            
             Logger.e(LOG_TAG, "unsupported encoding: ", e);
             throw new RuntimeException(e);
         }

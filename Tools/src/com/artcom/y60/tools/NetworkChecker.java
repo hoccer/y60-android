@@ -17,11 +17,11 @@ import android.widget.TextView;
 
 import com.artcom.y60.DeviceConfiguration;
 import com.artcom.y60.ErrorHandling;
-import com.artcom.y60.HttpHelper;
 import com.artcom.y60.Logger;
 import com.artcom.y60.gom.GomNode;
 import com.artcom.y60.gom.GomProxyHelper;
 import com.artcom.y60.http.HttpException;
+import com.artcom.y60.http.HttpHelper;
 
 public class NetworkChecker extends Activity {
 

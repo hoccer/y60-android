@@ -4,223 +4,225 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
+import java.net.SocketException;
+import java.net.URI;
 
-import org.apache.http.Header;
-import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
-import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.methods.HttpPut;
+import org.apache.http.ProtocolException;
+import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.methods.HttpRequestBase;
-import org.apache.http.entity.InputStreamEntity;
-import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
-
-import android.os.AsyncTask;
+import org.apache.http.impl.client.DefaultRedirectHandler;
+import org.apache.http.params.BasicHttpParams;
+import org.apache.http.params.HttpParams;
+import org.apache.http.protocol.HttpContext;
 
 import com.artcom.y60.Logger;
+import com.artcom.y60.thread.ThreadedTask;
 
-public class AsyncHttpRequest extends AsyncTask<String, Float, HttpResponse> {
+public abstract class AsyncHttpRequest extends ThreadedTask {
     
-    private static final String LOG_TAG      = "AsyncHttpConnection";
+    private static final String   LOG_TAG                  = "AsyncHttpConnection";
     
-    public static final int     GET          = 0;
-    public static final int     POST         = 1;
-    public static final int     PUT          = 2;
-    public static final int     DELETE       = 3;
+    private DefaultHttpClient     mHttpClient;
+    private final HttpRequestBase mRequest;
     
-    private static String       USER_AGENT   = "Y60/1.0 Android";
+    private HttpResponse          mResponse                = null;
+    private final OutputStream    mResultStream            = new ByteArrayOutputStream();
     
-    private HttpEntity          mData;
-    private int                 mType        = GET;
+    private HttpResponseHandler   mResponseHandlerCallback = null;
     
-    private String              mContentType = "application/x-www-form-urlencoded";
-    private final String        mAccept      = "text/html";
-    
-    private HttpResponseHandler mCallbackClass;
-    
-    private final OutputStream  resultStream = new ByteArrayOutputStream();
-    
-    private HttpRequestBase     mRequest;
-    private HttpResponse        mResponse;
-    private boolean             mHasFinished;
-    
-    public static void setUserAgent(String pAgent) {
-        USER_AGENT = pAgent;
+    public AsyncHttpRequest(String pUrl) {
+        mRequest = createRequest(pUrl);
+        
+        HttpParams httpParams = new BasicHttpParams();
+        setHttpClient(new DefaultHttpClient(httpParams));
     }
     
-    public void setData(String data) throws UnsupportedEncodingException {
-        mData = new StringEntity(data);
+    public AsyncHttpRequest(String pUrl, DefaultHttpClient pHttpClient) {
+        mRequest = createRequest(pUrl);
+        setHttpClient(pHttpClient);
     }
     
-    public void setData(HttpEntity entity) {
-        mData = entity;
+    // Only used internally to reuse code for both constructors
+    private void setHttpClient(DefaultHttpClient pHttpClient) {
+        mHttpClient = pHttpClient;
+        
+        // overwrite user-agent if it's not already customized
+        Object userAgent = mHttpClient.getParams().getParameter("http.useragent");
+        if (userAgent == null || userAgent.toString().contains("Apache-HttpClient")) {
+            mHttpClient.getParams().setParameter("http.useragent", "Y60/1.0 Android");
+        }
+        
+        // remember redirects
+        mHttpClient.setRedirectHandler(new DefaultRedirectHandler() {
+            @Override
+            public URI getLocationURI(HttpResponse response, HttpContext context)
+                    throws ProtocolException {
+                URI uri = super.getLocationURI(response, context);
+                mRequest.setURI(uri);
+                return uri;
+            }
+        });
     }
     
-    public void setData(InputStream iStream, String pContentType) {
-        mData = new InputStreamEntity(iStream, 1000);
-        mContentType = pContentType;
+    public String getBodyAsString() {
+        return mResultStream.toString();
     }
     
-    public void setContentType(String pContentType) {
-        mContentType = pContentType;
+    public void setAcceptedMimeType(String pMimeType) {
+        getRequest().addHeader("Accept", pMimeType);
     }
     
-    public String getData() {
-        return mData.toString();
+    public boolean isConnecting() {
+        return getProgress() == 1;
     }
     
-    public void setConnectionType(int type) {
-        mType = type;
+    public boolean wasSuccessful() {
+        int status = getStatusCode();
+        return status >= 200 && status < 300;
     }
     
-    public int getConnectionType() {
-        return mType;
+    public boolean hadClientError() {
+        int status = getStatusCode();
+        return status >= 400 && status < 500;
     }
     
-    public void registerResponseHandler(HttpResponseHandler callback) {
-        mCallbackClass = callback;
+    public boolean hadServerError() {
+        int status = getStatusCode();
+        return status >= 500 && status < 600;
     }
     
     @Override
-    protected HttpResponse doInBackground(String... params) {
+    public void doInBackground() {
+        
+        setProgress(1);
+        onConnecting();
+        
         try {
-            return connect(params);
+            mResponse = mHttpClient.execute(mRequest);
+        } catch (ClientProtocolException e) {
+            onClientError(e);
+            return;
+        } catch (SocketException e) {
+            onClientError(e);
+            return;
         } catch (IOException e) {
-            Logger.e(LOG_TAG, e);
+            onIoError(e);
+            return;
         }
+        setProgress(2);
         
-        return null;
-    }
-    
-    public boolean hasFinished() {
-        return mHasFinished;
-    }
-    
-    public HttpResponse connect(String... params) throws IOException {
-        
-        String url = params[0];
-        Logger.v(LOG_TAG, "connecing to ", url);
-        
-        mResponse = null;
-        DefaultHttpClient httpClient = new DefaultHttpClient();
-        mRequest = createRequest(params[0]);
-        mResponse = httpClient.execute(mRequest);
-        
-        int status = mResponse.getStatusLine().getStatusCode();
-        
-        if (status == 200) {
-            publishProgress(new Float(-1));
-            
-            if (resultStream == null) {
-                return mResponse;
-            }
-            
-            InputStream is = mResponse.getEntity().getContent();
-            
-            long downloaded = 0;
-            long size = mResponse.getEntity().getContentLength();
-            
-            byte[] buffer = new byte[0xFFFF];
-            int len;
-            
-            while ((len = is.read(buffer)) != -1) {
-                publishProgress(new Float(downloaded / (float) size));
-                
-                resultStream.write(buffer, 0, len);
-                downloaded += len;
-            }
-        }
-        
-        return mResponse;
-    }
-    
-    private HttpRequestBase createRequest(String pUrl) {
-        
-        HttpRequestBase request = null;
-        
-        switch (getConnectionType()) {
-            case POST:
-                request = new HttpPost(pUrl);
-                insertData((HttpPost) request);
-                break;
-            case PUT:
-                request = new HttpPut(pUrl);
-                insertData((HttpPut) request);
-                break;
-            default:
-                request = new HttpGet(pUrl);
-        }
-        
-        request.addHeader("User-Agent", USER_AGENT);
-        
-        logHeaders(request.getAllHeaders());
-        
-        return request;
-    }
-    
-    private void insertData(HttpEntityEnclosingRequestBase post) {
-        post.setEntity(mData);
-        if (mContentType != null)
-            post.addHeader("Content-Type", mContentType);
-        post.addHeader("Accept", mAccept);
-    }
-    
-    @Override
-    protected void onProgressUpdate(Float... progress) {
-        if (progress[0].floatValue() == -1) {
-            mCallbackClass.onSuccess(mResponse);
-        }
-        
-        mCallbackClass.onReceiving(progress[0]);
-        
-        super.onProgressUpdate(progress);
-    }
-    
-    @Override
-    protected void onPostExecute(HttpResponse pResponse) {
-        mHasFinished = true;
-        Logger.v(LOG_TAG, "on PostExecute");
-        if (mCallbackClass == null) {
+        if (mResponse == null) {
+            onClientError(new NullPointerException("expected http response object is null"));
             return;
         }
         
-        int status = pResponse.getStatusLine().getStatusCode();
-        if (status >= 400 && status < 500) {
-            onClientError(pResponse);
-        } else if (status >= 500 && status < 600) {
-            onServerError(pResponse);
-        } else if (pResponse != null) {
-            Logger.v(LOG_TAG, "in onPostExecute");
-            mCallbackClass.onSuccess(pResponse);
+        int status = getStatusCode();
+        
+        try {
+            InputStream is = mResponse.getEntity().getContent();
+            long downloaded = 0;
+            long size = mResponse.getEntity().getContentLength();
+            byte[] buffer = new byte[0xFFFF];
+            int len;
+            while ((len = is.read(buffer)) != -1) {
+                setProgress((int) (downloaded / size));
+                mResultStream.write(buffer, 0, len);
+                downloaded += len;
+            }
+        } catch (IOException e) {
+            onIoError(e);
+            return;
         }
         
-        super.onPostExecute(pResponse);
     }
     
-    protected void onClientError(HttpResponse pResponse) {
-        mCallbackClass.onError(pResponse);
-    }
-    
-    protected void onServerError(HttpResponse pResponse) {
-        mCallbackClass.onError(pResponse);
-    }
-    
-    private void logHeaders(Header[] headers) {
-        for (Header h : headers) {
-            Logger.v(LOG_TAG, h);
+    public int getStatusCode() {
+        if (mResponse != null) {
+            return mResponse.getStatusLine().getStatusCode();
+        } else {
+            return -1;
         }
+    }
+    
+    public void registerResponseHandler(HttpResponseHandler responseHandler) {
+        mResponseHandlerCallback = responseHandler;
+    }
+    
+    /**
+     * @return uri of the request (gets updated when redirected)
+     */
+    public String getUri() {
+        return mRequest.getURI().toString();
+    }
+    
+    public String getHeader(String pHeaderName) {
+        return mResponse.getFirstHeader(pHeaderName).getValue();
+    }
+    
+    abstract protected HttpRequestBase createRequest(String pUrl);
+    
+    protected HttpRequestBase getRequest() {
+        return mRequest;
     }
     
     @Override
-    public void onCancelled() {
-        super.onCancelled();
-        try {
-            mRequest.abort();
-        } catch (NullPointerException npe) {
-            npe.printStackTrace();
+    protected void onPostExecute() {
+        
+        if (mResponse == null) {
+            onClientError(new NullPointerException("response of request " + mRequest.getURI()
+                    + " was null"));
+            return;
+        }
+        
+        int status = getStatusCode();
+        if (hadClientError()) {
+            onClientError(status);
+        } else if (hadServerError()) {
+            onServerError(status);
+        } else if (wasSuccessful()) {
+            onSuccess(status);
+        } else {
+            onClientError(new Exception("do not know what to do with status code "
+                    + getStatusCode()));
+        }
+        
+        super.onPostExecute();
+    }
+    
+    protected void onIoError(IOException e) {
+        Logger.e(LOG_TAG, e);
+    }
+    
+    protected void onClientError(Exception e) {
+        Logger.e(LOG_TAG, e);
+    }
+    
+    protected void onConnecting() {
+        if (mResponseHandlerCallback != null) {
+            mResponseHandlerCallback.onConnecting();
+        }
+    }
+    
+    protected void onSuccess(int pStatusCode) {
+        if (mResponseHandlerCallback != null) {
+            mResponseHandlerCallback.onSuccess(pStatusCode, mResultStream);
+        }
+    }
+    
+    protected void onClientError(int pStatusCode) {
+        Logger.e(LOG_TAG, "Error response code was ", pStatusCode);
+        if (mResponseHandlerCallback != null) {
+            mResponseHandlerCallback.onError(pStatusCode, mResultStream);
+        }
+    }
+    
+    protected void onServerError(int pStatusCode) {
+        Logger.e(LOG_TAG, "Error response code was ", pStatusCode, " body: ", mResultStream
+                .toString());
+        if (mResponseHandlerCallback != null) {
+            mResponseHandlerCallback.onError(pStatusCode, mResultStream);
         }
     }
 }

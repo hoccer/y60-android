@@ -6,50 +6,38 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.artcom.y60.Logger;
-import com.artcom.y60.data.Streamable;
-import com.artcom.y60.http.AsyncHttpPut;
+import com.artcom.y60.http.AsyncHttpGet;
 import com.artcom.y60.http.HttpResponseHandler;
-import com.artcom.y60.http.MultipartHttpEntity;
 
-public class SweepOutEvent extends HocEvent {
+public class SweepInEvent extends HocEvent {
     
-    private static final String LOG_TAG       = "SweepOutEvent";
-    private final Streamable    mOutgoingData;
-    AsyncHttpPut                mDataUploader = null;
+    private static String LOG_TAG         = "SweepInEvent";
+    AsyncHttpGet          mDataDownloader = null;
     
-    SweepOutEvent(HocLocation pLocation, Streamable pOutgoingData, DefaultHttpClient pHttpClient) {
+    SweepInEvent(HocLocation pLocation, DefaultHttpClient pHttpClient) {
         super(pLocation, pHttpClient);
-        mOutgoingData = pOutgoingData;
-    }
-    
-    public boolean hasDataBeenUploaded() {
-        if (mDataUploader == null) {
-            return false;
-        }
-        return mDataUploader.wasSuccessful();
     }
     
     @Override
     protected void updateStatusFromJson(JSONObject status) throws JSONException, IOException {
         super.updateStatusFromJson(status);
-        if (status.has("upload_uri") && mDataUploader == null) {
-            uploadDataTo(status.getString("upload_uri"));
+        if (status.has("uploads") && mDataDownloader == null) {
+            JSONArray uris = status.getJSONArray("uploads");
+            if (uris.length() > 0) {
+                downloadDataFrom(uris.getJSONObject(0).getString("uri"));
+            }
         }
         
     }
     
-    private void uploadDataTo(String uri) throws JSONException, IOException {
-        Logger.v(LOG_TAG, "starting upload to " + uri);
-        mDataUploader = new AsyncHttpPut(uri);
-        MultipartHttpEntity multipart = new MultipartHttpEntity();
-        multipart.addPart("upload[attachment]", "somefilename.txt", "text/plain", mOutgoingData);
-        mDataUploader.setBody(multipart);
-        
-        mDataUploader.registerResponseHandler(new HttpResponseHandler() {
+    private void downloadDataFrom(String uri) throws JSONException, IOException {
+        mDataDownloader = new AsyncHttpGet(uri);
+        mDataDownloader.registerResponseHandler(new HttpResponseHandler() {
             
             @Override
             public void onSuccess(int statusCode, OutputStream body) {
@@ -71,13 +59,28 @@ public class SweepOutEvent extends HocEvent {
                 
             }
         });
-        mDataUploader.start();
+        mDataDownloader.start();
     }
     
     @Override
     protected Map<String, String> getEventParameters() {
         Map<String, String> eventParams = new HashMap<String, String>();
-        eventParams.put("event[type]", "SweepOut");
+        eventParams.put("event[type]", "SweepIn");
         return eventParams;
     }
+    
+    public boolean hasDataBeenDownloaded() {
+        if (mDataDownloader == null) {
+            return false;
+        }
+        return mDataDownloader.wasSuccessful();
+    }
+    
+    public String getIncommingData() {
+        if (mDataDownloader == null) {
+            return null;
+        }
+        return mDataDownloader.getBodyAsString();
+    }
+    
 }
