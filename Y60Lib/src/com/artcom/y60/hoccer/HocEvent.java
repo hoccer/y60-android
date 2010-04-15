@@ -72,8 +72,21 @@ public abstract class HocEvent {
         return mLifetime;
     }
 
-    protected void setState(String pStatus) {
-        mState = pStatus;
+    protected void setState(String newState) {
+
+        if (mState.equals(newState)) {
+            return;
+        }
+
+        mState = newState;
+        if (mState.equals("ready")) {
+            onLinkEstablished();
+        } else if (mState.equals("collision")) {
+            onError(this);
+        } else if (mState.equals("no_link")) {
+            onError(this);
+        } else if (mState.equals("waiting")) {
+        }
     }
 
     public String getState() {
@@ -108,14 +121,43 @@ public abstract class HocEvent {
     }
 
     protected void updateStatusFromJson(JSONObject status) throws JSONException, IOException {
+
+        String message = "";
+
         if (status.has("state")) {
             setState(status.getString("state"));
+        }
+        if (status.has("message")) {
+            message = status.getString("message");
         }
         if (status.has("expires")) {
             setLiftime(Double.parseDouble(status.getString("expires")));
         }
         if (status.has("peers")) {
             setPeers(Integer.parseInt(status.getString("peers")));
+        }
+
+        // notify about new status infos
+        for (HocEventListener callback : mCallbackList) {
+            callback.onProgress(message);
+        }
+    }
+
+    protected void onSuccess() {
+        for (HocEventListener callback : mCallbackList) {
+            callback.onSuccess(UUID.randomUUID());
+        }
+    };
+
+    protected void onLinkEstablished() {
+        for (HocEventListener callback : mCallbackList) {
+            callback.onLinkEstablished();
+        }
+    };
+
+    protected void onError(HocEvent pHocEvent) {
+        for (HocEventListener callback : mCallbackList) {
+            callback.onError(null, null);
         }
     };
 
@@ -126,27 +168,6 @@ public abstract class HocEvent {
             @Override
             public void onSuccess(int statusCode, OutputStream body) {
                 Logger.v(LOG_TAG, "onSuccess with body: ", body, " processServerResponse .. ");
-
-                JSONObject json;
-                String message = "fail";
-                try {
-                    json = new JSONObject(body.toString());
-                    message = json.getString("message");
-
-                } catch (JSONException e) {
-                }
-
-                for (HocEventListener callback : mCallbackList) {
-                    callback.onProgress(message);
-                }
-
-                if (message.equals("content available for download")) {
-                    for (HocEventListener callback : mCallbackList) {
-                        callback.onSuccess(UUID.randomUUID());
-                    }
-                    return;
-                }
-
                 processServerResponse(body);
             }
 
