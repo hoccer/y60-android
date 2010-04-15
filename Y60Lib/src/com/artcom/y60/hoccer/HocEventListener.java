@@ -4,12 +4,12 @@ import java.util.UUID;
 
 public interface HocEventListener {
 
-    public void onUploadFinished(UUID uuid);
+    public void onSuccess(UUID uuid);
 
-    public void onUploadFeedback(String pMessage);
+    public void onProgress(String pMessage);
 
-    public void onUploadError(Throwable e, UUID uuid);
+    public void onError(Throwable e, UUID uuid);
 
-    public void onContentUploadStart();
+    public void onLinkEstablished();
 
 }

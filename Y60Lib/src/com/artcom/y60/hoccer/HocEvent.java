@@ -137,12 +137,12 @@ public abstract class HocEvent {
                 }
 
                 for (HocEventListener callback : mCallbackList) {
-                    callback.onUploadFeedback(message);
+                    callback.onProgress(message);
                 }
 
                 if (message.equals("content available for download")) {
                     for (HocEventListener callback : mCallbackList) {
-                        callback.onUploadFinished(UUID.randomUUID());
+                        callback.onSuccess(UUID.randomUUID());
                     }
                     return;
                 }
