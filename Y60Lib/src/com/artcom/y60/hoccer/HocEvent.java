@@ -18,14 +18,14 @@ import com.artcom.y60.http.HttpResponseHandler;
 
 public abstract class HocEvent {
 
-    private static final String                       LOG_TAG       = "HocEvent";
-    private static String                             mRemoteServer = "http://beta.hoccer.com";
-    private String                                    mState        = "unborn";
-    private double                                    mLifetime     = -1;
-    private int                                       mPeers        = 0;
-    private UUID                                      mUuid         = null;
+    private static final String         LOG_TAG       = "HocEvent";
+    private static String               mRemoteServer = "http://beta.hoccer.com";
+    private String                      mState        = "unborn";
+    private double                      mLifetime     = -1;
+    private int                         mPeers        = 0;
+    private UUID                        mUuid         = null;
 
-    private AsyncHttpRequest                          mStatusFetcher;
+    private AsyncHttpRequest            mStatusFetcher;
     private ArrayList<HocEventListener> mCallbackList;
 
     HocEvent(HocLocation pLocation, DefaultHttpClient pHttpClient) {
@@ -47,7 +47,7 @@ public abstract class HocEvent {
         mCallbackList = new ArrayList<HocEventListener>();
     }
 
-    public void addHoccerUploadListener(HocEventListener pListener) {
+    public void registerCallback(HocEventListener pListener) {
         Logger.v(LOG_TAG, "addHoccerUploadListener");
         mCallbackList.add(pListener);
     }
