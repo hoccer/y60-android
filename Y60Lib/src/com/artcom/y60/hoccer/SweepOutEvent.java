@@ -84,4 +84,9 @@ public class SweepOutEvent extends HocEvent {
         eventParams.put("event[type]", "SweepOut");
         return eventParams;
     }
+
+    @Override
+    public String getData() {
+        return mOutgoingData.toString();
+    }
 }

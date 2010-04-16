@@ -104,6 +104,8 @@ public abstract class HocEvent {
         return mUuid;
     }
 
+    public abstract String getData();
+
     /**
      * @return uri to the event location
      */

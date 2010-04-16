@@ -116,6 +116,6 @@ public class TestPassingData extends HocEventTestCase {
                     }
                 });
         assertEquals("incomming data should be as expected", pExpectedData, sweepIn
-                .getIncommingData());
+                .getData());
     }
 }
