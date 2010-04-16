@@ -12,6 +12,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.artcom.y60.Logger;
+import com.artcom.y60.data.Streamable;
+import com.artcom.y60.data.StreamableString;
 import com.artcom.y60.http.AsyncHttpGet;
 import com.artcom.y60.http.HttpResponseHandler;
 
@@ -79,11 +81,11 @@ public class SweepInEvent extends HocEvent {
         return mDataDownloader.wasSuccessful();
     }
 
-    public String getData() {
+    public Streamable getData() {
         if (mDataDownloader == null) {
             return null;
         }
-        return mDataDownloader.getBodyAsString();
+        return new StreamableString(mDataDownloader.getBodyAsString());
     }
 
 }

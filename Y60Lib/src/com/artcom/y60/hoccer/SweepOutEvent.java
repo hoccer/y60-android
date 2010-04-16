@@ -86,7 +86,7 @@ public class SweepOutEvent extends HocEvent {
     }
 
     @Override
-    public String getData() {
-        return mOutgoingData.toString();
+    public Streamable getData() {
+        return mOutgoingData;
     }
 }

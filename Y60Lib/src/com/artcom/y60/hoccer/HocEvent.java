@@ -12,6 +12,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.artcom.y60.Logger;
+import com.artcom.y60.data.Streamable;
 import com.artcom.y60.http.AsyncHttpGet;
 import com.artcom.y60.http.AsyncHttpPost;
 import com.artcom.y60.http.AsyncHttpRequest;
@@ -104,7 +105,7 @@ public abstract class HocEvent {
         return mUuid;
     }
 
-    public abstract String getData();
+    public abstract Streamable getData();
 
     /**
      * @return uri to the event location
