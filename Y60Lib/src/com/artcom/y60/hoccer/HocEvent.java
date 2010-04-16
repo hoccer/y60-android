@@ -27,6 +27,7 @@ public abstract class HocEvent {
 
     private AsyncHttpRequest            mStatusFetcher;
     private ArrayList<HocEventListener> mCallbackList;
+    private String                      mMessage;
 
     HocEvent(HocLocation pLocation, DefaultHttpClient pHttpClient) {
         Logger.v(LOG_TAG, "creating new hoc event");
@@ -70,6 +71,10 @@ public abstract class HocEvent {
      */
     public double getLifetime() {
         return mLifetime;
+    }
+
+    public String getMessage() {
+        return mMessage;
     }
 
     protected void updateState(String newState) {
@@ -123,13 +128,11 @@ public abstract class HocEvent {
 
     protected void updateStatusFromJson(JSONObject status) throws JSONException, IOException {
 
-        String message = "";
-
         if (status.has("state")) {
             updateState(status.getString("state"));
         }
         if (status.has("message")) {
-            message = status.getString("message");
+            mMessage = status.getString("message");
         }
         if (status.has("expires")) {
             setLiftime(Double.parseDouble(status.getString("expires")));
@@ -140,7 +143,7 @@ public abstract class HocEvent {
 
         // notify about new status infos
         for (HocEventListener callback : mCallbackList) {
-            callback.onProgress(message);
+            callback.onProgress(mMessage);
         }
     }
 
@@ -231,4 +234,5 @@ public abstract class HocEvent {
     public boolean hasCollision() {
         return mState.equals("collision");
     }
+
 }
