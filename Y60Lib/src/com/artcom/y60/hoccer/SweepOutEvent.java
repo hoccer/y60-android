@@ -54,6 +54,7 @@ public class SweepOutEvent extends HocEvent {
             @Override
             public void onSuccess(int statusCode, OutputStream body) {
                 Logger.v(LOG_TAG, "onSuccess with body: ", body);
+                SweepOutEvent.this.onSuccess();
             }
 
             @Override
@@ -64,6 +65,7 @@ public class SweepOutEvent extends HocEvent {
             @Override
             public void onError(int statusCode, OutputStream body) {
                 Logger.e(LOG_TAG, "onError: ", body, " with status code: ", statusCode);
+                SweepOutEvent.this.onError();
             }
 
             @Override

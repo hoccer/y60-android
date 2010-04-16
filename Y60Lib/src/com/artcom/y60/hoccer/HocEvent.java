@@ -18,12 +18,12 @@ import com.artcom.y60.http.HttpResponseHandler;
 
 public abstract class HocEvent {
 
-    private static final String         LOG_TAG       = "HocEvent";
-    private static String               mRemoteServer = "http://beta.hoccer.com";
-    private String                      mState        = "unborn";
-    private double                      mLifetime     = -1;
-    private int                         mPeers        = 0;
-    private UUID                        mUuid         = null;
+    private static final String         LOG_TAG          = "HocEvent";
+    private static String               mRemoteServer    = "http://beta.hoccer.com";
+    private String                      mState           = "unborn";
+    private double                      mLifetime        = -1;
+    private int                         mLinkedPeerCount = 0;
+    private UUID                        mUuid            = null;
 
     private AsyncHttpRequest            mStatusFetcher;
     private ArrayList<HocEventListener> mCallbackList;
@@ -72,7 +72,7 @@ public abstract class HocEvent {
         return mLifetime;
     }
 
-    protected void setState(String newState) {
+    protected void updateState(String newState) {
 
         if (mState.equals(newState)) {
             return;
@@ -82,10 +82,11 @@ public abstract class HocEvent {
         if (mState.equals("ready")) {
             onLinkEstablished();
         } else if (mState.equals("collision")) {
-            onError(this);
+            onError();
         } else if (mState.equals("no_link")) {
-            onError(this);
+            onError();
         } else if (mState.equals("waiting")) {
+            onProgress();
         }
     }
 
@@ -108,12 +109,12 @@ public abstract class HocEvent {
         mLifetime = pLifetime;
     }
 
-    public int getPeers() {
-        return mPeers;
+    public int getLinkedPeerCount() {
+        return mLinkedPeerCount;
     }
 
-    protected void setPeers(int count) {
-        mPeers = count;
+    protected void setLinkedPeerCount(int count) {
+        mLinkedPeerCount = count;
     }
 
     protected static String getRemoteServer() {
@@ -125,7 +126,7 @@ public abstract class HocEvent {
         String message = "";
 
         if (status.has("state")) {
-            setState(status.getString("state"));
+            updateState(status.getString("state"));
         }
         if (status.has("message")) {
             message = status.getString("message");
@@ -134,7 +135,7 @@ public abstract class HocEvent {
             setLiftime(Double.parseDouble(status.getString("expires")));
         }
         if (status.has("peers")) {
-            setPeers(Integer.parseInt(status.getString("peers")));
+            setLinkedPeerCount(Integer.parseInt(status.getString("peers")));
         }
 
         // notify about new status infos
@@ -145,7 +146,7 @@ public abstract class HocEvent {
 
     protected void onSuccess() {
         for (HocEventListener callback : mCallbackList) {
-            callback.onSuccess(UUID.randomUUID());
+            callback.onSuccess(this);
         }
     };
 
@@ -155,9 +156,15 @@ public abstract class HocEvent {
         }
     };
 
-    protected void onError(HocEvent pHocEvent) {
+    protected void onError() {
         for (HocEventListener callback : mCallbackList) {
             callback.onError(null, null);
+        }
+    };
+
+    protected void onProgress() {
+        for (HocEventListener callback : mCallbackList) {
+            callback.onProgress("on progress");
         }
     };
 

@@ -4,7 +4,7 @@ import java.util.UUID;
 
 public interface HocEventListener {
 
-    public void onSuccess(UUID uuid);
+    public void onSuccess(HocEvent pHocEvent);
 
     public void onProgress(String pMessage);
 

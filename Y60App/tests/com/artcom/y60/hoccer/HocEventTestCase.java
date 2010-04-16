@@ -79,7 +79,7 @@ public class HocEventTestCase extends TestCase {
                     
                     @Override
                     public Object getActualValue() throws Exception {
-                        return pEvent.getPeers();
+                        return pEvent.getLinkedPeerCount();
                     }
                 });
     }
