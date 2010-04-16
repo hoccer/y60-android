@@ -5,6 +5,7 @@ import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.http.Header;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -43,6 +44,7 @@ public class SweepInEvent extends HocEvent {
             public void onSuccess(int statusCode, OutputStream body) {
                 Logger.v(LOG_TAG, "upload successful with: ", body);
                 SweepInEvent.this.onSuccess();
+
             }
 
             @Override
@@ -56,8 +58,7 @@ public class SweepInEvent extends HocEvent {
             }
 
             @Override
-            public void onConnecting() {
-                // TODO Auto-generated method stub
+            public void onHeaderAvailable(Header[] pHeaders) {
 
             }
         });

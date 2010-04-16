@@ -5,6 +5,7 @@ import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.http.Header;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -69,9 +70,10 @@ public class SweepOutEvent extends HocEvent {
             }
 
             @Override
-            public void onConnecting() {
-                Logger.v(LOG_TAG, "onConnecting");
+            public void onHeaderAvailable(Header[] pHeaders) {
+
             }
+
         });
         mDataUploader.start();
     }

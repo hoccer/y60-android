@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.UUID;
 
+import org.apache.http.Header;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -225,9 +226,10 @@ public abstract class HocEvent {
             }
 
             @Override
-            public void onConnecting() {
-                Logger.v(LOG_TAG, "onConnecting");
+            public void onHeaderAvailable(Header[] headers) {
+
             }
+
         };
     }
 
