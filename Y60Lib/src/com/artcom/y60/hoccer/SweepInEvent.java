@@ -1,7 +1,6 @@
 package com.artcom.y60.hoccer;
 
 import java.io.IOException;
-import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -12,8 +11,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.artcom.y60.Logger;
-import com.artcom.y60.data.Streamable;
-import com.artcom.y60.data.StreamableString;
+import com.artcom.y60.data.StreamableContent;
 import com.artcom.y60.http.AsyncHttpGet;
 import com.artcom.y60.http.HttpResponseHandler;
 
@@ -42,7 +40,7 @@ public class SweepInEvent extends HocEvent {
         mDataDownloader.registerResponseHandler(new HttpResponseHandler() {
 
             @Override
-            public void onSuccess(int statusCode, OutputStream body) {
+            public void onSuccess(int statusCode, StreamableContent body) {
                 Logger.v(LOG_TAG, "upload successful with: ", body);
                 SweepInEvent.this.onSuccess();
 
@@ -53,16 +51,13 @@ public class SweepInEvent extends HocEvent {
             }
 
             @Override
-            public void onError(int statusCode, OutputStream body) {
+            public void onError(int statusCode, StreamableContent body) {
                 Logger.e(LOG_TAG, "upload failed with: ", body);
                 SweepInEvent.this.onError();
             }
 
             @Override
             public void onHeaderAvailable(Header[] pHeaders) {
-                for (int i = 0; i < pHeaders.length; i++) {
-                    Logger.v(LOG_TAG, "on header available: ", pHeaders[i]);
-                }
 
             }
         });
@@ -83,11 +78,10 @@ public class SweepInEvent extends HocEvent {
         return mDataDownloader.wasSuccessful();
     }
 
-    public Streamable getData() {
+    public StreamableContent getData() {
         if (mDataDownloader == null) {
             return null;
         }
-        return new StreamableString(mDataDownloader.getBodyAsString());
+        return mDataDownloader.getBodyAsStreamableContent();
     }
-
 }
