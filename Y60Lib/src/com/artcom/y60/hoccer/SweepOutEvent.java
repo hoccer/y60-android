@@ -71,7 +71,9 @@ public class SweepOutEvent extends HocEvent {
 
             @Override
             public void onHeaderAvailable(Header[] pHeaders) {
-
+                for (int i = 0; i < pHeaders.length; i++) {
+                    Logger.v(LOG_TAG, "on header available: ", pHeaders[i]);
+                }
             }
 
         });
