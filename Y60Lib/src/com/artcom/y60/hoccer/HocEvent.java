@@ -230,7 +230,9 @@ public abstract class HocEvent {
 
             @Override
             public void onHeaderAvailable(Header[] headers) {
-
+                for (int i = 0; i < headers.length; i++) {
+                    Logger.v(LOG_TAG, "on header available: ", headers[i]);
+                }
             }
 
         };

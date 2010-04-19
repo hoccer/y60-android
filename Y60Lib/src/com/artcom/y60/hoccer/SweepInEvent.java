@@ -35,7 +35,6 @@ public class SweepInEvent extends HocEvent {
                 downloadDataFrom(uris.getJSONObject(0).getString("uri"));
             }
         }
-
     }
 
     private void downloadDataFrom(String uri) throws JSONException, IOException {
@@ -61,6 +60,9 @@ public class SweepInEvent extends HocEvent {
 
             @Override
             public void onHeaderAvailable(Header[] pHeaders) {
+                for (int i = 0; i < pHeaders.length; i++) {
+                    Logger.v(LOG_TAG, "on header available: ", pHeaders[i]);
+                }
 
             }
         });
