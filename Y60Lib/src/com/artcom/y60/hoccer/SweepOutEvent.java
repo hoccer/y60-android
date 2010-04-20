@@ -47,7 +47,7 @@ public class SweepOutEvent extends HocEvent {
         Logger.v(LOG_TAG, "starting upload to " + uri);
         mDataUploader = new AsyncHttpPut(uri);
         MultipartHttpEntity multipart = new MultipartHttpEntity();
-        multipart.addPart("upload[attachment]", "somefilename.txt", mOutgoingData);
+        multipart.addPart("upload[attachment]", mOutgoingData);
         mDataUploader.setBody(multipart);
 
         mDataUploader.registerResponseHandler(new HttpResponseHandler() {
