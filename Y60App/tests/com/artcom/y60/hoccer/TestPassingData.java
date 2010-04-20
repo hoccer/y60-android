@@ -1,11 +1,13 @@
 package com.artcom.y60.hoccer;
 
 import com.artcom.y60.TestHelper;
+import com.artcom.y60.data.DynamicStreamableContent;
 import com.artcom.y60.data.StreamableString;
 
 public class TestPassingData extends HocEventTestCase {
 
-    private HocEvent mEvent;
+    private static final String LOG_TAG = "TestPassingData";
+    private HocEvent            mEvent;
 
     public void testLonelySweepOutEvent() throws Exception {
         SweepOutEvent sweepOut = getPeer().sweepOut(new StreamableString("my hocced data"));
@@ -62,9 +64,13 @@ public class TestPassingData extends HocEventTestCase {
         assertEventHasNumberOfPeers(sweepIn, 1);
     }
 
-    public void testTransferingDataBetweenSweepInAndOutEvents() throws Exception {
+    public void testTransferingStringBetweenSweepInAndOutEvents() throws Exception {
 
-        final SweepOutEvent sweepOut = getPeer().sweepOut(new StreamableString("my hocced data"));
+        DynamicStreamableContent textContent = new DynamicStreamableContent();
+        textContent.setContentType("text/plain");
+        textContent.write("my hocced text".getBytes(), 0, "my hocced text".length());
+
+        final SweepOutEvent sweepOut = getPeer().sweepOut(textContent);
         assertEventIsAlive("sweepOut", sweepOut);
         SweepInEvent sweepIn = getPeer().sweepIn();
         assertEventIsAlive("sweepIn", sweepIn);
@@ -73,7 +79,7 @@ public class TestPassingData extends HocEventTestCase {
         assertEventHasNumberOfPeers(sweepIn, 1);
 
         assertDataHasBeenUploaded(sweepOut);
-        assertDataHasBeenDownloaded(sweepIn, "my hocced data");
+        assertDataHasBeenDownloaded(sweepIn, "my hocced text");
     }
 
     private void assertDataHasBeenUploaded(final SweepOutEvent sweepOut) throws Exception {

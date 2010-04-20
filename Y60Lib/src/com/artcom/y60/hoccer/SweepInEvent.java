@@ -75,7 +75,7 @@ public class SweepInEvent extends HocEvent {
         if (mDataDownloader == null) {
             return false;
         }
-        return mDataDownloader.wasSuccessful();
+        return mDataDownloader.isDone();
     }
 
     public StreamableContent getData() {
