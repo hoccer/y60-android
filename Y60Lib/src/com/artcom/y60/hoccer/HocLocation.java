@@ -8,6 +8,8 @@ import android.net.wifi.ScanResult;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.artcom.y60.data.ProblemDescriptor;
+
 public class HocLocation extends Location {
 
     private List<ScanResult> mScanResults = null;
@@ -57,6 +59,15 @@ public class HocLocation extends Location {
         return hoccability;
     }
 
+    public String getProblemDescription() {
+
+        return null;
+    }
+
+    public String getResolvingHelp() {
+        return null;
+    }
+
     @Override
     public void writeToParcel(Parcel pDest, int pFlags) {
         super.writeToParcel(pDest, pFlags);
@@ -76,4 +87,31 @@ public class HocLocation extends Location {
                                                                     }
                                                                 };
 
+    public HocLocationProblem getHocLocationProblem(ProblemDescriptor descriptor) {
+        if (getHoccability() > 1) {
+            return null;
+        }
+
+        HocLocationProblem problem = new HocLocationProblem();
+        problem.setProblem(descriptor.getDescription("location_inaccurate"));
+
+        ArrayList<String> recoverySuggestions = new ArrayList<String>();
+        recoverySuggestions.add(descriptor.getDescription("location_improve_go_outside"));
+        if (mScanResults == null || mScanResults.size() == 0) {
+            recoverySuggestions.add(descriptor.getDescription("location_improve_turn_wifi_on"));
+        }
+
+        StringBuffer recoverySuggestion = new StringBuffer();
+        recoverySuggestion.append(descriptor.getDescription("location_intro"));
+        if (recoverySuggestions.size() > 0) {
+            recoverySuggestion.append(recoverySuggestions.get(0));
+        }
+        if (recoverySuggestions.size() > 1) {
+            recoverySuggestion.append(descriptor.getDescription("location_tip_join")
+                    + recoverySuggestions.get(1));
+        }
+
+        problem.setRecoverySuggestion(recoverySuggestion.toString());
+        return problem;
+    }
 }
