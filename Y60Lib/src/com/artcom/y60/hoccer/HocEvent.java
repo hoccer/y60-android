@@ -1,7 +1,6 @@
 package com.artcom.y60.hoccer;
 
 import java.io.IOException;
-import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.UUID;
@@ -12,7 +11,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.artcom.y60.Logger;
-import com.artcom.y60.data.Streamable;
+import com.artcom.y60.data.StreamableContent;
 import com.artcom.y60.http.AsyncHttpGet;
 import com.artcom.y60.http.AsyncHttpPost;
 import com.artcom.y60.http.AsyncHttpRequest;
@@ -105,7 +104,7 @@ public abstract class HocEvent {
         return mUuid;
     }
 
-    public abstract Streamable getData();
+    public abstract StreamableContent getData();
 
     /**
      * @return uri to the event location
@@ -180,12 +179,12 @@ public abstract class HocEvent {
             int mRequestDelay = 1;
 
             @Override
-            public void onSuccess(int statusCode, OutputStream body) {
+            public void onSuccess(int statusCode, StreamableContent body) {
                 Logger.v(LOG_TAG, "onSuccess with body: ", body, " processServerResponse .. ");
                 processServerResponse(body);
             }
 
-            private void processServerResponse(OutputStream body) {
+            private void processServerResponse(StreamableContent body) {
                 try {
                     updateStatusFromJson(new JSONObject(body.toString()));
                     launchNewPollingRequest();
@@ -223,18 +222,14 @@ public abstract class HocEvent {
             }
 
             @Override
-            public void onError(int statusCode, OutputStream body) {
+            public void onError(int statusCode, StreamableContent body) {
                 Logger.e(LOG_TAG, "onError: ", body, " with status code: ", statusCode);
                 processServerResponse(body);
             }
 
             @Override
             public void onHeaderAvailable(Header[] headers) {
-                for (int i = 0; i < headers.length; i++) {
-                    Logger.v(LOG_TAG, "on header available: ", headers[i]);
-                }
             }
-
         };
     }
 

@@ -1,7 +1,6 @@
 package com.artcom.y60.hoccer;
 
 import java.io.IOException;
-import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -11,18 +10,19 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.artcom.y60.Logger;
-import com.artcom.y60.data.Streamable;
+import com.artcom.y60.data.StreamableContent;
 import com.artcom.y60.http.AsyncHttpPut;
 import com.artcom.y60.http.HttpResponseHandler;
 import com.artcom.y60.http.MultipartHttpEntity;
 
 public class SweepOutEvent extends HocEvent {
 
-    private static final String LOG_TAG       = "SweepOutEvent";
-    private final Streamable    mOutgoingData;
-    AsyncHttpPut                mDataUploader = null;
+    private static final String     LOG_TAG       = "SweepOutEvent";
+    private final StreamableContent mOutgoingData;
+    AsyncHttpPut                    mDataUploader = null;
 
-    SweepOutEvent(HocLocation pLocation, Streamable pOutgoingData, DefaultHttpClient pHttpClient) {
+    SweepOutEvent(HocLocation pLocation, StreamableContent pOutgoingData,
+            DefaultHttpClient pHttpClient) {
         super(pLocation, pHttpClient);
         mOutgoingData = pOutgoingData;
     }
@@ -53,7 +53,7 @@ public class SweepOutEvent extends HocEvent {
         mDataUploader.registerResponseHandler(new HttpResponseHandler() {
 
             @Override
-            public void onSuccess(int statusCode, OutputStream body) {
+            public void onSuccess(int statusCode, StreamableContent body) {
                 Logger.v(LOG_TAG, "onSuccess with body: ", body);
                 SweepOutEvent.this.onSuccess();
             }
@@ -64,16 +64,13 @@ public class SweepOutEvent extends HocEvent {
             }
 
             @Override
-            public void onError(int statusCode, OutputStream body) {
+            public void onError(int statusCode, StreamableContent body) {
                 Logger.e(LOG_TAG, "onError: ", body, " with status code: ", statusCode);
                 SweepOutEvent.this.onError();
             }
 
             @Override
             public void onHeaderAvailable(Header[] pHeaders) {
-                for (int i = 0; i < pHeaders.length; i++) {
-                    Logger.v(LOG_TAG, "on header available: ", pHeaders[i]);
-                }
             }
 
         });
@@ -88,7 +85,7 @@ public class SweepOutEvent extends HocEvent {
     }
 
     @Override
-    public Streamable getData() {
+    public StreamableContent getData() {
         return mOutgoingData;
     }
 }
