@@ -13,14 +13,16 @@ import org.json.JSONObject;
 
 import com.artcom.y60.Logger;
 import com.artcom.y60.data.StreamableContent;
+import com.artcom.y60.data.UnknownContentTypeException;
 import com.artcom.y60.http.AsyncHttpGet;
+import com.artcom.y60.http.HttpHelper;
 import com.artcom.y60.http.HttpResponseHandler;
 
 public class SweepInEvent extends HocEvent {
 
     private static String LOG_TAG         = "SweepInEvent";
     AsyncHttpGet          mDataDownloader = null;
-    private Peer          mPeer;
+    private final Peer    mPeer;
 
     SweepInEvent(HocLocation pLocation, DefaultHttpClient pHttpClient, Peer pPeer) {
         super(pLocation, pHttpClient);
@@ -67,16 +69,20 @@ public class SweepInEvent extends HocEvent {
                         try {
 
                             StreamableContent streamable = mPeer.getContentFactory()
-                                    .createStreamableContent(headers[i].getValue(), 0,
-                                            "");
+                                    .createStreamableContent(headers[i].getValue(), 0, "");
                             mDataDownloader.setStreamableContent(streamable);
 
                         } catch (FileNotFoundException e) {
                             Logger.e(LOG_TAG, e);
+                        } catch (IOException e) {
+                            Logger.e(LOG_TAG, e);
+                        } catch (UnknownContentTypeException e) {
+                            Logger.e(LOG_TAG, e);
                         }
                     }
                 }
-
+                Logger.e(LOG_TAG, HttpHelper.getHeadersAsString(headers), " the content is: ",
+                        mDataDownloader.getBodyAsStreamableContent());
             }
         });
         mDataDownloader.start();
@@ -96,6 +102,7 @@ public class SweepInEvent extends HocEvent {
         return mDataDownloader.isDone();
     }
 
+    @Override
     public StreamableContent getData() {
         if (mDataDownloader == null) {
             return null;
