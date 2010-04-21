@@ -10,20 +10,16 @@ import com.artcom.y60.data.StreamableContent;
 
 public class Peer {
 
-    private static final String LOG_TAG = "Peer";
+    private static final String  LOG_TAG = "Peer";
 
-    DefaultHttpClient           mHttpClient;
-    private HocLocation         mHocLocation;
-    private DataContainerFactory      mContentFactory;
-
-    public DataContainerFactory getContentFactory() {
-        return mContentFactory;
-    }
+    DefaultHttpClient            mHttpClient;
+    private HocLocation          mHocLocation;
+    private DataContainerFactory mDataContainerFactory;
 
     public Peer(String clientName) {
         mHttpClient = new DefaultHttpClient(new BasicHttpParams());
         mHttpClient.getParams().setParameter("http.useragent", clientName);
-        mContentFactory = new DefaultDataContainerFactory();
+        mDataContainerFactory = new DefaultDataContainerFactory();
     }
 
     public SweepOutEvent sweepOut(StreamableContent pStreamableData) {
@@ -37,5 +33,13 @@ public class Peer {
     public void setLocation(HocLocation pLocation) {
         mHocLocation = pLocation;
         Logger.v(LOG_TAG, mHocLocation);
+    }
+
+    public void setDataContainerFactory(DataContainerFactory pDataContainerFactory) {
+        mDataContainerFactory = pDataContainerFactory;
+    }
+
+    public DataContainerFactory getContentFactory() {
+        return mDataContainerFactory;
     }
 }
