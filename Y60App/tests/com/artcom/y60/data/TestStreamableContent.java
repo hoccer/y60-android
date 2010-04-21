@@ -12,7 +12,7 @@ public class TestStreamableContent extends AndroidTestCase {
 
     public void testReadingDynamicSteamableContent() throws Exception {
 
-        DynamicStreamableContent data = new DynamicStreamableContent();
+        GenericStreamableContent data = new GenericStreamableContent();
         data.setContentType("text/html");
         byte[] content = "<br>".getBytes();
         data.write(content, 0, content.length);
@@ -25,7 +25,7 @@ public class TestStreamableContent extends AndroidTestCase {
     }
 
     public void testCreatingDynamicStreamableContent() throws Exception {
-        DynamicStreamableContent data = new DynamicStreamableContent();
+        GenericStreamableContent data = new GenericStreamableContent();
         data.setContentType("text/html");
         byte[] content = "<br>".getBytes();
         data.write(content, 0, content.length);

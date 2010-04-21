@@ -3,7 +3,7 @@ package com.artcom.y60.hoccer;
 import java.io.ByteArrayInputStream;
 
 import com.artcom.y60.TestHelper;
-import com.artcom.y60.data.DynamicStreamableContent;
+import com.artcom.y60.data.GenericStreamableContent;
 import com.artcom.y60.data.StreamableString;
 import com.artcom.y60.http.HttpHelper;
 
@@ -69,7 +69,7 @@ public class TestPassingData extends HocEventTestCase {
 
     public void testTransferingStringBetweenSweepInAndOutEvents() throws Exception {
 
-        DynamicStreamableContent textContent = new DynamicStreamableContent();
+        GenericStreamableContent textContent = new GenericStreamableContent();
         textContent.setContentType("text/plain");
         textContent.write("my hocced text".getBytes(), 0, "my hocced text".length());
 
@@ -89,7 +89,7 @@ public class TestPassingData extends HocEventTestCase {
 
     public void testTransferingImageBetweenSweepInAndOutEvents() throws Exception {
 
-        DynamicStreamableContent imageContent = new DynamicStreamableContent();
+        GenericStreamableContent imageContent = new GenericStreamableContent();
         imageContent.setContentType("image/png");
 
         byte[] imageData = HttpHelper

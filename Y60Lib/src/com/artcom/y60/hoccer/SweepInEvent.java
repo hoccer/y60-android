@@ -67,7 +67,7 @@ public class SweepInEvent extends HocEvent {
                         try {
 
                             StreamableContent streamable = mPeer.getContentFactory()
-                                    .createStreamableContentContainerFrom(headers[i].getValue(), 0,
+                                    .createStreamableContent(headers[i].getValue(), 0,
                                             "");
                             mDataDownloader.setStreamableContent(streamable);
 
