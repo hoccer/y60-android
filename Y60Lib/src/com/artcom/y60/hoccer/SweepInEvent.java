@@ -1,5 +1,6 @@
 package com.artcom.y60.hoccer;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -19,9 +20,11 @@ public class SweepInEvent extends HocEvent {
 
     private static String LOG_TAG         = "SweepInEvent";
     AsyncHttpGet          mDataDownloader = null;
+    private Peer          mPeer;
 
-    SweepInEvent(HocLocation pLocation, DefaultHttpClient pHttpClient) {
+    SweepInEvent(HocLocation pLocation, DefaultHttpClient pHttpClient, Peer pPeer) {
         super(pLocation, pHttpClient);
+        mPeer = pPeer;
     }
 
     @Override
@@ -57,7 +60,22 @@ public class SweepInEvent extends HocEvent {
             }
 
             @Override
-            public void onHeaderAvailable(Header[] pHeaders) {
+            public void onHeaderAvailable(Header[] headers) {
+
+                for (int i = 0; i < headers.length; i++) {
+                    if (headers[i].getName().equals("Content-Type")) {
+                        try {
+
+                            StreamableContent streamable = mPeer.getContentFactory()
+                                    .createStreamableContentContainerFrom(headers[i].getValue(), 0,
+                                            "");
+                            mDataDownloader.setStreamableContent(streamable);
+
+                        } catch (FileNotFoundException e) {
+                            Logger.e(LOG_TAG, e);
+                        }
+                    }
+                }
 
             }
         });
