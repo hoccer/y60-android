@@ -15,7 +15,6 @@ import com.artcom.y60.Logger;
 import com.artcom.y60.data.StreamableContent;
 import com.artcom.y60.data.UnknownContentTypeException;
 import com.artcom.y60.http.AsyncHttpGet;
-import com.artcom.y60.http.HttpHelper;
 import com.artcom.y60.http.HttpResponseHandler;
 
 public class SweepInEvent extends HocEvent {
@@ -62,27 +61,27 @@ public class SweepInEvent extends HocEvent {
             }
 
             @Override
-            public void onHeaderAvailable(Header[] headers) {
+            public void onHeaderAvailable(Header[] pHeaders) {
 
-                for (int i = 0; i < headers.length; i++) {
-                    if (headers[i].getName().equals("Content-Type")) {
-                        try {
-
-                            StreamableContent streamable = mPeer.getContentFactory()
-                                    .createStreamableContent(headers[i].getValue(), 0, "");
-                            mDataDownloader.setStreamableContent(streamable);
-
-                        } catch (FileNotFoundException e) {
-                            Logger.e(LOG_TAG, e);
-                        } catch (IOException e) {
-                            Logger.e(LOG_TAG, e);
-                        } catch (UnknownContentTypeException e) {
-                            Logger.e(LOG_TAG, e);
-                        }
-                    }
+                HashMap<String, String> headers = new HashMap<String, String>();
+                for (int i = 0; i < pHeaders.length; i++) {
+                    headers.put(pHeaders[i].getName(), pHeaders[i].getValue());
                 }
-                Logger.e(LOG_TAG, HttpHelper.getHeadersAsString(headers), " the content is: ",
-                        mDataDownloader.getBodyAsStreamableContent());
+
+                try {
+
+                    StreamableContent streamable = mPeer.getContentFactory()
+                            .createStreamableContent(headers.get("Content-Type"),
+                                    Long.valueOf(headers.get("Content-Length")), "");
+                    mDataDownloader.setStreamableContent(streamable);
+
+                } catch (FileNotFoundException e) {
+                    Logger.e(LOG_TAG, e);
+                } catch (IOException e) {
+                    Logger.e(LOG_TAG, e);
+                } catch (UnknownContentTypeException e) {
+                    Logger.e(LOG_TAG, e);
+                }
             }
         });
         mDataDownloader.start();
