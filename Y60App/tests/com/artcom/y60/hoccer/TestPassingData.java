@@ -145,7 +145,7 @@ public class TestPassingData extends HocEventTestCase {
         assertDownloadIsDone(sweepIn);
 
         TestHelper.assertInputStreamEquals("incomming data should be as expected",
-                new ByteArrayInputStream(pExpectedData), sweepIn.getData().getStream());
+                new ByteArrayInputStream(pExpectedData), sweepIn.getData().getInputStream());
     }
 
     private void assertDownloadIsDone(final SweepInEvent sweepIn) throws Exception {
