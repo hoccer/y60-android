@@ -19,9 +19,9 @@ public class TestStreamableContent extends AndroidTestCase {
 
         assertEquals("<br>", data.toString());
         TestHelper.assertInputStreamEquals("Getting stream once", new ByteArrayInputStream("<br>"
-                .getBytes()), data.getInputStream());
+                .getBytes()), data.getStream());
         TestHelper.assertInputStreamEquals("Getting stream a second time",
-                new ByteArrayInputStream("<br>".getBytes()), data.getInputStream());
+                new ByteArrayInputStream("<br>".getBytes()), data.getStream());
     }
 
     public void testCreatingDynamicStreamableContent() throws Exception {
