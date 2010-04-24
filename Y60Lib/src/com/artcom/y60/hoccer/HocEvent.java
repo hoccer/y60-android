@@ -96,8 +96,15 @@ public abstract class HocEvent {
         }
     }
     
-    public String getState() {
-        return mState;
+    /**
+     * @return true if event is 'ready'
+     */
+    public boolean isLinkEstablished() {
+        return mState.equals("ready");
+    }
+    
+    public boolean hasCollision() {
+        return mState.equals("collision");
     }
     
     public UUID getUuid() {
@@ -232,9 +239,4 @@ public abstract class HocEvent {
             }
         };
     }
-    
-    public boolean hasCollision() {
-        return mState.equals("collision");
-    }
-    
 }

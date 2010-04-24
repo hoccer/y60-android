@@ -53,13 +53,13 @@ public class SweepOutEvent extends HocEvent {
             
             @Override
             public void onSuccess(int statusCode, StreamableContent body) {
-                Logger.v(LOG_TAG, "onSuccess with body: ", body);
-                SweepOutEvent.this.onSuccess();
+                if (isLinkEstablished()) {
+                    SweepOutEvent.this.onSuccess();
+                }
             }
             
             @Override
             public void onReceiving(double progress) {
-                Logger.v(LOG_TAG, "onReceiving progress: ", progress);
             }
             
             @Override
