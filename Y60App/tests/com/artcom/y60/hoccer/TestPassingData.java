@@ -32,16 +32,16 @@ public class TestPassingData extends HocEventTestCase {
         assertTrue("should have got error callback", eventCallback.hadError);
     }
     
-    private void assertLifetimeDecreases(final HocEvent hocEvent, final double lifetime)
-            throws Exception {
-        TestHelper.blockUntilTrue("lifetime should be decreasing", 5000,
-                new TestHelper.Condition() {
-                    
-                    @Override
-                    public boolean isSatisfied() throws Exception {
-                        return hocEvent.getLifetime() < lifetime && hocEvent.getLifetime() > 0;
-                    }
-                });
+    public void testAbortingLonelySweepOutEvent() throws Exception {
+        SweepOutEvent sweepOut = getPeer().sweepOut(new StreamableString("my hocced data"));
+        assertEventIsAlive("sweepOut", sweepOut);
+        
+        Thread.sleep(200);
+        assertEquals("event should exist on server", 202, HttpHelper.getStatusCode(sweepOut
+                .getResourceLocation()));
+        sweepOut.abort();
+        assertEquals("event should be removed from server", 404, HttpHelper.getStatusCode(sweepOut
+                .getResourceLocation()));
     }
     
     public void testLonelySweepInEvent() throws Exception {
@@ -174,4 +174,17 @@ public class TestPassingData extends HocEventTestCase {
                     }
                 });
     }
+    
+    private void assertLifetimeDecreases(final HocEvent hocEvent, final double lifetime)
+            throws Exception {
+        TestHelper.blockUntilTrue("lifetime should be decreasing", 5000,
+                new TestHelper.Condition() {
+                    
+                    @Override
+                    public boolean isSatisfied() throws Exception {
+                        return hocEvent.getLifetime() < lifetime && hocEvent.getLifetime() > 0;
+                    }
+                });
+    }
+    
 }

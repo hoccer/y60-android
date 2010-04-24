@@ -15,7 +15,10 @@ import com.artcom.y60.data.StreamableContent;
 import com.artcom.y60.http.AsyncHttpGet;
 import com.artcom.y60.http.AsyncHttpPost;
 import com.artcom.y60.http.AsyncHttpRequest;
+import com.artcom.y60.http.HttpClientException;
+import com.artcom.y60.http.HttpHelper;
 import com.artcom.y60.http.HttpResponseHandler;
+import com.artcom.y60.http.HttpServerException;
 
 public abstract class HocEvent {
     
@@ -244,5 +247,17 @@ public abstract class HocEvent {
             public void onHeaderAvailable(HashMap<String, String> headers) {
             }
         };
+    }
+    
+    public void abort() throws HoccerServerException {
+        try {
+            HttpHelper.delete(mStatusFetcher.getUri());
+        } catch (HttpClientException e) {
+            throw new HoccerServerException(e);
+        } catch (HttpServerException e) {
+            Logger.e(LOG_TAG, e);
+        } catch (IOException e) {
+            Logger.e(LOG_TAG, e);
+        }
     }
 }
