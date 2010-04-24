@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.http.Header;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -18,16 +17,16 @@ import com.artcom.y60.http.AsyncHttpGet;
 import com.artcom.y60.http.HttpResponseHandler;
 
 public class SweepInEvent extends HocEvent {
-
+    
     private static String LOG_TAG         = "SweepInEvent";
     AsyncHttpGet          mDataDownloader = null;
     private final Peer    mPeer;
-
+    
     SweepInEvent(HocLocation pLocation, DefaultHttpClient pHttpClient, Peer pPeer) {
         super(pLocation, pHttpClient);
         mPeer = pPeer;
     }
-
+    
     @Override
     protected void updateStatusFromJson(JSONObject status) throws JSONException, IOException {
         super.updateStatusFromJson(status);
@@ -38,43 +37,36 @@ public class SweepInEvent extends HocEvent {
             }
         }
     }
-
+    
     private void downloadDataFrom(String uri) throws JSONException, IOException {
         mDataDownloader = new AsyncHttpGet(uri);
         mDataDownloader.registerResponseHandler(new HttpResponseHandler() {
-
+            
             @Override
             public void onSuccess(int statusCode, StreamableContent body) {
                 Logger.v(LOG_TAG, "upload successful with: ", body);
                 SweepInEvent.this.onSuccess();
-
+                
             }
-
+            
             @Override
             public void onReceiving(double progress) {
             }
-
+            
             @Override
             public void onError(int statusCode, StreamableContent body) {
                 Logger.e(LOG_TAG, "upload failed with: ", body);
                 SweepInEvent.this.onError();
             }
-
+            
             @Override
-            public void onHeaderAvailable(Header[] pHeaders) {
-
-                HashMap<String, String> headers = new HashMap<String, String>();
-                for (int i = 0; i < pHeaders.length; i++) {
-                    headers.put(pHeaders[i].getName(), pHeaders[i].getValue());
-                }
-
+            public void onHeaderAvailable(HashMap<String, String> headers) {
                 try {
-
                     StreamableContent streamable = mPeer.getContentFactory()
                             .createStreamableContent(headers.get("Content-Type"),
                                     Long.valueOf(headers.get("Content-Length")), "");
                     mDataDownloader.setStreamableContent(streamable);
-
+                    
                 } catch (FileNotFoundException e) {
                     Logger.e(LOG_TAG, e);
                 } catch (IOException e) {
@@ -86,21 +78,21 @@ public class SweepInEvent extends HocEvent {
         });
         mDataDownloader.start();
     }
-
+    
     @Override
     protected Map<String, String> getEventParameters() {
         Map<String, String> eventParams = new HashMap<String, String>();
         eventParams.put("event[type]", "SweepIn");
         return eventParams;
     }
-
+    
     public boolean hasDataBeenDownloaded() {
         if (mDataDownloader == null) {
             return false;
         }
         return mDataDownloader.isDone();
     }
-
+    
     @Override
     public StreamableContent getData() {
         if (mDataDownloader == null) {
