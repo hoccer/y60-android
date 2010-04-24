@@ -88,9 +88,9 @@ public abstract class HocEvent {
         if (mState.equals("ready")) {
             onLinkEstablished();
         } else if (mState.equals("collision")) {
-            onError();
+            onError(new Exception("collision"));
         } else if (mState.equals("no_link")) {
-            onError();
+            onError(new Exception("collision"));
         } else if (mState.equals("waiting")) {
             onProgress();
         }
@@ -169,9 +169,9 @@ public abstract class HocEvent {
         }
     };
     
-    protected void onError() {
+    protected void onError(Exception e) {
         for (HocEventListener callback : mCallbackList) {
-            callback.onError(null, null);
+            callback.onError(e);
         }
     };
     

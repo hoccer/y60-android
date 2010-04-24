@@ -65,7 +65,7 @@ public class SweepOutEvent extends HocEvent {
             @Override
             public void onError(int statusCode, StreamableContent body) {
                 Logger.e(LOG_TAG, "onError: ", body, " with status code: ", statusCode);
-                SweepOutEvent.this.onError();
+                SweepOutEvent.this.onError(new Exception("upload failed"));
             }
             
             @Override
