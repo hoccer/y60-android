@@ -64,7 +64,7 @@ public class SweepInEvent extends HocEvent {
                 try {
                     StreamableContent streamable = mPeer.getContentFactory()
                             .createStreamableContent(headers.get("Content-Type"),
-                                    Long.valueOf(headers.get("Content-Length")), "");
+                                    headers.get("Filename"));
                     mDataDownloader.setStreamableContent(streamable);
                     
                 } catch (FileNotFoundException e) {
