@@ -105,6 +105,10 @@ public abstract class HocEvent {
         }
     }
     
+    public boolean hasError() {
+        return !(mState.equals("waiting") || mState.equals("ready"));
+    }
+    
     /**
      * @return true if event is 'ready'
      */
