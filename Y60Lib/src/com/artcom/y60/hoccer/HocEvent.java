@@ -90,7 +90,11 @@ public abstract class HocEvent {
         } else if (mState.equals("collision")) {
             onError(new Exception("collision"));
         } else if (mState.equals("no_link")) {
-            onError(new Exception("collision"));
+            onError(new Exception("no_link"));
+        } else if (mState.equals("no_peers")) {
+            onError(new Exception("no_peers"));
+        } else if (mState.equals("no_seeders")) {
+            onError(new Exception("no_seeders"));
         } else if (mState.equals("waiting")) {
             onProgress();
         }

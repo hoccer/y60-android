@@ -14,7 +14,8 @@ public class TestPassingData extends HocEventTestCase {
     
     public void testLonelySweepOutEvent() throws Exception {
         SweepOutEvent sweepOut = getPeer().sweepOut(new StreamableString("my hocced data"));
-        sweepOut.registerCallback(new HocEventListenerForTesting());
+        HocEventListenerForTesting eventCallback = new HocEventListenerForTesting();
+        sweepOut.registerCallback(eventCallback);
         assertEventIsAlive("sweepOut", sweepOut);
         
         TestHelper.assertMatches("event shuld have a valid resource location", HocEvent
@@ -28,6 +29,7 @@ public class TestPassingData extends HocEventTestCase {
         assertEventIsExpired("sweepOut", sweepOut);
         assertEquals("lifetime should be down to zero", 0.0, sweepOut.getLifetime());
         assertDataHasBeenUploaded(sweepOut);
+        assertTrue("should have got error callback", eventCallback.hadError);
     }
     
     private void assertLifetimeDecreases(final HocEvent hocEvent, final double lifetime)
@@ -44,6 +46,8 @@ public class TestPassingData extends HocEventTestCase {
     
     public void testLonelySweepInEvent() throws Exception {
         mEvent = getPeer().sweepIn();
+        HocEventListenerForTesting eventCallback = new HocEventListenerForTesting();
+        mEvent.registerCallback(eventCallback);
         assertEventIsAlive("sweepIn", mEvent);
         
         TestHelper.assertMatches("event shuld have a valid resource location", HocEvent
@@ -56,6 +60,7 @@ public class TestPassingData extends HocEventTestCase {
         
         assertEventIsExpired("sweepIn", mEvent);
         assertEquals("lifetime should be down to zero", 0.0, mEvent.getLifetime());
+        assertTrue("should have got error callback", eventCallback.hadError);
     }
     
     public void testLinkingSweepInAndOutEvents() throws Exception {
