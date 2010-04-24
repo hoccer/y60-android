@@ -97,6 +97,8 @@ public abstract class HocEvent {
             onError(new Exception("no_seeders"));
         } else if (mState.equals("waiting")) {
             onProgress();
+        } else {
+            onError(new Exception("unknown state: " + mState));
         }
     }
     
