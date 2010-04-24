@@ -91,17 +91,17 @@ public abstract class HocEvent {
         if (mState.equals("ready")) {
             onLinkEstablished();
         } else if (mState.equals("collision")) {
-            onError(new Exception("collision"));
+            onError(new HocEventException(getMessage(), mState, getResourceLocation()));
         } else if (mState.equals("no_link")) {
-            onError(new Exception("no_link"));
+            onError(new HocEventException(getMessage(), mState, getResourceLocation()));
         } else if (mState.equals("no_peers")) {
-            onError(new Exception("no_peers"));
+            onError(new HocEventException(getMessage(), mState, getResourceLocation()));
         } else if (mState.equals("no_seeders")) {
-            onError(new Exception("no_seeders"));
+            onError(new HocEventException(getMessage(), mState, getResourceLocation()));
         } else if (mState.equals("waiting")) {
             onProgress();
         } else {
-            onError(new Exception("unknown state: " + mState));
+            onError(new HocEventException(getMessage(), mState, getResourceLocation()));
         }
     }
     
@@ -178,7 +178,7 @@ public abstract class HocEvent {
         }
     };
     
-    protected void onError(Exception e) {
+    protected void onError(HocEventException e) {
         for (HocEventListener callback : mCallbackList) {
             callback.onError(e);
         }
@@ -249,11 +249,11 @@ public abstract class HocEvent {
         };
     }
     
-    public void abort() throws HoccerServerException {
+    public void abort() throws HocEventException {
         try {
             HttpHelper.delete(mStatusFetcher.getUri());
         } catch (HttpClientException e) {
-            throw new HoccerServerException(e);
+            throw new HocEventException(e);
         } catch (HttpServerException e) {
             Logger.e(LOG_TAG, e);
         } catch (IOException e) {

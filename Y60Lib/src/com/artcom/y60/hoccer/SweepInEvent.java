@@ -56,7 +56,8 @@ public class SweepInEvent extends HocEvent {
             @Override
             public void onError(int statusCode, StreamableContent body) {
                 Logger.e(LOG_TAG, "upload failed with: ", body);
-                SweepInEvent.this.onError(new Exception("upload failed"));
+                SweepInEvent.this.onError(new HocEventException("download failed with status code "
+                        + statusCode, "failed", "<unknown uri>"));
             }
             
             @Override

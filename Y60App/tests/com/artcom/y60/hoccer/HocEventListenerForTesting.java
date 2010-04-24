@@ -6,7 +6,7 @@ public class HocEventListenerForTesting implements HocEventListener {
     public boolean wasSuccessful;
     
     @Override
-    public void onError(Throwable e) {
+    public void onError(HocEventException e) {
         hadError = true;
     }
     

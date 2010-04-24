@@ -11,29 +11,25 @@ import org.json.JSONObject;
 import com.artcom.y60.Logger;
 import com.artcom.y60.http.HttpHelper;
 
-public class HoccerServerException extends Exception {
+public class HocEventException extends Exception {
     
     private static final long   serialVersionUID = 1L;
     
-    private static final String LOG_TAG          = "HoccerServerException";
+    private static final String LOG_TAG          = "HocEventException";
     
     private String              mState;
     private String              mMessage;
     private final String        mUrl;
     
-    private final int           mStatusCode;
-    
-    public HoccerServerException(Exception e) {
+    public HocEventException(Exception e) {
         super(e);
         mUrl = "";
-        mStatusCode = 500;
         mMessage = e.getMessage();
         // not correctly implemented right now
     }
     
-    public HoccerServerException(String pUrl, HttpResponse pResponse) {
+    public HocEventException(String pUrl, HttpResponse pResponse) {
         mUrl = pUrl;
-        mStatusCode = pResponse.getStatusLine().getStatusCode();
         
         JSONObject json;
         try {
@@ -59,6 +55,12 @@ public class HoccerServerException extends Exception {
         
     }
     
+    public HocEventException(String message, String state, String url) {
+        mState = state;
+        mMessage = message;
+        mUrl = url;
+    }
+    
     public String getState() {
         return mState;
     }
@@ -78,9 +80,5 @@ public class HoccerServerException extends Exception {
     
     public String getUrl() {
         return mUrl;
-    }
-    
-    public int getStatusCode() {
-        return mStatusCode;
     }
 }
