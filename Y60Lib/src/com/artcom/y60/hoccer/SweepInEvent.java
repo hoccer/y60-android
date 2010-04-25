@@ -80,7 +80,7 @@ public class SweepInEvent extends HocEvent {
             }
             
             private String parseFilename(String filename) {
-                if (!filename.matches(".*filename=\".*\"")) {
+                if (filename == null || !filename.matches(".*filename=\".*\"")) {
                     return "hocced_file.unknown";
                 }
                 
