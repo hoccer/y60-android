@@ -37,6 +37,8 @@ public class SweepInEvent extends HocEvent {
                 String uri = uris.getJSONObject(0).getString("uri");
                 if (HttpHelper.getStatusCode(uri) == 200) {
                     downloadDataFrom(uri);
+                } else {
+                    resetStatusPollingDelay();
                 }
             }
         }

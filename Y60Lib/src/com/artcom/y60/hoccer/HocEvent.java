@@ -22,16 +22,17 @@ import com.artcom.y60.http.HttpServerException;
 
 public abstract class HocEvent {
     
-    private static final String               LOG_TAG          = "HocEvent";
-    private static String                     mRemoteServer    = "http://beta.hoccer.com";
-    private String                            mState           = "unborn";
-    private double                            mLifetime        = -1;
-    private int                               mLinkedPeerCount = 0;
-    private UUID                              mUuid            = null;
+    private static final String               LOG_TAG             = "HocEvent";
+    private static String                     mRemoteServer       = "http://beta.hoccer.com";
+    private String                            mState              = "unborn";
+    private double                            mLifetime           = -1;
+    private int                               mLinkedPeerCount    = 0;
+    private UUID                              mUuid               = null;
     
     private AsyncHttpRequest                  mStatusFetcher;
     private final ArrayList<HocEventListener> mCallbackList;
     private String                            mMessage;
+    private int                               mStatusPollingDelay = 1;
     
     HocEvent(HocLocation pLocation, DefaultHttpClient pHttpClient) {
         Logger.v(LOG_TAG, "creating new hoc event");
@@ -79,6 +80,10 @@ public abstract class HocEvent {
     
     public String getMessage() {
         return mMessage;
+    }
+    
+    protected void resetStatusPollingDelay() {
+        mStatusPollingDelay = 1;
     }
     
     protected void updateState(String newState) {
@@ -196,7 +201,6 @@ public abstract class HocEvent {
     
     private HttpResponseHandler createResponseHandler() {
         return new HttpResponseHandler() {
-            int mRequestDelay = 1;
             
             @Override
             public void onSuccess(int statusCode, StreamableContent body) {
@@ -224,11 +228,11 @@ public abstract class HocEvent {
              */
             private void launchNewPollingRequest() {
                 try {
-                    Thread.sleep(mRequestDelay * 1000);
+                    Thread.sleep(mStatusPollingDelay * 1000);
                 } catch (InterruptedException e) {
                     Logger.e(LOG_TAG, e);
                 }
-                mRequestDelay += mRequestDelay;
+                mStatusPollingDelay += mStatusPollingDelay;
                 mStatusFetcher = new AsyncHttpGet(mStatusFetcher.getUri());
                 mStatusFetcher.registerResponseHandler(this);
                 
