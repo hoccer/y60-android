@@ -1,5 +1,6 @@
 package com.artcom.y60.hoccer;
 
+import junit.framework.Assert;
 import android.test.suitebuilder.annotation.LargeTest;
 
 import com.artcom.y60.data.GenericStreamableContent;
@@ -26,7 +27,9 @@ public class TestIncompleteTransfers extends HocEventTestCase {
         assertEventIsLinked(sweepIn);
         
         Thread.sleep(1000);
-        assertNull("download should have not been started but answered with status code "
-                + sweepIn.mDataDownloader.getStatusCode(), sweepIn.mDataDownloader);
+        if (sweepIn.mDataDownloader != null) {
+            Assert.fail("download should have not been started but answered with status code "
+                    + sweepIn.mDataDownloader.getStatusCode());
+        }
     }
 }

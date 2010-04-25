@@ -14,6 +14,7 @@ import com.artcom.y60.Logger;
 import com.artcom.y60.data.StreamableContent;
 import com.artcom.y60.data.UnknownContentTypeException;
 import com.artcom.y60.http.AsyncHttpGet;
+import com.artcom.y60.http.HttpHelper;
 import com.artcom.y60.http.HttpResponseHandler;
 
 public class SweepInEvent extends HocEvent {
@@ -33,7 +34,10 @@ public class SweepInEvent extends HocEvent {
         if (status.has("uploads") && mDataDownloader == null) {
             JSONArray uris = status.getJSONArray("uploads");
             if (uris.length() > 0) {
-                downloadDataFrom(uris.getJSONObject(0).getString("uri"));
+                String uri = uris.getJSONObject(0).getString("uri");
+                if (HttpHelper.getStatusCode(uri) == 200) {
+                    downloadDataFrom(uri);
+                }
             }
         }
     }
