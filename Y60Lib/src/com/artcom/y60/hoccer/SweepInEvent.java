@@ -45,7 +45,9 @@ public class SweepInEvent extends HocEvent {
             @Override
             public void onSuccess(int statusCode, StreamableContent body) {
                 Logger.v(LOG_TAG, "upload successful with: ", body);
-                SweepInEvent.this.onSuccess();
+                if (SweepInEvent.this.isLinkEstablished()) {
+                    SweepInEvent.this.onSuccess();
+                }
                 
             }
             
@@ -63,9 +65,9 @@ public class SweepInEvent extends HocEvent {
             @Override
             public void onHeaderAvailable(HashMap<String, String> headers) {
                 try {
+                    String filename = parseFilename(headers.get("Content-Disposition"));
                     StreamableContent streamable = mPeer.getContentFactory()
-                            .createStreamableContent(headers.get("Content-Type"),
-                                    headers.get("Filename"));
+                            .createStreamableContent(headers.get("Content-Type"), filename);
                     mDataDownloader.setStreamableContent(streamable);
                     
                 } catch (FileNotFoundException e) {
@@ -76,6 +78,18 @@ public class SweepInEvent extends HocEvent {
                     Logger.e(LOG_TAG, e);
                 }
             }
+            
+            private String parseFilename(String filename) {
+                if (!filename.matches(".*filename=\".*\"")) {
+                    return "hocced_file.unknown";
+                }
+                
+                filename = filename.substring(filename.indexOf("filename=\"") + 10, filename
+                        .length() - 1);
+                // Logger.v(LOG_TAG, "Filename: ", filename);
+                return filename;
+            }
+            
         });
         mDataDownloader.start();
     }
