@@ -96,6 +96,11 @@ public class SweepInEvent extends HocEvent {
                 return filename;
             }
             
+            @Override
+            public void onError(Exception e) {
+                SweepInEvent.this.onError(new HocEventException(e));
+            }
+            
         });
         mDataDownloader.start();
     }

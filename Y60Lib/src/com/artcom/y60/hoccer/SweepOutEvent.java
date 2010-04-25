@@ -73,6 +73,11 @@ public class SweepOutEvent extends HocEvent {
             public void onHeaderAvailable(HashMap<String, String> headers) {
             }
             
+            @Override
+            public void onError(Exception e) {
+                SweepOutEvent.this.onError(new HocEventException(e));
+            }
+            
         });
         mDataUploader.start();
     }

@@ -252,12 +252,19 @@ public abstract class HocEvent {
             }
             
             @Override
+            public void onError(Exception e) {
+                HocEvent.this.onError(new HocEventException(e));
+            }
+            
+            @Override
             public void onHeaderAvailable(HashMap<String, String> headers) {
             }
+            
         };
     }
     
     public void abort() throws HocEventException {
+        Logger.v(LOG_TAG, "aborting event ", mStatusFetcher.getUri());
         try {
             HttpHelper.delete(mStatusFetcher.getUri());
         } catch (HttpClientException e) {
