@@ -76,6 +76,9 @@ public class TestPassingData extends HocEventTestCase {
         
         assertEventHasNumberOfPeers(sweepOut, 1);
         assertEventHasNumberOfPeers(sweepIn, 1);
+        
+        assertEventIsLinked(sweepOut);
+        assertEventIsLinked(sweepIn);
     }
     
     public void testTransferingStringBetweenSweepInAndOutEvents() throws Exception {
@@ -93,6 +96,9 @@ public class TestPassingData extends HocEventTestCase {
         
         assertEventHasNumberOfPeers(sweepOut, 1);
         assertEventHasNumberOfPeers(sweepIn, 1);
+        
+        assertEventIsLinked(sweepOut);
+        assertEventIsLinked(sweepIn);
         
         assertDataHasBeenUploaded(sweepOut);
         assertDataHasBeenDownloaded(sweepIn, "my hocced text");
@@ -120,6 +126,9 @@ public class TestPassingData extends HocEventTestCase {
         
         assertEventHasNumberOfPeers(sweepOut, 1);
         assertEventHasNumberOfPeers(sweepIn, 1);
+        
+        assertEventIsLinked(sweepOut);
+        assertEventIsLinked(sweepIn);
         
         assertDataHasBeenUploaded(sweepOut);
         assertDataHasBeenDownloaded(sweepIn, imageData);
