@@ -19,7 +19,7 @@ public class Peer {
     
     public Peer(String clientName) {
         BasicHttpParams httpParams = new BasicHttpParams();
-        HttpConnectionParams.setConnectionTimeout(httpParams, 2000);
+        HttpConnectionParams.setConnectionTimeout(httpParams, 3000);
         mHttpClient = new DefaultHttpClient(httpParams);
         mHttpClient.getParams().setParameter("http.useragent", clientName);
         mDataContainerFactory = new DefaultDataContainerFactory();
