@@ -43,7 +43,7 @@ public class SweepOutEvent extends HocEvent {
     }
     
     private void uploadDataTo(String uri) throws JSONException, IOException {
-        Logger.v(LOG_TAG, "starting upload to " + uri);
+        Logger.v(LOG_TAG, "starting upload of '", mOutgoingData, "' to " + uri);
         mDataUploader = new AsyncHttpPut(uri);
         MultipartHttpEntity multipart = new MultipartHttpEntity();
         multipart.addPart("upload[attachment]", mOutgoingData);

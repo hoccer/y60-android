@@ -1,10 +1,15 @@
 package com.artcom.y60.hoccer;
 
 import java.io.ByteArrayInputStream;
+import java.lang.reflect.Method;
 
+import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
+
+import com.artcom.y60.Logger;
 import com.artcom.y60.TestHelper;
 import com.artcom.y60.data.GenericStreamableContent;
 import com.artcom.y60.data.StreamableString;
+import com.artcom.y60.http.AsyncHttpRequestWithBody;
 import com.artcom.y60.http.HttpHelper;
 
 public class TestPassingData extends HocEventTestCase {
@@ -77,6 +82,7 @@ public class TestPassingData extends HocEventTestCase {
         
         GenericStreamableContent textContent = new GenericStreamableContent();
         textContent.setContentType("text/plain");
+        textContent.setFilename("thedemofilename.txt");
         textContent.openOutputStream().write("my hocced text".getBytes(), 0,
                 "my hocced text".length());
         
@@ -92,12 +98,16 @@ public class TestPassingData extends HocEventTestCase {
         assertDataHasBeenDownloaded(sweepIn, "my hocced text");
         assertEquals("mime type should be as expected", "text/plain", sweepIn.getData()
                 .getContentType());
+        assertEquals("filename should be as expected", "thedemofilename.txt", sweepIn.getData()
+                .getFilename());
+        
     }
     
     public void testTransferingImageBetweenSweepInAndOutEvents() throws Exception {
         
         GenericStreamableContent imageContent = new GenericStreamableContent();
         imageContent.setContentType("image/png");
+        imageContent.setFilename("thedemofilename.png");
         
         byte[] imageData = HttpHelper
                 .getAsByteArray("http://www.artcom.de/templates/artcom/css/images/artcom_rgb_screen_193x22.png");
@@ -118,6 +128,8 @@ public class TestPassingData extends HocEventTestCase {
                 .getData().getContentType());
         assertEquals("mime type should be as expected", "image/png", sweepIn.getData()
                 .getContentType());
+        assertEquals("received filename should be as expected", "thedemofilename.png", sweepIn
+                .getData().getFilename());
     }
     
     private void assertDataHasBeenUploaded(final SweepOutEvent sweepOut) throws Exception {
@@ -137,6 +149,20 @@ public class TestPassingData extends HocEventTestCase {
                 return sweepOut.hasDataBeenUploaded();
             }
         });
+        
+        Method m = AsyncHttpRequestWithBody.class.getDeclaredMethod("getRequest", null);
+        m.setAccessible(true);
+        HttpEntityEnclosingRequestBase request = (HttpEntityEnclosingRequestBase) m.invoke(
+                sweepOut.mDataUploader, null);
+        String body = request.getEntity().toString();
+        
+        Logger.v(LOG_TAG, "body", body);
+        assertEquals("uploaded data should have correct content-type", sweepOut.getData()
+                .getContentType(), body.substring(body.indexOf("Content-Type: ") + 14, body
+                .indexOf("\r\nContent-Transfer-Encoding")));
+        assertEquals("uploaded data should have correct should have correct filename", sweepOut
+                .getData().getFilename(), body.substring(body.indexOf("filename=\"") + 10, body
+                .indexOf("\"\r\nContent-Type")));
     }
     
     private void assertDataHasBeenDownloaded(final SweepInEvent sweepIn, String pExpectedData)
