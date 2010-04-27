@@ -23,8 +23,8 @@ public class TestIncompleteTransfers extends HocEventTestCase {
         final SweepInEvent sweepIn = getPeer().sweepIn();
         assertEventIsAlive("sweepIn", sweepIn);
         
-        assertEventIsLinked(sweepOut);
-        assertEventIsLinked(sweepIn);
+        blockUntilEventIsLinked(sweepOut);
+        blockUntilEventIsLinked(sweepIn);
         
         Thread.sleep(1000);
         if (sweepIn.mDataDownloader != null) {

@@ -30,11 +30,11 @@ public class TestPassingData extends HocEventTestCase {
 
         double lifetime = sweepOut.getLifetime();
         TestHelper.assertGreater("lifetime should be fine", 5, lifetime);
-        assertLifetimeDecreases(sweepOut, lifetime);
+        blockUntilLifetimeDecreases(sweepOut, lifetime);
 
         assertEventIsExpired("sweepOut", sweepOut);
         assertEquals("lifetime should be down to zero", 0.0, sweepOut.getLifetime());
-        assertDataHasBeenUploaded(sweepOut);
+        blockUntilDataHasBeenUploaded(sweepOut);
         assertTrue("should have got error callback", eventCallback.hadError);
     }
 
@@ -62,7 +62,7 @@ public class TestPassingData extends HocEventTestCase {
 
         double lifetime = mEvent.getLifetime();
         TestHelper.assertGreater("lifetime should be fine", 5, lifetime);
-        assertLifetimeDecreases(mEvent, lifetime);
+        blockUntilLifetimeDecreases(mEvent, lifetime);
 
         assertEventIsExpired("sweepIn", mEvent);
         assertEquals("lifetime should be down to zero", 0.0, mEvent.getLifetime());
@@ -78,8 +78,8 @@ public class TestPassingData extends HocEventTestCase {
         assertEventHasNumberOfPeers(sweepOut, 1);
         assertEventHasNumberOfPeers(sweepIn, 1);
 
-        assertEventIsLinked(sweepOut);
-        assertEventIsLinked(sweepIn);
+        blockUntilEventIsLinked(sweepOut);
+        blockUntilEventIsLinked(sweepIn);
     }
 
     public void testTransferingStringBetweenSweepInAndOutEvents() throws Exception {
@@ -97,11 +97,11 @@ public class TestPassingData extends HocEventTestCase {
         assertEventHasNumberOfPeers(sweepOut, 1);
         assertEventHasNumberOfPeers(sweepIn, 1);
 
-        assertEventIsLinked(sweepOut);
-        assertEventIsLinked(sweepIn);
+        blockUntilEventIsLinked(sweepOut);
+        blockUntilEventIsLinked(sweepIn);
 
-        assertDataHasBeenUploaded(sweepOut);
-        assertDataHasBeenDownloaded(sweepIn, "my hocced text");
+        blockUntilDataHasBeenUploaded(sweepOut);
+        blockUntilDataHasBeenDownloaded(sweepIn, "my hocced text");
         assertEquals("mime type should be as expected", "text/plain", sweepIn.getData()
                 .getContentType());
         assertEquals("filename should be as expected", "thedemofilename.txt", sweepIn.getData()
@@ -127,11 +127,11 @@ public class TestPassingData extends HocEventTestCase {
         assertEventHasNumberOfPeers(sweepOut, 1);
         assertEventHasNumberOfPeers(sweepIn, 1);
 
-        assertEventIsLinked(sweepOut);
-        assertEventIsLinked(sweepIn);
+        blockUntilEventIsLinked(sweepOut);
+        blockUntilEventIsLinked(sweepIn);
 
-        assertDataHasBeenUploaded(sweepOut);
-        assertDataHasBeenDownloaded(sweepIn, imageData);
+        blockUntilDataHasBeenUploaded(sweepOut);
+        blockUntilDataHasBeenDownloaded(sweepIn, imageData);
 
         assertEquals("mime type of sweep out should be as expected", "image/png", sweepOut
                 .getData().getContentType());
@@ -141,7 +141,7 @@ public class TestPassingData extends HocEventTestCase {
                 .getData().getFilename());
     }
 
-    public void testOnSuccessNotificationWhenDownloadIsDoneBeforLinkEstablished() throws Exception {
+    public void testOnSuccessNotificationWhenUploadIsDoneBeforLinkEstablished() throws Exception {
 
         StreamableContent content = new StreamableString("hocci");
         final SweepOutEvent sweepOut = getPeer().sweepOut(content);
@@ -152,15 +152,15 @@ public class TestPassingData extends HocEventTestCase {
         SweepInEvent sweepIn = getPeer().sweepIn();
         assertEventIsAlive("sweepIn", sweepIn);
 
-        assertDataHasBeenUploaded(sweepOut);
+        blockUntilDataHasBeenUploaded(sweepOut);
         assertEventIsNotLinked(sweepOut);
         assertFalse("event should not be successful right now", eventCallback.wasSuccessful);
 
-        assertEventIsLinked(sweepOut);
+        blockUntilEventIsLinked(sweepOut);
         assertTrue("event should now be successful", eventCallback.wasSuccessful);
     }
 
-    public void testOnSuccessNotificationWhenDownloadIsDoneAfterLinkEstablished() throws Exception {
+    public void testOnSuccessNotificationWhenUploadIsDoneAfterLinkEstablished() throws Exception {
 
         RetainStreamableString content = new RetainStreamableString("hocci");
         final SweepOutEvent sweepOut = getPeer().sweepOut(content);
@@ -171,12 +171,36 @@ public class TestPassingData extends HocEventTestCase {
         SweepInEvent sweepIn = getPeer().sweepIn();
         assertEventIsAlive("sweepIn", sweepIn);
 
-        assertEventIsLinked(sweepOut);
+        blockUntilEventIsLinked(sweepOut);
         assertDataHasNotBeenUploaded(sweepOut);
         assertFalse("event should not be successful right now", eventCallback.wasSuccessful);
 
         content.releaseInputStream();
-        assertDataHasBeenUploaded(sweepOut);
+        blockUntilDataHasBeenUploaded(sweepOut);
+        assertTrue("event should now be successful", eventCallback.wasSuccessful);
+    }
+
+    public void testOnSuccessNotificationWhenDownloadIsDoneAndLinkEstablished() throws Exception {
+
+        StreamableContent content = new StreamableString("hocci");
+        final SweepOutEvent sweepOut = getPeer().sweepOut(content);
+        assertEventIsAlive("sweepOut", sweepOut);
+        SweepInEvent sweepIn = getPeer().sweepIn();
+        HocEventListenerForTesting eventCallback = new HocEventListenerForTesting();
+        sweepIn.addCallback(eventCallback);
+        assertEventIsAlive("sweepIn", sweepIn);
+
+        assertDataHasNotBeenDownloaded(sweepIn);
+        assertFalse("event should not be successful right now", eventCallback.wasSuccessful);
+        assertEventIsNotLinked(sweepIn);
+        assertFalse("event should not be successful right now", eventCallback.wasSuccessful);
+
+        blockUntilEventIsLinked(sweepIn);
+        assertDataHasNotBeenDownloaded(sweepIn);
+        assertFalse("event should not be successful right now", eventCallback.wasSuccessful);
+
+        blockUntilDataHasBeenDownloaded(sweepIn, "hocci");
+        Thread.sleep(2000);
         assertTrue("event should now be successful", eventCallback.wasSuccessful);
     }
 
@@ -184,7 +208,11 @@ public class TestPassingData extends HocEventTestCase {
         assertFalse("data should not have been uploaded", sweepOut.hasDataBeenUploaded());
     }
 
-    private void assertDataHasBeenUploaded(final SweepOutEvent sweepOut) throws Exception {
+    private void assertDataHasNotBeenDownloaded(final SweepInEvent sweepIn) throws Exception {
+        assertFalse("data should not have been downloaded", sweepIn.hasDataBeenDownloaded());
+    }
+
+    private void blockUntilDataHasBeenUploaded(final SweepOutEvent sweepOut) throws Exception {
         TestHelper.blockUntilTrue("uploader request should have been created", 10000,
                 new TestHelper.Condition() {
 
@@ -217,23 +245,23 @@ public class TestPassingData extends HocEventTestCase {
                 .indexOf("\"\r\nContent-Type")));
     }
 
-    private void assertDataHasBeenDownloaded(final SweepInEvent sweepIn, String pExpectedData)
+    private void blockUntilDataHasBeenDownloaded(final SweepInEvent sweepIn, String pExpectedData)
             throws Exception {
-        assertDownloadIsDone(sweepIn);
+        blockUntilDownloadIsDone(sweepIn);
 
         assertEquals("incomming data should be as expected", pExpectedData, sweepIn.getData()
                 .toString());
     }
 
-    private void assertDataHasBeenDownloaded(final SweepInEvent sweepIn, byte[] pExpectedData)
+    private void blockUntilDataHasBeenDownloaded(final SweepInEvent sweepIn, byte[] pExpectedData)
             throws Exception {
-        assertDownloadIsDone(sweepIn);
+        blockUntilDownloadIsDone(sweepIn);
 
         TestHelper.assertInputStreamEquals("incomming data should be as expected",
                 new ByteArrayInputStream(pExpectedData), sweepIn.getData().openInputStream());
     }
 
-    private void assertDownloadIsDone(final SweepInEvent sweepIn) throws Exception {
+    private void blockUntilDownloadIsDone(final SweepInEvent sweepIn) throws Exception {
         TestHelper.blockUntilTrue("downloader request should have been created", 10000,
                 new TestHelper.Condition() {
 
@@ -253,7 +281,7 @@ public class TestPassingData extends HocEventTestCase {
                 });
     }
 
-    private void assertLifetimeDecreases(final HocEvent hocEvent, final double lifetime)
+    private void blockUntilLifetimeDecreases(final HocEvent hocEvent, final double lifetime)
             throws Exception {
         TestHelper.blockUntilTrue("lifetime should be decreasing", 5000,
                 new TestHelper.Condition() {

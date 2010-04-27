@@ -50,11 +50,7 @@ public class SweepInEvent extends HocEvent {
 
             @Override
             public void onSuccess(int statusCode, StreamableContent body) {
-                Logger.v(LOG_TAG, "upload successful with: ", body);
-                if (SweepInEvent.this.isLinkEstablished()) {
-                    SweepInEvent.this.tryForSuccess();
-                }
-
+                SweepInEvent.this.tryForSuccess();
             }
 
             @Override
@@ -116,7 +112,7 @@ public class SweepInEvent extends HocEvent {
         if (mDataDownloader == null) {
             return false;
         }
-        return mDataDownloader.isDone();
+        return mDataDownloader.isRequestCompleted();
     }
 
     @Override

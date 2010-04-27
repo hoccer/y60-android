@@ -30,7 +30,7 @@ public class SweepOutEvent extends HocEvent {
         if (mDataUploader == null) {
             return false;
         }
-        return mDataUploader.wasSuccessful();
+        return mDataUploader.isRequestCompleted();
     }
 
     @Override
@@ -42,6 +42,10 @@ public class SweepOutEvent extends HocEvent {
 
     }
 
+    @Override
+    /**
+     * @return true if link is ready and download has started 
+     */
     protected boolean wasSuccessful() {
         return super.wasSuccessful() && hasDataBeenUploaded();
     }

@@ -84,7 +84,7 @@ public class HocEventTestCase extends TestCase {
                 });
     }
 
-    protected void assertEventIsLinked(final HocEvent pEvent) throws Exception {
+    protected void blockUntilEventIsLinked(final HocEvent pEvent) throws Exception {
         TestHelper.blockUntilTrue("link should be established", 10000, new TestHelper.Condition() {
             @Override
             public boolean isSatisfied() throws Exception {
