@@ -20,7 +20,7 @@ public class TestPassingData extends HocEventTestCase {
     public void testLonelySweepOutEvent() throws Exception {
         SweepOutEvent sweepOut = getPeer().sweepOut(new StreamableString("my hocced data"));
         HocEventListenerForTesting eventCallback = new HocEventListenerForTesting();
-        sweepOut.registerCallback(eventCallback);
+        sweepOut.addCallback(eventCallback);
         assertEventIsAlive("sweepOut", sweepOut);
         
         TestHelper.assertMatches("event shuld have a valid resource location", HocEvent
@@ -52,7 +52,7 @@ public class TestPassingData extends HocEventTestCase {
     public void testLonelySweepInEvent() throws Exception {
         mEvent = getPeer().sweepIn();
         HocEventListenerForTesting eventCallback = new HocEventListenerForTesting();
-        mEvent.registerCallback(eventCallback);
+        mEvent.addCallback(eventCallback);
         assertEventIsAlive("sweepIn", mEvent);
         
         TestHelper.assertMatches("event shuld have a valid resource location", HocEvent
