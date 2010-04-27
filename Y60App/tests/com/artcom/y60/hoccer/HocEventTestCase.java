@@ -10,11 +10,11 @@ import com.artcom.y60.Logger;
 import com.artcom.y60.TestHelper;
 
 public class HocEventTestCase extends TestCase {
-    
+
     private static String      LOG_TAG   = "HocEventTestCase";
     private static HocLocation mLocation = null;
     private Peer               mPeer;
-    
+
     public HocEventTestCase() {
         if (mLocation == null) {
             Logger
@@ -27,32 +27,32 @@ public class HocEventTestCase extends TestCase {
             mLocation = HocLocation.createFromLocation(location, new ArrayList<ScanResult>());
         }
     }
-    
+
     @Override
     public void setUp() {
         mPeer = new Peer("Y60/Hoccer Unit Test on Android");
         mPeer.setLocation(getUniqueHocLocation());
     }
-    
+
     @Override
     public void tearDown() {
         mPeer = null;
     }
-    
+
     protected Peer getPeer() {
         return mPeer;
     }
-    
+
     protected HocLocation getUniqueHocLocation() {
         mLocation.setLatitude(mLocation.getLatitude() + 0.1);
         mLocation.setLongitude(mLocation.getLongitude() + 0.1);
         return mLocation;
     }
-    
+
     protected void assertEventIsAlive(String pEventName, final HocEvent pEvent) throws Exception {
         TestHelper.blockUntilTrue(pEventName + " event should have been created", 10000,
                 new TestHelper.Condition() {
-                    
+
                     @Override
                     public boolean isSatisfied() throws Exception {
                         assertFalse("event should not collide with others", pEvent.hasCollision());
@@ -60,30 +60,30 @@ public class HocEventTestCase extends TestCase {
                     }
                 });
     }
-    
+
     protected void assertEventIsExpired(String pEventName, final HocEvent pEvent) throws Exception {
         TestHelper.blockUntilFalse(pEventName + " event shuld be expired by now", 10000,
                 new TestHelper.Condition() {
-                    
+
                     @Override
                     public boolean isSatisfied() throws Exception {
                         return pEvent.isAlive();
                     }
                 });
     }
-    
+
     protected void assertEventHasNumberOfPeers(final HocEvent pEvent, int expectedPeerCount)
             throws Exception {
         TestHelper.blockUntilEquals(" HocEvent shuld have " + expectedPeerCount + " peers by now",
                 7000, expectedPeerCount, new TestHelper.Measurement() {
-                    
+
                     @Override
                     public Object getActualValue() throws Exception {
                         return pEvent.getLinkedPeerCount();
                     }
                 });
     }
-    
+
     protected void assertEventIsLinked(final HocEvent pEvent) throws Exception {
         TestHelper.blockUntilTrue("link should be established", 10000, new TestHelper.Condition() {
             @Override
@@ -91,6 +91,9 @@ public class HocEventTestCase extends TestCase {
                 return pEvent.isLinkEstablished();
             }
         });
-        
+    }
+
+    protected void assertEventIsNotLinked(final HocEvent pEvent) throws Exception {
+        assertFalse(pEvent + " should not be linked", pEvent.isLinkEstablished());
     }
 }
