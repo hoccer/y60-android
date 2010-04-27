@@ -180,7 +180,15 @@ public abstract class HocEvent {
         }
     }
 
-    protected void onSuccess() {
+    protected boolean wasSuccessful() {
+        return isLinkEstablished();
+    }
+
+    protected void tryForSuccess() {
+        if (!wasSuccessful()) {
+            return;
+        }
+
         for (HocEventListener callback : mCallbackList) {
             callback.onSuccess(this);
         }
@@ -190,6 +198,7 @@ public abstract class HocEvent {
         for (HocEventListener callback : mCallbackList) {
             callback.onLinkEstablished();
         }
+        tryForSuccess();
     };
 
     protected void onError(HocEventException e) {
