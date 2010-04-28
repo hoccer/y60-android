@@ -55,6 +55,9 @@ public class SweepInEvent extends HocEvent {
 
             @Override
             public void onReceiving(double progress) {
+                Logger.v(LOG_TAG, "receiving data ", progress);
+
+                SweepInEvent.this.onTransferProgress(progress);
             }
 
             @Override

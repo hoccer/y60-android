@@ -2,9 +2,11 @@ package com.artcom.y60.hoccer;
 
 public interface HocEventListener {
 
-    public void onDataExchanged(HocEvent pHocEvent);
+    public void onDataExchanged(HocEvent hoc);
 
-    public void onFeedback(String pMessage);
+    public void onFeedback(String message);
+
+    public void onTransferProgress(double progress);
 
     public void onError(HocEventException e);
 

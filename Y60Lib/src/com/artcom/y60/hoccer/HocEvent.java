@@ -201,6 +201,12 @@ public abstract class HocEvent {
         tryForSuccess();
     };
 
+    protected void onTransferProgress(double progress) {
+        for (HocEventListener callback : mCallbackList) {
+            callback.onTransferProgress(progress);
+        }
+    };
+
     protected void onError(HocEventException e) {
         for (HocEventListener callback : mCallbackList) {
             callback.onError(e);
