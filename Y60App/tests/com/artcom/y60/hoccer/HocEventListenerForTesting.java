@@ -17,13 +17,13 @@ public class HocEventListenerForTesting implements HocEventListener {
     }
     
     @Override
-    public void onProgress(String pMessage) {
+    public void onFeedback(String pMessage) {
         // TODO Auto-generated method stub
         
     }
     
     @Override
-    public void onSuccess(HocEvent pHocEvent) {
+    public void onDataExchanged(HocEvent pHocEvent) {
         wasSuccessful = true;
     }
     

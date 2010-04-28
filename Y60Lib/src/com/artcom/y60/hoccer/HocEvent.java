@@ -109,7 +109,7 @@ public abstract class HocEvent {
         } else if (mState.equals("no_seeders")) {
             onError(new HocEventException(getMessage(), mState, getResourceLocation()));
         } else if (mState.equals("waiting")) {
-            onProgress();
+            onFeedback();
         } else {
             onError(new HocEventException(getMessage(), mState, getResourceLocation()));
         }
@@ -176,7 +176,7 @@ public abstract class HocEvent {
 
         // notify about new status infos
         for (HocEventListener callback : mCallbackList) {
-            callback.onProgress(mMessage);
+            callback.onFeedback(mMessage);
         }
     }
 
@@ -190,7 +190,7 @@ public abstract class HocEvent {
         }
 
         for (HocEventListener callback : mCallbackList) {
-            callback.onSuccess(this);
+            callback.onDataExchanged(this);
         }
     };
 
@@ -207,9 +207,9 @@ public abstract class HocEvent {
         }
     };
 
-    protected void onProgress() {
+    protected void onFeedback() {
         for (HocEventListener callback : mCallbackList) {
-            callback.onProgress("on progress");
+            callback.onFeedback(mMessage);
         }
     };
 
