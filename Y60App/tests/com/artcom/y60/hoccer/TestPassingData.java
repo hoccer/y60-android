@@ -19,23 +19,25 @@ public class TestPassingData extends HocEventTestCase {
     private HocEvent            mEvent;
 
     public void testLonelySweepOutEvent() throws Exception {
-        SweepOutEvent sweepOut = getPeer().sweepOut(new StreamableString("my hocced data"));
+        SweepOutEvent hocEvent = getPeer().sweepOut(new StreamableString("my hocced data"));
         HocEventListenerForTesting eventCallback = new HocEventListenerForTesting();
-        sweepOut.addCallback(eventCallback);
-        assertEventIsAlive("sweepOut", sweepOut);
+        hocEvent.addCallback(eventCallback);
+        assertEventIsAlive("sweepOut", hocEvent);
 
         TestHelper.assertMatches("event shuld have a valid resource location", HocEvent
                 .getRemoteServer()
-                + "/events/\\w*", sweepOut.getResourceLocation());
+                + "/events/\\w*", hocEvent.getResourceLocation());
 
-        double lifetime = sweepOut.getLifetime();
+        double lifetime = hocEvent.getLifetime();
         TestHelper.assertGreater("lifetime should be fine", 5, lifetime);
-        blockUntilLifetimeDecreases(sweepOut, lifetime);
+        blockUntilLifetimeDecreases(hocEvent, lifetime);
 
-        assertEventIsExpired("sweepOut", sweepOut);
-        assertEquals("lifetime should be down to zero", 0.0, sweepOut.getLifetime());
-        blockUntilDataHasBeenUploaded(sweepOut);
+        assertEventIsExpired("sweepOut", hocEvent);
+        assertEquals("lifetime should be down to zero", 0.0, hocEvent.getLifetime());
+        blockUntilDataHasBeenUploaded(hocEvent);
         assertTrue("should have got error callback", eventCallback.hadError);
+        assertPollingHasStopped(hocEvent);
+
     }
 
     public void testAbortingLonelySweepOutEvent() throws Exception {
@@ -106,7 +108,8 @@ public class TestPassingData extends HocEventTestCase {
                 .getContentType());
         assertEquals("filename should be as expected", "thedemofilename.txt", sweepIn.getData()
                 .getFilename());
-
+        assertPollingHasStopped(sweepIn);
+        assertPollingHasStopped(sweepOut);
     }
 
     public void testTransferingImageBetweenSweepInAndOutEvents() throws Exception {

@@ -49,6 +49,13 @@ public class HocEventTestCase extends TestCase {
         return mLocation;
     }
 
+    protected void assertPollingHasStopped(HocEvent hocEvent) throws Exception {
+        assertNull("Async Http Request polling should not be running", hocEvent.mStatusFetcher);
+        Thread.sleep(2000);
+        assertNull("Async Http Request polling should still not be running",
+                hocEvent.mStatusFetcher);
+    }
+
     protected void assertEventIsAlive(String pEventName, final HocEvent pEvent) throws Exception {
         TestHelper.blockUntilTrue(pEventName + " event should have been created", 10000,
                 new TestHelper.Condition() {

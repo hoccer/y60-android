@@ -29,7 +29,7 @@ public abstract class HocEvent {
     private int                               mLinkedPeerCount    = 0;
     private UUID                              mUuid               = null;
 
-    private AsyncHttpRequest                  mStatusFetcher;
+    AsyncHttpRequest                          mStatusFetcher;
     private final ArrayList<HocEventListener> mCallbackList;
     private String                            mMessage;
     private int                               mStatusPollingDelay = 1;
@@ -189,10 +189,17 @@ public abstract class HocEvent {
             return;
         }
 
+        stopPolling();
+
         for (HocEventListener callback : mCallbackList) {
             callback.onDataExchanged(this);
         }
     };
+
+    private void stopPolling() {
+        mStatusFetcher.removeResponseHandler();
+        mStatusFetcher = null;
+    }
 
     protected void onLinkEstablished() {
         for (HocEventListener callback : mCallbackList) {
@@ -208,6 +215,9 @@ public abstract class HocEvent {
     };
 
     protected void onError(HocEventException e) {
+
+        stopPolling();
+
         for (HocEventListener callback : mCallbackList) {
             callback.onError(e);
         }
@@ -249,6 +259,9 @@ public abstract class HocEvent {
             private void launchNewPollingRequest() {
                 try {
                     Thread.sleep(mStatusPollingDelay * 1000);
+                    if (mStatusFetcher == null) {
+                        return; // we dont want no more polling
+                    }
                 } catch (InterruptedException e) {
                     Logger.e(LOG_TAG, e);
                 }
