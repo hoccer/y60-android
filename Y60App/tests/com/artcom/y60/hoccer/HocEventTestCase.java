@@ -1,5 +1,6 @@
 package com.artcom.y60.hoccer;
 
+import java.io.ByteArrayInputStream;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 
@@ -61,7 +62,8 @@ public class HocEventTestCase extends TestCase {
                 hocEvent.mStatusFetcher);
     }
 
-    protected void assertEventIsAlive(String pEventName, final HocEvent pEvent) throws Exception {
+    protected void blockUntilEventIsAlive(String pEventName, final HocEvent pEvent)
+            throws Exception {
         TestHelper.blockUntilTrue(pEventName + " event should have been created", 10000,
                 new TestHelper.Condition() {
 
@@ -73,7 +75,20 @@ public class HocEventTestCase extends TestCase {
                 });
     }
 
-    protected void assertEventIsExpired(String pEventName, final HocEvent pEvent) throws Exception {
+    protected void blockUntilEventHasCollision(String pEventName, final HocEvent pEvent)
+            throws Exception {
+        TestHelper.blockUntilTrue(pEventName + " event should have been created", 10000,
+                new TestHelper.Condition() {
+
+                    @Override
+                    public boolean isSatisfied() throws Exception {
+                        return pEvent.hasCollision();
+                    }
+                });
+    }
+
+    protected void blockUntilEventIsExpired(String pEventName, final HocEvent pEvent)
+            throws Exception {
         TestHelper.blockUntilFalse(pEventName + " event shuld be expired by now", 10000,
                 new TestHelper.Condition() {
 
@@ -84,7 +99,7 @@ public class HocEventTestCase extends TestCase {
                 });
     }
 
-    protected void assertEventHasNumberOfPeers(final HocEvent pEvent, int expectedPeerCount)
+    protected void blockUntilEventHasNumberOfPeers(final HocEvent pEvent, int expectedPeerCount)
             throws Exception {
         TestHelper.blockUntilEquals(" HocEvent shuld have " + expectedPeerCount + " peers by now",
                 7000, expectedPeerCount, new TestHelper.Measurement() {
@@ -152,5 +167,49 @@ public class HocEventTestCase extends TestCase {
         assertEquals("uploaded data should have correct should have correct filename", shareEvent
                 .getData().getFilename(), body.substring(body.indexOf("filename=\"") + 10, body
                 .indexOf("\"\r\nContent-Type")));
+    }
+
+    protected void assertDataHasNotBeenUploaded(final ShareEvent shareEvent) throws Exception {
+        assertFalse("data should not have been uploaded", shareEvent.hasDataBeenUploaded());
+    }
+
+    protected void assertDataHasNotBeenDownloaded(final ReceiveEvent receiveEvent) throws Exception {
+        assertFalse("data should not have been downloaded", receiveEvent.hasDataBeenDownloaded());
+    }
+
+    protected void blockUntilDataHasBeenDownloaded(final ReceiveEvent receiveEvent,
+            String pExpectedData) throws Exception {
+        blockUntilDownloadIsDone(receiveEvent);
+
+        assertEquals("incomming data should be as expected", pExpectedData, receiveEvent.getData()
+                .toString());
+    }
+
+    protected void blockUntilDataHasBeenDownloaded(final ReceiveEvent receiveEvent,
+            byte[] pExpectedData) throws Exception {
+        blockUntilDownloadIsDone(receiveEvent);
+
+        TestHelper.assertInputStreamEquals("incomming data should be as expected",
+                new ByteArrayInputStream(pExpectedData), receiveEvent.getData().openInputStream());
+    }
+
+    private void blockUntilDownloadIsDone(final ReceiveEvent receiveEvent) throws Exception {
+        TestHelper.blockUntilTrue("downloader request should have been created", 10000,
+                new TestHelper.Condition() {
+
+                    @Override
+                    public boolean isSatisfied() throws Exception {
+                        return receiveEvent.mDataDownloader != null;
+                    }
+                });
+
+        TestHelper.blockUntilTrue("download should have finished", 10000,
+                new TestHelper.Condition() {
+
+                    @Override
+                    public boolean isSatisfied() throws Exception {
+                        return receiveEvent.hasDataBeenDownloaded();
+                    }
+                });
     }
 }

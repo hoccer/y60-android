@@ -19,9 +19,9 @@ public class TestIncompleteTransfers extends HocEventTestCase {
         // this will break the upload
         sweepOut.mDataUploader = new AsyncHttpPut("nothing");
         
-        assertEventIsAlive("sweepOut", sweepOut);
+        blockUntilEventIsAlive("sweepOut", sweepOut);
         final SweepInEvent sweepIn = getPeer().sweepIn();
-        assertEventIsAlive("sweepIn", sweepIn);
+        blockUntilEventIsAlive("sweepIn", sweepIn);
         
         blockUntilEventIsLinked(sweepOut);
         blockUntilEventIsLinked(sweepIn);
