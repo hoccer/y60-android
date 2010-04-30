@@ -5,18 +5,18 @@ import java.util.Map;
 
 import org.apache.http.impl.client.DefaultHttpClient;
 
-public class SweepInEvent extends ReceiveEvent {
+public class CatchEvent extends ReceiveEvent {
 
-    private static String LOG_TAG = "SweepInEvent";
+    private static final String LOG_TAG = "CatchEvent";
 
-    SweepInEvent(HocLocation pLocation, DefaultHttpClient pHttpClient, Peer pPeer) {
-        super(pLocation, pHttpClient, pPeer);
+    CatchEvent(HocLocation pLocation, DefaultHttpClient pHttpClient, Peer peer) {
+        super(pLocation, pHttpClient, peer);
     }
 
     @Override
     protected Map<String, String> getEventParameters() {
         Map<String, String> eventParams = new HashMap<String, String>();
-        eventParams.put("event[type]", "SweepIn");
+        eventParams.put("event[type]", "Catch");
         return eventParams;
     }
 

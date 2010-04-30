@@ -53,4 +53,8 @@ public class Peer {
     public DataContainerFactory getContentFactory() {
         return mDataContainerFactory;
     }
+
+    public CatchEvent catchIt() {
+        return new CatchEvent(mHocLocation, mHttpClient, this);
+    }
 }

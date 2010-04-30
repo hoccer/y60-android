@@ -20,12 +20,36 @@ public class TestThrowCatchData extends HocEventTestCase {
         TestHelper.assertGreater("lifetime should be fine", 5, lifetime);
         blockUntilLifetimeDecreases(hocEvent, lifetime);
 
-        assertEventIsExpired("sweepOut", hocEvent);
+        assertEventIsExpired("throw", hocEvent);
         assertEquals("lifetime should be down to zero", 0.0, hocEvent.getLifetime());
         blockUntilDataHasBeenUploaded(hocEvent);
         assertTrue("should have got error callback", eventCallback.hadError);
         assertPollingHasStopped(hocEvent);
-
     }
 
+    public void testCollisionOfTwoThrowerOneCatcher() throws Exception {
+
+        StreamableString content = new StreamableString("provoke collision");
+
+        final ThrowEvent throwEventA = getPeer().throwIt(content);
+        assertEventIsAlive("throwEventA", throwEventA);
+
+        CatchEvent catchEvent = getPeer().catchIt();
+        assertEventIsAlive("catchEvent", catchEvent);
+
+        assertEventHasNumberOfPeers(throwEventA, 1);
+        assertEventHasNumberOfPeers(catchEvent, 1);
+
+        blockUntilEventIsLinked(throwEventA);
+        blockUntilEventIsLinked(catchEvent);
+
+        blockUntilDataHasBeenUploaded(throwEventA);
+        // blockUntilDataHasBeenDownloaded(sweepIn, "my hocced text");
+        assertEquals("mime type should be as expected", "text/plain", catchEvent.getData()
+                .getContentType());
+        assertEquals("filename should be as expected", "thedemofilename.txt", catchEvent.getData()
+                .getFilename());
+        assertPollingHasStopped(catchEvent);
+        assertPollingHasStopped(throwEventA);
+    }
 }

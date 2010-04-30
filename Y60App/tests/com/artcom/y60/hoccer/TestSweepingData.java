@@ -36,15 +36,22 @@ public class TestSweepingData extends HocEventTestCase {
     }
 
     public void testAbortingLonelySweepOutEvent() throws Exception {
-        SweepOutEvent sweepOut = getPeer().sweepOut(new StreamableString("my hocced data"));
+        final SweepOutEvent sweepOut = getPeer().sweepOut(new StreamableString("my hocced data"));
         assertEventIsAlive("sweepOut", sweepOut);
 
         Thread.sleep(200);
         assertEquals("event should exist on server", 202, HttpHelper.getStatusCode(sweepOut
                 .getResourceLocation()));
         sweepOut.abort();
-        assertEquals("event should be removed from server", 404, HttpHelper.getStatusCode(sweepOut
-                .getResourceLocation()));
+
+        TestHelper.blockUntilEquals("event should be removed from server", 2000, 410,
+                new TestHelper.Measurement() {
+
+                    @Override
+                    public Object getActualValue() throws Exception {
+                        return HttpHelper.getStatusCode(sweepOut.getResourceLocation());
+                    }
+                });
     }
 
     public void testLonelySweepInEvent() throws Exception {
@@ -63,9 +70,6 @@ public class TestSweepingData extends HocEventTestCase {
 
         assertEventIsExpired("sweepIn", mEvent);
         assertEquals("lifetime should be down to zero", 0.0, mEvent.getLifetime());
-
-        Thread.sleep(2000);
-
         assertTrue("should have got error callback", eventCallback.hadError);
     }
 
