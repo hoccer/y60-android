@@ -35,9 +35,9 @@ public class TestPassingData extends HocEventTestCase {
         assertEventIsExpired("sweepOut", hocEvent);
         assertEquals("lifetime should be down to zero", 0.0, hocEvent.getLifetime());
         blockUntilDataHasBeenUploaded(hocEvent);
+
         assertTrue("should have got error callback", eventCallback.hadError);
         assertPollingHasStopped(hocEvent);
-
     }
 
     public void testAbortingLonelySweepOutEvent() throws Exception {
@@ -68,6 +68,9 @@ public class TestPassingData extends HocEventTestCase {
 
         assertEventIsExpired("sweepIn", mEvent);
         assertEquals("lifetime should be down to zero", 0.0, mEvent.getLifetime());
+
+        Thread.sleep(2000);
+
         assertTrue("should have got error callback", eventCallback.hadError);
     }
 

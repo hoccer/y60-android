@@ -63,7 +63,7 @@ public class HocEventTestCase extends TestCase {
                     @Override
                     public boolean isSatisfied() throws Exception {
                         assertFalse("event should not collide with others", pEvent.hasCollision());
-                        return pEvent.isAlive();
+                        return pEvent.isOpenForLinking();
                     }
                 });
     }
@@ -74,7 +74,7 @@ public class HocEventTestCase extends TestCase {
 
                     @Override
                     public boolean isSatisfied() throws Exception {
-                        return pEvent.isAlive();
+                        return pEvent.isOpenForLinking();
                     }
                 });
     }

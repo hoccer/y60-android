@@ -72,7 +72,7 @@ public abstract class HocEvent {
     /**
      * @return true if lifetime is positive
      */
-    public boolean isAlive() {
+    public boolean isOpenForLinking() {
         return getLifetime() > 0;
     }
 
@@ -269,7 +269,7 @@ public abstract class HocEvent {
                 mStatusFetcher = new AsyncHttpGet(mStatusFetcher.getUri());
                 mStatusFetcher.registerResponseHandler(this);
 
-                Logger.v(LOG_TAG, "launchNewPollingRequest");
+                Logger.v(LOG_TAG, "launchNewPollingRequest for: ", mStatusFetcher.getUri());
                 mStatusFetcher.start();
             }
 

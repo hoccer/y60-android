@@ -1,12 +1,16 @@
 package com.artcom.y60.hoccer;
 
+import com.artcom.y60.Logger;
+
 public class HocEventListenerForTesting implements HocEventListener {
 
-    public boolean hadError;
-    public boolean wasSuccessful;
+    private static final String LOG_TAG = "HocEventListenerForTesting";
+    public boolean              hadError;
+    public boolean              wasSuccessful;
 
     @Override
     public void onError(HocEventException e) {
+        Logger.v(LOG_TAG, "error in test callback");
         hadError = true;
     }
 
