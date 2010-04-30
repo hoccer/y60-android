@@ -7,11 +7,11 @@ import org.apache.http.impl.client.DefaultHttpClient;
 
 import com.artcom.y60.data.StreamableContent;
 
-public class SweepOutEvent extends ShareEvent {
+public class ThrowEvent extends ShareEvent {
 
     private static final String LOG_TAG = "ShareEvent";
 
-    SweepOutEvent(HocLocation pLocation, StreamableContent pOutgoingData,
+    ThrowEvent(HocLocation pLocation, StreamableContent pOutgoingData,
             DefaultHttpClient pHttpClient) {
         super(pLocation, pOutgoingData, pHttpClient);
     }
