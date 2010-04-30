@@ -1,21 +1,16 @@
 package com.artcom.y60.hoccer;
 
 import java.io.ByteArrayInputStream;
-import java.lang.reflect.Method;
 
-import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
-
-import com.artcom.y60.Logger;
 import com.artcom.y60.TestHelper;
 import com.artcom.y60.data.GenericStreamableContent;
 import com.artcom.y60.data.StreamableContent;
 import com.artcom.y60.data.StreamableString;
-import com.artcom.y60.http.AsyncHttpRequestWithBody;
 import com.artcom.y60.http.HttpHelper;
 
-public class TestPassingData extends HocEventTestCase {
+public class TestSweepingData extends HocEventTestCase {
 
-    private static final String LOG_TAG = "TestPassingData";
+    private static final String LOG_TAG = "TestSweepingData";
     private HocEvent            mEvent;
 
     public void testLonelySweepOutEvent() throws Exception {
@@ -215,39 +210,6 @@ public class TestPassingData extends HocEventTestCase {
         assertFalse("data should not have been downloaded", sweepIn.hasDataBeenDownloaded());
     }
 
-    private void blockUntilDataHasBeenUploaded(final SweepOutEvent sweepOut) throws Exception {
-        TestHelper.blockUntilTrue("uploader request should have been created", 10000,
-                new TestHelper.Condition() {
-
-                    @Override
-                    public boolean isSatisfied() throws Exception {
-                        return sweepOut.mDataUploader != null;
-                    }
-                });
-
-        TestHelper.blockUntilTrue("upload should have finished", 10000, new TestHelper.Condition() {
-
-            @Override
-            public boolean isSatisfied() throws Exception {
-                return sweepOut.hasDataBeenUploaded();
-            }
-        });
-
-        Method m = AsyncHttpRequestWithBody.class.getDeclaredMethod("getRequest", null);
-        m.setAccessible(true);
-        HttpEntityEnclosingRequestBase request = (HttpEntityEnclosingRequestBase) m.invoke(
-                sweepOut.mDataUploader, null);
-        String body = request.getEntity().toString();
-
-        Logger.v(LOG_TAG, "body", body);
-        assertEquals("uploaded data should have correct content-type", sweepOut.getData()
-                .getContentType(), body.substring(body.indexOf("Content-Type: ") + 14, body
-                .indexOf("\r\nContent-Transfer-Encoding")));
-        assertEquals("uploaded data should have correct should have correct filename", sweepOut
-                .getData().getFilename(), body.substring(body.indexOf("filename=\"") + 10, body
-                .indexOf("\"\r\nContent-Type")));
-    }
-
     private void blockUntilDataHasBeenDownloaded(final SweepInEvent sweepIn, String pExpectedData)
             throws Exception {
         blockUntilDownloadIsDone(sweepIn);
@@ -264,13 +226,13 @@ public class TestPassingData extends HocEventTestCase {
                 new ByteArrayInputStream(pExpectedData), sweepIn.getData().openInputStream());
     }
 
-    private void blockUntilDownloadIsDone(final SweepInEvent sweepIn) throws Exception {
+    private void blockUntilDownloadIsDone(final SweepInEvent hocEvent) throws Exception {
         TestHelper.blockUntilTrue("downloader request should have been created", 10000,
                 new TestHelper.Condition() {
 
                     @Override
                     public boolean isSatisfied() throws Exception {
-                        return sweepIn.mDataDownloader != null;
+                        return hocEvent.mDataDownloader != null;
                     }
                 });
 
@@ -279,19 +241,7 @@ public class TestPassingData extends HocEventTestCase {
 
                     @Override
                     public boolean isSatisfied() throws Exception {
-                        return sweepIn.hasDataBeenDownloaded();
-                    }
-                });
-    }
-
-    private void blockUntilLifetimeDecreases(final HocEvent hocEvent, final double lifetime)
-            throws Exception {
-        TestHelper.blockUntilTrue("lifetime should be decreasing", 5000,
-                new TestHelper.Condition() {
-
-                    @Override
-                    public boolean isSatisfied() throws Exception {
-                        return hocEvent.getLifetime() < lifetime && hocEvent.getLifetime() > 0;
+                        return hocEvent.hasDataBeenDownloaded();
                     }
                 });
     }
