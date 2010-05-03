@@ -41,6 +41,10 @@ public class Peer {
         return new DropEvent(mHocLocation, pStreamableData, mHttpClient);
     }
     
+    public PickEvent pick() {
+        return new PickEvent(mHocLocation, mHttpClient, this);
+    }
+    
     public void setLocation(HocLocation pLocation) {
         mHocLocation = pLocation;
         Logger.v(LOG_TAG, mHocLocation);
