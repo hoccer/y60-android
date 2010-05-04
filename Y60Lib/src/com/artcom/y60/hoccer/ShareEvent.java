@@ -20,8 +20,7 @@ public abstract class ShareEvent extends HocEvent {
     private final StreamableContent mOutgoingData;
     AsyncHttpPut                    mDataUploader = null;
 
-    ShareEvent(HocLocation pLocation, StreamableContent pOutgoingData,
-            DefaultHttpClient pHttpClient) {
+    ShareEvent(HocLocation pLocation, StreamableContent pOutgoingData, DefaultHttpClient pHttpClient) {
         super(pLocation, pHttpClient);
         mOutgoingData = pOutgoingData;
     }
@@ -71,8 +70,8 @@ public abstract class ShareEvent extends HocEvent {
             @Override
             public void onError(int statusCode, StreamableContent body) {
                 Logger.e(LOG_TAG, "onError: ", body, " with status code: ", statusCode);
-                ShareEvent.this.onError(new HocEventException(
-                        "upload failed with status code " + statusCode, "failed", "<unknown uri>"));
+                ShareEvent.this.onError(new HocEventException("upload failed with status code "
+                        + statusCode, "failed", "<unknown uri>"));
             }
 
             @Override

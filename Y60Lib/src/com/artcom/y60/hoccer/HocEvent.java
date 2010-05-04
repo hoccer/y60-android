@@ -32,7 +32,7 @@ public abstract class HocEvent {
     AsyncHttpRequest                          mStatusFetcher;
     private final ArrayList<HocEventListener> mCallbackList;
     private String                            mMessage;
-    private int                               mStatusPollingDelay = 1;
+    private final int                         mStatusPollingDelay = 1;
 
     HocEvent(HocLocation pLocation, DefaultHttpClient pHttpClient) {
         Logger.v(LOG_TAG, "creating new hoc event");
@@ -85,10 +85,6 @@ public abstract class HocEvent {
 
     public String getMessage() {
         return mMessage;
-    }
-
-    protected void resetStatusPollingDelay() {
-        mStatusPollingDelay = 1;
     }
 
     protected void updateState(String newState) {
