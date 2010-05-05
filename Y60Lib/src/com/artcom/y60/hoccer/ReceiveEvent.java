@@ -38,7 +38,7 @@ public abstract class ReceiveEvent extends HocEvent {
     }
 
     protected void onPossibleDownloadsAvailable(JSONArray pieces) throws JSONException, IOException {
-        if (mDataDownloader == null) {
+        if (mDataDownloader != null) {
             // skip if we are already downloading someting
             return;
         }
