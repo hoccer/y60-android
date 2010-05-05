@@ -29,13 +29,22 @@ public abstract class ReceiveEvent extends HocEvent {
     @Override
     protected void updateStatusFromJson(JSONObject status) throws JSONException, IOException {
         super.updateStatusFromJson(status);
-        if (status.has("uploads") && mDataDownloader == null) {
-            JSONArray uris = status.getJSONArray("uploads");
-            if (uris.length() > 0) {
-                String uri = uris.getJSONObject(0).getString("uri");
-                downloadDataFrom(uri);
+        if (status.has("uploads")) {
+            JSONArray possible_pieces = status.getJSONArray("uploads");
+            if (possible_pieces.length() > 0) {
+                onPossibleDownloadsAvailable(possible_pieces);
             }
         }
+    }
+
+    protected void onPossibleDownloadsAvailable(JSONArray pieces) throws JSONException, IOException {
+        if (mDataDownloader != null) {
+            // skip if we are already downloading someting
+            return;
+        }
+
+        String uri = pieces.getJSONObject(0).getString("uri");
+        downloadDataFrom(uri);
     }
 
     private void downloadDataFrom(String uri) throws JSONException, IOException {

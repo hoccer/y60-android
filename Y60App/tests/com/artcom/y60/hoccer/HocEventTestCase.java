@@ -136,6 +136,18 @@ public class HocEventTestCase extends TestCase {
                 });
     }
 
+    protected void blockUntilLifetimeIsDownTo(final HocEvent hocEvent, final double targetedLifetime)
+            throws Exception {
+        TestHelper.blockUntilTrue("lifetime should be down to " + targetedLifetime + " but is "
+                + hocEvent.getLifetime(), 8000, new TestHelper.Condition() {
+
+            @Override
+            public boolean isSatisfied() throws Exception {
+                return hocEvent.getLifetime() <= targetedLifetime;
+            }
+        });
+    }
+
     protected void blockUntilDataHasBeenUploaded(final ShareEvent shareEvent) throws Exception {
         TestHelper.blockUntilTrue("uploader request should have been created", 10000,
                 new TestHelper.Condition() {
