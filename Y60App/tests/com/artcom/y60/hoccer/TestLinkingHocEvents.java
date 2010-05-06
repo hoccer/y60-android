@@ -51,6 +51,8 @@ public class TestLinkingHocEvents extends HocEventTestCase {
 
         SweepOutEvent sweepOut = sendingPeer.sweepOut(new StreamableString("my hocced data"));
         SweepInEvent sweepIn = receivingPeer.sweepIn();
+        blockUntilEventIsAlive("sweepOut", sweepOut);
+        blockUntilEventIsAlive("sweepIn", sweepIn);
 
         blockUntilEventIsExpired("sweepOut", sweepOut);
         blockUntilEventIsExpired("sweepIn", sweepIn);

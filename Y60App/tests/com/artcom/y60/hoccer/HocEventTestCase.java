@@ -101,7 +101,6 @@ public class HocEventTestCase extends TestCase {
 
     protected void blockUntilEventIsExpired(String pEventName, final HocEvent pEvent)
             throws Exception {
-        blockUntilEventIsAlive(pEventName, pEvent);
 
         TestHelper.blockUntilFalse(pEventName + " event shuld be expired by now", 10000,
                 new TestHelper.Condition() {
