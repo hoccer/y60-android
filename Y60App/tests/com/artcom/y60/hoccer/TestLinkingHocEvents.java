@@ -1,5 +1,7 @@
 package com.artcom.y60.hoccer;
 
+import java.util.ArrayList;
+
 import com.artcom.y60.TestHelper;
 import com.artcom.y60.data.StreamableString;
 
@@ -60,9 +62,16 @@ public class TestLinkingHocEvents extends HocEventTestCase {
         Peer sendingPeer = new Peer("Y60/Hoccer Unit Test on Android");
         Peer receivingPeer = new Peer("Y60/Hoccer Unit Test on Android");
 
-        HocLocation sendingLocation = getUniqueGpsLocation();
+        ArrayList<AccessPointSighting> bssidsOfSender = new ArrayList<AccessPointSighting>();
+        bssidsOfSender.add(new AccessPointSighting("00:22:3f:2e:33:e8", 3));
+        bssidsOfSender.add(new AccessPointSighting("00:22:3f:10:a8:bf", -23));
+        HocLocation sendingLocation = getUniqueGpsLocation(bssidsOfSender);
         sendingPeer.setLocation(sendingLocation);
-        HocLocation receivingLocation = getUniqueGpsLocation();
+
+        ArrayList<AccessPointSighting> bssidsOfReceiver = new ArrayList<AccessPointSighting>();
+        bssidsOfReceiver.add(new AccessPointSighting("00:22:3f:2e:33:e8", 3));
+        bssidsOfReceiver.add(new AccessPointSighting("0:24:fe:4a:7f:4f", 12));
+        HocLocation receivingLocation = getUniqueGpsLocation(bssidsOfReceiver);
         receivingPeer.setLocation(receivingLocation);
 
         assertNotSame(receivingLocation, sendingLocation);

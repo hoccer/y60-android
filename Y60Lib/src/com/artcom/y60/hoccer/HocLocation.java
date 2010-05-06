@@ -12,7 +12,7 @@ import com.artcom.y60.data.ProblemDescriptor;
 
 public class HocLocation extends Location {
 
-    private List<ScanResult> mScanResults = null;
+    private List<AccessPointSighting> mScanResults = null;
 
     private HocLocation(Location pLocation) {
         super(pLocation);
@@ -20,9 +20,18 @@ public class HocLocation extends Location {
 
     private HocLocation(Parcel pIn) {
         super(Location.CREATOR.createFromParcel(pIn));
-        mScanResults = new ArrayList<ScanResult>();
+        mScanResults = new ArrayList<AccessPointSighting>();
 
         pIn.readList(mScanResults, null);
+    }
+
+    public static HocLocation createFromLocation(Location pLocation) {
+        if (pLocation == null) {
+            return null;
+        } else {
+            HocLocation hocLocation = new HocLocation(pLocation);
+            return hocLocation;
+        }
     }
 
     public static HocLocation createFromLocation(Location pLocation, List<ScanResult> pScanResults) {
@@ -35,11 +44,18 @@ public class HocLocation extends Location {
         }
     }
 
-    public List<ScanResult> getScanResults() {
+    public List<AccessPointSighting> getScanResults() {
         return mScanResults;
     }
 
     public void setScanResult(List<ScanResult> pScanResults) {
+        mScanResults = new ArrayList<AccessPointSighting>();
+        for (ScanResult scan : pScanResults) {
+
+        }
+    }
+
+    public void setAccesPointSightings(List<AccessPointSighting> pScanResults) {
         mScanResults = pScanResults;
     }
 

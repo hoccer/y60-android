@@ -50,6 +50,10 @@ public class HocEventTestCase extends TestCase {
     }
 
     protected HocLocation getUniqueGpsLocation() {
+        return getUniqueGpsLocation(new ArrayList<AccessPointSighting>());
+    }
+
+    protected HocLocation getUniqueGpsLocation(ArrayList<AccessPointSighting> sightings) {
         mLocation.setLatitude(mLocation.getLatitude() + 0.1);
         mLocation.setLongitude(mLocation.getLongitude() + 0.1);
 
@@ -57,8 +61,8 @@ public class HocEventTestCase extends TestCase {
         location.setAccuracy(mLocation.getAccuracy());
         location.setLatitude(mLocation.getLatitude());
         location.setLongitude(mLocation.getLongitude());
-        HocLocation hocLocation = HocLocation.createFromLocation(location,
-                new ArrayList<ScanResult>());
+        HocLocation hocLocation = HocLocation.createFromLocation(location);
+        hocLocation.setAccesPointSightings(sightings);
 
         return hocLocation;
     }
