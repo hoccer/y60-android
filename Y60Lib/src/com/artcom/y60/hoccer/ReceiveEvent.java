@@ -4,7 +4,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.HashMap;
 
-import org.apache.http.impl.client.DefaultHttpClient;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -19,11 +18,9 @@ public abstract class ReceiveEvent extends HocEvent {
 
     private static String LOG_TAG         = "ReceiveEvent";
     AsyncHttpGet          mDataDownloader = null;
-    private final Peer    mPeer;
 
-    ReceiveEvent(HocLocation pLocation, DefaultHttpClient pHttpClient, Peer pPeer) {
-        super(pLocation, pHttpClient);
-        mPeer = pPeer;
+    ReceiveEvent(HocLocation pLocation, Peer peer) {
+        super(pLocation, peer);
     }
 
     @Override
@@ -74,7 +71,7 @@ public abstract class ReceiveEvent extends HocEvent {
             public void onHeaderAvailable(HashMap<String, String> headers) {
                 try {
                     String filename = parseFilename(headers.get("Content-Disposition"));
-                    StreamableContent streamable = mPeer.getContentFactory()
+                    StreamableContent streamable = getPeer().getContentFactory()
                             .createStreamableContent(headers.get("Content-Type"), filename);
                     mDataDownloader.setStreamableContent(streamable);
 

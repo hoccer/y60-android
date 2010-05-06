@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.http.impl.client.DefaultHttpClient;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -20,9 +19,8 @@ public abstract class ShareEvent extends HocEvent {
     private final StreamableContent mOutgoingData;
     AsyncHttpPut                    mDataUploader = null;
 
-    ShareEvent(HocLocation pLocation, StreamableContent pOutgoingData,
-            DefaultHttpClient pHttpClient) {
-        super(pLocation, pHttpClient);
+    ShareEvent(HocLocation pLocation, StreamableContent pOutgoingData, Peer peer) {
+        super(pLocation, peer);
         mOutgoingData = pOutgoingData;
     }
 
@@ -71,8 +69,8 @@ public abstract class ShareEvent extends HocEvent {
             @Override
             public void onError(int statusCode, StreamableContent body) {
                 Logger.e(LOG_TAG, "onError: ", body, " with status code: ", statusCode);
-                ShareEvent.this.onError(new HocEventException(
-                        "upload failed with status code " + statusCode, "failed", "<unknown uri>"));
+                ShareEvent.this.onError(new HocEventException("upload failed with status code "
+                        + statusCode, "failed", "<unknown uri>"));
             }
 
             @Override

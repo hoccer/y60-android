@@ -26,23 +26,23 @@ public class Peer {
     }
 
     public SweepOutEvent sweepOut(StreamableContent pStreamableData) {
-        return new SweepOutEvent(mHocLocation, pStreamableData, mHttpClient);
+        return new SweepOutEvent(mHocLocation, pStreamableData, this);
     }
 
     public SweepInEvent sweepIn() {
-        return new SweepInEvent(mHocLocation, mHttpClient, this);
+        return new SweepInEvent(mHocLocation, this);
     }
 
     public ThrowEvent throwIt(StreamableContent pStreamableData) {
-        return new ThrowEvent(mHocLocation, pStreamableData, mHttpClient);
+        return new ThrowEvent(mHocLocation, pStreamableData, this);
     }
 
     public DropEvent drop(StreamableContent pStreamableData, long lifetime) {
-        return new DropEvent(mHocLocation, lifetime, pStreamableData, mHttpClient);
+        return new DropEvent(mHocLocation, lifetime, pStreamableData, this);
     }
 
     public PickEvent pick() {
-        return new PickEvent(mHocLocation, mHttpClient, this);
+        return new PickEvent(mHocLocation, this);
     }
 
     public void setLocation(HocLocation pLocation) {
@@ -59,6 +59,10 @@ public class Peer {
     }
 
     public CatchEvent catchIt() {
-        return new CatchEvent(mHocLocation, mHttpClient, this);
+        return new CatchEvent(mHocLocation, this);
+    }
+
+    public DefaultHttpClient getHttpClient() {
+        return mHttpClient;
     }
 }

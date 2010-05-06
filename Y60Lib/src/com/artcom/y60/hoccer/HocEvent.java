@@ -6,7 +6,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-import org.apache.http.impl.client.DefaultHttpClient;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -33,13 +32,16 @@ public abstract class HocEvent {
     private final ArrayList<HocEventListener> mCallbackList;
     private String                            mMessage;
     private int                               mStatusPollingDelay = 1;
+    private final Peer                        mPeer;
 
-    HocEvent(HocLocation pLocation, DefaultHttpClient pHttpClient) {
+    HocEvent(HocLocation pLocation, Peer peer) {
         Logger.v(LOG_TAG, "creating new hoc event");
 
         mUuid = UUID.randomUUID();
+        mPeer = peer;
 
-        AsyncHttpPost eventCreation = new AsyncHttpPost(getRemoteServer() + "/events", pHttpClient);
+        AsyncHttpPost eventCreation = new AsyncHttpPost(getRemoteServer() + "/events", mPeer
+                .getHttpClient());
         eventCreation.setAcceptedMimeType("application/json");
 
         Map<String, String> parameters = getEventParameters();
@@ -51,6 +53,10 @@ public abstract class HocEvent {
         mStatusFetcher = eventCreation;
 
         mCallbackList = new ArrayList<HocEventListener>();
+    }
+
+    protected Peer getPeer() {
+        return mPeer;
     }
 
     public void addCallback(HocEventListener pListener) {
