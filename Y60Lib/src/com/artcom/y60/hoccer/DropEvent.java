@@ -8,18 +8,21 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import com.artcom.y60.data.StreamableContent;
 
 public class DropEvent extends ShareEvent {
-    
+
     private static final String LOG_TAG = "DropEvent";
-    
-    DropEvent(HocLocation pLocation, StreamableContent pOutgoingData, DefaultHttpClient pHttpClient) {
+    private final long          mLifetime;
+
+    DropEvent(HocLocation pLocation, long lifetime, StreamableContent pOutgoingData,
+            DefaultHttpClient pHttpClient) {
         super(pLocation, pOutgoingData, pHttpClient);
+        mLifetime = lifetime;
     }
-    
+
     @Override
     protected Map<String, String> getEventParameters() {
         Map<String, String> eventParams = new HashMap<String, String>();
         eventParams.put("event[type]", "Drop");
-        eventParams.put("event[lifetime]", "30");
+        eventParams.put("event[lifetime]", String.valueOf(mLifetime));
         return eventParams;
     }
 }

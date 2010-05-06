@@ -7,7 +7,7 @@ public class TestDropPickData extends HocEventTestCase {
 
     public void testDrop() throws Exception {
 
-        DropEvent hoc = getPeer().drop(new StreamableString("my hocced data"));
+        DropEvent hoc = getPeer().drop(new StreamableString("my hocced data"), 30);
         blockUntilEventIsAlive("drop", hoc);
 
         TestHelper.assertMatches("event should have a valid resource location", HocEvent
