@@ -123,7 +123,7 @@ public abstract class HocEvent {
      * @return true if event is 'ready'
      */
     public boolean isLinkEstablished() {
-        return mState.equals("ready");
+        return mState.equals("ready") && mLinkedPeerCount > 0;
     }
 
     public boolean hasCollision() {
@@ -140,6 +140,9 @@ public abstract class HocEvent {
      * @return uri to the event location
      */
     public String getResourceLocation() {
+        if (mStatusFetcher == null) {
+            return "";
+        }
         return mStatusFetcher.getUri();
     }
 
@@ -275,7 +278,6 @@ public abstract class HocEvent {
 
             @Override
             public void onReceiving(double progress) {
-                Logger.v(LOG_TAG, "onReceiving progress: ", progress);
             }
 
             @Override

@@ -37,7 +37,7 @@ public class HocEventTestCase extends TestCase {
     @Override
     public void setUp() {
         mPeer = new Peer("Y60/Hoccer Unit Test on Android");
-        mPeer.setLocation(getUniqueHocLocation());
+        mPeer.setLocation(getUniqueGpsLocation());
     }
 
     @Override
@@ -49,10 +49,18 @@ public class HocEventTestCase extends TestCase {
         return mPeer;
     }
 
-    protected HocLocation getUniqueHocLocation() {
+    protected HocLocation getUniqueGpsLocation() {
         mLocation.setLatitude(mLocation.getLatitude() + 0.1);
         mLocation.setLongitude(mLocation.getLongitude() + 0.1);
-        return mLocation;
+
+        Location location = new Location("TestLocationProvider");
+        location.setAccuracy(mLocation.getAccuracy());
+        location.setLatitude(mLocation.getLatitude());
+        location.setLongitude(mLocation.getLongitude());
+        HocLocation hocLocation = HocLocation.createFromLocation(location,
+                new ArrayList<ScanResult>());
+
+        return hocLocation;
     }
 
     protected void assertPollingHasStopped(HocEvent hocEvent) throws Exception {
@@ -89,6 +97,8 @@ public class HocEventTestCase extends TestCase {
 
     protected void blockUntilEventIsExpired(String pEventName, final HocEvent pEvent)
             throws Exception {
+        blockUntilEventIsAlive(pEventName, pEvent);
+
         TestHelper.blockUntilFalse(pEventName + " event shuld be expired by now", 10000,
                 new TestHelper.Condition() {
 

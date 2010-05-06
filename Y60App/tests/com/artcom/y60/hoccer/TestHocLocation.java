@@ -5,7 +5,7 @@ import android.test.AndroidTestCase;
 
 import com.artcom.y60.data.ProblemDescriptor;
 
-public class HocLocationTestCase extends AndroidTestCase {
+public class TestHocLocation extends AndroidTestCase {
 
     public void testGoodLocationAndNoBSSIDS() {
         Location location = new Location("GPS_PROVIDER");

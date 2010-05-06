@@ -47,7 +47,7 @@ public class Peer {
 
     public void setLocation(HocLocation pLocation) {
         mHocLocation = pLocation;
-        Logger.v(LOG_TAG, mHocLocation);
+        Logger.v(LOG_TAG, "new hoc location is", mHocLocation);
     }
 
     public void setDataContainerFactory(DataContainerFactory pDataContainerFactory) {
