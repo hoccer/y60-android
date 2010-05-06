@@ -1,5 +1,8 @@
 package com.artcom.y60.hoccer;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpConnectionParams;
@@ -30,19 +33,19 @@ public class Peer {
     }
 
     public SweepInEvent sweepIn() {
-        return new SweepInEvent(mHocLocation, this);
+        return new SweepInEvent(this);
     }
 
     public ThrowEvent throwIt(StreamableContent pStreamableData) {
-        return new ThrowEvent(mHocLocation, pStreamableData, this);
+        return new ThrowEvent(pStreamableData, this);
     }
 
     public DropEvent drop(StreamableContent pStreamableData, long lifetime) {
-        return new DropEvent(mHocLocation, lifetime, pStreamableData, this);
+        return new DropEvent(pStreamableData, lifetime, this);
     }
 
     public PickEvent pick() {
-        return new PickEvent(mHocLocation, this);
+        return new PickEvent(this);
     }
 
     public void setLocation(HocLocation pLocation) {
@@ -59,10 +62,17 @@ public class Peer {
     }
 
     public CatchEvent catchIt() {
-        return new CatchEvent(mHocLocation, this);
+        return new CatchEvent(this);
     }
 
     public DefaultHttpClient getHttpClient() {
         return mHttpClient;
+    }
+
+    public Map<String, String> getEventParameters() {
+        Map<String, String> parameters = new HashMap<String, String>();
+        parameters.put("event[latitude]", Double.toString(mHocLocation.getLatitude()));
+        parameters.put("event[longitude]", Double.toString(mHocLocation.getLongitude()));
+        return parameters;
     }
 }

@@ -19,8 +19,8 @@ public abstract class ReceiveEvent extends HocEvent {
     private static String LOG_TAG         = "ReceiveEvent";
     AsyncHttpGet          mDataDownloader = null;
 
-    ReceiveEvent(HocLocation pLocation, Peer peer) {
-        super(pLocation, peer);
+    ReceiveEvent(Peer peer) {
+        super(peer);
     }
 
     @Override

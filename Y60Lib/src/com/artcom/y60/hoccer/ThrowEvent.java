@@ -9,8 +9,8 @@ public class ThrowEvent extends ShareEvent {
 
     private static final String LOG_TAG = "ThrowEvent";
 
-    ThrowEvent(HocLocation pLocation, StreamableContent pOutgoingData, Peer peer) {
-        super(pLocation, pOutgoingData, peer);
+    ThrowEvent(StreamableContent pOutgoingData, Peer peer) {
+        super(pOutgoingData, peer);
     }
 
     @Override

@@ -8,8 +8,8 @@ import org.json.JSONArray;
 public class PickEvent extends ReceiveEvent {
     private static String LOG_TAG = "PickEvent";
 
-    PickEvent(HocLocation pLocation, Peer peer) {
-        super(pLocation, peer);
+    PickEvent(Peer peer) {
+        super(peer);
     }
 
     @Override

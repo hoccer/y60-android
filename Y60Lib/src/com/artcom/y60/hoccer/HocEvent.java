@@ -34,7 +34,7 @@ public abstract class HocEvent {
     private int                               mStatusPollingDelay = 1;
     private final Peer                        mPeer;
 
-    HocEvent(HocLocation pLocation, Peer peer) {
+    HocEvent(Peer peer) {
         Logger.v(LOG_TAG, "creating new hoc event");
 
         mUuid = UUID.randomUUID();
@@ -45,8 +45,7 @@ public abstract class HocEvent {
         eventCreation.setAcceptedMimeType("application/json");
 
         Map<String, String> parameters = getEventParameters();
-        parameters.put("event[latitude]", Double.toString(pLocation.getLatitude()));
-        parameters.put("event[longitude]", Double.toString(pLocation.getLongitude()));
+        parameters.putAll(mPeer.getEventParameters());
         eventCreation.setBody(parameters);
         eventCreation.registerResponseHandler(createResponseHandler());
         eventCreation.start();

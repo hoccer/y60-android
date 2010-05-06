@@ -19,8 +19,8 @@ public abstract class ShareEvent extends HocEvent {
     private final StreamableContent mOutgoingData;
     AsyncHttpPut                    mDataUploader = null;
 
-    ShareEvent(HocLocation pLocation, StreamableContent pOutgoingData, Peer peer) {
-        super(pLocation, peer);
+    ShareEvent(StreamableContent pOutgoingData, Peer peer) {
+        super(peer);
         mOutgoingData = pOutgoingData;
     }
 

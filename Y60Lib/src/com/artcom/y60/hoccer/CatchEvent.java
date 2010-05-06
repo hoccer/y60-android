@@ -7,8 +7,8 @@ public class CatchEvent extends ReceiveEvent {
 
     private static final String LOG_TAG = "CatchEvent";
 
-    CatchEvent(HocLocation pLocation, Peer peer) {
-        super(pLocation, peer);
+    CatchEvent(Peer peer) {
+        super(peer);
     }
 
     @Override

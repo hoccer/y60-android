@@ -10,8 +10,8 @@ public class DropEvent extends ShareEvent {
     private static final String LOG_TAG = "DropEvent";
     private final long          mLifetime;
 
-    DropEvent(HocLocation pLocation, long lifetime, StreamableContent pOutgoingData, Peer peer) {
-        super(pLocation, pOutgoingData, peer);
+    DropEvent(StreamableContent pOutgoingData, long lifetime, Peer peer) {
+        super(pOutgoingData, peer);
         mLifetime = lifetime;
     }
 

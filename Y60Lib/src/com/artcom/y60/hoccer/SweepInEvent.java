@@ -7,8 +7,8 @@ public class SweepInEvent extends ReceiveEvent {
 
     private static String LOG_TAG = "SweepInEvent";
 
-    SweepInEvent(HocLocation pLocation, Peer peer) {
-        super(pLocation, peer);
+    SweepInEvent(Peer peer) {
+        super(peer);
     }
 
     @Override
