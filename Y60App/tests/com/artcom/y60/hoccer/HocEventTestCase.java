@@ -82,6 +82,8 @@ public class HocEventTestCase extends TestCase {
                     @Override
                     public boolean isSatisfied() throws Exception {
                         assertFalse("event should not collide with others", pEvent.hasCollision());
+                        assertFalse("event should have no errors, but reported '"
+                                + pEvent.getMessage() + "'", pEvent.hasError());
                         return pEvent.isOpenForLinking();
                     }
                 });

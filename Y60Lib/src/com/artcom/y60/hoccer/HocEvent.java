@@ -35,8 +35,6 @@ public abstract class HocEvent {
     private final Peer                        mPeer;
 
     HocEvent(Peer peer) {
-        Logger.v(LOG_TAG, "creating new hoc event");
-
         mUuid = UUID.randomUUID();
         mPeer = peer;
         mCallbackList = new ArrayList<HocEventListener>();
@@ -139,7 +137,7 @@ public abstract class HocEvent {
     }
 
     public boolean hasError() {
-        return !(mState.equals("waiting") || mState.equals("ready"));
+        return !(mState.equals("waiting") || mState.equals("ready") || mState.equals("unborn"));
     }
 
     /**
