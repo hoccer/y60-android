@@ -74,7 +74,7 @@ public class HocEventTestCase extends TestCase {
     }
 
     protected void assertPollingHasStopped(final HocEvent hocEvent) throws Exception {
-        TestHelper.blockUntilTrue("polling should not be running", 2000,
+        TestHelper.blockUntilTrue("polling should not be running", 4000,
                 new TestHelper.Condition() {
 
                     @Override

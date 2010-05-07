@@ -40,6 +40,7 @@ public class TestDropPickData extends HocEventTestCase {
                 .getRemoteServer()
                 + "/events/\\w*", hoc.getResourceLocation());
 
+        blockUntilLifetimeIsDownTo(hoc, 0);
         assertEquals("lifetime should be down to zero", 0.0, hoc.getRemainingLifetime());
         assertTrue("should have got error", hoc.hasError());
         assertEquals("status message", "Nothing to pick up from this location", hoc.getMessage());
@@ -77,7 +78,7 @@ public class TestDropPickData extends HocEventTestCase {
 
     public void testPickingFileWithinEventListenerCallback() throws Exception {
 
-        DropEvent drop = getPeer().drop(new StreamableString("first dropped data"), 10);
+        DropEvent drop = getPeer().drop(new StreamableString("dropped data"), 10);
         blockUntilDataHasBeenUploaded(drop);
 
         final PickEvent pick = getPeer().pick();
@@ -87,8 +88,8 @@ public class TestDropPickData extends HocEventTestCase {
         blockUntilEventIsExpired("pick", pick);
         blockUntilEventIsLinked(pick);
         assertPollingHasStopped(pick);
-        assertTrue("data downlaoded callback should have been called",
-                callback.hasDataBeenDownloaded);
+        assertTrue("'data downlaoded' should have been called", callback.hasDataBeenDownloaded);
+        assertEquals("dropped data", pick.getData().toString());
     }
 
     private class PickSecondFileCallback implements HocEventListener {
@@ -103,19 +104,21 @@ public class TestDropPickData extends HocEventTestCase {
         public void onLinkEstablished() {
             Logger.v(LOG_TAG, "picking link is established");
             try {
-                JSONObject droppedObject = mEvent.getListOfPieces().getJSONObject(1);
+                JSONObject droppedObject = mEvent.getListOfPieces().getJSONObject(0);
                 assertEquals("content type", droppedObject.get("content_type"), "text/plain");
                 assertEquals("content type", droppedObject.get("filename"), "data.txt");
+                Logger.v(LOG_TAG, "start donwload");
                 mEvent.downloadDataFrom(droppedObject.getString("uri"));
             } catch (JSONException e) {
                 hasDataBeenDownloaded = false;
+                Logger.e(LOG_TAG, e);
             }
 
         }
 
         @Override
         public void onDataExchanged(HocEvent hoc) {
-            assertEquals("second dropped data", hoc.getData().toString());
+            Logger.v(LOG_TAG, "pick completed");
             hasDataBeenDownloaded = true;
         }
 
