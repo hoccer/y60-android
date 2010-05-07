@@ -30,8 +30,8 @@ public class TestLinkingHocEvents extends HocEventTestCase {
         SweepInEvent sweepIn = getPeer().sweepIn();
         blockUntilEventIsAlive("sweepIn", sweepIn);
         TestHelper.assertSmaller("sweepIn should get lifetime from sweepOut", 4, sweepIn
-                .getLifetime());
-        TestHelper.assertGreater("sweep in should still have some time", 1, sweepIn.getLifetime());
+                .getRemainingLifetime());
+        TestHelper.assertGreater("sweep in should still have some time", 1, sweepIn.getRemainingLifetime());
 
         blockUntilLifetimeIsDownTo(sweepOut, 0);
         blockUntilLifetimeIsDownTo(sweepIn, 0);

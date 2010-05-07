@@ -18,12 +18,12 @@ public class TestThrowCatchData extends HocEventTestCase {
                 .getRemoteServer()
                 + "/events/\\w*", hocEvent.getResourceLocation());
 
-        double lifetime = hocEvent.getLifetime();
+        double lifetime = hocEvent.getRemainingLifetime();
         TestHelper.assertGreater("lifetime should be fine", 5, lifetime);
         blockUntilLifetimeDecreases(hocEvent, lifetime);
 
         blockUntilEventIsExpired("throw", hocEvent);
-        assertEquals("lifetime should be down to zero", 0.0, hocEvent.getLifetime());
+        assertEquals("lifetime should be down to zero", 0.0, hocEvent.getRemainingLifetime());
         blockUntilDataHasBeenUploaded(hocEvent);
         assertTrue("should have got error callback", eventCallback.hadError);
         assertPollingHasStopped(hocEvent);

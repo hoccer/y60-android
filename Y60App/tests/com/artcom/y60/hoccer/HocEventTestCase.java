@@ -73,8 +73,17 @@ public class HocEventTestCase extends TestCase {
         return hocLocation;
     }
 
-    protected void assertPollingHasStopped(HocEvent hocEvent) throws Exception {
-        assertNull("Async Http Request polling should not be running", hocEvent.mStatusFetcher);
+    protected void assertPollingHasStopped(final HocEvent hocEvent) throws Exception {
+        TestHelper.blockUntilTrue("polling should not be running", 2000,
+                new TestHelper.Condition() {
+
+                    @Override
+                    public boolean isSatisfied() throws Exception {
+                        return hocEvent.mStatusFetcher == null;
+                    }
+
+                });
+
         Thread.sleep(2000);
         assertNull("Async Http Request polling should still not be running",
                 hocEvent.mStatusFetcher);
@@ -152,7 +161,8 @@ public class HocEventTestCase extends TestCase {
 
                     @Override
                     public boolean isSatisfied() throws Exception {
-                        return hocEvent.getLifetime() < lifetime && hocEvent.getLifetime() > 0;
+                        return hocEvent.getRemainingLifetime() < lifetime
+                                && hocEvent.getRemainingLifetime() > 0;
                     }
                 });
     }
@@ -160,11 +170,11 @@ public class HocEventTestCase extends TestCase {
     protected void blockUntilLifetimeIsDownTo(final HocEvent hocEvent, final double targetedLifetime)
             throws Exception {
         TestHelper.blockUntilTrue("lifetime should be down to " + targetedLifetime + " but is "
-                + hocEvent.getLifetime(), 8000, new TestHelper.Condition() {
+                + hocEvent.getRemainingLifetime(), 8000, new TestHelper.Condition() {
 
             @Override
             public boolean isSatisfied() throws Exception {
-                return hocEvent.getLifetime() <= targetedLifetime;
+                return hocEvent.getRemainingLifetime() <= targetedLifetime;
             }
         });
     }

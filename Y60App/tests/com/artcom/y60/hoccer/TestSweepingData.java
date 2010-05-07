@@ -21,12 +21,12 @@ public class TestSweepingData extends HocEventTestCase {
                 .getRemoteServer()
                 + "/events/\\w*", hocEvent.getResourceLocation());
 
-        double lifetime = hocEvent.getLifetime();
+        double lifetime = hocEvent.getRemainingLifetime();
         TestHelper.assertGreater("lifetime should be fine", 5, lifetime);
         blockUntilLifetimeDecreases(hocEvent, lifetime);
 
         blockUntilEventIsExpired("sweepOut", hocEvent);
-        assertEquals("lifetime should be down to zero", 0.0, hocEvent.getLifetime());
+        assertEquals("lifetime should be down to zero", 0.0, hocEvent.getRemainingLifetime());
         blockUntilDataHasBeenUploaded(hocEvent);
 
         assertTrue("should have got error callback", eventCallback.hadError);
@@ -63,12 +63,12 @@ public class TestSweepingData extends HocEventTestCase {
                 .getRemoteServer()
                 + "/events/\\w*", mEvent.getResourceLocation());
 
-        double lifetime = mEvent.getLifetime();
+        double lifetime = mEvent.getRemainingLifetime();
         TestHelper.assertGreater("lifetime should be fine", 5, lifetime);
         blockUntilLifetimeDecreases(mEvent, lifetime);
 
         blockUntilEventIsExpired("sweepIn", mEvent);
-        assertEquals("lifetime should be down to zero", 0.0, mEvent.getLifetime());
+        assertEquals("lifetime should be down to zero", 0.0, mEvent.getRemainingLifetime());
         assertTrue("should have got error callback", eventCallback.hadError);
     }
 

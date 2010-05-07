@@ -14,14 +14,14 @@ public class TestDropPickData extends HocEventTestCase {
 
     public void testDrop() throws Exception {
 
-        DropEvent hoc = getPeer().drop(new StreamableString("my hocced data"), 30);
+        DropEvent hoc = getPeer().drop(new StreamableString("my hocced data"), 20);
         blockUntilEventIsAlive("drop", hoc);
 
         TestHelper.assertMatches("event should have a valid resource location", HocEvent
                 .getRemoteServer()
                 + "/events/\\w*", hoc.getResourceLocation());
 
-        double lifetime = hoc.getLifetime();
+        double lifetime = hoc.getRemainingLifetime();
         TestHelper.assertGreater("lifetime should be fine", 18, lifetime);
         blockUntilLifetimeDecreases(hoc, lifetime);
 
@@ -40,25 +40,25 @@ public class TestDropPickData extends HocEventTestCase {
                 .getRemoteServer()
                 + "/events/\\w*", hoc.getResourceLocation());
 
-        assertEquals("lifetime should be down to zero", 0.0, hoc.getLifetime());
+        assertEquals("lifetime should be down to zero", 0.0, hoc.getRemainingLifetime());
         assertTrue("should have got error", hoc.hasError());
         assertEquals("status message", "Nothing to pick up from this location", hoc.getMessage());
         assertTrue("should have got error callback", eventCallback.hadError);
         assertPollingHasStopped(hoc);
     }
 
-    public void testDropPickExampleFlow() throws Exception {
+    public void testDropAndPick() throws Exception {
 
-        DropEvent drop = getPeer().drop(new StreamableString("the dropped data"), 10);
+        DropEvent drop = getPeer().drop(new StreamableString("the dropped data"), 5);
         blockUntilEventIsAlive("drop", drop);
         blockUntilDataHasBeenUploaded(drop);
-        TestHelper.assertGreater("lifetime should be fine", 8, drop.getLifetime());
+        TestHelper.assertGreater("lifetime should be fine", 4, drop.getRemainingLifetime());
 
         PickEvent pick = getPeer().pick();
         blockUntilEventIsExpired("pick", pick);
         blockUntilEventIsLinked(pick);
 
-        TestHelper.assertGreater("lifetime should be fine", 2, drop.getLifetime());
+        TestHelper.assertGreater("lifetime should be fine", 2, drop.getRemainingLifetime());
         blockUntilEventIsExpired("drop", drop);
 
         JSONArray pieces = pick.getListOfPieces();

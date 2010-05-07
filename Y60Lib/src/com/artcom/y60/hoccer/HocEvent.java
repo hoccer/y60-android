@@ -24,7 +24,7 @@ public abstract class HocEvent {
     private static final String               LOG_TAG             = "HocEvent";
     private static String                     mRemoteServer       = "http://beta.hoccer.com";
     String                                    mState              = "unborn";
-    private double                            mLifetime           = -1;
+    private double                            mRemainingLifetime  = -1;
     private int                               mLinkedPeerCount    = 0;
     private UUID                              mUuid               = null;
 
@@ -95,14 +95,14 @@ public abstract class HocEvent {
      * @return true if lifetime is positive
      */
     public boolean isOpenForLinking() {
-        return (!mState.equals("unborn")) && getLifetime() > 0;
+        return (!mState.equals("unborn")) && getRemainingLifetime() > 0;
     }
 
     /**
      * @return lifetime on the server; encodes as 'expires' in the hoccer protocol
      */
-    public double getLifetime() {
-        return mLifetime;
+    public double getRemainingLifetime() {
+        return mRemainingLifetime;
     }
 
     public String getMessage() {
@@ -114,6 +114,8 @@ public abstract class HocEvent {
     }
 
     protected void updateState(String newState) {
+
+        Logger.v(LOG_TAG, "oldState: ", mState, " new state: ", newState);
 
         if (mState.equals(newState)) {
             return;
@@ -142,7 +144,7 @@ public abstract class HocEvent {
     }
 
     /**
-     * @return true if event is 'ready'
+     * @return true if event is 'ready' and has found an peer
      */
     public boolean isLinkEstablished() {
         return mState.equals("ready") && mLinkedPeerCount > 0;
@@ -165,8 +167,8 @@ public abstract class HocEvent {
         return mResourceLocation;
     }
 
-    protected void setLiftime(double pLifetime) {
-        mLifetime = pLifetime;
+    protected void setRemainingLifetime(double expires) {
+        mRemainingLifetime = expires;
     }
 
     public int getLinkedPeerCount() {
@@ -190,7 +192,7 @@ public abstract class HocEvent {
             mMessage = status.getString("message");
         }
         if (status.has("expires")) {
-            setLiftime(Double.parseDouble(status.getString("expires")));
+            setRemainingLifetime(Double.parseDouble(status.getString("expires")));
         }
         if (status.has("peers")) {
             setLinkedPeerCount(Integer.parseInt(status.getString("peers")));
@@ -207,6 +209,7 @@ public abstract class HocEvent {
     }
 
     protected void tryForSuccess() {
+        Logger.v(LOG_TAG, "trying for success: ", wasSuccessful());
         if (!wasSuccessful()) {
             return;
         }
@@ -219,11 +222,13 @@ public abstract class HocEvent {
     };
 
     private void stopPolling() {
+        Logger.v(LOG_TAG, "stop polling");
         mStatusFetcher.removeResponseHandler();
         mStatusFetcher = null;
     }
 
     protected void onLinkEstablished() {
+        Logger.v(LOG_TAG, "link is established");
         for (HocEventListener callback : mCallbackList) {
             callback.onLinkEstablished();
         }
