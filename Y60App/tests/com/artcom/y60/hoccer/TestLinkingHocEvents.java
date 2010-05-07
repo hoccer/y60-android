@@ -90,6 +90,5 @@ public class TestLinkingHocEvents extends HocEventTestCase {
         blockUntilEventIsLinked(sweepOut);
         blockUntilEventIsLinked(sweepIn);
         blockUntilDataHasBeenDownloaded(sweepIn, "my hocced data");
-        assertTrue(false);
     }
 }

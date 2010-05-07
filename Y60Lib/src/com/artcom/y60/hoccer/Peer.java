@@ -1,6 +1,7 @@
 package com.artcom.y60.hoccer;
 
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 import org.apache.http.impl.client.DefaultHttpClient;
@@ -73,6 +74,23 @@ public class Peer {
         Map<String, String> parameters = new HashMap<String, String>();
         parameters.put("event[latitude]", Double.toString(mHocLocation.getLatitude()));
         parameters.put("event[longitude]", Double.toString(mHocLocation.getLongitude()));
+
+        parameters.put("event[bssids]", getAccessPointSightings());
         return parameters;
+    }
+
+    private String getAccessPointSightings() {
+        if (mHocLocation.getScanResults() == null) {
+            return "";
+        }
+        StringBuffer sightings = new StringBuffer();
+        Iterator<AccessPointSighting> iter = mHocLocation.getScanResults().iterator();
+        while (iter.hasNext()) {
+            sightings.append(iter.next().bssid);
+            if (iter.hasNext()) {
+                sightings.append(",");
+            }
+        }
+        return sightings.toString();
     }
 }
