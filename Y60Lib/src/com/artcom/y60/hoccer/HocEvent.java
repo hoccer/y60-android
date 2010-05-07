@@ -76,12 +76,10 @@ public abstract class HocEvent {
     }
 
     public void addCallback(HocEventListener pListener) {
-        Logger.v(LOG_TAG, "addHoccerUploadListener");
         mCallbackList.add(pListener);
     }
 
     public void removeCallback(HocEventListener hocEventListener) {
-        Logger.v(LOG_TAG, "removing callback");
         mCallbackList.remove(hocEventListener);
     }
 
@@ -114,8 +112,6 @@ public abstract class HocEvent {
     }
 
     protected void updateState(String newState) {
-
-        Logger.v(LOG_TAG, "oldState: ", mState, " new state: ", newState);
 
         if (mState.equals(newState)) {
             return;
@@ -209,7 +205,6 @@ public abstract class HocEvent {
     }
 
     protected void tryForSuccess() {
-        Logger.v(LOG_TAG, "trying for success: ", wasSuccessful());
         if (!wasSuccessful()) {
             return;
         }
@@ -222,13 +217,11 @@ public abstract class HocEvent {
     };
 
     private void stopPolling() {
-        Logger.v(LOG_TAG, "stop polling");
         mStatusFetcher.removeResponseHandler();
         mStatusFetcher = null;
     }
 
     protected void onLinkEstablished() {
-        Logger.v(LOG_TAG, "link is established");
         for (HocEventListener callback : mCallbackList) {
             callback.onLinkEstablished();
         }
@@ -261,7 +254,6 @@ public abstract class HocEvent {
 
             @Override
             public void onSuccess(int statusCode, StreamableContent body) {
-                Logger.v(LOG_TAG, "onSuccess with body: ", body, " processServerResponse .. ");
                 processServerResponse(body);
             }
 
@@ -297,7 +289,6 @@ public abstract class HocEvent {
                 mStatusFetcher = new AsyncHttpGet(mStatusFetcher.getUri());
                 mStatusFetcher.registerResponseHandler(this);
 
-                Logger.v(LOG_TAG, "launchNewPollingRequest for: ", mStatusFetcher.getUri());
                 mStatusFetcher.start();
             }
 
