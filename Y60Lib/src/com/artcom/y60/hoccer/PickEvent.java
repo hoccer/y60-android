@@ -29,4 +29,9 @@ public class PickEvent extends ReceiveEvent {
         return mPieces;
     }
 
+    @Override
+    public void downloadDataFrom(String uri) {
+        super.downloadDataFrom(uri);
+    }
+
 }
