@@ -33,11 +33,10 @@ public abstract class ShareEvent extends HocEvent {
 
     @Override
     protected void updateStatusFromJson(JSONObject status) throws JSONException, IOException {
-        super.updateStatusFromJson(status);
         if (status.has("upload_uri") && mDataUploader == null) {
             uploadDataTo(status.getString("upload_uri"));
         }
-
+        super.updateStatusFromJson(status);
     }
 
     @Override

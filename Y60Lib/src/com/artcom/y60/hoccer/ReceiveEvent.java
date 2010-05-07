@@ -25,13 +25,13 @@ public abstract class ReceiveEvent extends HocEvent {
 
     @Override
     protected void updateStatusFromJson(JSONObject status) throws JSONException, IOException {
-        super.updateStatusFromJson(status);
         if (status.has("uploads")) {
             JSONArray possible_pieces = status.getJSONArray("uploads");
             if (possible_pieces.length() > 0) {
                 onPossibleDownloadsAvailable(possible_pieces);
             }
         }
+        super.updateStatusFromJson(status);
     }
 
     protected void onPossibleDownloadsAvailable(JSONArray pieces) throws JSONException, IOException {
