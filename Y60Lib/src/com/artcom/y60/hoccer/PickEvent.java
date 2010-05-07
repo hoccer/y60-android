@@ -7,6 +7,7 @@ import org.json.JSONArray;
 
 public class PickEvent extends ReceiveEvent {
     private static String LOG_TAG = "PickEvent";
+    private JSONArray     mPieces;
 
     PickEvent(Peer peer) {
         super(peer);
@@ -14,7 +15,7 @@ public class PickEvent extends ReceiveEvent {
 
     @Override
     protected void onPossibleDownloadsAvailable(JSONArray pieces) {
-
+        mPieces = pieces;
     }
 
     @Override
@@ -24,8 +25,8 @@ public class PickEvent extends ReceiveEvent {
         return eventParams;
     }
 
-    public void getListOfPieces() {
-
+    public JSONArray getListOfPieces() {
+        return mPieces;
     }
 
 }

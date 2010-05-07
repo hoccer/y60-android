@@ -1,5 +1,8 @@
 package com.artcom.y60.hoccer;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 import com.artcom.y60.TestHelper;
 import com.artcom.y60.data.StreamableString;
 
@@ -52,6 +55,14 @@ public class TestDropPickData extends HocEventTestCase {
         TestHelper.assertGreater("lifetime should be fine", 2, drop.getLifetime());
         blockUntilEventIsExpired("drop", drop);
 
-        // pick.getListOfPieces();
+        JSONArray pieces = pick.getListOfPieces();
+        assertNotNull(pieces);
+        assertEquals("size", 1, pieces.length());
+        JSONObject droppedObject = pieces.getJSONObject(0);
+        assertEquals("content type", droppedObject.get("content_type"), "text/plain");
+        assertEquals("content type", droppedObject.get("filename"), "data.txt");
+
+        pick.downloadDataFrom(droppedObject.getString("uri"));
+        blockUntilDataHasBeenDownloaded(pick, "the dropped data");
     }
 }

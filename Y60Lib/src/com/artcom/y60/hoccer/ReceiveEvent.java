@@ -44,7 +44,7 @@ public abstract class ReceiveEvent extends HocEvent {
         downloadDataFrom(uri);
     }
 
-    private void downloadDataFrom(String uri) throws JSONException, IOException {
+    protected void downloadDataFrom(String uri) {
         mDataDownloader = new AsyncHttpGet(uri);
         mDataDownloader.registerResponseHandler(new HttpResponseHandler() {
 
