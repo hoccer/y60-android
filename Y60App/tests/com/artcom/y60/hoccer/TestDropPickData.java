@@ -35,4 +35,19 @@ public class TestDropPickData extends HocEventTestCase {
         assertEquals("lifetime should be down to zero", 0.0, hoc.getLifetime());
         assertTrue("should have got error callback", eventCallback.hadError);
     }
+
+    public void testDropPickExampleFlow() throws Exception {
+
+        DropEvent drop = getPeer().drop(new StreamableString("the dropped data"), 10);
+        blockUntilEventIsAlive("drop", drop);
+        blockUntilDataHasBeenUploaded(drop);
+        TestHelper.assertGreater("lifetime should be fine", 8, drop.getLifetime());
+
+        PickEvent pick = getPeer().pick();
+        blockUntilEventIsAlive("pick", pick);
+        blockUntilDataHasBeenDownloaded(pick, "the dropped data");
+
+        TestHelper.assertGreater("lifetime should be fine", 2, drop.getLifetime());
+        blockUntilEventIsExpired("drop", drop);
+    }
 }

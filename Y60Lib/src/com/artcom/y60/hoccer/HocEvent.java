@@ -39,7 +39,27 @@ public abstract class HocEvent {
 
         mUuid = UUID.randomUUID();
         mPeer = peer;
+        mCallbackList = new ArrayList<HocEventListener>();
 
+        // The post-to-server action is done in a thread to make sure it's called AFTER the Event
+        // object is constructed. This was the only way to hide all "start" logic
+        // in the constructor (without doing a hocEvent.start() or similar), and enable sub-classes
+        // to be parameterizable by overwriting getEventParameters().
+        new Thread() {
+            @Override
+            public void run() {
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+                postEventToServer();
+            }
+        }.start();
+    }
+
+    private void postEventToServer() {
         AsyncHttpPost eventCreation = new AsyncHttpPost(getRemoteServer() + "/events", mPeer
                 .getHttpClient());
         eventCreation.setAcceptedMimeType("application/json");
@@ -50,8 +70,6 @@ public abstract class HocEvent {
         eventCreation.registerResponseHandler(createResponseHandler());
         eventCreation.start();
         mStatusFetcher = eventCreation;
-
-        mCallbackList = new ArrayList<HocEventListener>();
     }
 
     protected Peer getPeer() {
