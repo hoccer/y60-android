@@ -26,13 +26,15 @@ public class TestDropPickData extends HocEventTestCase {
         PickEvent hoc = getPeer().pick();
         HocEventListenerForTesting eventCallback = new HocEventListenerForTesting();
         hoc.addCallback(eventCallback);
+        blockUntilEventIsExpired("pick", hoc);
 
         TestHelper.assertMatches("event should have a valid resource location", HocEvent
                 .getRemoteServer()
                 + "/events/\\w*", hoc.getResourceLocation());
 
-        blockUntilEventIsExpired("sweepIn", hoc);
         assertEquals("lifetime should be down to zero", 0.0, hoc.getLifetime());
+        assertTrue("should have got error", hoc.hasError());
+        assertEquals("status message", "Nothing to pick up from this location", hoc.getMessage());
         assertTrue("should have got error callback", eventCallback.hadError);
     }
 
@@ -44,10 +46,12 @@ public class TestDropPickData extends HocEventTestCase {
         TestHelper.assertGreater("lifetime should be fine", 8, drop.getLifetime());
 
         PickEvent pick = getPeer().pick();
-        blockUntilEventIsAlive("pick", pick);
-        blockUntilDataHasBeenDownloaded(pick, "the dropped data");
+        blockUntilEventIsExpired("pick", pick);
+        blockUntilEventIsLinked(pick);
 
         TestHelper.assertGreater("lifetime should be fine", 2, drop.getLifetime());
         blockUntilEventIsExpired("drop", drop);
+
+        // pick.getListOfPieces();
     }
 }

@@ -23,7 +23,7 @@ public abstract class HocEvent {
 
     private static final String               LOG_TAG             = "HocEvent";
     private static String                     mRemoteServer       = "http://beta.hoccer.com";
-    private String                            mState              = "unborn";
+    String                                    mState              = "unborn";
     private double                            mLifetime           = -1;
     private int                               mLinkedPeerCount    = 0;
     private UUID                              mUuid               = null;
@@ -33,6 +33,7 @@ public abstract class HocEvent {
     private String                            mMessage;
     private int                               mStatusPollingDelay = 1;
     private final Peer                        mPeer;
+    private String                            mResourceLocation;
 
     HocEvent(Peer peer) {
         mUuid = UUID.randomUUID();
@@ -94,7 +95,7 @@ public abstract class HocEvent {
      * @return true if lifetime is positive
      */
     public boolean isOpenForLinking() {
-        return getLifetime() > 0;
+        return (!mState.equals("unborn")) && getLifetime() > 0;
     }
 
     /**
@@ -161,10 +162,7 @@ public abstract class HocEvent {
      * @return uri to the event location
      */
     public String getResourceLocation() {
-        if (mStatusFetcher == null) {
-            return "";
-        }
-        return mStatusFetcher.getUri();
+        return mResourceLocation;
     }
 
     protected void setLiftime(double pLifetime) {
@@ -264,6 +262,7 @@ public abstract class HocEvent {
 
             private void processServerResponse(StreamableContent body) {
                 try {
+                    mResourceLocation = mStatusFetcher.getUri();
                     updateStatusFromJson(new JSONObject(body.toString()));
                     launchNewPollingRequest();
                 } catch (JSONException e) {

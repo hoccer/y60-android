@@ -13,7 +13,8 @@ public class PickEvent extends ReceiveEvent {
     }
 
     @Override
-    protected void onPossibleDownloadsAvailable(JSONArray uris) {
+    protected void onPossibleDownloadsAvailable(JSONArray pieces) {
+
     }
 
     @Override
@@ -21,6 +22,10 @@ public class PickEvent extends ReceiveEvent {
         Map<String, String> eventParams = new HashMap<String, String>();
         eventParams.put("event[type]", "Pick");
         return eventParams;
+    }
+
+    public void getListOfPieces() {
+
     }
 
 }

@@ -104,12 +104,12 @@ public class HocEventTestCase extends TestCase {
     protected void blockUntilEventIsExpired(String pEventName, final HocEvent pEvent)
             throws Exception {
 
-        TestHelper.blockUntilFalse(pEventName + " event shuld be expired by now", 10000,
+        TestHelper.blockUntilTrue(pEventName + " event shuld be expired by now", 10000,
                 new TestHelper.Condition() {
 
                     @Override
                     public boolean isSatisfied() throws Exception {
-                        return pEvent.isOpenForLinking();
+                        return !pEvent.mState.equals("unborn") && !pEvent.isOpenForLinking();
                     }
                 });
     }
