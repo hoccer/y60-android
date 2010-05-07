@@ -6,7 +6,7 @@ import android.test.suitebuilder.annotation.LargeTest;
 import com.artcom.y60.data.GenericStreamableContent;
 import com.artcom.y60.http.AsyncHttpPut;
 
-public class TestIncompleteTransfers extends HocEventTestCase {
+public class TestCommunicationFailures extends HocEventTestCase {
     
     @LargeTest
     public void testNotUploadingContentAfterSuccsessfulLink() throws Exception {

@@ -3,18 +3,19 @@ package com.artcom.y60.hoccer;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.http.impl.client.DefaultHttpClient;
 import org.json.JSONArray;
 
 public class PickEvent extends ReceiveEvent {
     private static String LOG_TAG = "PickEvent";
+    private JSONArray     mPieces;
 
-    PickEvent(HocLocation pLocation, DefaultHttpClient pHttpClient, Peer pPeer) {
-        super(pLocation, pHttpClient, pPeer);
+    PickEvent(Peer peer) {
+        super(peer);
     }
 
     @Override
-    protected void onPossibleDownloadsAvailable(JSONArray uris) {
+    protected void onPossibleDownloadsAvailable(JSONArray pieces) {
+        mPieces = pieces;
     }
 
     @Override
@@ -22,6 +23,15 @@ public class PickEvent extends ReceiveEvent {
         Map<String, String> eventParams = new HashMap<String, String>();
         eventParams.put("event[type]", "Pick");
         return eventParams;
+    }
+
+    public JSONArray getListOfPieces() {
+        return mPieces;
+    }
+
+    @Override
+    public void downloadDataFrom(String uri) {
+        super.downloadDataFrom(uri);
     }
 
 }

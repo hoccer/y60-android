@@ -6,7 +6,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-import org.apache.http.impl.client.DefaultHttpClient;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -23,9 +22,8 @@ import com.artcom.y60.http.HttpServerException;
 public abstract class HocEvent {
 
     private static final String               LOG_TAG             = "HocEvent";
-    private static String                     mRemoteServer       = "http://beta.hoccer.com";
-    private String                            mState              = "unborn";
-    private double                            mLifetime           = -1;
+    String                                    mState              = "unborn";
+    private double                            mRemainingLifetime  = -1;
     private int                               mLinkedPeerCount    = 0;
     private UUID                              mUuid               = null;
 
@@ -33,33 +31,54 @@ public abstract class HocEvent {
     private final ArrayList<HocEventListener> mCallbackList;
     private String                            mMessage;
     private final int                         mStatusPollingDelay = 1;
+    private final Peer                        mPeer;
+    private String                            mResourceLocation;
 
-    HocEvent(HocLocation pLocation, DefaultHttpClient pHttpClient) {
-        Logger.v(LOG_TAG, "creating new hoc event");
-
+    HocEvent(Peer peer) {
         mUuid = UUID.randomUUID();
+        mPeer = peer;
+        mCallbackList = new ArrayList<HocEventListener>();
 
-        AsyncHttpPost eventCreation = new AsyncHttpPost(getRemoteServer() + "/events", pHttpClient);
+        // The post-to-server action is done in a thread to make sure it's called AFTER the Event
+        // object is constructed. This was the only way to hide all "start" logic
+        // in the constructor (without doing a hocEvent.start() or similar), and enable sub-classes
+        // to be parameterizable by overwriting getEventParameters().
+        new Thread() {
+            @Override
+            public void run() {
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+                postEventToServer();
+            }
+        }.start();
+    }
+
+    private void postEventToServer() {
+        AsyncHttpPost eventCreation = new AsyncHttpPost(getPeer().getRemoteServer() + "/events",
+                mPeer.getHttpClient());
         eventCreation.setAcceptedMimeType("application/json");
 
         Map<String, String> parameters = getEventParameters();
-        parameters.put("event[latitude]", Double.toString(pLocation.getLatitude()));
-        parameters.put("event[longitude]", Double.toString(pLocation.getLongitude()));
+        parameters.putAll(mPeer.getEventParameters());
         eventCreation.setBody(parameters);
         eventCreation.registerResponseHandler(createResponseHandler());
         eventCreation.start();
         mStatusFetcher = eventCreation;
+    }
 
-        mCallbackList = new ArrayList<HocEventListener>();
+    protected Peer getPeer() {
+        return mPeer;
     }
 
     public void addCallback(HocEventListener pListener) {
-        Logger.v(LOG_TAG, "addHoccerUploadListener");
         mCallbackList.add(pListener);
     }
 
     public void removeCallback(HocEventListener hocEventListener) {
-        Logger.v(LOG_TAG, "removing callback");
         mCallbackList.remove(hocEventListener);
     }
 
@@ -73,14 +92,14 @@ public abstract class HocEvent {
      * @return true if lifetime is positive
      */
     public boolean isOpenForLinking() {
-        return getLifetime() > 0;
+        return (!mState.equals("unborn")) && getRemainingLifetime() > 0;
     }
 
     /**
      * @return lifetime on the server; encodes as 'expires' in the hoccer protocol
      */
-    public double getLifetime() {
-        return mLifetime;
+    public double getRemainingLifetime() {
+        return mRemainingLifetime;
     }
 
     public String getMessage() {
@@ -112,14 +131,14 @@ public abstract class HocEvent {
     }
 
     public boolean hasError() {
-        return !(mState.equals("waiting") || mState.equals("ready"));
+        return !(mState.equals("waiting") || mState.equals("ready") || mState.equals("unborn"));
     }
 
     /**
-     * @return true if event is 'ready'
+     * @return true if event is 'ready' and has found an peer
      */
     public boolean isLinkEstablished() {
-        return mState.equals("ready");
+        return mState.equals("ready") && mLinkedPeerCount > 0;
     }
 
     public boolean hasCollision() {
@@ -136,11 +155,11 @@ public abstract class HocEvent {
      * @return uri to the event location
      */
     public String getResourceLocation() {
-        return mStatusFetcher.getUri();
+        return mResourceLocation;
     }
 
-    protected void setLiftime(double pLifetime) {
-        mLifetime = pLifetime;
+    protected void setRemainingLifetime(double expires) {
+        mRemainingLifetime = expires;
     }
 
     public int getLinkedPeerCount() {
@@ -149,10 +168,6 @@ public abstract class HocEvent {
 
     protected void setLinkedPeerCount(int count) {
         mLinkedPeerCount = count;
-    }
-
-    protected static String getRemoteServer() {
-        return mRemoteServer;
     }
 
     protected void updateStatusFromJson(JSONObject status) throws JSONException, IOException {
@@ -164,7 +179,7 @@ public abstract class HocEvent {
             mMessage = status.getString("message");
         }
         if (status.has("expires")) {
-            setLiftime(Double.parseDouble(status.getString("expires")));
+            setRemainingLifetime(Double.parseDouble(status.getString("expires")));
         }
         if (status.has("peers")) {
             setLinkedPeerCount(Integer.parseInt(status.getString("peers")));
@@ -230,12 +245,12 @@ public abstract class HocEvent {
 
             @Override
             public void onSuccess(int statusCode, StreamableContent body) {
-                Logger.v(LOG_TAG, "onSuccess with body: ", body, " processServerResponse .. ");
                 processServerResponse(body);
             }
 
             private void processServerResponse(StreamableContent body) {
                 try {
+                    mResourceLocation = mStatusFetcher.getUri();
                     updateStatusFromJson(new JSONObject(body.toString()));
                     launchNewPollingRequest();
                 } catch (JSONException e) {
@@ -265,13 +280,11 @@ public abstract class HocEvent {
                 mStatusFetcher = new AsyncHttpGet(mStatusFetcher.getUri());
                 mStatusFetcher.registerResponseHandler(this);
 
-                Logger.v(LOG_TAG, "launchNewPollingRequest for: ", mStatusFetcher.getUri());
                 mStatusFetcher.start();
             }
 
             @Override
             public void onReceiving(double progress) {
-                Logger.v(LOG_TAG, "onReceiving progress: ", progress);
             }
 
             @Override
@@ -293,15 +306,17 @@ public abstract class HocEvent {
     }
 
     public void abort() throws HocEventException {
-        Logger.v(LOG_TAG, "aborting event ", mStatusFetcher.getUri());
+        Logger.v(LOG_TAG, "aborting event ", mResourceLocation);
         try {
-            HttpHelper.delete(mStatusFetcher.getUri());
+            HttpHelper.delete(mResourceLocation);
         } catch (HttpClientException e) {
             throw new HocEventException(e);
         } catch (HttpServerException e) {
             Logger.e(LOG_TAG, e);
         } catch (IOException e) {
             Logger.e(LOG_TAG, e);
+        } finally {
+            mStatusFetcher = null;
         }
     }
 

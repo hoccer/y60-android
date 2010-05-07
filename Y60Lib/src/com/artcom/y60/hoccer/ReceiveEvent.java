@@ -4,7 +4,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.HashMap;
 
-import org.apache.http.impl.client.DefaultHttpClient;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -19,22 +18,20 @@ public abstract class ReceiveEvent extends HocEvent {
 
     private static String LOG_TAG         = "ReceiveEvent";
     AsyncHttpGet          mDataDownloader = null;
-    private final Peer    mPeer;
 
-    ReceiveEvent(HocLocation pLocation, DefaultHttpClient pHttpClient, Peer pPeer) {
-        super(pLocation, pHttpClient);
-        mPeer = pPeer;
+    ReceiveEvent(Peer peer) {
+        super(peer);
     }
 
     @Override
     protected void updateStatusFromJson(JSONObject status) throws JSONException, IOException {
-        super.updateStatusFromJson(status);
         if (status.has("uploads")) {
             JSONArray possible_pieces = status.getJSONArray("uploads");
             if (possible_pieces.length() > 0) {
                 onPossibleDownloadsAvailable(possible_pieces);
             }
         }
+        super.updateStatusFromJson(status);
     }
 
     protected void onPossibleDownloadsAvailable(JSONArray pieces) throws JSONException, IOException {
@@ -47,7 +44,7 @@ public abstract class ReceiveEvent extends HocEvent {
         downloadDataFrom(uri);
     }
 
-    private void downloadDataFrom(String uri) throws JSONException, IOException {
+    protected void downloadDataFrom(String uri) {
         mDataDownloader = new AsyncHttpGet(uri);
         mDataDownloader.registerResponseHandler(new HttpResponseHandler() {
 
@@ -74,7 +71,7 @@ public abstract class ReceiveEvent extends HocEvent {
             public void onHeaderAvailable(HashMap<String, String> headers) {
                 try {
                     String filename = parseFilename(headers.get("Content-Disposition"));
-                    StreamableContent streamable = mPeer.getContentFactory()
+                    StreamableContent streamable = getPeer().getContentFactory()
                             .createStreamableContent(headers.get("Content-Type"), filename);
                     mDataDownloader.setStreamableContent(streamable);
 

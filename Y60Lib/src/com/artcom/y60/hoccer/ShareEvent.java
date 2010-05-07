@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.http.impl.client.DefaultHttpClient;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -20,8 +19,8 @@ public abstract class ShareEvent extends HocEvent {
     private final StreamableContent mOutgoingData;
     AsyncHttpPut                    mDataUploader = null;
 
-    ShareEvent(HocLocation pLocation, StreamableContent pOutgoingData, DefaultHttpClient pHttpClient) {
-        super(pLocation, pHttpClient);
+    ShareEvent(StreamableContent pOutgoingData, Peer peer) {
+        super(peer);
         mOutgoingData = pOutgoingData;
     }
 
@@ -34,11 +33,10 @@ public abstract class ShareEvent extends HocEvent {
 
     @Override
     protected void updateStatusFromJson(JSONObject status) throws JSONException, IOException {
-        super.updateStatusFromJson(status);
         if (status.has("upload_uri") && mDataUploader == null) {
             uploadDataTo(status.getString("upload_uri"));
         }
-
+        super.updateStatusFromJson(status);
     }
 
     @Override

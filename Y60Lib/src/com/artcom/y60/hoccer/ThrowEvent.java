@@ -3,16 +3,14 @@ package com.artcom.y60.hoccer;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.http.impl.client.DefaultHttpClient;
-
 import com.artcom.y60.data.StreamableContent;
 
 public class ThrowEvent extends ShareEvent {
 
     private static final String LOG_TAG = "ThrowEvent";
 
-    ThrowEvent(HocLocation pLocation, StreamableContent pOutgoingData, DefaultHttpClient pHttpClient) {
-        super(pLocation, pOutgoingData, pHttpClient);
+    ThrowEvent(StreamableContent pOutgoingData, Peer peer) {
+        super(pOutgoingData, peer);
     }
 
     @Override

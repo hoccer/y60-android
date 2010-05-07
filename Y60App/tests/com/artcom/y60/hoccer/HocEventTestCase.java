@@ -36,8 +36,8 @@ public class HocEventTestCase extends TestCase {
 
     @Override
     public void setUp() {
-        mPeer = new Peer("Y60/Hoccer Unit Test on Android");
-        mPeer.setLocation(getUniqueHocLocation());
+        mPeer = new Peer("Y60/Hoccer Unit Test on Android", "http://beta.hoccer.com");
+        mPeer.setLocation(getUniqueGpsLocation());
     }
 
     @Override
@@ -49,14 +49,41 @@ public class HocEventTestCase extends TestCase {
         return mPeer;
     }
 
-    protected HocLocation getUniqueHocLocation() {
-        mLocation.setLatitude(mLocation.getLatitude() + 0.1);
-        mLocation.setLongitude(mLocation.getLongitude() + 0.1);
-        return mLocation;
+    protected HocLocation getUniqueGpsLocation() {
+        return getUniqueGpsLocation(new ArrayList<AccessPointSighting>());
     }
 
-    protected void assertPollingHasStopped(HocEvent hocEvent) throws Exception {
-        assertNull("Async Http Request polling should not be running", hocEvent.mStatusFetcher);
+    protected HocLocation getNearbyGpsLocation() {
+        HocLocation location = new HocLocation(mLocation);
+        location.setLatitude(location.getLatitude() + 0.00001);
+        return location;
+    }
+
+    protected HocLocation getUniqueGpsLocation(ArrayList<AccessPointSighting> sightings) {
+        mLocation.setLatitude(mLocation.getLatitude() + 0.1);
+        mLocation.setLongitude(mLocation.getLongitude() + 0.1);
+
+        Location location = new Location("TestLocationProvider");
+        location.setAccuracy(mLocation.getAccuracy());
+        location.setLatitude(mLocation.getLatitude());
+        location.setLongitude(mLocation.getLongitude());
+        HocLocation hocLocation = HocLocation.createFromLocation(location);
+        hocLocation.setAccesPointSightings(sightings);
+
+        return hocLocation;
+    }
+
+    protected void assertPollingHasStopped(final HocEvent hocEvent) throws Exception {
+        TestHelper.blockUntilTrue("polling should not be running", 4000,
+                new TestHelper.Condition() {
+
+                    @Override
+                    public boolean isSatisfied() throws Exception {
+                        return hocEvent.mStatusFetcher == null;
+                    }
+
+                });
+
         Thread.sleep(2000);
         assertNull("Async Http Request polling should still not be running",
                 hocEvent.mStatusFetcher);
@@ -70,6 +97,8 @@ public class HocEventTestCase extends TestCase {
                     @Override
                     public boolean isSatisfied() throws Exception {
                         assertFalse("event should not collide with others", pEvent.hasCollision());
+                        assertFalse("event should have no errors, but reported '"
+                                + pEvent.getMessage() + "'", pEvent.hasError());
                         return pEvent.isOpenForLinking();
                     }
                 });
@@ -89,12 +118,13 @@ public class HocEventTestCase extends TestCase {
 
     protected void blockUntilEventIsExpired(String pEventName, final HocEvent pEvent)
             throws Exception {
-        TestHelper.blockUntilFalse(pEventName + " event shuld be expired by now", 10000,
+
+        TestHelper.blockUntilTrue(pEventName + " event shuld be expired by now", 10000,
                 new TestHelper.Condition() {
 
                     @Override
                     public boolean isSatisfied() throws Exception {
-                        return pEvent.isOpenForLinking();
+                        return !pEvent.mState.equals("unborn") && !pEvent.isOpenForLinking();
                     }
                 });
     }
@@ -131,7 +161,8 @@ public class HocEventTestCase extends TestCase {
 
                     @Override
                     public boolean isSatisfied() throws Exception {
-                        return hocEvent.getLifetime() < lifetime && hocEvent.getLifetime() > 0;
+                        return hocEvent.getRemainingLifetime() < lifetime
+                                && hocEvent.getRemainingLifetime() > 0;
                     }
                 });
     }
@@ -139,11 +170,11 @@ public class HocEventTestCase extends TestCase {
     protected void blockUntilLifetimeIsDownTo(final HocEvent hocEvent, final double targetedLifetime)
             throws Exception {
         TestHelper.blockUntilTrue("lifetime should be down to " + targetedLifetime + " but is "
-                + hocEvent.getLifetime(), 8000, new TestHelper.Condition() {
+                + hocEvent.getRemainingLifetime(), 8000, new TestHelper.Condition() {
 
             @Override
             public boolean isSatisfied() throws Exception {
-                return hocEvent.getLifetime() <= targetedLifetime;
+                return hocEvent.getRemainingLifetime() <= targetedLifetime;
             }
         });
     }
