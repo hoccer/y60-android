@@ -18,6 +18,14 @@ public class HocLocation extends Location {
         super(pLocation);
     }
 
+    /**
+     * copy constructor
+     */
+    public HocLocation(HocLocation hocLocation) {
+        super(hocLocation);
+        mScanResults = hocLocation.mScanResults;
+    }
+
     private HocLocation(Parcel pIn) {
         super(Location.CREATOR.createFromParcel(pIn));
         mScanResults = new ArrayList<AccessPointSighting>();

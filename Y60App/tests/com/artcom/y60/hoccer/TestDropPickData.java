@@ -1,12 +1,16 @@
 package com.artcom.y60.hoccer;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
+import com.artcom.y60.Logger;
 import com.artcom.y60.TestHelper;
 import com.artcom.y60.data.StreamableString;
 
 public class TestDropPickData extends HocEventTestCase {
+
+    private static String LOG_TAG = "TestDropPickData";
 
     public void testDrop() throws Exception {
 
@@ -22,6 +26,7 @@ public class TestDropPickData extends HocEventTestCase {
         blockUntilLifetimeDecreases(hoc, lifetime);
 
         blockUntilDataHasBeenUploaded(hoc);
+        assertPollingHasStopped(hoc);
     }
 
     public void testEmptyPick() throws Exception {
@@ -39,6 +44,7 @@ public class TestDropPickData extends HocEventTestCase {
         assertTrue("should have got error", hoc.hasError());
         assertEquals("status message", "Nothing to pick up from this location", hoc.getMessage());
         assertTrue("should have got error callback", eventCallback.hadError);
+        assertPollingHasStopped(hoc);
     }
 
     public void testDropPickExampleFlow() throws Exception {
@@ -64,5 +70,65 @@ public class TestDropPickData extends HocEventTestCase {
 
         pick.downloadDataFrom(droppedObject.getString("uri"));
         blockUntilDataHasBeenDownloaded(pick, "the dropped data");
+
+        assertPollingHasStopped(drop);
+        assertPollingHasStopped(pick);
+    }
+
+    public void testPickingFileWithinEventListenerCallback() throws Exception {
+
+        DropEvent drop = getPeer().drop(new StreamableString("first dropped data"), 10);
+        blockUntilDataHasBeenUploaded(drop);
+
+        final PickEvent pick = getPeer().pick();
+        PickSecondFileCallback callback = new PickSecondFileCallback(pick);
+        pick.addCallback(callback);
+
+        blockUntilEventIsExpired("pick", pick);
+        blockUntilEventIsLinked(pick);
+        assertPollingHasStopped(pick);
+        assertTrue("data downlaoded callback should have been called",
+                callback.hasDataBeenDownloaded);
+    }
+
+    private class PickSecondFileCallback implements HocEventListener {
+        public boolean          hasDataBeenDownloaded = false;
+        private final PickEvent mEvent;
+
+        PickSecondFileCallback(PickEvent event) {
+            mEvent = event;
+        }
+
+        @Override
+        public void onLinkEstablished() {
+            Logger.v(LOG_TAG, "picking link is established");
+            try {
+                JSONObject droppedObject = mEvent.getListOfPieces().getJSONObject(1);
+                assertEquals("content type", droppedObject.get("content_type"), "text/plain");
+                assertEquals("content type", droppedObject.get("filename"), "data.txt");
+                mEvent.downloadDataFrom(droppedObject.getString("uri"));
+            } catch (JSONException e) {
+                hasDataBeenDownloaded = false;
+            }
+
+        }
+
+        @Override
+        public void onDataExchanged(HocEvent hoc) {
+            assertEquals("second dropped data", hoc.getData().toString());
+            hasDataBeenDownloaded = true;
+        }
+
+        @Override
+        public void onTransferProgress(double progress) {
+        }
+
+        @Override
+        public void onFeedback(String message) {
+        }
+
+        @Override
+        public void onError(HocEventException e) {
+        }
     }
 }

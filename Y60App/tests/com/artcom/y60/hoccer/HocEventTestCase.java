@@ -53,6 +53,12 @@ public class HocEventTestCase extends TestCase {
         return getUniqueGpsLocation(new ArrayList<AccessPointSighting>());
     }
 
+    protected HocLocation getNearbyGpsLocation() {
+        HocLocation location = new HocLocation(mLocation);
+        location.setLatitude(location.getLatitude() + 0.00001);
+        return location;
+    }
+
     protected HocLocation getUniqueGpsLocation(ArrayList<AccessPointSighting> sightings) {
         mLocation.setLatitude(mLocation.getLatitude() + 0.1);
         mLocation.setLongitude(mLocation.getLongitude() + 0.1);

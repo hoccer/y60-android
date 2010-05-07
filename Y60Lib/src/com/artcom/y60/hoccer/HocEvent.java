@@ -319,15 +319,17 @@ public abstract class HocEvent {
     }
 
     public void abort() throws HocEventException {
-        Logger.v(LOG_TAG, "aborting event ", mStatusFetcher.getUri());
+        Logger.v(LOG_TAG, "aborting event ", mResourceLocation);
         try {
-            HttpHelper.delete(mStatusFetcher.getUri());
+            HttpHelper.delete(mResourceLocation);
         } catch (HttpClientException e) {
             throw new HocEventException(e);
         } catch (HttpServerException e) {
             Logger.e(LOG_TAG, e);
         } catch (IOException e) {
             Logger.e(LOG_TAG, e);
+        } finally {
+            mStatusFetcher = null;
         }
     }
 

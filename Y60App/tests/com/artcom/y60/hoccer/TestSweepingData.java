@@ -50,6 +50,7 @@ public class TestSweepingData extends HocEventTestCase {
                         return HttpHelper.getStatusCode(sweepOut.getResourceLocation());
                     }
                 });
+        assertPollingHasStopped(sweepOut);
     }
 
     public void testLonelySweepInEvent() throws Exception {
