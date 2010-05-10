@@ -58,8 +58,11 @@ public class HocLocation extends Location {
 
     public void setScanResult(List<ScanResult> pScanResults) {
         mScanResults = new ArrayList<AccessPointSighting>();
+        if (pScanResults == null) {
+            return;
+        }
         for (ScanResult scan : pScanResults) {
-
+            mScanResults.add(new AccessPointSighting(scan.BSSID, scan.level));
         }
     }
 

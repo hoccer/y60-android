@@ -63,6 +63,7 @@ public abstract class ShareEvent extends HocEvent {
 
             @Override
             public void onReceiving(double progress) {
+                ShareEvent.this.onTransferProgress(progress);
             }
 
             @Override

@@ -56,7 +56,6 @@ public abstract class ReceiveEvent extends HocEvent {
             @Override
             public void onReceiving(double progress) {
                 Logger.v(LOG_TAG, "receiving data ", progress);
-
                 ReceiveEvent.this.onTransferProgress(progress);
             }
 
