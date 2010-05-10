@@ -58,6 +58,7 @@ public abstract class HocEvent {
     }
 
     private void postEventToServer() {
+
         AsyncHttpPost eventCreation = new AsyncHttpPost(getPeer().getRemoteServer() + "/events",
                 mPeer.getHttpClient());
         eventCreation.setAcceptedMimeType("application/json");
@@ -66,6 +67,8 @@ public abstract class HocEvent {
         parameters.putAll(mPeer.getEventParameters());
         eventCreation.setBody(parameters);
         eventCreation.registerResponseHandler(createResponseHandler());
+        eventCreation.setUncaughtExceptionHandler(getPeer().getErrorReporter());
+
         eventCreation.start();
         mStatusFetcher = eventCreation;
     }
@@ -279,6 +282,7 @@ public abstract class HocEvent {
                 // mStatusPollingDelay += mStatusPollingDelay;
                 mStatusFetcher = new AsyncHttpGet(mStatusFetcher.getUri());
                 mStatusFetcher.registerResponseHandler(this);
+                mStatusFetcher.setUncaughtExceptionHandler(getPeer().getErrorReporter());
 
                 mStatusFetcher.start();
             }

@@ -5,33 +5,24 @@ import java.lang.Thread.UncaughtExceptionHandler;
 import android.content.Context;
 
 import com.artcom.y60.ErrorHandling;
-import com.artcom.y60.Logger;
 
-public class FallbackExceptionHandler implements UncaughtExceptionHandler {
+public class FallbackExceptionHandler extends ErrorReporter {
 
-    private static String                  LOG_TAG = "FallbackExceptionHandler";
-    private final Context                  mContext;
-    private final UncaughtExceptionHandler mOriginalExceptionHandler;
+    static String LOG_TAG = "FallbackExceptionHandler";
+    final Context mContext;
 
     public FallbackExceptionHandler(Context pContext,
             UncaughtExceptionHandler pOriginalExceptionHandler) {
         mContext = pContext;
-        mOriginalExceptionHandler = pOriginalExceptionHandler;
-    }
-
-    @Override
-    public void uncaughtException(Thread pThread, Throwable e) {
-        Logger.e(LOG_TAG, "There was an uncaught excepiton:" + e);
-        onException(e);
-        mOriginalExceptionHandler.uncaughtException(pThread, e);
-    }
-
-    protected void onException(Throwable e) {
-        ErrorHandling.signalUnspecifiedError(LOG_TAG, e, mContext);
     }
 
     public static void register(Context pContext) {
         Thread.setDefaultUncaughtExceptionHandler(new FallbackExceptionHandler(pContext, Thread
                 .getDefaultUncaughtExceptionHandler()));
+    }
+
+    @Override
+    protected void onException(Throwable e) {
+        ErrorHandling.signalUnspecifiedError(LOG_TAG, e, mContext);
     }
 }

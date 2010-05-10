@@ -12,6 +12,7 @@ import com.artcom.y60.Logger;
 import com.artcom.y60.data.DataContainerFactory;
 import com.artcom.y60.data.DefaultDataContainerFactory;
 import com.artcom.y60.data.StreamableContent;
+import com.artcom.y60.error.ErrorReporter;
 
 public class Peer {
 
@@ -20,6 +21,7 @@ public class Peer {
 
     DefaultHttpClient            mHttpClient;
     private HocLocation          mHocLocation;
+    private ErrorReporter        mErrorReporter;
     private DataContainerFactory mDataContainerFactory;
 
     public Peer(String clientName, String remoteServer) {
@@ -29,6 +31,14 @@ public class Peer {
         mHttpClient = new DefaultHttpClient(httpParams);
         mHttpClient.getParams().setParameter("http.useragent", clientName);
         mDataContainerFactory = new DefaultDataContainerFactory();
+    }
+
+    public void setErrorReporter(ErrorReporter reporter) {
+        mErrorReporter = reporter;
+    }
+
+    public ErrorReporter getErrorReporter() {
+        return mErrorReporter;
     }
 
     public SweepOutEvent sweepOut(StreamableContent pStreamableData) {

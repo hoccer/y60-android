@@ -46,6 +46,7 @@ public abstract class ReceiveEvent extends HocEvent {
 
     protected void downloadDataFrom(String uri) {
         mDataDownloader = new AsyncHttpGet(uri);
+        mDataDownloader.setUncaughtExceptionHandler(getPeer().getErrorReporter());
         mDataDownloader.registerResponseHandler(new HttpResponseHandler() {
 
             @Override

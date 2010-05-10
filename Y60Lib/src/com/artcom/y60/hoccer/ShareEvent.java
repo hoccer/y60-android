@@ -53,7 +53,7 @@ public abstract class ShareEvent extends HocEvent {
         MultipartHttpEntity multipart = new MultipartHttpEntity();
         multipart.addPart("upload[attachment]", mOutgoingData);
         mDataUploader.setBody(multipart);
-
+        mDataUploader.setUncaughtExceptionHandler(getPeer().getErrorReporter());
         mDataUploader.registerResponseHandler(new HttpResponseHandler() {
 
             @Override
