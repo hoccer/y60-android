@@ -22,8 +22,12 @@ public class FallbackExceptionHandler implements UncaughtExceptionHandler {
     @Override
     public void uncaughtException(Thread pThread, Throwable e) {
         Logger.e(LOG_TAG, "There was an uncaught excepiton:" + e);
-        ErrorHandling.signalUnspecifiedError(LOG_TAG, e, mContext);
+        onException(e);
         mOriginalExceptionHandler.uncaughtException(pThread, e);
+    }
+
+    protected void onException(Throwable e) {
+        ErrorHandling.signalUnspecifiedError(LOG_TAG, e, mContext);
     }
 
     public static void register(Context pContext) {
