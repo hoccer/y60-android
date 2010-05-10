@@ -35,6 +35,9 @@ public class TestSweepingData extends HocEventTestCase {
 
     public void testAbortingLonelySweepOutEvent() throws Exception {
         final SweepOutEvent sweepOut = getPeer().sweepOut(new StreamableString("my hocced data"));
+        HocEventListenerForTesting eventCallback = new HocEventListenerForTesting();
+        sweepOut.addCallback(eventCallback);
+
         blockUntilEventIsAlive("sweepOut", sweepOut);
 
         Thread.sleep(200);
@@ -51,6 +54,7 @@ public class TestSweepingData extends HocEventTestCase {
                     }
                 });
         assertPollingHasStopped(sweepOut);
+        assertTrue("should have been notified about error", eventCallback.hadError);
     }
 
     public void testLonelySweepInEvent() throws Exception {

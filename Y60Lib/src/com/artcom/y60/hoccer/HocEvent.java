@@ -174,6 +174,7 @@ public abstract class HocEvent {
     }
 
     protected void updateStatusFromJson(JSONObject status) throws JSONException, IOException {
+        Logger.v(LOG_TAG, "updating status to ", status);
 
         if (status.has("state")) {
             updateState(status.getString("state"));
@@ -211,6 +212,9 @@ public abstract class HocEvent {
     };
 
     private void stopPolling() {
+        if (mStatusFetcher == null) {
+            return;
+        }
         mStatusFetcher.removeResponseHandler();
         mStatusFetcher = null;
     }
@@ -252,6 +256,8 @@ public abstract class HocEvent {
             }
 
             private void processServerResponse(StreamableContent body) {
+                if (mStatusFetcher == null)
+                    return;
                 try {
                     mResourceLocation = mStatusFetcher.getUri();
                     updateStatusFromJson(new JSONObject(body.toString()));

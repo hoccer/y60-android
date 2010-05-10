@@ -87,6 +87,14 @@ public abstract class ShareEvent extends HocEvent {
     }
 
     @Override
+    public void abort() throws HocEventException {
+        if (mDataUploader != null) {
+            mDataUploader.interrupt();
+        }
+        super.abort();
+    }
+
+    @Override
     public StreamableContent getData() {
         return mOutgoingData;
     }
