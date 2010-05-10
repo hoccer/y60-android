@@ -19,12 +19,12 @@ import java.util.List;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.artcom.y60.http.HttpProxyConstants;
-
 import android.app.ActivityManager;
 import android.app.ActivityManager.RunningServiceInfo;
 import android.content.Context;
 import android.os.Bundle;
+
+import com.artcom.y60.http.HttpProxyConstants;
 
 public class IoHelper {
     private static final String LOG_TAG = "IoHelper";
@@ -90,6 +90,13 @@ public class IoHelper {
         for (int len; (len = pInputStream.read(buffer)) != -1;) {
             fos.write(buffer, 0, len);
         }
+        fos.close();
+    }
+
+    public static void writeStringToFile(String string, String filename) throws IOException {
+        File tmpFile = new File(filename);
+        FileOutputStream fos = new FileOutputStream(tmpFile);
+        fos.write(string.getBytes());
         fos.close();
     }
 
