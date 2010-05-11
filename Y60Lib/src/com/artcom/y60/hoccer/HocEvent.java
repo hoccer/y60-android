@@ -34,6 +34,8 @@ public abstract class HocEvent {
     private final Peer                        mPeer;
     private String                            mResourceLocation;
 
+    private boolean                           isAborted           = false;
+
     HocEvent(Peer peer) {
         mUuid = UUID.randomUUID();
         mPeer = peer;
@@ -236,9 +238,16 @@ public abstract class HocEvent {
 
         stopPolling();
 
+        Logger.v(LOG_TAG, "is aborted: ", isAborted, " for ", e);
+
+        if (isAborted) {
+            return;
+        }
+
         for (HocEventListener callback : mCallbackList) {
             callback.onError(e);
         }
+
     };
 
     protected void onFeedback() {
@@ -316,9 +325,16 @@ public abstract class HocEvent {
     }
 
     public void abort() throws HocEventException {
+        isAborted = true;
         Logger.v(LOG_TAG, "aborting event ", mResourceLocation);
         try {
-            HttpHelper.delete(mResourceLocation);
+            if (mStatusFetcher != null) {
+                mStatusFetcher.interrupt();
+
+                if (mResourceLocation != null) {
+                    HttpHelper.delete(mResourceLocation);
+                }
+            }
         } catch (HttpClientException e) {
             throw new HocEventException(e);
         } catch (HttpServerException e) {

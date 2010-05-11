@@ -88,10 +88,11 @@ public abstract class ShareEvent extends HocEvent {
 
     @Override
     public void abort() throws HocEventException {
+        super.abort();
         if (mDataUploader != null) {
+            Logger.v(LOG_TAG, "interrupting: ", mDataUploader);
             mDataUploader.interrupt();
         }
-        super.abort();
     }
 
     @Override
