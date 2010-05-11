@@ -234,6 +234,12 @@ public abstract class HocEvent {
         }
     };
 
+    protected void onAbort() {
+        for (HocEventListener callback : mCallbackList) {
+            callback.onAbort(this);
+        }
+    };
+
     protected void onError(HocEventException e) {
 
         stopPolling();
@@ -344,6 +350,7 @@ public abstract class HocEvent {
         } finally {
             mStatusFetcher = null;
         }
+        onAbort();
     }
 
 }

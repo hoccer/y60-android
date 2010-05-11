@@ -36,4 +36,10 @@ public class HocEventListenerForTesting implements HocEventListener {
 
     }
 
+    @Override
+    public void onAbort(HocEvent hoc) {
+        // TODO Auto-generated method stub
+
+    }
+
 }

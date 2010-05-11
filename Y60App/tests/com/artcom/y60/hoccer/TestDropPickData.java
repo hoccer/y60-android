@@ -133,5 +133,11 @@ public class TestDropPickData extends HocEventTestCase {
         @Override
         public void onError(HocEventException e) {
         }
+
+        @Override
+        public void onAbort(HocEvent hoc) {
+            // TODO Auto-generated method stub
+
+        }
     }
 }

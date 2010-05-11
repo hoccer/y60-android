@@ -12,4 +12,6 @@ public interface HocEventListener {
 
     public void onLinkEstablished();
 
+    public void onAbort(HocEvent hoc);
+
 }

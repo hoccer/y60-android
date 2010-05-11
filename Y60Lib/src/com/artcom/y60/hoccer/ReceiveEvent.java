@@ -123,4 +123,13 @@ public abstract class ReceiveEvent extends HocEvent {
         return mDataDownloader.getBodyAsStreamableContent();
     }
 
+    @Override
+    public void abort() throws HocEventException {
+        super.abort();
+        if (mDataDownloader != null) {
+            Logger.v(LOG_TAG, "interrupting: ", mDataDownloader);
+            mDataDownloader.interrupt();
+        }
+    }
+
 }
