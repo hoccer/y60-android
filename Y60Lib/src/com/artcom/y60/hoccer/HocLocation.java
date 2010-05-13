@@ -13,6 +13,7 @@ import com.artcom.y60.data.ProblemDescriptor;
 public class HocLocation extends Location {
 
     private List<AccessPointSighting> mScanResults = null;
+    private String                    mAddress;
 
     private HocLocation(Location pLocation) {
         super(pLocation);
@@ -140,5 +141,13 @@ public class HocLocation extends Location {
 
         problem.setRecoverySuggestion(recoverySuggestion.toString());
         return problem;
+    }
+
+    public void setAddress(String address) {
+        mAddress = address;
+    }
+
+    public String getAddress() {
+        return mAddress;
     }
 }
