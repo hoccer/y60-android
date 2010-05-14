@@ -31,6 +31,7 @@ public abstract class ReceiveEvent extends HocEvent {
                 onPossibleDownloadsAvailable(possible_pieces);
             }
         }
+        
         super.updateStatusFromJson(status);
     }
 
