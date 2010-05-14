@@ -244,8 +244,6 @@ public abstract class HocEvent {
 
         stopPolling();
 
-        Logger.v(LOG_TAG, "is aborted: ", isAborted, " for ", e);
-
         if (isAborted) {
             return;
         }
