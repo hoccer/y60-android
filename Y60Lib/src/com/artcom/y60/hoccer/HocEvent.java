@@ -81,11 +81,15 @@ public abstract class HocEvent {
     }
 
     public void addCallback(HocEventListener pListener) {
-        mCallbackList.add(pListener);
+        synchronized (mCallbackList) {
+            mCallbackList.add(pListener);
+        }
     }
 
     public void removeCallback(HocEventListener hocEventListener) {
-        mCallbackList.remove(hocEventListener);
+        synchronized (mCallbackList) {
+            mCallbackList.remove(hocEventListener);
+        }
     }
 
     /**
@@ -193,8 +197,10 @@ public abstract class HocEvent {
         }
 
         // notify about new status infos
-        for (HocEventListener callback : mCallbackList) {
-            callback.onFeedback(mMessage);
+        synchronized (mCallbackList) {
+            for (HocEventListener callback : mCallbackList) {
+                callback.onFeedback(mMessage);
+            }
         }
     }
 
@@ -214,9 +220,11 @@ public abstract class HocEvent {
 
         Logger.v(LOG_TAG, ReflectionHelper.callingMethodName());
 
-        for (HocEventListener callback : mCallbackList) {
-            Logger.v(LOG_TAG, "try for success ", callback, " size: ", mCallbackList.size());
-            callback.onDataExchanged(this);
+        synchronized (mCallbackList) {
+            for (HocEventListener callback : mCallbackList) {
+                Logger.v(LOG_TAG, "try for success ", callback, " size: ", mCallbackList.size());
+                callback.onDataExchanged(this);
+            }
         }
     };
 
@@ -229,21 +237,27 @@ public abstract class HocEvent {
     }
 
     protected void onLinkEstablished() {
-        for (HocEventListener callback : mCallbackList) {
-            callback.onLinkEstablished();
+        synchronized (mCallbackList) {
+            for (HocEventListener callback : mCallbackList) {
+                callback.onLinkEstablished();
+            }
         }
         tryForSuccess();
     };
 
     protected void onTransferProgress(double progress) {
-        for (HocEventListener callback : mCallbackList) {
-            callback.onTransferProgress(progress);
+        synchronized (mCallbackList) {
+            for (HocEventListener callback : mCallbackList) {
+                callback.onTransferProgress(progress);
+            }
         }
     };
 
     protected void onAbort() {
-        for (HocEventListener callback : mCallbackList) {
-            callback.onAbort(this);
+        synchronized (mCallbackList) {
+            for (HocEventListener callback : mCallbackList) {
+                callback.onAbort(this);
+            }
         }
     };
 
@@ -255,15 +269,18 @@ public abstract class HocEvent {
             return;
         }
 
-        for (HocEventListener callback : mCallbackList) {
-            callback.onError(e);
+        synchronized (mCallbackList) {
+            for (HocEventListener callback : mCallbackList) {
+                callback.onError(e);
+            }
         }
-
     };
 
     protected void onFeedback() {
-        for (HocEventListener callback : mCallbackList) {
-            callback.onFeedback(mMessage);
+        synchronized (mCallbackList) {
+            for (HocEventListener callback : mCallbackList) {
+                callback.onFeedback(mMessage);
+            }
         }
     };
 
