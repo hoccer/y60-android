@@ -10,6 +10,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.artcom.y60.Logger;
+import com.artcom.y60.ReflectionHelper;
 import com.artcom.y60.data.StreamableContent;
 import com.artcom.y60.http.AsyncHttpGet;
 import com.artcom.y60.http.AsyncHttpPost;
@@ -202,13 +203,19 @@ public abstract class HocEvent {
     }
 
     protected void tryForSuccess() {
+
+        Logger.v(LOG_TAG, "try for success");
+
         if (!wasSuccessful()) {
             return;
         }
 
         stopPolling();
 
+        Logger.v(LOG_TAG, ReflectionHelper.callingMethodName());
+
         for (HocEventListener callback : mCallbackList) {
+            Logger.v(LOG_TAG, "try for success ", callback, " size: ", mCallbackList.size());
             callback.onDataExchanged(this);
         }
     };
