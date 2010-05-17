@@ -321,6 +321,9 @@ public abstract class HocEvent {
                     }
                 } catch (InterruptedException e) {
                     Logger.e(LOG_TAG, e);
+                    if (mStatusFetcher == null) {
+                        return; // we dont want no more polling
+                    }
                 }
                 // mStatusPollingDelay += mStatusPollingDelay;
                 mStatusFetcher = new AsyncHttpGet(mStatusFetcher.getUri());
