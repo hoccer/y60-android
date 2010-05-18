@@ -300,11 +300,15 @@ public abstract class HocEvent {
                     updateStatusFromJson(new JSONObject(body.toString()));
                     launchNewPollingRequest();
                 } catch (JSONException e) {
-                    Logger.e(LOG_TAG, e);
-                    mState = "json error";
+                    getPeer().getErrorReporter().notify(LOG_TAG, e);
+                    updateState("json error");
                 } catch (IOException e) {
-                    Logger.e(LOG_TAG, e);
-                    mState = "io error";
+                    getPeer().getErrorReporter().notify(LOG_TAG, e);
+                    updateState("io error");
+                } catch (NullPointerException e) {
+                    getPeer().getErrorReporter().notify(LOG_TAG, e);
+                    updateState("empty");
+                    mMessage = "empty response from server";
                 }
             }
 

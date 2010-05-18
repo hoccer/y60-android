@@ -2,6 +2,8 @@ package com.artcom.y60.error;
 
 import java.lang.Thread.UncaughtExceptionHandler;
 
+import android.util.Log;
+
 import com.artcom.y60.Logger;
 
 public class ErrorReporter implements UncaughtExceptionHandler {
@@ -21,6 +23,22 @@ public class ErrorReporter implements UncaughtExceptionHandler {
     }
 
     protected void onException(Throwable e) {
-        Logger.e(LOG_TAG, e);
+        notify(e);
+    }
+
+    public static void notify(Throwable e) {
+        notify("UnknownComponent", e);
+    }
+
+    public static void notify(String component, Throwable e) {
+        notify(component, Log.getStackTraceString(e));
+    }
+
+    public static void notify(String component, String errorMessage) {
+        notify(component + ": " + errorMessage);
+    }
+
+    public static void notify(String errorMessage) {
+        Logger.e(LOG_TAG, errorMessage);
     }
 }
