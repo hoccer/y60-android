@@ -94,4 +94,27 @@ public class TestLinkingHocEvents extends HocEventTestCase {
         blockUntilEventIsLinked(sweepIn);
         blockUntilDataHasBeenDownloaded(sweepIn, "my hocced data");
     }
+
+    public void testLinkingViaAccuracyWhenLocationsDeffereSlightly() throws Exception {
+        Peer sendingPeer = new Peer("Y60/Hoccer Unit Test on Android", getPeer().getRemoteServer());
+        Peer receivingPeer = new Peer("Y60/Hoccer Unit Test on Android", getPeer()
+                .getRemoteServer());
+
+        HocLocation sendingLocation = getUniqueGpsLocation();
+        sendingPeer.setLocation(sendingLocation);
+        HocLocation receivingLocation = getNearbyGpsLocation();
+        receivingLocation.setLatitude(sendingLocation.getLatitude() + 0.001);
+        receivingLocation.setLongitude(sendingLocation.getLongitude() + 0.001);
+        receivingLocation.setAccuracy(1000);
+        receivingPeer.setLocation(receivingLocation);
+
+        SweepOutEvent sweepOut = sendingPeer.sweepOut(new StreamableString("my hocced data"));
+        SweepInEvent sweepIn = receivingPeer.sweepIn();
+        blockUntilEventIsAlive("sweepOut", sweepOut);
+        blockUntilEventIsAlive("sweepIn", sweepIn);
+
+        blockUntilEventIsLinked(sweepOut);
+        blockUntilEventIsLinked(sweepIn);
+    }
+
 }
