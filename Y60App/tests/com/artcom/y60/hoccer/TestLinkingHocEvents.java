@@ -103,8 +103,8 @@ public class TestLinkingHocEvents extends HocEventTestCase {
         HocLocation sendingLocation = getUniqueGpsLocation();
         sendingPeer.setLocation(sendingLocation);
         HocLocation receivingLocation = getNearbyGpsLocation();
-        receivingLocation.setLatitude(sendingLocation.getLatitude() + 0.001);
-        receivingLocation.setLongitude(sendingLocation.getLongitude() + 0.001);
+        receivingLocation.setLatitude(sendingLocation.getLatitude() + 0.01);
+        receivingLocation.setLongitude(sendingLocation.getLongitude() + 0.01);
         receivingLocation.setAccuracy(1000);
         receivingPeer.setLocation(receivingLocation);
 

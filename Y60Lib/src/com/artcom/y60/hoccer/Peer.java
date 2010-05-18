@@ -86,7 +86,7 @@ public class Peer {
         Map<String, String> parameters = new HashMap<String, String>();
         parameters.put("event[latitude]", Double.toString(mHocLocation.getLatitude()));
         parameters.put("event[longitude]", Double.toString(mHocLocation.getLongitude()));
-
+        parameters.put("event[location_accuracy]", Double.toString(mHocLocation.getAccuracy()));
         parameters.put("event[bssids]", getAccessPointSightings());
         return parameters;
     }
