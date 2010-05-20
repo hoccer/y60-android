@@ -101,38 +101,42 @@ public class HttpProxyService extends Y60Service {
             @Override
             public void run() {
                 Logger.v(LOG_TAG, "refreshing (", pUri, ")");
+                Bundle oldContent;
                 synchronized (mCachedContent) {
+                    oldContent = mCachedContent.get(pUri);
+                }
+                Bundle newContent = null;
+                try {
+                    newContent = ResourceDownloadHelper.downloadAndCreateResourceBundle(CACHE_DIR,
+                            pUri);
+                } catch (Exception e) {
+                    ErrorHandling.signalHttpError(LOG_TAG, e, HttpProxyService.this);
+                    sendResourceNotAvailableBc(pUri);
+                    Logger.e(LOG_TAG, "refreshing ", pUri, " failed!");
+                }
 
-                    Bundle oldContent = mCachedContent.get(pUri);
-                    Bundle newContent = null;
-                    try {
-                        newContent = ResourceDownloadHelper.downloadAndCreateResourceBundle(
-                                CACHE_DIR, pUri);
-                    } catch (Exception e) {
-                        ErrorHandling.signalHttpError(LOG_TAG, e, HttpProxyService.this);
+                byte[] oldContentBytes = IoHelper.convertResourceBundleToByteArray(oldContent);
+                byte[] newContentBytes = IoHelper.convertResourceBundleToByteArray(newContent);
+
+                if (!IoHelper.areWeEqual(oldContentBytes, newContentBytes)) {
+
+                    if (newContentBytes == null) {
+                        synchronized (mCachedContent) {
+                            mCachedContent.remove(pUri);
+                        }
                         sendResourceNotAvailableBc(pUri);
                         Logger.e(LOG_TAG, "refreshing ", pUri, " failed!");
-                    }
 
-                    byte[] oldContentBytes = IoHelper.convertResourceBundleToByteArray(oldContent);
-                    byte[] newContentBytes = IoHelper.convertResourceBundleToByteArray(newContent);
-
-                    if (!IoHelper.areWeEqual(oldContentBytes, newContentBytes)) {
-
-                        if (newContentBytes == null) {
-                            mCachedContent.remove(pUri);
-                            sendResourceNotAvailableBc(pUri);
-                            Logger.e(LOG_TAG, "refreshing ", pUri, " failed!");
-
-                        } else {
-                            Logger.v(LOG_TAG, "storing new content and sending bc 'updated' for '",
-                                    pUri, "'");
-                            mCachedContent.put(pUri, newContent);
-                            sendResourceAvailableBc(pUri);
-                        }
                     } else {
-                        Logger.v(LOG_TAG, "NO new content for '", pUri, "'");
+                        Logger.v(LOG_TAG, "storing new content and sending bc 'updated' for '",
+                                pUri, "'");
+                        synchronized (mCachedContent) {
+                            mCachedContent.put(pUri, newContent);
+                        }
+                        sendResourceAvailableBc(pUri);
                     }
+                } else {
+                    Logger.v(LOG_TAG, "NO new content for '", pUri, "'");
                 }
             }
         }).start();
@@ -159,7 +163,9 @@ public class HttpProxyService extends Y60Service {
     public Bundle getDataSyncronously(String pUri) throws HttpClientException, HttpServerException,
             IOException {
         Bundle newContent = ResourceDownloadHelper.downloadAndCreateResourceBundle(CACHE_DIR, pUri);
-        mCachedContent.put(pUri, newContent);
+        synchronized (mCachedContent) {
+            mCachedContent.put(pUri, newContent);
+        }
         return newContent;
     }
 
@@ -171,9 +177,16 @@ public class HttpProxyService extends Y60Service {
     }
 
     public boolean isInCache(String pUri) {
+        boolean isInCache;
+        long startingTime = System.currentTimeMillis();
         synchronized (mCachedContent) {
-            return mCachedContent.containsKey(pUri);
+            Logger.d(LOG_TAG, "syncronizing took ", System.currentTimeMillis() - startingTime,
+                    " ms , thread id: ", Thread.currentThread().getId());
+            isInCache = mCachedContent.containsKey(pUri);
         }
+        Logger.d(LOG_TAG, "isInCache took ", System.currentTimeMillis() - startingTime,
+                " ms , thread id: ", Thread.currentThread().getId());
+        return isInCache;
     }
 
     public void removeFromCache(String pUri) {
@@ -190,22 +203,24 @@ public class HttpProxyService extends Y60Service {
         synchronized (mCachedContent) {
             mCachedContent.clear();
             mResourceManager.clear();
-            IoHelper.deleteDir(new File(CACHE_DIR));
-            File dir = new File(CACHE_DIR);
-            if (!dir.exists()) {
-                dir.mkdirs();
-                Logger.e(LOG_TAG, "creating dir " + dir.toString());
-            }
+        }
+        IoHelper.deleteDir(new File(CACHE_DIR));
+        File dir = new File(CACHE_DIR);
+        if (!dir.exists()) {
+            dir.mkdirs();
+            Logger.e(LOG_TAG, "creating dir " + dir.toString());
         }
         sendBroadcast(new Intent(Y60Action.SERVICE_HTTP_PROXY_CLEARED));
         Logger.d(LOG_TAG, "HTTP cache cleared");
     }
 
     public long getNumberOfEntries() {
-        return mCachedContent.size();
+        synchronized (mCachedContent) {
+            return mCachedContent.size();
+        }
     }
 
-    protected Map<String, Bundle> getCachedContent() {
+    Map<String, Bundle> getCachedContent() {
         return mCachedContent;
     }
 
