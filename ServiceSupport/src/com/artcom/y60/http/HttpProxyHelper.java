@@ -29,7 +29,6 @@ import com.artcom.y60.BindingListener;
 import com.artcom.y60.ErrorHandling;
 import com.artcom.y60.IoHelper;
 import com.artcom.y60.Logger;
-import com.artcom.y60.ReflectionHelper;
 import com.artcom.y60.RpcStatus;
 
 /**
@@ -313,35 +312,18 @@ public class HttpProxyHelper {
     }
 
     public void addResourceChangeListener(final Uri pUri, final ResourceListener pListener) {
-
-        long startingTime = System.currentTimeMillis();
         Set<ResourceListener> listeners = getOrCreateListenersFor(pUri);
-        Logger.d(LOG_TAG, "getOrCreateListener caller: ", ReflectionHelper.callingMethodName(),
-                ", thread id: ", Thread.currentThread().getId());
-
         synchronized (listeners) {
-            Logger.d(LOG_TAG, "entering syncronized took ", System.currentTimeMillis()
-                    - startingTime, " ms , thread id: ", Thread.currentThread().getId());
-
             listeners.add(pListener);
         }
         if (isInCache(pUri.toString())) {
-            Logger.d(LOG_TAG, "addResourceChangeListener in cache check took ", System
-                    .currentTimeMillis()
-                    - startingTime, " ms , thread id: ", Thread.currentThread().getId());
             new Thread() {
                 @Override
                 public void run() {
-                    Logger.d(LOG_TAG, "launing threaded onResourceAvailable with thread id: ",
-                            Thread.currentThread().getId());
                     pListener.onResourceAvailable(pUri);
                 }
             }.start();
         }
-
-        Logger.d(LOG_TAG, "overall addResourceChangeListener took ", System.currentTimeMillis()
-                - startingTime, " ms , thread id: ", Thread.currentThread().getId());
-
     }
 
     public void shutdown() {
