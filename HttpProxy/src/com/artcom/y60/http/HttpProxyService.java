@@ -178,14 +178,9 @@ public class HttpProxyService extends Y60Service {
 
     public boolean isInCache(String pUri) {
         boolean isInCache;
-        long startingTime = System.currentTimeMillis();
         synchronized (mCachedContent) {
-            Logger.d(LOG_TAG, "syncronizing took ", System.currentTimeMillis() - startingTime,
-                    " ms , thread id: ", Thread.currentThread().getId());
             isInCache = mCachedContent.containsKey(pUri);
         }
-        Logger.d(LOG_TAG, "isInCache took ", System.currentTimeMillis() - startingTime,
-                " ms , thread id: ", Thread.currentThread().getId());
         return isInCache;
     }
 
