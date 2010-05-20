@@ -151,8 +151,7 @@ public class HttpProxyHelper {
         if (resourceDescription == null) {
             return null;
         }
-        return new String(IoHelper
-                .convertResourceBundleToByteArray(resourceDescription));
+        return new String(IoHelper.convertResourceBundleToByteArray(resourceDescription));
     }
 
     @Deprecated
@@ -175,25 +174,6 @@ public class HttpProxyHelper {
 
     public boolean isBound() {
         return mProxy != null;
-    }
-
-    @Deprecated
-    public boolean isInCache(Uri pUri) {
-
-        boolean isInCache;
-        RpcStatus status = new RpcStatus();
-        try {
-            isInCache = mProxy.isInCache(pUri.toString(), status);
-        } catch (RemoteException rex) {
-            Logger.e(logTag(), "isInCache(", pUri, ") failed", rex);
-            throw new RuntimeException(rex);
-        }
-
-        if (status.hasError()) {
-            throw new RuntimeException(status.getError());
-        }
-
-        return isInCache;
     }
 
     public boolean isInCache(String pUri) {
@@ -337,7 +317,7 @@ public class HttpProxyHelper {
         synchronized (listeners) {
 
             listeners.add(pListener);
-            if (isInCache(pUri)) {
+            if (isInCache(pUri.toString())) {
                 Logger
                         .v(
                                 LOG_TAG,
