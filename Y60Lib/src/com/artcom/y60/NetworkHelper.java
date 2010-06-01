@@ -8,7 +8,6 @@ import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Iterator;
 
-import android.content.Context;
 import android.telephony.TelephonyManager;
 
 import com.artcom.y60.gom.GomHttpWrapper;
@@ -17,11 +16,9 @@ public class NetworkHelper {
 
     private static final String LOG_TAG = "NetworkHelper";
 
-    public static String getNetworkType(Context context) {
+    public static String getNetworkType(TelephonyManager telephonyManager) {
 
-        TelephonyManager systemService = (TelephonyManager) context
-                .getSystemService(Context.TELEPHONY_SERVICE);
-        int networkTypeId = systemService.getNetworkType();
+        int networkTypeId = telephonyManager.getNetworkType();
         String networkType = "";
 
         switch (networkTypeId) {
@@ -34,34 +31,33 @@ public class NetworkHelper {
                 networkType = "GPRS";
                 break;
 
-            // case TelephonyManager.NETWORK_TYPE_1xRTT:
-            // networkString = "1xRTT";
-            // break;
-            //                
+            case TelephonyManager.NETWORK_TYPE_1xRTT:
+                networkType = "1xRTT";
+                break;
 
-            // case TelephonyManager.NETWORK_TYPE_CDMA:
-            // networkString = "CDMA";
-            // break;
+            case TelephonyManager.NETWORK_TYPE_CDMA:
+                networkType = "CDMA";
+                break;
 
-            // case TelephonyManager.NETWORK_TYPE_EVDO_0:
-            // networkString = "EVDO_0";
-            // break;
-            //
-            // case TelephonyManager.NETWORK_TYPE_EVDO_A:
-            // networkString = "EVDO_A";
-            // break;
+            case TelephonyManager.NETWORK_TYPE_EVDO_0:
+                networkType = "EVDO_0";
+                break;
 
-            // case TelephonyManager.NETWORK_TYPE_HSDPA:
-            // networkString = "HSDPA";
-            // break;
-            //
-            // case TelephonyManager.NETWORK_TYPE_HSPA:
-            // networkString = "HSPA";
-            // break;
-            //
-            // case TelephonyManager.NETWORK_TYPE_HSUPA:
-            // networkString = "HSPUA";
-            // break;
+            case TelephonyManager.NETWORK_TYPE_EVDO_A:
+                networkType = "EVDO_A";
+                break;
+
+            case TelephonyManager.NETWORK_TYPE_HSDPA:
+                networkType = "HSDPA";
+                break;
+
+            case TelephonyManager.NETWORK_TYPE_HSPA:
+                networkType = "HSPA";
+                break;
+
+            case TelephonyManager.NETWORK_TYPE_HSUPA:
+                networkType = "HSPUA";
+                break;
 
             case TelephonyManager.NETWORK_TYPE_UMTS:
                 networkType = "UMTS";
@@ -159,7 +155,6 @@ public class NetworkHelper {
         Iterator<InetAddress> itr = addresses.iterator();
         while (itr.hasNext()) {
             InetAddress addr = itr.next();
-            Logger.d(LOG_TAG, "address: ", addr.getHostAddress());
             String addrString = addr.getHostAddress();
             if (!addrString.equals("127.0.0.1")) {
                 return addrString;

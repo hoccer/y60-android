@@ -17,7 +17,7 @@ import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpConnectionParams;
 
 import android.os.Build;
-import android.telephony.ServiceState;
+import android.telephony.TelephonyManager;
 
 import com.artcom.y60.IpAddressNotFoundException;
 import com.artcom.y60.Logger;
@@ -29,13 +29,29 @@ import com.artcom.y60.error.ErrorReporter;
 
 public class Peer {
 
-    private static final String  LOG_TAG = "Peer";
+    public static class Parameter {
+        public static final String LATITUDE          = "latitude";
+        public static final String LONGITUDE         = "longitude";
+        public static final String LOCATION_ACCURACY = "location_accuracy";
+        public static final String BSSIDS            = "bssids";
+        public static final String NETWORK_TYPE      = "network_type";
+        public static final String NETWORK_OPERATOR  = "network_operator";
+        public static final String BRAND             = "brand";
+        public static final String DEVICE            = "device";
+        public static final String MANUFACTURER      = "manufacturer";
+        public static final String MODEL             = "model";
+        public static final String VERSION_SDK       = "version_sdk";
+        public static final String LOCAL_IP          = "local_ip";
+    }
+
+    private static final String  LOG_TAG           = "Peer";
     private final String         mRemoteServer;
 
     DefaultHttpClient            mHttpClient;
     private HocLocation          mHocLocation;
     private ErrorReporter        mErrorReporter;
     private DataContainerFactory mDataContainerFactory;
+    private TelephonyManager     mTelephonyManager = null;
 
     public Peer(String clientName, String remoteServer) {
         mRemoteServer = remoteServer;
@@ -49,34 +65,6 @@ public class Peer {
         mHttpClient = new DefaultHttpClient(cm, httpParams);
         mHttpClient.getParams().setParameter("http.useragent", clientName);
         mDataContainerFactory = new DefaultDataContainerFactory();
-
-        Logger.v(LOG_TAG, Build.BRAND);
-        Logger.v(LOG_TAG, Build.DEVICE);
-        Logger.v(LOG_TAG, Build.MANUFACTURER);
-        Logger.v(LOG_TAG, Build.MODEL);
-        Logger.v(LOG_TAG, Build.VERSION.SDK_INT);
-
-        try {
-            Logger.v(LOG_TAG, NetworkHelper.getLocalIpAddresses());
-            Logger.v(LOG_TAG, "getdev ", NetworkHelper.getDeviceIpAddress());
-        } catch (SocketException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (IpAddressNotFoundException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-
-        ServiceState ss = new ServiceState();
-        Logger.v(LOG_TAG, "state ", ss.getState());
-        Logger.v(LOG_TAG, "op num ", ss.getOperatorNumeric());
-
-        /*
-         * 06-01 12:19:50.850 V/Peer ( 430): tmobile 06-01 12:19:50.850 V/Peer ( 430): sapphire
-         * 06-01 12:19:50.850 V/Peer ( 430): HTC 06-01 12:19:50.850 V/Peer ( 430): T-Mobile myTouch
-         * 3G 06-01 12:19:50.860 V/Peer ( 430): 4
-         */
-
     }
 
     public void setErrorReporter(ErrorReporter reporter) {
@@ -128,12 +116,47 @@ public class Peer {
         return mHttpClient;
     }
 
+    public void setTelephonyManagerForNetworkRelatedParams(TelephonyManager telephonyManager) {
+        mTelephonyManager = telephonyManager;
+    }
+
     public Map<String, String> getEventParameters() {
         Map<String, String> parameters = new HashMap<String, String>();
-        parameters.put("event[latitude]", Double.toString(mHocLocation.getLatitude()));
-        parameters.put("event[longitude]", Double.toString(mHocLocation.getLongitude()));
-        parameters.put("event[location_accuracy]", Double.toString(mHocLocation.getAccuracy()));
-        parameters.put("event[bssids]", getAccessPointSightings());
+        parameters.put("event[" + Parameter.LATITUDE + "]", Double.toString(mHocLocation
+                .getLatitude()));
+        parameters.put("event[" + Parameter.LONGITUDE + "]", Double.toString(mHocLocation
+                .getLongitude()));
+        parameters.put("event[" + Parameter.LOCATION_ACCURACY + "]", Double.toString(mHocLocation
+                .getAccuracy()));
+        parameters.put("event[" + Parameter.BSSIDS + "]", getAccessPointSightings());
+
+        Logger.v(LOG_TAG, "-----------------------------------------------------------");
+
+        // if (false) {
+        // parameters.put("event[bssids]", getAccessPointSightings());
+        //
+        // }
+
+        if (mTelephonyManager != null) {
+            Logger.v(LOG_TAG, NetworkHelper.getNetworkType(mTelephonyManager));
+            Logger.v(LOG_TAG, mTelephonyManager.getNetworkOperatorName());
+        }
+
+        Logger.v(LOG_TAG, Build.BRAND);
+        Logger.v(LOG_TAG, Build.DEVICE);
+        Logger.v(LOG_TAG, Build.MANUFACTURER);
+        Logger.v(LOG_TAG, Build.MODEL);
+        Logger.v(LOG_TAG, Build.VERSION.SDK_INT);
+        try {
+            Logger.v(LOG_TAG, NetworkHelper.getLocalIpAddresses());
+            Logger.v(LOG_TAG, "getdev ", NetworkHelper.getDeviceIpAddress());
+        } catch (SocketException e) {
+            Logger.e(LOG_TAG, e.toString());
+        } catch (IpAddressNotFoundException e) {
+            Logger.e(LOG_TAG, e.toString());
+        }
+        Logger.v(LOG_TAG, "-----------------------------------------------------------");
+
         return parameters;
     }
 
