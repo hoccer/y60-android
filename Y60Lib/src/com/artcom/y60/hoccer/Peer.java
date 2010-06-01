@@ -1,9 +1,9 @@
 package com.artcom.y60.hoccer;
 
-import java.net.SocketException;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.UUID;
 
 import org.apache.http.conn.ClientConnectionManager;
 import org.apache.http.conn.params.ConnManagerParams;
@@ -16,6 +16,8 @@ import org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpConnectionParams;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Build;
 import android.telephony.TelephonyManager;
 
@@ -42,16 +44,18 @@ public class Peer {
         public static final String MODEL             = "model";
         public static final String VERSION_SDK       = "version_sdk";
         public static final String LOCAL_IP          = "local_ip";
+        public static final String TIMESTAMP         = "timestamp";
+        public static final String UUID              = "uuid";
     }
 
-    private static final String  LOG_TAG           = "Peer";
+    private static final String  LOG_TAG  = "Peer";
     private final String         mRemoteServer;
 
     DefaultHttpClient            mHttpClient;
     private HocLocation          mHocLocation;
     private ErrorReporter        mErrorReporter;
     private DataContainerFactory mDataContainerFactory;
-    private TelephonyManager     mTelephonyManager = null;
+    private Context              mContext = null;
 
     public Peer(String clientName, String remoteServer) {
         mRemoteServer = remoteServer;
@@ -116,8 +120,8 @@ public class Peer {
         return mHttpClient;
     }
 
-    public void setTelephonyManagerForNetworkRelatedParams(TelephonyManager telephonyManager) {
-        mTelephonyManager = telephonyManager;
+    public void setContextForMeaningfulParams(Context context) {
+        mContext = context;
     }
 
     public Map<String, String> getEventParameters() {
@@ -131,32 +135,39 @@ public class Peer {
         parameters.put("event[" + Parameter.BSSIDS + "]", getAccessPointSightings());
 
         Logger.v(LOG_TAG, "-----------------------------------------------------------");
+        Map<String, String> newParameters = new HashMap<String, String>();
 
-        // if (false) {
-        // parameters.put("event[bssids]", getAccessPointSightings());
-        //
-        // }
+        newParameters.put("event[" + Parameter.BRAND + "]", Build.BRAND);
+        newParameters.put("event[" + Parameter.DEVICE + "]", Build.DEVICE);
+        newParameters.put("event[" + Parameter.MANUFACTURER + "]", Build.MANUFACTURER);
+        newParameters.put("event[" + Parameter.MODEL + "]", Build.MODEL);
+        newParameters.put("event[" + Parameter.VERSION_SDK + "]", String
+                .valueOf(Build.VERSION.SDK_INT));
+        newParameters.put("event[" + Parameter.TIMESTAMP + "]", String.valueOf(System
+                .currentTimeMillis()));
 
-        if (mTelephonyManager != null) {
-            Logger.v(LOG_TAG, NetworkHelper.getNetworkType(mTelephonyManager));
-            Logger.v(LOG_TAG, mTelephonyManager.getNetworkOperatorName());
-        }
-
-        Logger.v(LOG_TAG, Build.BRAND);
-        Logger.v(LOG_TAG, Build.DEVICE);
-        Logger.v(LOG_TAG, Build.MANUFACTURER);
-        Logger.v(LOG_TAG, Build.MODEL);
-        Logger.v(LOG_TAG, Build.VERSION.SDK_INT);
         try {
-            Logger.v(LOG_TAG, NetworkHelper.getLocalIpAddresses());
-            Logger.v(LOG_TAG, "getdev ", NetworkHelper.getDeviceIpAddress());
-        } catch (SocketException e) {
-            Logger.e(LOG_TAG, e.toString());
+            newParameters.put("event[" + Parameter.LOCAL_IP + "]", NetworkHelper
+                    .getDeviceIpAddress());
         } catch (IpAddressNotFoundException e) {
             Logger.e(LOG_TAG, e.toString());
         }
+
+        if (mContext != null) {
+            newParameters.put("event[" + Parameter.UUID + "]",
+                    getUUIDFromSharedPreferences(mContext));
+
+            TelephonyManager telephonyManager = (TelephonyManager) mContext
+                    .getSystemService(mContext.TELEPHONY_SERVICE);
+            newParameters.put("event[" + Parameter.NETWORK_TYPE + "]", NetworkHelper
+                    .getNetworkType(telephonyManager));
+            newParameters.put("event[" + Parameter.NETWORK_OPERATOR + "]", telephonyManager
+                    .getNetworkOperatorName());
+        }
+
         Logger.v(LOG_TAG, "-----------------------------------------------------------");
 
+        Logger.v(LOG_TAG, newParameters);
         return parameters;
     }
 
@@ -177,5 +188,19 @@ public class Peer {
 
     public String getRemoteServer() {
         return mRemoteServer;
+    }
+
+    private String getUUIDFromSharedPreferences(Context pContext) {
+        SharedPreferences prefs = pContext.getSharedPreferences("hoccer", Context.MODE_PRIVATE);
+
+        String tmpUUID = UUID.randomUUID().toString();
+        String storedUUID = prefs.getString("uuid", tmpUUID);
+
+        if (tmpUUID.equals(storedUUID)) {
+            SharedPreferences.Editor editor = prefs.edit();
+            editor.putString("uuid", tmpUUID);
+            editor.commit();
+        }
+        return storedUUID;
     }
 }
