@@ -1,5 +1,6 @@
 package com.artcom.y60.hoccer;
 
+import java.net.SocketException;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -15,7 +16,12 @@ import org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpConnectionParams;
 
+import android.os.Build;
+import android.telephony.ServiceState;
+
+import com.artcom.y60.IpAddressNotFoundException;
 import com.artcom.y60.Logger;
+import com.artcom.y60.NetworkHelper;
 import com.artcom.y60.data.DataContainerFactory;
 import com.artcom.y60.data.DefaultDataContainerFactory;
 import com.artcom.y60.data.StreamableContent;
@@ -43,6 +49,34 @@ public class Peer {
         mHttpClient = new DefaultHttpClient(cm, httpParams);
         mHttpClient.getParams().setParameter("http.useragent", clientName);
         mDataContainerFactory = new DefaultDataContainerFactory();
+
+        Logger.v(LOG_TAG, Build.BRAND);
+        Logger.v(LOG_TAG, Build.DEVICE);
+        Logger.v(LOG_TAG, Build.MANUFACTURER);
+        Logger.v(LOG_TAG, Build.MODEL);
+        Logger.v(LOG_TAG, Build.VERSION.SDK_INT);
+
+        try {
+            Logger.v(LOG_TAG, NetworkHelper.getLocalIpAddresses());
+            Logger.v(LOG_TAG, "getdev ", NetworkHelper.getDeviceIpAddress());
+        } catch (SocketException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (IpAddressNotFoundException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
+        ServiceState ss = new ServiceState();
+        Logger.v(LOG_TAG, "state ", ss.getState());
+        Logger.v(LOG_TAG, "op num ", ss.getOperatorNumeric());
+
+        /*
+         * 06-01 12:19:50.850 V/Peer ( 430): tmobile 06-01 12:19:50.850 V/Peer ( 430): sapphire
+         * 06-01 12:19:50.850 V/Peer ( 430): HTC 06-01 12:19:50.850 V/Peer ( 430): T-Mobile myTouch
+         * 3G 06-01 12:19:50.860 V/Peer ( 430): 4
+         */
+
     }
 
     public void setErrorReporter(ErrorReporter reporter) {
