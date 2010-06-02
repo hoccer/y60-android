@@ -134,40 +134,32 @@ public class Peer {
                 .getAccuracy()));
         parameters.put("event[" + Parameter.BSSIDS + "]", getAccessPointSightings());
 
-        Logger.v(LOG_TAG, "-----------------------------------------------------------");
-        Map<String, String> newParameters = new HashMap<String, String>();
-
-        newParameters.put("event[" + Parameter.BRAND + "]", Build.BRAND);
-        newParameters.put("event[" + Parameter.DEVICE + "]", Build.DEVICE);
-        newParameters.put("event[" + Parameter.MANUFACTURER + "]", Build.MANUFACTURER);
-        newParameters.put("event[" + Parameter.MODEL + "]", Build.MODEL);
-        newParameters.put("event[" + Parameter.VERSION_SDK + "]", String
+        parameters.put("event[" + Parameter.BRAND + "]", Build.BRAND);
+        parameters.put("event[" + Parameter.DEVICE + "]", Build.DEVICE);
+        parameters.put("event[" + Parameter.MANUFACTURER + "]", Build.MANUFACTURER);
+        parameters.put("event[" + Parameter.MODEL + "]", Build.MODEL);
+        parameters.put("event[" + Parameter.VERSION_SDK + "]", String
                 .valueOf(Build.VERSION.SDK_INT));
-        newParameters.put("event[" + Parameter.TIMESTAMP + "]", String.valueOf(System
+        parameters.put("event[" + Parameter.TIMESTAMP + "]", String.valueOf(System
                 .currentTimeMillis()));
 
         try {
-            newParameters.put("event[" + Parameter.LOCAL_IP + "]", NetworkHelper
-                    .getDeviceIpAddress());
+            parameters.put("event[" + Parameter.LOCAL_IP + "]", NetworkHelper.getDeviceIpAddress());
         } catch (IpAddressNotFoundException e) {
             Logger.e(LOG_TAG, e.toString());
         }
 
         if (mContext != null) {
-            newParameters.put("event[" + Parameter.UUID + "]",
-                    getUUIDFromSharedPreferences(mContext));
+            parameters.put("event[" + Parameter.UUID + "]", getUUIDFromSharedPreferences(mContext));
 
             TelephonyManager telephonyManager = (TelephonyManager) mContext
-                    .getSystemService(mContext.TELEPHONY_SERVICE);
-            newParameters.put("event[" + Parameter.NETWORK_TYPE + "]", NetworkHelper
+                    .getSystemService(Context.TELEPHONY_SERVICE);
+            parameters.put("event[" + Parameter.NETWORK_TYPE + "]", NetworkHelper
                     .getNetworkType(telephonyManager));
-            newParameters.put("event[" + Parameter.NETWORK_OPERATOR + "]", telephonyManager
+            parameters.put("event[" + Parameter.NETWORK_OPERATOR + "]", telephonyManager
                     .getNetworkOperatorName());
         }
-
-        Logger.v(LOG_TAG, "-----------------------------------------------------------");
-
-        Logger.v(LOG_TAG, newParameters);
+        Logger.v(LOG_TAG, parameters);
         return parameters;
     }
 
