@@ -9,6 +9,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.artcom.y60.Logger;
+import com.artcom.y60.data.BadContentResolverUriException;
 import com.artcom.y60.data.StreamableContent;
 import com.artcom.y60.data.UnknownContentTypeException;
 import com.artcom.y60.http.AsyncHttpGet;
@@ -31,7 +32,7 @@ public abstract class ReceiveEvent extends HocEvent {
                 onPossibleDownloadsAvailable(possible_pieces);
             }
         }
-        
+
         super.updateStatusFromJson(status);
     }
 
@@ -80,6 +81,10 @@ public abstract class ReceiveEvent extends HocEvent {
                 } catch (IOException e) {
                     Logger.e(LOG_TAG, e);
                 } catch (UnknownContentTypeException e) {
+                    Logger.e(LOG_TAG, e);
+                } catch (IllegalStateException e) {
+                    Logger.e(LOG_TAG, e);
+                } catch (BadContentResolverUriException e) {
                     Logger.e(LOG_TAG, e);
                 }
             }
