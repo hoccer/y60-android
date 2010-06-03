@@ -11,12 +11,6 @@ import org.mortbay.jetty.bio.SocketConnector;
 import org.mortbay.jetty.handler.HandlerCollection;
 import org.mortbay.thread.QueuedThreadPool;
 
-import android.app.ActivityManager;
-import android.app.ActivityManager.MemoryInfo;
-import android.content.Intent;
-import android.os.Binder;
-import android.os.IBinder;
-
 import com.artcom.y60.Constants;
 import com.artcom.y60.DeviceConfiguration;
 import com.artcom.y60.ErrorHandling;
@@ -27,6 +21,12 @@ import com.artcom.y60.Y60Action;
 import com.artcom.y60.Y60Service;
 import com.artcom.y60.gom.GomHttpWrapper;
 import com.artcom.y60.http.HttpException;
+
+import android.app.ActivityManager;
+import android.app.ActivityManager.MemoryInfo;
+import android.content.Intent;
+import android.os.Binder;
+import android.os.IBinder;
 
 public class DeviceControllerService extends Y60Service {
 
@@ -53,7 +53,7 @@ public class DeviceControllerService extends Y60Service {
         }
 
         try {
-            updateIpAdressAttributesForDevice();
+            updateGomAttributesForDevice();
             updateVersionAttributeForDevice();
         } catch (IOException e) {
             ErrorHandling.signalIOError(LOG_TAG, e, this);
@@ -81,7 +81,7 @@ public class DeviceControllerService extends Y60Service {
         // do not kill me upon shutdown services bc
     }
 
-    private void updateIpAdressAttributesForDevice() throws IOException, HttpException {
+    private void updateGomAttributesForDevice() throws IOException, HttpException {
 
         Logger.v(LOG_TAG, "updateGomAttributes for Device");
         String ipAddress = "";
@@ -105,20 +105,22 @@ public class DeviceControllerService extends Y60Service {
             Logger.v(LOG_TAG, "command_uri of local device controller is ", command_uri);
             GomHttpWrapper.updateOrCreateAttribute(deviceUri + ":rci_uri", command_uri);
 
-            if (!GomHttpWrapper.isAttributeExisting(Constants.Gom.URI + Constants.Gom.DEVICE_PATH
-                    + ":enable_odp")) {
-                GomHttpWrapper.updateOrCreateAttribute(Constants.Gom.URI
-                        + Constants.Gom.DEVICE_PATH + ":enable_odp", "false");
-            }
-
-            if (!GomHttpWrapper.isAttributeExisting(Constants.Gom.URI
-                    + Constants.Gom.DEBUG_MODE_ATTR)) {
-                GomHttpWrapper.updateOrCreateAttribute(Constants.Gom.URI
-                        + Constants.Gom.DEBUG_MODE_ATTR, "false");
-            }
+            createAttributeIfNotExistentWith(Constants.Gom.URI + Constants.Gom.ENABLE_ODP_ATTR,
+                    "false");
+            createAttributeIfNotExistentWith(Constants.Gom.URI + Constants.Gom.ENABLE_ODP_AGC_ATTR,
+                    "false");
+            createAttributeIfNotExistentWith(Constants.Gom.URI + Constants.Gom.DEBUG_MODE_ATTR,
+                    "false");
 
         } catch (IpAddressNotFoundException e) {
             ErrorHandling.signalNetworkError(LOG_TAG, e, this);
+        }
+    }
+
+    private void createAttributeIfNotExistentWith(String attributeUri, String value)
+            throws HttpException, IOException {
+        if (!GomHttpWrapper.isAttributeExisting(attributeUri)) {
+            GomHttpWrapper.updateOrCreateAttribute(attributeUri, value);
         }
     }
 
