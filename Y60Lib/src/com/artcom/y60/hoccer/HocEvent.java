@@ -298,6 +298,7 @@ public abstract class HocEvent {
                 try {
                     mResourceLocation = mStatusFetcher.getUri();
                     updateStatusFromJson(new JSONObject(body.toString()));
+                    Logger.v(LOG_TAG, "¤ rtt: ", mStatusFetcher.getRtt());
                     launchNewPollingRequest();
                 } catch (JSONException e) {
                     getPeer().getErrorReporter().notify(LOG_TAG, e);

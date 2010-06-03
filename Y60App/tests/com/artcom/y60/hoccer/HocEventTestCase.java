@@ -179,6 +179,17 @@ public class HocEventTestCase extends TestCase {
         });
     }
 
+    protected void blockUntilEventIsSuccessful(final HocEventListenerForTesting eventCallback,
+            long timeout) throws Exception {
+        TestHelper.blockUntilTrue("event should be successful", timeout,
+                new TestHelper.Condition() {
+                    @Override
+                    public boolean isSatisfied() throws Exception {
+                        return eventCallback.wasSuccessful;
+                    }
+                });
+    }
+
     protected void blockUntilDataHasBeenUploaded(final ShareEvent shareEvent) throws Exception {
         TestHelper.blockUntilTrue("uploader request should have been created", 10000,
                 new TestHelper.Condition() {

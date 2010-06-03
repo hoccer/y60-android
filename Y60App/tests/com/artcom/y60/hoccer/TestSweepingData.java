@@ -172,7 +172,8 @@ public class TestSweepingData extends HocEventTestCase {
 
         content.releaseInputStream();
         blockUntilDataHasBeenUploaded(sweepOut);
-        assertTrue("event should now be successful", eventCallback.wasSuccessful);
+        blockUntilEventIsSuccessful(eventCallback, 1000);
+
     }
 
     public void testOnSuccessNotificationWhenDownloadIsDoneAndLinkEstablished() throws Exception {

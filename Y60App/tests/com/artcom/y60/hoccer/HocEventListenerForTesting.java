@@ -28,6 +28,7 @@ public class HocEventListenerForTesting implements HocEventListener {
 
     @Override
     public void onDataExchanged(HocEvent pHocEvent) {
+        Logger.v(LOG_TAG, "on data exchanged, ", pHocEvent);
         wasSuccessful = true;
     }
 
