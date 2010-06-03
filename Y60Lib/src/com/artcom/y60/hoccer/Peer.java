@@ -45,7 +45,7 @@ public class Peer {
         public static final String VERSION_SDK       = "version_sdk";
         public static final String LOCAL_IP          = "local_ip";
         public static final String TIMESTAMP         = "timestamp";
-        public static final String UUID              = "uuid";
+        public static final String CLIENT_UUID       = "client_uuid";
     }
 
     private static final String  LOG_TAG  = "Peer";
@@ -150,7 +150,8 @@ public class Peer {
         }
 
         if (mContext != null) {
-            parameters.put("event[" + Parameter.UUID + "]", getUUIDFromSharedPreferences(mContext));
+            parameters.put("event[" + Parameter.CLIENT_UUID + "]",
+                    getUUIDFromSharedPreferences(mContext));
 
             TelephonyManager telephonyManager = (TelephonyManager) mContext
                     .getSystemService(Context.TELEPHONY_SERVICE);
