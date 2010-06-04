@@ -133,6 +133,11 @@ public class Peer {
         parameters.put("event[" + Parameter.LOCATION_ACCURACY + "]", Double.toString(mHocLocation
                 .getAccuracy()));
         parameters.put("event[" + Parameter.BSSIDS + "]", getAccessPointSightings());
+        return parameters;
+    }
+
+    public Map<String, String> getEventDnaParameters() {
+        Map<String, String> parameters = new HashMap<String, String>();
 
         parameters.put("event[" + Parameter.BRAND + "]", Build.BRAND);
         parameters.put("event[" + Parameter.DEVICE + "]", Build.DEVICE);
@@ -158,7 +163,6 @@ public class Peer {
                 .getNetworkType(telephonyManager));
         parameters.put("event[" + Parameter.NETWORK_OPERATOR + "]", telephonyManager
                 .getNetworkOperatorName());
-        Logger.v(LOG_TAG, parameters);
         return parameters;
     }
 

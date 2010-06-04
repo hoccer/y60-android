@@ -67,7 +67,11 @@ public abstract class HocEvent {
         eventCreation.setAcceptedMimeType("application/json");
 
         Map<String, String> parameters = getEventParameters();
+
+        parameters.putAll(mPeer.getEventDnaParameters());
         parameters.putAll(mPeer.getEventParameters());
+        Logger.v(LOG_TAG, "¤ ", parameters);
+
         eventCreation.setBody(parameters);
         eventCreation.registerResponseHandler(createResponseHandler());
         eventCreation.setUncaughtExceptionHandler(getPeer().getErrorReporter());
