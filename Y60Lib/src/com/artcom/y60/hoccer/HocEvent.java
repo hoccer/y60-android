@@ -72,8 +72,11 @@ public abstract class HocEvent {
         eventCreation.registerResponseHandler(createResponseHandler());
         eventCreation.setUncaughtExceptionHandler(getPeer().getErrorReporter());
 
-        eventCreation.start();
         mStatusFetcher = eventCreation;
+        Logger.v(LOG_TAG, "¤ ", mStatusFetcher.getRequestHeaders(), " http request is: ",
+                mStatusFetcher.getClass());
+
+        eventCreation.start();
     }
 
     protected Peer getPeer() {
@@ -298,7 +301,8 @@ public abstract class HocEvent {
                 try {
                     mResourceLocation = mStatusFetcher.getUri();
                     updateStatusFromJson(new JSONObject(body.toString()));
-                    Logger.v(LOG_TAG, "¤ rtt: ", mStatusFetcher.getRtt());
+                    Logger.v(LOG_TAG, "¤ rtt: ", mStatusFetcher.getRtt(), " http request is: ",
+                            mStatusFetcher.getClass());
                     launchNewPollingRequest();
                 } catch (JSONException e) {
                     getPeer().getErrorReporter().notify(LOG_TAG, e);
@@ -331,10 +335,15 @@ public abstract class HocEvent {
                     }
                 }
                 // mStatusPollingDelay += mStatusPollingDelay;
+                long tmpRtt = mStatusFetcher.getRtt();
                 mStatusFetcher = new AsyncHttpGet(mStatusFetcher.getUri());
+                mStatusFetcher.addAdditionalHeaderParam("x-rtt", String.valueOf(tmpRtt));
+                mStatusFetcher.addAdditionalHeaderParam("x-client_uuid", mPeer.getClientUuid());
                 mStatusFetcher.registerResponseHandler(this);
                 mStatusFetcher.setUncaughtExceptionHandler(getPeer().getErrorReporter());
 
+                Logger.v(LOG_TAG, "¤ ", mStatusFetcher.getRequestHeaders(), " http request is: ",
+                        mStatusFetcher.getClass());
                 mStatusFetcher.start();
             }
 

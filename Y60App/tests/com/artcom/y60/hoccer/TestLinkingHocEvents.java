@@ -42,9 +42,10 @@ public class TestLinkingHocEvents extends HocEventTestCase {
     }
 
     public void testNotLinkingWhenLocationsDeffere() throws Exception {
-        Peer sendingPeer = new Peer("Y60/Hoccer Unit Test on Android", getPeer().getRemoteServer());
+        Peer sendingPeer = new Peer("Y60/Hoccer Unit Test on Android", getPeer().getRemoteServer(),
+                getContext());
         Peer receivingPeer = new Peer("Y60/Hoccer Unit Test on Android", getPeer()
-                .getRemoteServer());
+                .getRemoteServer(), getContext());
 
         HocLocation sendingLocation = getUniqueGpsLocation();
         sendingPeer.setLocation(sendingLocation);
@@ -63,9 +64,10 @@ public class TestLinkingHocEvents extends HocEventTestCase {
     }
 
     public void testLinkingThroughBssids() throws Exception {
-        Peer sendingPeer = new Peer("Y60/Hoccer Unit Test on Android", getPeer().getRemoteServer());
+        Peer sendingPeer = new Peer("Y60/Hoccer Unit Test on Android", getPeer().getRemoteServer(),
+                getContext());
         Peer receivingPeer = new Peer("Y60/Hoccer Unit Test on Android", getPeer()
-                .getRemoteServer());
+                .getRemoteServer(), getContext());
 
         ArrayList<AccessPointSighting> bssidsOfSender = new ArrayList<AccessPointSighting>();
         bssidsOfSender.add(new AccessPointSighting("00:22:3f:2e:33:e8", 3));
@@ -96,9 +98,10 @@ public class TestLinkingHocEvents extends HocEventTestCase {
     }
 
     public void testLinkingViaAccuracyWhenLocationsDeffereSlightly() throws Exception {
-        Peer sendingPeer = new Peer("Y60/Hoccer Unit Test on Android", getPeer().getRemoteServer());
+        Peer sendingPeer = new Peer("Y60/Hoccer Unit Test on Android", getPeer().getRemoteServer(),
+                getContext());
         Peer receivingPeer = new Peer("Y60/Hoccer Unit Test on Android", getPeer()
-                .getRemoteServer());
+                .getRemoteServer(), getContext());
 
         HocLocation sendingLocation = getUniqueGpsLocation();
         sendingPeer.setLocation(sendingLocation);

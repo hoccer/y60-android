@@ -4,18 +4,17 @@ import java.io.ByteArrayInputStream;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 
-import junit.framework.TestCase;
-
 import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
 
 import android.location.Location;
 import android.net.wifi.ScanResult;
+import android.test.AndroidTestCase;
 
 import com.artcom.y60.Logger;
 import com.artcom.y60.TestHelper;
 import com.artcom.y60.http.AsyncHttpRequestWithBody;
 
-public class HocEventTestCase extends TestCase {
+public class HocEventTestCase extends AndroidTestCase {
 
     private static String      LOG_TAG   = "HocEventTestCase";
     private static HocLocation mLocation = null;
@@ -36,7 +35,7 @@ public class HocEventTestCase extends TestCase {
 
     @Override
     public void setUp() {
-        mPeer = new Peer("Y60/Hoccer Unit Test on Android", "http://beta.hoccer.com");
+        mPeer = new Peer("Y60/Hoccer Unit Test on Android", "http://beta.hoccer.com", getContext());
         mPeer.setLocation(getUniqueGpsLocation());
     }
 

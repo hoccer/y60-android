@@ -46,6 +46,7 @@ public class Peer {
         public static final String LOCAL_IP          = "local_ip";
         public static final String TIMESTAMP         = "timestamp";
         public static final String CLIENT_UUID       = "client_uuid";
+        public static final String HOCCABILITY       = "hoccability";
     }
 
     private static final String  LOG_TAG  = "Peer";
@@ -56,8 +57,11 @@ public class Peer {
     private ErrorReporter        mErrorReporter;
     private DataContainerFactory mDataContainerFactory;
     private Context              mContext = null;
+    private String               mClientUuid;
 
-    public Peer(String clientName, String remoteServer) {
+    public Peer(String clientName, String remoteServer, Context context) {
+        mContext = context;
+        mClientUuid = getUUIDFromSharedPreferences();
         mRemoteServer = remoteServer;
         BasicHttpParams httpParams = new BasicHttpParams();
         HttpConnectionParams.setConnectionTimeout(httpParams, 3000);
@@ -120,10 +124,6 @@ public class Peer {
         return mHttpClient;
     }
 
-    public void setContextForMeaningfulParams(Context context) {
-        mContext = context;
-    }
-
     public Map<String, String> getEventParameters() {
         Map<String, String> parameters = new HashMap<String, String>();
         parameters.put("event[" + Parameter.LATITUDE + "]", Double.toString(mHocLocation
@@ -149,17 +149,15 @@ public class Peer {
             Logger.e(LOG_TAG, e.toString());
         }
 
-        if (mContext != null) {
-            parameters.put("event[" + Parameter.CLIENT_UUID + "]",
-                    getUUIDFromSharedPreferences(mContext));
-
-            TelephonyManager telephonyManager = (TelephonyManager) mContext
-                    .getSystemService(Context.TELEPHONY_SERVICE);
-            parameters.put("event[" + Parameter.NETWORK_TYPE + "]", NetworkHelper
-                    .getNetworkType(telephonyManager));
-            parameters.put("event[" + Parameter.NETWORK_OPERATOR + "]", telephonyManager
-                    .getNetworkOperatorName());
-        }
+        parameters.put("event[" + Parameter.HOCCABILITY + "]", String.valueOf(mHocLocation
+                .getHoccability()));
+        parameters.put("event[" + Parameter.CLIENT_UUID + "]", getClientUuid());
+        TelephonyManager telephonyManager = (TelephonyManager) mContext
+                .getSystemService(Context.TELEPHONY_SERVICE);
+        parameters.put("event[" + Parameter.NETWORK_TYPE + "]", NetworkHelper
+                .getNetworkType(telephonyManager));
+        parameters.put("event[" + Parameter.NETWORK_OPERATOR + "]", telephonyManager
+                .getNetworkOperatorName());
         Logger.v(LOG_TAG, parameters);
         return parameters;
     }
@@ -183,8 +181,8 @@ public class Peer {
         return mRemoteServer;
     }
 
-    private String getUUIDFromSharedPreferences(Context pContext) {
-        SharedPreferences prefs = pContext.getSharedPreferences("hoccer", Context.MODE_PRIVATE);
+    private String getUUIDFromSharedPreferences() {
+        SharedPreferences prefs = mContext.getSharedPreferences("hoccer", Context.MODE_PRIVATE);
 
         String tmpUUID = UUID.randomUUID().toString();
         String storedUUID = prefs.getString("uuid", tmpUUID);
@@ -195,5 +193,9 @@ public class Peer {
             editor.commit();
         }
         return storedUUID;
+    }
+
+    public String getClientUuid() {
+        return mClientUuid;
     }
 }
