@@ -341,8 +341,8 @@ public abstract class HocEvent {
                 // mStatusPollingDelay += mStatusPollingDelay;
                 long tmpRtt = mStatusFetcher.getRtt();
                 mStatusFetcher = new AsyncHttpGet(mStatusFetcher.getUri(), mPeer.getHttpClient());
-                mStatusFetcher.addAdditionalHeaderParam("x-rtt", String.valueOf(tmpRtt));
-                mStatusFetcher.addAdditionalHeaderParam("x-client_uuid", mPeer.getClientUuid());
+                mStatusFetcher.addAdditionalHeaderParam("X-Rtt", String.valueOf(tmpRtt));
+                mStatusFetcher.addAdditionalHeaderParam("X-Client-Uuid", mPeer.getClientUuid());
                 mStatusFetcher.registerResponseHandler(this);
                 mStatusFetcher.setUncaughtExceptionHandler(getPeer().getErrorReporter());
 
