@@ -105,7 +105,6 @@ public class Peer {
 
     public void setLocation(HocLocation pLocation) {
         mHocLocation = pLocation;
-        Logger.v(LOG_TAG, "new hoc location is", mHocLocation);
     }
 
     public void setDataContainerFactory(DataContainerFactory pDataContainerFactory) {
@@ -189,11 +188,11 @@ public class Peer {
         SharedPreferences prefs = mContext.getSharedPreferences("hoccer", Context.MODE_PRIVATE);
 
         String tmpUUID = UUID.randomUUID().toString();
-        String storedUUID = prefs.getString("uuid", tmpUUID);
+        String storedUUID = prefs.getString(Parameter.CLIENT_UUID, tmpUUID);
 
         if (tmpUUID.equals(storedUUID)) {
             SharedPreferences.Editor editor = prefs.edit();
-            editor.putString("uuid", tmpUUID);
+            editor.putString(Parameter.CLIENT_UUID, tmpUUID);
             editor.commit();
         }
         return storedUUID;
