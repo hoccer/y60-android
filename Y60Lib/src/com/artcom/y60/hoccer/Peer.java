@@ -29,7 +29,7 @@ import com.artcom.y60.data.DefaultDataContainerFactory;
 import com.artcom.y60.data.StreamableContent;
 import com.artcom.y60.error.ErrorReporter;
 
-public class Peer {
+public abstract class Peer {
 
     public static class Parameter {
         public static final String LATITUDE          = "latitude";
@@ -58,6 +58,14 @@ public class Peer {
     private DataContainerFactory mDataContainerFactory;
     private Context              mContext = null;
     private String               mClientUuid;
+
+    public static Peer getPeer(String clientName, String remoteServer, Context context) {
+        if (Integer.parseInt(Build.VERSION.SDK) <= Build.VERSION_CODES.CUPCAKE) {
+            return new Peer10(clientName, remoteServer, context);
+        } else {
+            return new Peer16(clientName, remoteServer, context);
+        }
+    }
 
     public Peer(String clientName, String remoteServer, Context context) {
         mContext = context;
@@ -161,14 +169,14 @@ public class Peer {
         parameters.put("event[" + Parameter.NETWORK_OPERATOR + "]", telephonyManager
                 .getNetworkOperatorName());
 
-        if (Integer.parseInt(Build.VERSION.SDK) < Build.VERSION_CODES.ECLAIR) {
-            parameters.put("event[" + Parameter.VERSION_SDK + "]", String
-                    .valueOf(Build.VERSION.SDK));
-        } else {
-            // parameters.put("event[" + Parameter.MANUFACTURER + "]", Build.MANUFACTURER);
-            // parameters.put("event[" + Parameter.VERSION_SDK + "]", String
-            // .valueOf(Build.VERSION.SDK_INT));
-        }
+        // if (Integer.parseInt(Build.VERSION.SDK) < Build.VERSION_CODES.ECLAIR) {
+        // parameters.put("event[" + Parameter.VERSION_SDK + "]", String
+        // .valueOf(Build.VERSION.SDK));
+        // } else {
+        // // parameters.put("event[" + Parameter.MANUFACTURER + "]", Build.MANUFACTURER);
+        // // parameters.put("event[" + Parameter.VERSION_SDK + "]", String
+        // // .valueOf(Build.VERSION.SDK_INT));
+        // }
 
         return parameters;
     }
