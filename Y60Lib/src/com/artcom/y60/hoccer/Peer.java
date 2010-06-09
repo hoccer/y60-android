@@ -141,10 +141,7 @@ public class Peer {
 
         parameters.put("event[" + Parameter.BRAND + "]", Build.BRAND);
         parameters.put("event[" + Parameter.DEVICE + "]", Build.DEVICE);
-        parameters.put("event[" + Parameter.MANUFACTURER + "]", Build.MANUFACTURER);
         parameters.put("event[" + Parameter.MODEL + "]", Build.MODEL);
-        parameters.put("event[" + Parameter.VERSION_SDK + "]", String
-                .valueOf(Build.VERSION.SDK_INT));
         parameters.put("event[" + Parameter.TIMESTAMP + "]", String.valueOf(System
                 .currentTimeMillis()));
 
@@ -163,6 +160,16 @@ public class Peer {
                 .getNetworkType(telephonyManager));
         parameters.put("event[" + Parameter.NETWORK_OPERATOR + "]", telephonyManager
                 .getNetworkOperatorName());
+
+        if (Integer.parseInt(Build.VERSION.SDK) < Build.VERSION_CODES.ECLAIR) {
+            parameters.put("event[" + Parameter.VERSION_SDK + "]", String
+                    .valueOf(Build.VERSION.SDK));
+        } else {
+            // parameters.put("event[" + Parameter.MANUFACTURER + "]", Build.MANUFACTURER);
+            // parameters.put("event[" + Parameter.VERSION_SDK + "]", String
+            // .valueOf(Build.VERSION.SDK_INT));
+        }
+
         return parameters;
     }
 
