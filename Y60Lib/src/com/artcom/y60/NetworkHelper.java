@@ -163,5 +163,4 @@ public class NetworkHelper {
 
         throw new IpAddressNotFoundException("could not retive a valid ip address");
     }
-
 }
