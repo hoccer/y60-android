@@ -1,6 +1,7 @@
 package com.artcom.y60;
 
 import java.util.HashMap;
+import java.util.Set;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -27,6 +28,9 @@ public class DeviceReporter extends BroadcastReceiver {
     public static final String  VERSION_RELEASE_1            = "release";
     public static final String  VERSION_SDK_1                = "sdk";
     public static final String  FINGERPRINT_1                = "fingerprint";
+    public static final String  TELEPHONY_NETWORK_TYPE_1     = "network_type";
+    public static final String  LOCAL_IP_1                   = "local_ip";
+    public static final String  TELEPHONY_NETWORK_OPERATOR_1 = "network_operator";
 
     public static final String  DISPLAY_3                    = "display";
 
@@ -34,10 +38,6 @@ public class DeviceReporter extends BroadcastReceiver {
     public static final String  MANUFACTURER_4               = "manufacturer";
     public static final String  VERSION_CODENAME_4           = "codename";
     public static final String  VERSION_SDK_INT_4            = "sdk_int";
-
-    public static final String  TELEPHONY_NETWORK_TYPE_1     = "network_type";
-    public static final String  LOCAL_IP_1                   = "local_ip";
-    public static final String  TELEPHONY_NETWORK_OPERATOR_1 = "network_operator";
 
     public static final String  CPU_ABI_8                    = "cpu abi 2";
     public static final String  HARDWARE_8                   = "hardware";
@@ -50,13 +50,26 @@ public class DeviceReporter extends BroadcastReceiver {
         TelephonyManager telephonyManager = (TelephonyManager) context
                 .getSystemService(Context.TELEPHONY_SERVICE);
 
-        if (Integer.parseInt(Build.VERSION.SDK) < Build.VERSION_CODES.ECLAIR) {
+        DeviceReporterCollector deviceReporterCollector = null;
+
+        if (Integer.parseInt(Build.VERSION.SDK) < Build.VERSION_CODES.CUPCAKE) {
+            deviceReporterCollector = new DeviceReporterCollector(telephonyManager);
+
+        } else if (Integer.parseInt(Build.VERSION.SDK) < Build.VERSION_CODES.DONUT) {
+            deviceReporterCollector = new DeviceReporterCollector15(telephonyManager);
+
         } else {
+            deviceReporterCollector = new DeviceReporterCollector16(telephonyManager);
         }
 
+        HashMap<String, String> deviceInfos = deviceReporterCollector.collectInformation();
+        Set<String> keys = deviceInfos.keySet();
+        for (String key : keys) {
+            Logger.v(LOG_TAG, key, deviceInfos.get(key));
+        }
     }
 
-    public abstract class DeviceReporterCollector {
+    public class DeviceReporterCollector {
 
         private TelephonyManager mTelephonyManager;
 
@@ -95,7 +108,7 @@ public class DeviceReporter extends BroadcastReceiver {
         }
     }
 
-    public abstract class DeviceReporterCollector15 extends DeviceReporterCollector {
+    public class DeviceReporterCollector15 extends DeviceReporterCollector {
         public DeviceReporterCollector15(TelephonyManager telephonyManager) {
             super(telephonyManager);
         }
@@ -107,7 +120,7 @@ public class DeviceReporter extends BroadcastReceiver {
         }
     }
 
-    public abstract class DeviceReporterCollector16 extends DeviceReporterCollector15 {
+    public class DeviceReporterCollector16 extends DeviceReporterCollector15 {
         public DeviceReporterCollector16(TelephonyManager telephonyManager) {
             super(telephonyManager);
         }
