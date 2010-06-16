@@ -11,6 +11,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.artcom.y60.BindingListener;
+import com.artcom.y60.ErrorHandling;
+import com.artcom.y60.IoHelper;
+import com.artcom.y60.Logger;
+import com.artcom.y60.RpcStatus;
+
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
@@ -24,12 +30,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
-
-import com.artcom.y60.BindingListener;
-import com.artcom.y60.ErrorHandling;
-import com.artcom.y60.IoHelper;
-import com.artcom.y60.Logger;
-import com.artcom.y60.RpcStatus;
 
 /**
  * Helper class for activities which encapsulates the interaction with the HttpProxyService,
@@ -130,7 +130,7 @@ public class HttpProxyHelper {
     }
 
     public void requestDownload(Uri pUri) {
-        requestResourceWhichIsDeprecated(pUri);
+        requestResource(pUri.toString());
     }
 
     public String getDataSyncronously(Uri pUri) {
@@ -177,7 +177,7 @@ public class HttpProxyHelper {
     }
 
     public boolean isInCache(String pUri) {
-
+        Logger.v(LOG_TAG, "before: isInCache");
         boolean isInCache;
         RpcStatus status = new RpcStatus();
         try {
@@ -191,6 +191,7 @@ public class HttpProxyHelper {
             throw new RuntimeException(status.getError());
         }
 
+        Logger.v(LOG_TAG, "after: isInCache");
         return isInCache;
     }
 
@@ -311,18 +312,30 @@ public class HttpProxyHelper {
         return numberOfEntries;
     }
 
-    public void addResourceChangeListener(final Uri pUri, final ResourceListener pListener) {
+    public void addResourceChangeListenerAndReport(final Uri pUri, final ResourceListener pListener) {
         Set<ResourceListener> listeners = getOrCreateListenersFor(pUri);
         synchronized (listeners) {
             listeners.add(pListener);
         }
+
         if (isInCache(pUri.toString())) {
             new Thread() {
                 @Override
                 public void run() {
+                    Logger.v(LOG_TAG, "Uri: ", pUri,
+                            " is in cache, calling: onResourceAvailable on: ", pListener);
                     pListener.onResourceAvailable(pUri);
                 }
             }.start();
+        } else {
+            Logger.v(LOG_TAG, "Uri: ", pUri, " is NOT in cache, do nothing");
+        }
+    }
+
+    public void addResourceChangeListener(final Uri pUri, final ResourceListener pListener) {
+        Set<ResourceListener> listeners = getOrCreateListenersFor(pUri);
+        synchronized (listeners) {
+            listeners.add(pListener);
         }
     }
 
@@ -370,7 +383,7 @@ public class HttpProxyHelper {
         public void onReceive(Context pCtx, Intent pIntent) {
             synchronized (mUpdateNotificationQueue) {
                 String uri = pIntent.getStringExtra(HttpProxyConstants.URI_EXTRA);
-                // Logger.v(logTag(), "received update broadcast for uri ", uri);
+                Logger.v(logTag(), "received update broadcast for uri ", uri);
                 mUpdateNotificationQueue.add(Uri.parse(uri));
             }
         }
@@ -403,12 +416,14 @@ public class HttpProxyHelper {
                 // that the broadcast receiver gets blocked when
                 // adding new URIs
                 if (updatedUri != null) {
-                    // Logger.v(logTag(), "registered listeners: ", mListeners.keySet());
-                    // Logger.v(logTag(), "updating listeners for uri ", updatedUri);
+                    Logger.v(logTag(), "registered listeners: ", mListeners.keySet());
+                    Logger.v(logTag(), "updating listeners for uri ", updatedUri);
+
                     Set<ResourceListener> listeners = getListenersFor(updatedUri);
                     if (listeners != null) {
                         synchronized (listeners) {
                             for (ResourceListener listener : listeners) {
+                                Logger.v(logTag(), "updating listener: ", listener);
                                 listener.onResourceAvailable(Uri.parse(updatedUri.toString()));
                             }
                         }
