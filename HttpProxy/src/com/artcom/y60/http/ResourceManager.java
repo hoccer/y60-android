@@ -48,7 +48,6 @@ public class ResourceManager {
             if (!mPendingResources.contains(pUri)) {
                 mPendingResources.add(pUri);
             }
-            Logger.v(LOG_TAG, "pending resources: ", mPendingResources.size());
         }
     }
 

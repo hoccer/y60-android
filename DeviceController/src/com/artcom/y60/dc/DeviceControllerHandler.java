@@ -15,14 +15,14 @@ import org.mortbay.jetty.handler.DefaultHandler;
 import org.mortbay.util.MultiMap;
 import org.mortbay.util.UrlEncoded;
 
-import android.app.Service;
-import android.content.Intent;
-
 import com.artcom.y60.Constants;
 import com.artcom.y60.ErrorHandling;
 import com.artcom.y60.IntentExtraKeys;
 import com.artcom.y60.Logger;
 import com.artcom.y60.Y60Action;
+
+import android.app.Service;
+import android.content.Intent;
 
 public class DeviceControllerHandler extends DefaultHandler {
 
@@ -58,9 +58,6 @@ public class DeviceControllerHandler extends DefaultHandler {
             String path = pRequest.getPathInfo();
 
             Logger.v(LOG_TAG, "Incoming HTTP request________");
-            Logger.v(LOG_TAG, "Method...", method);
-            Logger.v(LOG_TAG, "Path.....", path);
-            Logger.v(LOG_TAG, "Target...", pTarget);
 
             if ("POST".equals(method) && RCA_TARGET.equals(pTarget)) {
 
@@ -168,14 +165,12 @@ public class DeviceControllerHandler extends DefaultHandler {
     private void handleGomNotification(HttpServletRequest pRequest) throws IOException,
             HandlerException {
 
-        Logger.d(LOG_TAG, "handling GOM notification");
-
         String content = extractContent(pRequest);
 
         try {
             JSONObject notification = new JSONObject(content);
 
-            Logger.v(LOG_TAG, "JSON path of notification: ", notification.get("uri"));
+            Logger.v(LOG_TAG, "JSON path of gom notification: ", notification.get("uri"));
 
             Intent gnpIntent = new Intent(Y60Action.GOM_NOTIFICATION_BC);
 
@@ -208,7 +203,6 @@ public class DeviceControllerHandler extends DefaultHandler {
 
             Logger.v(LOG_TAG, "notification operation: ", operation.toUpperCase(), " and data: ",
                     data);
-            Logger.v(LOG_TAG, "sending Broadcast with intent: ", gnpIntent);
             mService.sendBroadcast(gnpIntent);
 
         } catch (JSONException jsx) {

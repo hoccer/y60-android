@@ -88,6 +88,15 @@
             </intent-filter>
         </activity>
         
+        
+    <receiver
+          android:name="com.artcom.y60.DeviceReporter">
+            <intent-filter >
+            <action android:name="com.artcom.y60.logDeviceInfo" />
+            </intent-filter>          
+       </receiver>
+
+        
         <uses-library android:name="android.test.runner" />
         
     </application>
