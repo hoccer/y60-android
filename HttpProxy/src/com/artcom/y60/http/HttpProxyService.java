@@ -5,14 +5,6 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
-import android.os.Bundle;
-import android.os.IBinder;
-import android.os.RemoteException;
-
 import com.artcom.y60.ErrorHandling;
 import com.artcom.y60.IoHelper;
 import com.artcom.y60.Logger;
@@ -20,6 +12,14 @@ import com.artcom.y60.ResourceDownloadHelper;
 import com.artcom.y60.RpcStatus;
 import com.artcom.y60.Y60Action;
 import com.artcom.y60.Y60Service;
+
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.os.Bundle;
+import android.os.IBinder;
+import android.os.RemoteException;
 
 /**
  * Implementation of client-side caching for HTTP resources.
@@ -102,13 +102,18 @@ public class HttpProxyService extends Y60Service {
             public void run() {
                 Logger.v(LOG_TAG, "refreshing (", pUri, ")");
                 Bundle oldContent;
+
                 synchronized (mCachedContent) {
+                    Logger.v(LOG_TAG, "in synchriized");
                     oldContent = mCachedContent.get(pUri);
                 }
+                Logger.v(LOG_TAG, "out of synchriized");
                 Bundle newContent = null;
                 try {
+                    Logger.v(LOG_TAG, "get new content...");
                     newContent = ResourceDownloadHelper.downloadAndCreateResourceBundle(CACHE_DIR,
                             pUri);
+                    Logger.v(LOG_TAG, "got new content...");
                 } catch (Exception e) {
                     ErrorHandling.signalHttpError(LOG_TAG, e, HttpProxyService.this);
                     sendResourceNotAvailableBc(pUri);

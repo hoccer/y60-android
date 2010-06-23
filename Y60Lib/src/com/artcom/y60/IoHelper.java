@@ -2,6 +2,7 @@ package com.artcom.y60;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -19,12 +20,12 @@ import java.util.List;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import com.artcom.y60.http.HttpProxyConstants;
+
 import android.app.ActivityManager;
 import android.app.ActivityManager.RunningServiceInfo;
 import android.content.Context;
 import android.os.Bundle;
-
-import com.artcom.y60.http.HttpProxyConstants;
 
 public class IoHelper {
     private static final String LOG_TAG = "IoHelper";
@@ -346,4 +347,16 @@ public class IoHelper {
         return am.getRunningServices(100);
     }
 
+    public static void writeByteArrayToFile(byte[] arrayTmp, String localResourcePath)
+            throws IOException {
+
+        File file = new File(localResourcePath);
+        file.createNewFile();
+        DataOutputStream stream = new DataOutputStream(new FileOutputStream(file));
+        stream.write(arrayTmp);
+        stream.close();
+
+        // writeInputStreamToFile(bais, localResourcePath);
+
+    }
 }
