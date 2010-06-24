@@ -80,7 +80,7 @@ public class HocLocation extends Location {
 
         if (getAccuracy() < 200) {
             hoccability += 2;
-        } else if (getAccuracy() < 2000) {
+        } else if (getAccuracy() < 5000) {
             hoccability += 1;
         }
 
