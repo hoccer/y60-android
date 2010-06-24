@@ -36,6 +36,7 @@ public abstract class HocEvent {
     private String                            mResourceLocation;
 
     private boolean                           isAborted           = false;
+    private boolean                           isReady             = false;
 
     HocEvent(Peer peer) {
         mUuid = UUID.randomUUID();
@@ -189,13 +190,10 @@ public abstract class HocEvent {
 
     protected void updateStatusFromJson(JSONObject status) throws JSONException, IOException {
         Logger.v(LOG_TAG, "updating status to ", status);
-
-        if (status.has("state")) {
-            updateState(status.getString("state"));
-        }
         if (status.has("message")) {
             mMessage = status.getString("message");
         }
+
         if (status.has("expires")) {
             setRemainingLifetime(Double.parseDouble(status.getString("expires")));
         }
@@ -203,8 +201,16 @@ public abstract class HocEvent {
             setLinkedPeerCount(Integer.parseInt(status.getString("peers")));
         }
 
+        if (status.has("state")) {
+            updateState(status.getString("state"));
+        }
+
         // notify about new status infos
         synchronized (mCallbackList) {
+            if (isReady || isAborted) {
+                return;
+            }
+
             for (HocEventListener callback : mCallbackList) {
                 callback.onFeedback(mMessage);
             }
@@ -223,6 +229,7 @@ public abstract class HocEvent {
             return;
         }
 
+        isReady = true;
         stopPolling();
 
         Logger.v(LOG_TAG, ReflectionHelper.callingMethodName());
@@ -276,6 +283,7 @@ public abstract class HocEvent {
             return;
         }
 
+        isReady = true;
         synchronized (mCallbackList) {
             for (HocEventListener callback : mCallbackList) {
                 callback.onError(e);
