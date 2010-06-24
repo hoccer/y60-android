@@ -8,16 +8,20 @@ import com.artcom.y60.http.HttpHelper;
 import com.artcom.y60.http.HttpProxyConstants;
 import com.artcom.y60.http.HttpServerException;
 
-import android.net.Uri;
 import android.os.Bundle;
 
 public class ResourceDownloadHelper {
 
-    static final String LOG_TAG = ResourceDownloadHelper.class.getName();
+    static final String LOG_TAG = "ResourceDownloadHelper";
 
     public static Bundle downloadAndCreateResourceBundle(String pBasePath, String pUri)
             throws IOException, HttpClientException, HttpServerException {
+        Logger.v(LOG_TAG, "downloadAndCreateResourceBundle, getting size");
         long size = HttpHelper.getSize(pUri);
+        byte[] arrayTmp = HttpHelper.getAsByteArray(pUri);
+
+        Logger.v(LOG_TAG, "downloadAndCreateResourceBundle, got size: ", size, " byte size: ",
+                arrayTmp.length);
         Bundle newContent = new Bundle(2);
         newContent.putLong(HttpProxyConstants.SIZE_TAG, size);
 
@@ -25,13 +29,15 @@ public class ResourceDownloadHelper {
             String localResourcePath = pBasePath + UUID.randomUUID();
             Logger.v(LOG_TAG, "before writing to sdcard: ", localResourcePath);
             HttpHelper.fetchUriToFile(pUri, localResourcePath);
+            IoHelper.writeByteArrayToFile(arrayTmp, localResourcePath);
             newContent.putString(HttpProxyConstants.LOCAL_RESOURCE_PATH_TAG, localResourcePath);
             Logger.v(LOG_TAG, "after writing to sdcard: ", localResourcePath);
         } else {
-            byte[] array = HttpHelper.getAsByteArray(Uri.parse(pUri));
+            Logger.v(LOG_TAG, "downloading small content");
+            byte[] array = HttpHelper.getAsByteArray(pUri);
+            Logger.v(LOG_TAG, "downloaded small content");
             newContent.putByteArray(HttpProxyConstants.BYTE_ARRAY_TAG, array);
         }
         return newContent;
     }
-
 }
