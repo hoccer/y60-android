@@ -2,7 +2,6 @@ package com.artcom.y60;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
-import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -242,9 +241,13 @@ public class IoHelper {
             return resourceDescription.getByteArray(HttpProxyConstants.BYTE_ARRAY_TAG);
         }
 
+        return getByteArrayFromFile(resourcePath);
+    }
+
+    public static byte[] getByteArrayFromFile(String filepath) {
         byte[] buffer;
         try {
-            File file = new File(resourcePath);
+            File file = new File(filepath);
             FileInputStream stream = new FileInputStream(file);
             if (file.length() > Integer.MAX_VALUE) {
                 throw new RuntimeException("file '" + file + "' is to big");
@@ -256,7 +259,6 @@ public class IoHelper {
             e.printStackTrace();
             return null;
         }
-
         return buffer;
     }
 
@@ -347,16 +349,12 @@ public class IoHelper {
         return am.getRunningServices(100);
     }
 
-    public static void writeByteArrayToFile(byte[] arrayTmp, String localResourcePath)
-            throws IOException {
+    public static void writeByteArrayToFile(byte[] arrayTmp, String filepath) throws IOException {
 
-        File file = new File(localResourcePath);
-        file.createNewFile();
-        DataOutputStream stream = new DataOutputStream(new FileOutputStream(file));
-        stream.write(arrayTmp);
-        stream.close();
-
-        // writeInputStreamToFile(bais, localResourcePath);
+        FileOutputStream fos = new FileOutputStream(filepath);
+        fos.write(arrayTmp);
+        fos.close();
 
     }
+
 }
