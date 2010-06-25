@@ -71,15 +71,12 @@ public abstract class HocEvent {
 
         parameters.putAll(mPeer.getEventDnaParameters());
         parameters.putAll(mPeer.getEventParameters());
-        Logger.v(LOG_TAG, "¤ ", parameters);
 
         eventCreation.setBody(parameters);
         eventCreation.registerResponseHandler(createResponseHandler());
         eventCreation.setUncaughtExceptionHandler(getPeer().getErrorReporter());
 
         mStatusFetcher = eventCreation;
-        Logger.v(LOG_TAG, "¤ ", mStatusFetcher.getRequestHeaders(), " http request is: ",
-                mStatusFetcher.getClass());
 
         eventCreation.start();
     }
@@ -312,7 +309,7 @@ public abstract class HocEvent {
                     return;
                 try {
                     mResourceLocation = mStatusFetcher.getUri();
-                    Logger.v(LOG_TAG, "¤ rtt: ", mStatusFetcher.getRtt(), " http request is: ",
+                    Logger.v(LOG_TAG, "rtt: ", mStatusFetcher.getRtt(), " http request is: ",
                             mStatusFetcher.getClass());
                     updateStatusFromJson(new JSONObject(body.toString()));
                     launchNewPollingRequest();
@@ -354,7 +351,7 @@ public abstract class HocEvent {
                 mStatusFetcher.registerResponseHandler(this);
                 mStatusFetcher.setUncaughtExceptionHandler(getPeer().getErrorReporter());
 
-                Logger.v(LOG_TAG, "¤ ", mStatusFetcher.getRequestHeaders(), " http request is: ",
+                Logger.v(LOG_TAG, mStatusFetcher.getRequestHeaders(), " http request is: ",
                         mStatusFetcher.getClass());
                 mStatusFetcher.start();
             }

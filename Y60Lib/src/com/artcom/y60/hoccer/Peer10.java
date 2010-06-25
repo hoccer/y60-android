@@ -2,10 +2,10 @@ package com.artcom.y60.hoccer;
 
 import java.util.Map;
 
+import com.artcom.y60.Logger;
+
 import android.content.Context;
 import android.os.Build;
-
-import com.artcom.y60.Logger;
 
 public class Peer10 extends Peer {
 
@@ -13,7 +13,7 @@ public class Peer10 extends Peer {
 
     public Peer10(String clientName, String remoteServer, Context context) {
         super(clientName, remoteServer, context);
-        Logger.v(LOG_TAG, "¤ is created");
+        Logger.v(LOG_TAG, "is created");
     }
 
     public Map<String, String> getEventDnaParameters() {
