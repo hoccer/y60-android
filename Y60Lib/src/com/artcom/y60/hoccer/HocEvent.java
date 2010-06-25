@@ -79,6 +79,9 @@ public abstract class HocEvent {
         mStatusFetcher = eventCreation;
 
         eventCreation.start();
+
+        mMessage = "Connecting";
+        onFeedback();
     }
 
     protected Peer getPeer() {
@@ -203,11 +206,11 @@ public abstract class HocEvent {
         }
 
         // notify about new status infos
-        synchronized (mCallbackList) {
-            if (isReady || isAborted) {
-                return;
-            }
+        if (isReady || isAborted) {
+            return;
+        }
 
+        synchronized (mCallbackList) {
             for (HocEventListener callback : mCallbackList) {
                 callback.onFeedback(mMessage);
             }
@@ -328,8 +331,7 @@ public abstract class HocEvent {
 
             /**
              * Creates a new asyncHttpGet request which replaces the old one. This reponseHandler
-             * object is passed to the new request to enable fibonacci-based increasing of the delay
-             * between polling requesets
+             * object is passed to the new request to enable
              */
             private void launchNewPollingRequest() {
                 try {
