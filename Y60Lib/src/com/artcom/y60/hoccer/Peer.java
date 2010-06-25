@@ -16,11 +16,6 @@ import org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpConnectionParams;
 
-import android.content.Context;
-import android.content.SharedPreferences;
-import android.os.Build;
-import android.telephony.TelephonyManager;
-
 import com.artcom.y60.IpAddressNotFoundException;
 import com.artcom.y60.Logger;
 import com.artcom.y60.NetworkHelper;
@@ -28,6 +23,11 @@ import com.artcom.y60.data.DataContainerFactory;
 import com.artcom.y60.data.DefaultDataContainerFactory;
 import com.artcom.y60.data.StreamableContent;
 import com.artcom.y60.error.ErrorReporter;
+
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.os.Build;
+import android.telephony.TelephonyManager;
 
 public abstract class Peer {
 
@@ -167,15 +167,6 @@ public abstract class Peer {
                 .getNetworkType(telephonyManager));
         parameters.put("event[" + Parameter.NETWORK_OPERATOR + "]", telephonyManager
                 .getNetworkOperatorName());
-
-        // if (Integer.parseInt(Build.VERSION.SDK) < Build.VERSION_CODES.ECLAIR) {
-        // parameters.put("event[" + Parameter.VERSION_SDK + "]", String
-        // .valueOf(Build.VERSION.SDK));
-        // } else {
-        // // parameters.put("event[" + Parameter.MANUFACTURER + "]", Build.MANUFACTURER);
-        // // parameters.put("event[" + Parameter.VERSION_SDK + "]", String
-        // // .valueOf(Build.VERSION.SDK_INT));
-        // }
 
         return parameters;
     }
