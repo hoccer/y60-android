@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<classpath>
+<classpath xmlns:y60="urn:y60">
 	<classpathentry kind="src" path="src"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/Y60Lib"/>
 	<classpathentry kind="lib" path="libs/android.jar"/>
