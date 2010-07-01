@@ -15,6 +15,10 @@ public class ErrorReporter implements UncaughtExceptionHandler {
         mOriginalExceptionHandler = Thread.getDefaultUncaughtExceptionHandler();
     }
 
+    public static ErrorReporter getInstance() {
+        return (ErrorReporter) Thread.getDefaultUncaughtExceptionHandler();
+    }
+
     @Override
     public void uncaughtException(Thread pThread, Throwable e) {
         Logger.e(LOG_TAG, "There was an uncaught excepiton:" + e);
@@ -26,19 +30,19 @@ public class ErrorReporter implements UncaughtExceptionHandler {
         notify(e);
     }
 
-    public static void notify(Throwable e) {
+    public void notify(Throwable e) {
         notify("UnknownComponent", e);
     }
 
-    public static void notify(String component, Throwable e) {
+    public void notify(String component, Throwable e) {
         notify(component, Log.getStackTraceString(e));
     }
 
-    public static void notify(String component, String errorMessage) {
+    public void notify(String component, String errorMessage) {
         notify(component + ": " + errorMessage);
     }
 
-    public static void notify(String errorMessage) {
+    public void notify(String errorMessage) {
         Logger.e(LOG_TAG, errorMessage);
     }
 }
