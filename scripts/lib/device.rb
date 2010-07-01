@@ -20,6 +20,10 @@ class Device
     OS::execute "adb -s #{@id} shell #{cmd}", "executing on device"
   end
 
+  def adb params
+    OS::execute "adb -s #{@id} #{params}", "adb #{params}"
+  end
+
   def start activity
     execute "am start -a #{activity}"
   end
