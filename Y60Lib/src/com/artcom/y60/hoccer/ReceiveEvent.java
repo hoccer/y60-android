@@ -117,7 +117,7 @@ public abstract class ReceiveEvent extends HocEvent {
     }
 
     @Override
-    protected boolean wasSuccessful() {
+    public boolean wasSuccessful() {
         return super.wasSuccessful() && hasDataBeenDownloaded();
     }
 
