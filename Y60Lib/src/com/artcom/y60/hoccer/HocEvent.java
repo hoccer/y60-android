@@ -217,7 +217,7 @@ public abstract class HocEvent {
         }
     }
 
-    protected boolean wasSuccessful() {
+    public boolean wasSuccessful() {
         return isLinkEstablished();
     }
 

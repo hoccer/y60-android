@@ -43,7 +43,7 @@ public abstract class ShareEvent extends HocEvent {
     /**
      * @return true if link is ready and download has started 
      */
-    protected boolean wasSuccessful() {
+    public boolean wasSuccessful() {
         return super.wasSuccessful() && hasDataBeenUploaded();
     }
 

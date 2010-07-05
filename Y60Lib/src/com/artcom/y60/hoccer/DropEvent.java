@@ -40,7 +40,7 @@ public class DropEvent extends ShareEvent {
     /**
      * Slightly modified success method to stop polling before the drop event gets scruffy
      */
-    protected boolean wasSuccessful() {
+    public boolean wasSuccessful() {
         Logger.v(LOG_TAG, "checking if successful: ", mState, " ", hasDataBeenUploaded());
         return mState.equals("ready") && hasDataBeenUploaded();
     }
