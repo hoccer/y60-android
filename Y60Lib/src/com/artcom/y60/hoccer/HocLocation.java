@@ -12,6 +12,8 @@ import com.artcom.y60.data.ProblemDescriptor;
 
 public class HocLocation extends Location {
 
+    private static final String       LOG_TAG      = "HocLocation";
+
     private List<AccessPointSighting> mScanResults = null;
     private String                    mAddress;
 
@@ -116,30 +118,59 @@ public class HocLocation extends Location {
                                                                 };
 
     public HocLocationProblem getHocLocationProblem(ProblemDescriptor descriptor) {
-        if (getHoccability() > 1) {
-            return null;
-        }
 
         HocLocationProblem problem = new HocLocationProblem();
-        problem.setProblem(descriptor.getDescription("location_inaccurate"));
 
-        ArrayList<String> recoverySuggestions = new ArrayList<String>();
-        recoverySuggestions.add(descriptor.getDescription("location_improve_go_outside"));
-        if (mScanResults == null || mScanResults.size() == 0) {
-            recoverySuggestions.add(descriptor.getDescription("location_improve_turn_wifi_on"));
+        switch (0) {
+            case 0:
+                problem.setProblem(descriptor
+                        .getDescription(ProblemDescriptor.Problems.HOCCABILITY_BAD));
+
+                String suggestion = descriptor.getDescription(ProblemDescriptor.HOCCABILITY_INTRO)
+                        + " "
+                        + descriptor
+                                .getDescription(ProblemDescriptor.Suggestions.HOCCABILITY_GO_OUTSIDE)
+                        + " "
+                        + descriptor.getDescription(ProblemDescriptor.HOCCABILITY_HINT_JOIN)
+                        + " "
+                        + descriptor
+                                .getDescription(ProblemDescriptor.Suggestions.HOCCABILITY_TURN_WIFI_ON)
+                        + ".";
+
+                problem.setRecoverySuggestion(suggestion);
+                break;
+
+            case 1:
+
+                // if (mScanResults == null || mScanResults.size() == 0) {
+                // recoverySuggestions.add(descriptor
+                // .getDescription(ProblemDescriptor.HOCCABILITY_TURN_WIFI_ON));
+                // }
+                //                
+                // StringBuffer recoverySuggestion = new StringBuffer();
+                // recoverySuggestion.append(descriptor
+                // .getDescription(ProblemDescriptor.HOCCABILITY_INTRO));
+                // if (recoverySuggestions.size() > 0) {
+                // recoverySuggestion.append(recoverySuggestions.get(0));
+                // }
+                // if (recoverySuggestions.size() > 1) {
+                // recoverySuggestion.append(descriptor
+                // .getDescription(ProblemDescriptor.HOCCABILITY_HINT_JOIN)
+                // + recoverySuggestions.get(1));
+                // }
+
+                break;
+            case 2:
+
+                break;
+            case 3:
+
+                break;
+
+            default:
+                break;
         }
 
-        StringBuffer recoverySuggestion = new StringBuffer();
-        recoverySuggestion.append(descriptor.getDescription("location_intro"));
-        if (recoverySuggestions.size() > 0) {
-            recoverySuggestion.append(recoverySuggestions.get(0));
-        }
-        if (recoverySuggestions.size() > 1) {
-            recoverySuggestion.append(descriptor.getDescription("location_tip_join")
-                    + recoverySuggestions.get(1));
-        }
-
-        problem.setRecoverySuggestion(recoverySuggestion.toString());
         return problem;
     }
 
