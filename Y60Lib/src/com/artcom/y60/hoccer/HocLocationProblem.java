@@ -13,7 +13,7 @@ public class HocLocationProblem {
         mRecoverySuggestion = pRecoverySuggestion;
     }
 
-    public String getProblem() {
+    public String getDescription() {
         return mProblem;
     }
 

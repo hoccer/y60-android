@@ -8,11 +8,73 @@ import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Iterator;
 
+import android.telephony.TelephonyManager;
+
 import com.artcom.y60.gom.GomHttpWrapper;
 
 public class NetworkHelper {
 
     private static final String LOG_TAG = "NetworkHelper";
+
+    public static String getNetworkType(TelephonyManager telephonyManager) {
+
+        int networkTypeId = telephonyManager.getNetworkType();
+        String networkType = "";
+
+        switch (networkTypeId) {
+
+            case TelephonyManager.NETWORK_TYPE_EDGE:
+                networkType = "EDGE";
+                break;
+
+            case TelephonyManager.NETWORK_TYPE_GPRS:
+                networkType = "GPRS";
+                break;
+
+            case TelephonyManager.NETWORK_TYPE_1xRTT:
+                networkType = "1xRTT";
+                break;
+
+            case TelephonyManager.NETWORK_TYPE_CDMA:
+                networkType = "CDMA";
+                break;
+
+            case TelephonyManager.NETWORK_TYPE_EVDO_0:
+                networkType = "EVDO_0";
+                break;
+
+            case TelephonyManager.NETWORK_TYPE_EVDO_A:
+                networkType = "EVDO_A";
+                break;
+
+            case TelephonyManager.NETWORK_TYPE_HSDPA:
+                networkType = "HSDPA";
+                break;
+
+            case TelephonyManager.NETWORK_TYPE_HSPA:
+                networkType = "HSPA";
+                break;
+
+            case TelephonyManager.NETWORK_TYPE_HSUPA:
+                networkType = "HSPUA";
+                break;
+
+            case TelephonyManager.NETWORK_TYPE_UMTS:
+                networkType = "UMTS";
+                break;
+
+            case TelephonyManager.NETWORK_TYPE_UNKNOWN:
+                networkType = "UNKNOWN";
+                break;
+
+            default:
+                networkType = "UNKNOWN";
+                break;
+        }
+
+        return networkType;
+
+    }
 
     public static HashSet<InetAddress> getLocalIpAddresses() throws SocketException {
 
@@ -93,7 +155,6 @@ public class NetworkHelper {
         Iterator<InetAddress> itr = addresses.iterator();
         while (itr.hasNext()) {
             InetAddress addr = itr.next();
-            Logger.d(LOG_TAG, "address: ", addr.getHostAddress());
             String addrString = addr.getHostAddress();
             if (!addrString.equals("127.0.0.1")) {
                 return addrString;
@@ -102,5 +163,4 @@ public class NetworkHelper {
 
         throw new IpAddressNotFoundException("could not retive a valid ip address");
     }
-
 }

@@ -77,7 +77,7 @@ public class TestThreadedTask extends AndroidTestCase {
                     
                     @Override
                     public boolean isSatisfied() throws Exception {
-                        return mTask.isDone();
+                        return mTask.isTaskCompleted();
                     }
                 });
     }

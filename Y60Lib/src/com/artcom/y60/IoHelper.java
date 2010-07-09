@@ -93,6 +93,13 @@ public class IoHelper {
         fos.close();
     }
 
+    public static void writeStringToFile(String string, String filename) throws IOException {
+        File tmpFile = new File(filename);
+        FileOutputStream fos = new FileOutputStream(tmpFile);
+        fos.write(string.getBytes());
+        fos.close();
+    }
+
     public static void deleteDir(File file) {
         if (file.isDirectory()) {
             String[] children = file.list();
@@ -234,9 +241,13 @@ public class IoHelper {
             return resourceDescription.getByteArray(HttpProxyConstants.BYTE_ARRAY_TAG);
         }
 
+        return getByteArrayFromFile(resourcePath);
+    }
+
+    public static byte[] getByteArrayFromFile(String filepath) {
         byte[] buffer;
         try {
-            File file = new File(resourcePath);
+            File file = new File(filepath);
             FileInputStream stream = new FileInputStream(file);
             if (file.length() > Integer.MAX_VALUE) {
                 throw new RuntimeException("file '" + file + "' is to big");
@@ -248,7 +259,6 @@ public class IoHelper {
             e.printStackTrace();
             return null;
         }
-
         return buffer;
     }
 
@@ -337,6 +347,14 @@ public class IoHelper {
     public static List<RunningServiceInfo> getRunningServices(Context pContext) {
         ActivityManager am = (ActivityManager) pContext.getSystemService(pContext.ACTIVITY_SERVICE);
         return am.getRunningServices(100);
+    }
+
+    public static void writeByteArrayToFile(byte[] arrayTmp, String filepath) throws IOException {
+
+        FileOutputStream fos = new FileOutputStream(filepath);
+        fos.write(arrayTmp);
+        fos.close();
+
     }
 
 }

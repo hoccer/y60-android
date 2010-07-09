@@ -1,30 +1,46 @@
 package com.artcom.y60.hoccer;
 
+import com.artcom.y60.Logger;
+
 public class HocEventListenerForTesting implements HocEventListener {
-    
-    public boolean hadError;
-    public boolean wasSuccessful;
-    
+
+    private static final String LOG_TAG = "HocEventListenerForTesting";
+    public boolean              hadError;
+    public boolean              wasSuccessful;
+
     @Override
     public void onError(HocEventException e) {
+        Logger.v(LOG_TAG, "error in test callback");
         hadError = true;
     }
-    
+
     @Override
     public void onLinkEstablished() {
         // TODO Auto-generated method stub
-        
+
     }
-    
+
     @Override
-    public void onProgress(String pMessage) {
+    public void onFeedback(String pMessage) {
         // TODO Auto-generated method stub
-        
+
     }
-    
+
     @Override
-    public void onSuccess(HocEvent pHocEvent) {
+    public void onDataExchanged(HocEvent pHocEvent) {
+        Logger.v(LOG_TAG, "on data exchanged, ", pHocEvent);
         wasSuccessful = true;
     }
-    
+
+    @Override
+    public void onTransferProgress(double progress) {
+
+    }
+
+    @Override
+    public void onAbort(HocEvent hoc) {
+        // TODO Auto-generated method stub
+
+    }
+
 }

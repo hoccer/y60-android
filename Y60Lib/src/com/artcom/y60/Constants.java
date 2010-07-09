@@ -38,6 +38,8 @@ public class Constants {
         public static final String       DEVICE_PATH;
         public static final String       SCRIPT_BASE_PATH;
         public static final String       DEBUG_MODE_ATTR;
+        public static final String       ENABLE_ODP_ATTR;
+        public static final String       ENABLE_ODP_AGC_ATTR;
 
         public static final String       OBSERVER_BASE_PATH = "/gom/observer";
 
@@ -50,6 +52,9 @@ public class Constants {
             DEVICE_PATH = config.getDevicePath();
             SCRIPT_BASE_PATH = DEVICE_PATH + "/scripts";
             DEBUG_MODE_ATTR = DEVICE_PATH + ":debug_mode";
+
+            ENABLE_ODP_ATTR = DEVICE_PATH + ":enable_odp";
+            ENABLE_ODP_AGC_ATTR = DEVICE_PATH + ":enable_odp_agc";
         }
 
     }

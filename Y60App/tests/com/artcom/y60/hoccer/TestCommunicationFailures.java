@@ -6,7 +6,7 @@ import android.test.suitebuilder.annotation.LargeTest;
 import com.artcom.y60.data.GenericStreamableContent;
 import com.artcom.y60.http.AsyncHttpPut;
 
-public class TestIncompleteTransfers extends HocEventTestCase {
+public class TestCommunicationFailures extends HocEventTestCase {
     
     @LargeTest
     public void testNotUploadingContentAfterSuccsessfulLink() throws Exception {
@@ -19,12 +19,12 @@ public class TestIncompleteTransfers extends HocEventTestCase {
         // this will break the upload
         sweepOut.mDataUploader = new AsyncHttpPut("nothing");
         
-        assertEventIsAlive("sweepOut", sweepOut);
+        blockUntilEventIsAlive("sweepOut", sweepOut);
         final SweepInEvent sweepIn = getPeer().sweepIn();
-        assertEventIsAlive("sweepIn", sweepIn);
+        blockUntilEventIsAlive("sweepIn", sweepIn);
         
-        assertEventIsLinked(sweepOut);
-        assertEventIsLinked(sweepIn);
+        blockUntilEventIsLinked(sweepOut);
+        blockUntilEventIsLinked(sweepIn);
         
         Thread.sleep(1000);
         if (sweepIn.mDataDownloader != null) {

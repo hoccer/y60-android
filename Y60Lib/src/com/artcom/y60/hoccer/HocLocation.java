@@ -12,17 +12,37 @@ import com.artcom.y60.data.ProblemDescriptor;
 
 public class HocLocation extends Location {
 
-    private List<ScanResult> mScanResults = null;
+    private static final String       LOG_TAG      = "HocLocation";
+
+    private List<AccessPointSighting> mScanResults = null;
+    private String                    mAddress;
 
     private HocLocation(Location pLocation) {
         super(pLocation);
     }
 
+    /**
+     * copy constructor
+     */
+    public HocLocation(HocLocation hocLocation) {
+        super(hocLocation);
+        mScanResults = hocLocation.mScanResults;
+    }
+
     private HocLocation(Parcel pIn) {
         super(Location.CREATOR.createFromParcel(pIn));
-        mScanResults = new ArrayList<ScanResult>();
+        mScanResults = new ArrayList<AccessPointSighting>();
 
         pIn.readList(mScanResults, null);
+    }
+
+    public static HocLocation createFromLocation(Location pLocation) {
+        if (pLocation == null) {
+            return null;
+        } else {
+            HocLocation hocLocation = new HocLocation(pLocation);
+            return hocLocation;
+        }
     }
 
     public static HocLocation createFromLocation(Location pLocation, List<ScanResult> pScanResults) {
@@ -35,11 +55,21 @@ public class HocLocation extends Location {
         }
     }
 
-    public List<ScanResult> getScanResults() {
+    public List<AccessPointSighting> getScanResults() {
         return mScanResults;
     }
 
     public void setScanResult(List<ScanResult> pScanResults) {
+        mScanResults = new ArrayList<AccessPointSighting>();
+        if (pScanResults == null) {
+            return;
+        }
+        for (ScanResult scan : pScanResults) {
+            mScanResults.add(new AccessPointSighting(scan.BSSID, scan.level));
+        }
+    }
+
+    public void setAccesPointSightings(List<AccessPointSighting> pScanResults) {
         mScanResults = pScanResults;
     }
 
@@ -52,7 +82,7 @@ public class HocLocation extends Location {
 
         if (getAccuracy() < 200) {
             hoccability += 2;
-        } else if (getAccuracy() < 2000) {
+        } else if (getAccuracy() < 5000) {
             hoccability += 1;
         }
 
@@ -88,30 +118,68 @@ public class HocLocation extends Location {
                                                                 };
 
     public HocLocationProblem getHocLocationProblem(ProblemDescriptor descriptor) {
-        if (getHoccability() > 1) {
-            return null;
-        }
 
         HocLocationProblem problem = new HocLocationProblem();
-        problem.setProblem(descriptor.getDescription("location_inaccurate"));
 
-        ArrayList<String> recoverySuggestions = new ArrayList<String>();
-        recoverySuggestions.add(descriptor.getDescription("location_improve_go_outside"));
-        if (mScanResults == null || mScanResults.size() == 0) {
-            recoverySuggestions.add(descriptor.getDescription("location_improve_turn_wifi_on"));
+        switch (getHoccability()) {
+            case 0:
+                problem.setProblem(descriptor
+                        .getDescription(ProblemDescriptor.Problems.HOCCABILITY_BAD));
+                problem.setRecoverySuggestion(descriptor
+                        .getDescription(ProblemDescriptor.Suggestions.HOCCABILITY_0));
+                break;
+
+            case 1:
+                problem.setProblem(descriptor
+                        .getDescription(ProblemDescriptor.Problems.HOCCABILITY_OK));
+
+                if (mScanResults == null || mScanResults.size() == 0) {
+                    problem
+                            .setRecoverySuggestion(descriptor
+                                    .getDescription(ProblemDescriptor.Suggestions.HOCCABILITY_1_GPS_OK_BSSIDS_BAD));
+                } else {
+                    problem
+                            .setRecoverySuggestion(descriptor
+                                    .getDescription(ProblemDescriptor.Suggestions.HOCCABILITY_1_GPS_BAD_BSSIDS_GOOD));
+                }
+
+                break;
+
+            case 2:
+                problem.setProblem(descriptor
+                        .getDescription(ProblemDescriptor.Problems.HOCCABILITY_OK));
+
+                if (mScanResults == null || mScanResults.size() == 0) {
+                    problem
+                            .setRecoverySuggestion(descriptor
+                                    .getDescription(ProblemDescriptor.Suggestions.HOCCABILITY_2_GPS_GOOD_BSSIDS_BAD));
+                } else {
+                    problem
+                            .setRecoverySuggestion(descriptor
+                                    .getDescription(ProblemDescriptor.Suggestions.HOCCABILITY_2_GPS_OK_BSSIDS_GOOD));
+                }
+
+                break;
+
+            case 3:
+                problem.setProblem(descriptor
+                        .getDescription(ProblemDescriptor.Problems.HOCCABILITY_GOOD));
+                problem.setRecoverySuggestion(descriptor
+                        .getDescription(ProblemDescriptor.Suggestions.HOCCABILITY_3));
+                break;
+
+            default:
+                break;
         }
 
-        StringBuffer recoverySuggestion = new StringBuffer();
-        recoverySuggestion.append(descriptor.getDescription("location_intro"));
-        if (recoverySuggestions.size() > 0) {
-            recoverySuggestion.append(recoverySuggestions.get(0));
-        }
-        if (recoverySuggestions.size() > 1) {
-            recoverySuggestion.append(descriptor.getDescription("location_tip_join")
-                    + recoverySuggestions.get(1));
-        }
-
-        problem.setRecoverySuggestion(recoverySuggestion.toString());
         return problem;
+    }
+
+    public void setAddress(String address) {
+        mAddress = address;
+    }
+
+    public String getAddress() {
+        return mAddress;
     }
 }

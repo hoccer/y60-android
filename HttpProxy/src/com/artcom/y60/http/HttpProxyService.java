@@ -5,14 +5,6 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
-import android.os.Bundle;
-import android.os.IBinder;
-import android.os.RemoteException;
-
 import com.artcom.y60.ErrorHandling;
 import com.artcom.y60.IoHelper;
 import com.artcom.y60.Logger;
@@ -20,6 +12,14 @@ import com.artcom.y60.ResourceDownloadHelper;
 import com.artcom.y60.RpcStatus;
 import com.artcom.y60.Y60Action;
 import com.artcom.y60.Y60Service;
+
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.os.Bundle;
+import android.os.IBinder;
+import android.os.RemoteException;
 
 /**
  * Implementation of client-side caching for HTTP resources.
@@ -101,38 +101,48 @@ public class HttpProxyService extends Y60Service {
             @Override
             public void run() {
                 Logger.v(LOG_TAG, "refreshing (", pUri, ")");
-                synchronized (mCachedContent) {
+                Bundle oldContent;
 
-                    Bundle oldContent = mCachedContent.get(pUri);
-                    Bundle newContent = null;
-                    try {
-                        newContent = ResourceDownloadHelper.downloadAndCreateResourceBundle(
-                                CACHE_DIR, pUri);
-                    } catch (Exception e) {
-                        ErrorHandling.signalHttpError(LOG_TAG, e, HttpProxyService.this);
+                synchronized (mCachedContent) {
+                    Logger.v(LOG_TAG, "in synchriized");
+                    oldContent = mCachedContent.get(pUri);
+                }
+                Logger.v(LOG_TAG, "out of synchriized");
+                Bundle newContent = null;
+                try {
+                    Logger.v(LOG_TAG, "get new content...");
+                    newContent = ResourceDownloadHelper.downloadAndCreateResourceBundle(CACHE_DIR,
+                            pUri);
+                    Logger.v(LOG_TAG, "got new content...");
+                } catch (Exception e) {
+                    ErrorHandling.signalHttpError(LOG_TAG, e, HttpProxyService.this);
+                    sendResourceNotAvailableBc(pUri);
+                    Logger.e(LOG_TAG, "refreshing ", pUri, " failed!");
+                }
+
+                byte[] oldContentBytes = IoHelper.convertResourceBundleToByteArray(oldContent);
+                byte[] newContentBytes = IoHelper.convertResourceBundleToByteArray(newContent);
+
+                if (!IoHelper.areWeEqual(oldContentBytes, newContentBytes)) {
+
+                    if (newContentBytes == null) {
+                        synchronized (mCachedContent) {
+                            mCachedContent.remove(pUri);
+                        }
                         sendResourceNotAvailableBc(pUri);
                         Logger.e(LOG_TAG, "refreshing ", pUri, " failed!");
-                    }
 
-                    byte[] oldContentBytes = IoHelper.convertResourceBundleToByteArray(oldContent);
-                    byte[] newContentBytes = IoHelper.convertResourceBundleToByteArray(newContent);
-
-                    if (!IoHelper.areWeEqual(oldContentBytes, newContentBytes)) {
-
-                        if (newContentBytes == null) {
-                            mCachedContent.remove(pUri);
-                            sendResourceNotAvailableBc(pUri);
-                            Logger.e(LOG_TAG, "refreshing ", pUri, " failed!");
-
-                        } else {
-                            Logger.v(LOG_TAG, "storing new content and sending bc 'updated' for '",
-                                    pUri, "'");
-                            mCachedContent.put(pUri, newContent);
-                            sendResourceAvailableBc(pUri);
-                        }
                     } else {
-                        Logger.v(LOG_TAG, "NO new content for '", pUri, "'");
+                        Logger.v(LOG_TAG, "storing new content and sending bc 'updated' for '",
+                                pUri, "'");
+                        synchronized (mCachedContent) {
+                            mCachedContent.put(pUri, newContent);
+                        }
+                        sendResourceAvailableBc(pUri);
                     }
+                } else {
+                    Logger.v(LOG_TAG, "NO new content for '", pUri,
+                            "' i am not broadcasting resource available through system");
                 }
             }
         }).start();
@@ -159,7 +169,9 @@ public class HttpProxyService extends Y60Service {
     public Bundle getDataSyncronously(String pUri) throws HttpClientException, HttpServerException,
             IOException {
         Bundle newContent = ResourceDownloadHelper.downloadAndCreateResourceBundle(CACHE_DIR, pUri);
-        mCachedContent.put(pUri, newContent);
+        synchronized (mCachedContent) {
+            mCachedContent.put(pUri, newContent);
+        }
         return newContent;
     }
 
@@ -171,9 +183,11 @@ public class HttpProxyService extends Y60Service {
     }
 
     public boolean isInCache(String pUri) {
+        boolean isInCache;
         synchronized (mCachedContent) {
-            return mCachedContent.containsKey(pUri);
+            isInCache = mCachedContent.containsKey(pUri);
         }
+        return isInCache;
     }
 
     public void removeFromCache(String pUri) {
@@ -190,22 +204,24 @@ public class HttpProxyService extends Y60Service {
         synchronized (mCachedContent) {
             mCachedContent.clear();
             mResourceManager.clear();
-            IoHelper.deleteDir(new File(CACHE_DIR));
-            File dir = new File(CACHE_DIR);
-            if (!dir.exists()) {
-                dir.mkdirs();
-                Logger.e(LOG_TAG, "creating dir " + dir.toString());
-            }
+        }
+        IoHelper.deleteDir(new File(CACHE_DIR));
+        File dir = new File(CACHE_DIR);
+        if (!dir.exists()) {
+            dir.mkdirs();
+            Logger.e(LOG_TAG, "creating dir " + dir.toString());
         }
         sendBroadcast(new Intent(Y60Action.SERVICE_HTTP_PROXY_CLEARED));
         Logger.d(LOG_TAG, "HTTP cache cleared");
     }
 
     public long getNumberOfEntries() {
-        return mCachedContent.size();
+        synchronized (mCachedContent) {
+            return mCachedContent.size();
+        }
     }
 
-    protected Map<String, Bundle> getCachedContent() {
+    Map<String, Bundle> getCachedContent() {
         return mCachedContent;
     }
 

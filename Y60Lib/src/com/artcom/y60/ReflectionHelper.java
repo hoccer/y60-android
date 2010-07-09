@@ -18,7 +18,6 @@ public class ReflectionHelper {
         Logger.v(LOG_TAG, "stack trace:");
 
         for (StackTraceElement elem : pStack) {
-
             Logger.v(LOG_TAG, elem.getMethodName());
         }
     }
@@ -29,6 +28,10 @@ public class ReflectionHelper {
 
         // logStackTrace(stack);
 
-        return stack[4].getMethodName();
+        String name = stack[4].getMethodName();
+        if (name.equals("<init>")) {
+            name = stack[5].getMethodName();
+        }
+        return name;
     }
 }
