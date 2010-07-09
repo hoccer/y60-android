@@ -141,7 +141,8 @@ public class HttpProxyService extends Y60Service {
                         sendResourceAvailableBc(pUri);
                     }
                 } else {
-                    Logger.v(LOG_TAG, "NO new content for '", pUri, "'");
+                    Logger.v(LOG_TAG, "NO new content for '", pUri,
+                            "' i am not broadcasting resource available through system");
                 }
             }
         }).start();
