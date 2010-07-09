@@ -121,50 +121,51 @@ public class HocLocation extends Location {
 
         HocLocationProblem problem = new HocLocationProblem();
 
-        switch (0) {
+        switch (getHoccability()) {
             case 0:
                 problem.setProblem(descriptor
                         .getDescription(ProblemDescriptor.Problems.HOCCABILITY_BAD));
-
-                String suggestion = descriptor.getDescription(ProblemDescriptor.HOCCABILITY_INTRO)
-                        + " "
-                        + descriptor
-                                .getDescription(ProblemDescriptor.Suggestions.HOCCABILITY_GO_OUTSIDE)
-                        + " "
-                        + descriptor.getDescription(ProblemDescriptor.HOCCABILITY_HINT_JOIN)
-                        + " "
-                        + descriptor
-                                .getDescription(ProblemDescriptor.Suggestions.HOCCABILITY_TURN_WIFI_ON)
-                        + ".";
-
-                problem.setRecoverySuggestion(suggestion);
+                problem.setRecoverySuggestion(descriptor
+                        .getDescription(ProblemDescriptor.Suggestions.HOCCABILITY_0));
                 break;
 
             case 1:
+                problem.setProblem(descriptor
+                        .getDescription(ProblemDescriptor.Problems.HOCCABILITY_OK));
 
-                // if (mScanResults == null || mScanResults.size() == 0) {
-                // recoverySuggestions.add(descriptor
-                // .getDescription(ProblemDescriptor.HOCCABILITY_TURN_WIFI_ON));
-                // }
-                //                
-                // StringBuffer recoverySuggestion = new StringBuffer();
-                // recoverySuggestion.append(descriptor
-                // .getDescription(ProblemDescriptor.HOCCABILITY_INTRO));
-                // if (recoverySuggestions.size() > 0) {
-                // recoverySuggestion.append(recoverySuggestions.get(0));
-                // }
-                // if (recoverySuggestions.size() > 1) {
-                // recoverySuggestion.append(descriptor
-                // .getDescription(ProblemDescriptor.HOCCABILITY_HINT_JOIN)
-                // + recoverySuggestions.get(1));
-                // }
+                if (mScanResults == null || mScanResults.size() == 0) {
+                    problem
+                            .setRecoverySuggestion(descriptor
+                                    .getDescription(ProblemDescriptor.Suggestions.HOCCABILITY_1_GPS_OK_BSSIDS_BAD));
+                } else {
+                    problem
+                            .setRecoverySuggestion(descriptor
+                                    .getDescription(ProblemDescriptor.Suggestions.HOCCABILITY_1_GPS_BAD_BSSIDS_GOOD));
+                }
 
                 break;
+
             case 2:
+                problem.setProblem(descriptor
+                        .getDescription(ProblemDescriptor.Problems.HOCCABILITY_OK));
+
+                if (mScanResults == null || mScanResults.size() == 0) {
+                    problem
+                            .setRecoverySuggestion(descriptor
+                                    .getDescription(ProblemDescriptor.Suggestions.HOCCABILITY_2_GPS_GOOD_BSSIDS_BAD));
+                } else {
+                    problem
+                            .setRecoverySuggestion(descriptor
+                                    .getDescription(ProblemDescriptor.Suggestions.HOCCABILITY_2_GPS_OK_BSSIDS_GOOD));
+                }
 
                 break;
-            case 3:
 
+            case 3:
+                problem.setProblem(descriptor
+                        .getDescription(ProblemDescriptor.Problems.HOCCABILITY_GOOD));
+                problem.setRecoverySuggestion(descriptor
+                        .getDescription(ProblemDescriptor.Suggestions.HOCCABILITY_3));
                 break;
 
             default:
