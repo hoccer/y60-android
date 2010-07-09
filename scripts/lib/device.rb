@@ -13,7 +13,7 @@ class Device
   end
   
   def wait
-    OS::execute "adb -s #{@id} wait-for-device", "wait for device"
+    OS::execute "adb -s #{@id} wait-for-device", "wait for device", 20
   end
   
   def execute cmd
