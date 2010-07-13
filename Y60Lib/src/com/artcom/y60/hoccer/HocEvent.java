@@ -285,7 +285,11 @@ public abstract class HocEvent {
 
         isReady = true;
         synchronized (mCallbackList) {
-            for (HocEventListener callback : mCallbackList) {
+            // copying list, so some callbacks can remove themself without a concurrent modification
+            // error.
+            ArrayList<HocEventListener> temporaryCallbackList = new ArrayList<HocEventListener>(
+                    mCallbackList);
+            for (HocEventListener callback : temporaryCallbackList) {
                 callback.onError(e);
             }
         }
