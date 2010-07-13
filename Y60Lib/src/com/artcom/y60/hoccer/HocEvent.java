@@ -370,6 +370,7 @@ public abstract class HocEvent {
 
             @Override
             public void onError(Exception e) {
+                mState = "connection_error";
                 HocEvent.this.onError(new HocEventException(e));
             }
 
