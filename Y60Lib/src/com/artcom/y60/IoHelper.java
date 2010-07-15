@@ -1,6 +1,7 @@
 package com.artcom.y60;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -10,6 +11,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
@@ -19,12 +21,12 @@ import java.util.List;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.artcom.y60.http.HttpProxyConstants;
-
 import android.app.ActivityManager;
 import android.app.ActivityManager.RunningServiceInfo;
 import android.content.Context;
 import android.os.Bundle;
+
+import com.artcom.y60.http.HttpProxyConstants;
 
 public class IoHelper {
     private static final String LOG_TAG = "IoHelper";
@@ -91,6 +93,18 @@ public class IoHelper {
             fos.write(buffer, 0, len);
         }
         fos.close();
+    }
+
+    public static void writeDataToStream(byte[] originalData, OutputStream outStream)
+            throws IOException {
+        InputStream is = new ByteArrayInputStream(originalData);
+        int downloaded = 0;
+        byte[] buffer = new byte[0xF];
+        int len;
+        while ((len = is.read(buffer)) != -1) {
+            outStream.write(buffer, 0, len);
+            downloaded += len;
+        }
     }
 
     public static void writeStringToFile(String string, String filename) throws IOException {
