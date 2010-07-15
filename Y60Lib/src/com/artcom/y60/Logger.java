@@ -9,6 +9,7 @@ import java.util.Map;
 import android.app.ActivityManager;
 import android.app.ActivityManager.MemoryInfo;
 import android.content.Context;
+import android.content.Intent;
 import android.util.Log;
 
 public class Logger {
@@ -145,6 +146,16 @@ public class Logger {
     public static Level getFilterLevel() {
 
         return sLevel;
+    }
+
+    public static void vIntent(String pTag, String log, Intent intent) {
+
+        Object[] logIntent = {
+                log,
+                (intent + " getAction: " + intent.getAction() + " getData: " + intent.getData()
+                        + " getType: " + intent.getType() + " extras: " + intent.getExtras()) };
+
+        Level.VERBOSE.log(pTag, logIntent);
     }
 
     public static void v(String pTag, Object... pToLog) {
