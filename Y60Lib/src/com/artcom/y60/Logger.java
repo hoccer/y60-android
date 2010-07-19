@@ -150,10 +150,27 @@ public class Logger {
 
     public static void vIntent(String pTag, String log, Intent intent) {
 
+        String keyset = "no keyset";
+        String values = "no values";
+        if (intent.getExtras() != null) {
+            keyset = "";
+            values = "";
+            for (String key : intent.getExtras().keySet()) {
+                if (key.equals(Intent.EXTRA_STREAM)) {
+                    values += key + ": " + intent.getExtras().getParcelable(Intent.EXTRA_STREAM)
+                            + ", ";
+                } else if (key.equals(Intent.EXTRA_TEXT)) {
+                    values += key + ": " + intent.getExtras().getString(Intent.EXTRA_TEXT) + ", ";
+                }
+                keyset += key + " ";
+            }
+        }
+
         Object[] logIntent = {
                 log,
                 (intent + " getAction: " + intent.getAction() + " getData: " + intent.getData()
-                        + " getType: " + intent.getType() + " extras: " + intent.getExtras()) };
+                        + " getType: " + intent.getType() + " extras: " + intent.getExtras()
+                        + " keyset: " + keyset + " values: " + values) };
 
         Level.VERBOSE.log(pTag, logIntent);
     }
