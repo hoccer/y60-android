@@ -84,8 +84,9 @@ public class FileTestHelper {
                 ContentResolver contentResolver) throws IOException {
 
             super(content, contentType, extension, contentResolver);
-            ContentValues values = new ContentValues(1);
+            ContentValues values = new ContentValues(2);
             values.put(MediaStore.Images.Media.DATA, mFilepath);
+            values.put(MediaStore.Images.Media.MIME_TYPE, contentType);
             mContentUri = mContentResolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
                     values);
         }
