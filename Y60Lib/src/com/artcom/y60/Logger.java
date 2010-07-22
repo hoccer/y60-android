@@ -161,6 +161,10 @@ public class Logger {
                             + ", ";
                 } else if (key.equals(Intent.EXTRA_TEXT)) {
                     values += key + ": " + intent.getExtras().getString(Intent.EXTRA_TEXT) + ", ";
+
+                } else if (key.equals(Intent.EXTRA_SUBJECT)) {
+                    values += key + ": " + intent.getExtras().getString(Intent.EXTRA_SUBJECT)
+                            + ", ";
                 }
                 keyset += key + " ";
             }
