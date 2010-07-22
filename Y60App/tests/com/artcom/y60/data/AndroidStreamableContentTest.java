@@ -17,6 +17,5 @@ public class AndroidStreamableContentTest extends AndroidTestCase {
         GenericAndroidStreamableContent streamableContent = new GenericAndroidStreamableContent(
                 getContext().getContentResolver());
 
-        assertNotNull(streamableContent);
     }
 }
