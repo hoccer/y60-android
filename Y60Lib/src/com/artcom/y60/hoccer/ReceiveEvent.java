@@ -72,6 +72,7 @@ public abstract class ReceiveEvent extends HocEvent {
             public void onHeaderAvailable(HashMap<String, String> headers) {
                 try {
                     String filename = parseFilename(headers.get("Content-Disposition"));
+                    Logger.v(LOG_TAG, headers.get("Content-Type"));
                     StreamableContent streamable = getPeer().getContentFactory()
                             .createStreamableContent(headers.get("Content-Type"), filename);
                     mDataDownloader.setStreamableContent(streamable);
