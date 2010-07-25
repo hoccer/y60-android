@@ -59,7 +59,7 @@ public abstract class Peer {
     private Context              mContext = null;
     private String               mClientUuid;
 
-    public static Peer getPeer(String clientName, String remoteServer, Context context) {
+    public static Peer createPeer(String clientName, String remoteServer, Context context) {
         if (Integer.parseInt(Build.VERSION.SDK) <= Build.VERSION_CODES.CUPCAKE) {
             return new Peer10(clientName, remoteServer, context);
         } else {
