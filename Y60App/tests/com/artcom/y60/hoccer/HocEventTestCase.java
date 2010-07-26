@@ -35,7 +35,7 @@ public class HocEventTestCase extends AndroidTestCase {
 
     @Override
     public void setUp() {
-        mPeer = Peer.getPeer("Y60/Hoccer Unit Test on Android", "http://beta.hoccer.com",
+        mPeer = Peer.createPeer("Y60/Hoccer Unit Test on Android", "http://beta.hoccer.com",
                 getContext());
         mPeer.setLocation(getUniqueGpsLocation());
     }
