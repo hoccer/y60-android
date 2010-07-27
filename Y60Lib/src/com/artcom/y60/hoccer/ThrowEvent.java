@@ -9,7 +9,7 @@ public class ThrowEvent extends ShareEvent {
 
     private static final String LOG_TAG = "ThrowEvent";
 
-    ThrowEvent(StreamableContent pOutgoingData, Peer peer) {
+    ThrowEvent(StreamableContent pOutgoingData, Peer peer) throws UnknownLocationException {
         super(pOutgoingData, peer);
     }
 

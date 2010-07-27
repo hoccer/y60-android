@@ -39,6 +39,7 @@ public class BestLocationManager implements LocationListener {
     }
 
     public HocLocation getBestLocation() throws UnknownLocationException {
+        Logger.v(LOG_TAG, "getting best location");
         mScanResults = mWifiManager.getScanResults();
         HocLocation networkLocation = HocLocation.createFromLocation(mLocationManager
                 .getLastKnownLocation(LocationManager.NETWORK_PROVIDER), mScanResults);

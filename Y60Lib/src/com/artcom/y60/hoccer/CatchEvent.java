@@ -7,7 +7,7 @@ public class CatchEvent extends ReceiveEvent {
 
     private static final String LOG_TAG = "CatchEvent";
 
-    CatchEvent(Peer peer) {
+    CatchEvent(Peer peer) throws UnknownLocationException {
         super(peer);
     }
 

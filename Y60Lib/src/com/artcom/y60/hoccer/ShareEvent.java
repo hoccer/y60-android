@@ -19,7 +19,7 @@ public abstract class ShareEvent extends HocEvent {
     private final StreamableContent mOutgoingData;
     AsyncHttpPut                    mDataUploader = null;
 
-    ShareEvent(StreamableContent pOutgoingData, Peer peer) {
+    ShareEvent(StreamableContent pOutgoingData, Peer peer) throws UnknownLocationException {
         super(peer);
         mOutgoingData = pOutgoingData;
     }

@@ -1,6 +1,6 @@
 package com.artcom.y60.hoccer;
 
-public class HocLocationProblem {
+public class HoccabilityProblem {
 
     private String mRecoverySuggestion;
     private String mProblem;

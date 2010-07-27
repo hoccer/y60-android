@@ -38,10 +38,14 @@ public abstract class HocEvent {
     private boolean                           isAborted           = false;
     private boolean                           isReady             = false;
 
-    HocEvent(Peer peer) {
+    HocEvent(Peer peer) throws UnknownLocationException {
         mUuid = UUID.randomUUID();
         mPeer = peer;
         mCallbackList = new ArrayList<HocEventListener>();
+
+        if (!mPeer.hasLocation()) {
+            throw new UnknownLocationException();
+        }
 
         // The post-to-server action is done in a thread to make sure it's called AFTER the Event
         // object is constructed. This was the only way to hide all "start" logic
@@ -53,8 +57,7 @@ public abstract class HocEvent {
                 try {
                     Thread.sleep(100);
                 } catch (InterruptedException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
+
                 }
                 postEventToServer();
             }
@@ -69,8 +72,12 @@ public abstract class HocEvent {
 
         Map<String, String> parameters = getEventParameters();
 
-        parameters.putAll(mPeer.getEventDnaParameters());
-        parameters.putAll(mPeer.getEventParameters());
+        try {
+            parameters.putAll(mPeer.getEventDnaParameters());
+            parameters.putAll(mPeer.getEventParameters());
+        } catch (UnknownLocationException e) {
+            onError(new HocEventException(e));
+        }
 
         eventCreation.setBody(parameters);
         eventCreation.registerResponseHandler(createResponseHandler());

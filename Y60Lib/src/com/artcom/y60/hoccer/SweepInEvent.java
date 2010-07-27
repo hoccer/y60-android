@@ -7,7 +7,7 @@ public class SweepInEvent extends ReceiveEvent {
 
     private static String LOG_TAG = "SweepInEvent";
 
-    SweepInEvent(Peer peer) {
+    SweepInEvent(Peer peer) throws UnknownLocationException {
         super(peer);
     }
 

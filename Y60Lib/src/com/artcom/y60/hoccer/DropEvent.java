@@ -12,7 +12,8 @@ public class DropEvent extends ShareEvent {
     private final long          mAimedLifetime;
     private long                mCreationTime;
 
-    DropEvent(StreamableContent pOutgoingData, long lifetime, Peer peer) {
+    DropEvent(StreamableContent pOutgoingData, long lifetime, Peer peer)
+            throws UnknownLocationException {
         super(pOutgoingData, peer);
         mAimedLifetime = lifetime;
         mCreationTime = System.currentTimeMillis();

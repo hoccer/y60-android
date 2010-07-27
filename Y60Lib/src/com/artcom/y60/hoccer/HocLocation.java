@@ -120,9 +120,9 @@ public class HocLocation extends Location {
                                                                     }
                                                                 };
 
-    public HocLocationProblem getHocLocationProblem(ProblemDescriptor descriptor) {
+    public HoccabilityProblem getHocLocationProblem(ProblemDescriptor descriptor) {
 
-        HocLocationProblem problem = new HocLocationProblem();
+        HoccabilityProblem problem = new HoccabilityProblem();
 
         switch (getQuality()) {
             case 0:

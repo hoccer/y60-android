@@ -9,7 +9,7 @@ public class PickEvent extends ReceiveEvent {
     private static String LOG_TAG = "PickEvent";
     private JSONArray     mPieces;
 
-    PickEvent(Peer peer) {
+    PickEvent(Peer peer) throws UnknownLocationException {
         super(peer);
     }
 

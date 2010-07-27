@@ -16,6 +16,11 @@ import org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpConnectionParams;
 
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.os.Build;
+import android.telephony.TelephonyManager;
+
 import com.artcom.y60.IpAddressNotFoundException;
 import com.artcom.y60.Logger;
 import com.artcom.y60.NetworkHelper;
@@ -23,11 +28,6 @@ import com.artcom.y60.data.DataContainerFactory;
 import com.artcom.y60.data.DefaultDataContainerFactory;
 import com.artcom.y60.data.StreamableContent;
 import com.artcom.y60.error.ErrorReporter;
-
-import android.content.Context;
-import android.content.SharedPreferences;
-import android.os.Build;
-import android.telephony.TelephonyManager;
 
 public abstract class Peer {
 
@@ -57,7 +57,7 @@ public abstract class Peer {
     private ErrorReporter        mErrorReporter;
     private DataContainerFactory mDataContainerFactory;
     private Context              mContext = null;
-    private String               mClientUuid;
+    private final String         mClientUuid;
 
     public static Peer createPeer(String clientName, String remoteServer, Context context) {
         if (Integer.parseInt(Build.VERSION.SDK) <= Build.VERSION_CODES.CUPCAKE) {
@@ -91,23 +91,25 @@ public abstract class Peer {
         return mErrorReporter;
     }
 
-    public SweepOutEvent sweepOut(StreamableContent pStreamableData) {
+    public SweepOutEvent sweepOut(StreamableContent pStreamableData)
+            throws UnknownLocationException {
         return new SweepOutEvent(mHocLocation, pStreamableData, this);
     }
 
-    public SweepInEvent sweepIn() {
+    public SweepInEvent sweepIn() throws UnknownLocationException {
         return new SweepInEvent(this);
     }
 
-    public ThrowEvent throwIt(StreamableContent pStreamableData) {
+    public ThrowEvent throwIt(StreamableContent pStreamableData) throws UnknownLocationException {
         return new ThrowEvent(pStreamableData, this);
     }
 
-    public DropEvent drop(StreamableContent pStreamableData, long lifetime) {
+    public DropEvent drop(StreamableContent pStreamableData, long lifetime)
+            throws UnknownLocationException {
         return new DropEvent(pStreamableData, lifetime, this);
     }
 
-    public PickEvent pick() {
+    public PickEvent pick() throws UnknownLocationException {
         return new PickEvent(this);
     }
 
@@ -123,7 +125,7 @@ public abstract class Peer {
         return mDataContainerFactory;
     }
 
-    public CatchEvent catchIt() {
+    public CatchEvent catchIt() throws UnknownLocationException {
         return new CatchEvent(this);
     }
 
@@ -131,7 +133,11 @@ public abstract class Peer {
         return mHttpClient;
     }
 
-    public Map<String, String> getEventParameters() {
+    public Map<String, String> getEventParameters() throws UnknownLocationException {
+        if (mHocLocation == null) {
+            throw new UnknownLocationException();
+        }
+
         Map<String, String> parameters = new HashMap<String, String>();
         parameters.put("event[" + Parameter.LATITUDE + "]", Double.toString(mHocLocation
                 .getLatitude()));
@@ -143,7 +149,7 @@ public abstract class Peer {
         return parameters;
     }
 
-    public Map<String, String> getEventDnaParameters() {
+    public Map<String, String> getEventDnaParameters() throws UnknownLocationException {
         Map<String, String> parameters = new HashMap<String, String>();
 
         parameters.put("event[" + Parameter.BRAND + "]", Build.BRAND);
@@ -158,6 +164,9 @@ public abstract class Peer {
             Logger.e(LOG_TAG, e.toString());
         }
 
+        if (mHocLocation == null) {
+            throw new UnknownLocationException();
+        }
         parameters.put("event[" + Parameter.HOCCABILITY + "]", String.valueOf(mHocLocation
                 .getQuality()));
         parameters.put("event[" + Parameter.CLIENT_UUID + "]", getClientUuid());
@@ -206,5 +215,9 @@ public abstract class Peer {
 
     public String getClientUuid() {
         return mClientUuid;
+    }
+
+    public boolean hasLocation() {
+        return mHocLocation != null;
     }
 }

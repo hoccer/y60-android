@@ -20,7 +20,7 @@ public abstract class ReceiveEvent extends HocEvent {
     private static String LOG_TAG         = "ReceiveEvent";
     AsyncHttpGet          mDataDownloader = null;
 
-    ReceiveEvent(Peer peer) {
+    ReceiveEvent(Peer peer) throws UnknownLocationException {
         super(peer);
     }
 
