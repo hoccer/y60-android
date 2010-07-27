@@ -159,7 +159,7 @@ public abstract class Peer {
         }
 
         parameters.put("event[" + Parameter.HOCCABILITY + "]", String.valueOf(mHocLocation
-                .getHoccability()));
+                .getQuality()));
         parameters.put("event[" + Parameter.CLIENT_UUID + "]", getClientUuid());
         TelephonyManager telephonyManager = (TelephonyManager) mContext
                 .getSystemService(Context.TELEPHONY_SERVICE);

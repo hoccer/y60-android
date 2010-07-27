@@ -14,7 +14,7 @@ public class TestHocLocation extends AndroidTestCase {
         location.setAccuracy(199);
 
         HocLocation hocLocation = HocLocation.createFromLocation(location);
-        assertEquals(2, hocLocation.getHoccability());
+        assertEquals(2, hocLocation.getQuality());
     }
 
     public void testBadLocationAndNoBSSIDS() {
@@ -24,7 +24,7 @@ public class TestHocLocation extends AndroidTestCase {
         location.setAccuracy(2001);
 
         HocLocation hocLocation = HocLocation.createFromLocation(location);
-        assertEquals(0, hocLocation.getHoccability());
+        assertEquals(0, hocLocation.getQuality());
     }
 
     public void testMediumLocationAndNoBSSIDS() {
@@ -34,12 +34,12 @@ public class TestHocLocation extends AndroidTestCase {
         location.setAccuracy(1999);
 
         HocLocation hocLocation = HocLocation.createFromLocation(location);
-        assertEquals(1, hocLocation.getHoccability());
+        assertEquals(1, hocLocation.getQuality());
 
         location.setAccuracy(201);
 
         hocLocation = HocLocation.createFromLocation(location);
-        assertEquals(1, hocLocation.getHoccability());
+        assertEquals(1, hocLocation.getQuality());
     }
 
     public void testNoProblemWhenLocationIsGood() {

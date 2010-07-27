@@ -73,7 +73,10 @@ public class HocLocation extends Location {
         mScanResults = pScanResults;
     }
 
-    public int getHoccability() {
+    /**
+     * @return quality of the hoc location (0=ultra bad, 1=may work, 2=seems ok, 3=super)
+     */
+    public int getQuality() {
         int hoccability = 0;
 
         if (mScanResults != null && mScanResults.size() > 0) {
@@ -121,7 +124,7 @@ public class HocLocation extends Location {
 
         HocLocationProblem problem = new HocLocationProblem();
 
-        switch (getHoccability()) {
+        switch (getQuality()) {
             case 0:
                 problem.setProblem(descriptor
                         .getDescription(ProblemDescriptor.Problems.HOCCABILITY_BAD));
