@@ -93,6 +93,21 @@ public class FileTestHelper {
 
     }
 
+    public class ContentProviderVideoFile extends ContentProviderTestFile {
+
+        public ContentProviderVideoFile(byte[] content, String contentType, String extension,
+                ContentResolver contentResolver) throws IOException {
+
+            super(content, contentType, extension, contentResolver);
+            ContentValues values = new ContentValues(2);
+            values.put(MediaStore.Video.Media.DATA, mFilepath);
+            values.put(MediaStore.Video.Media.MIME_TYPE, contentType);
+            mContentUri = mContentResolver.insert(MediaStore.Video.Media.EXTERNAL_CONTENT_URI,
+                    values);
+        }
+
+    }
+
     public class ContentProviderUrlFile extends ContentProviderTestFile {
 
         public ContentProviderUrlFile(byte[] content, String contentType, String extension,
