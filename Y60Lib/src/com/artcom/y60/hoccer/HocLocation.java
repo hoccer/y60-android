@@ -32,6 +32,16 @@ public class HocLocation {
         mScanResults = hocLocation.mScanResults;
     }
 
+    public HocLocation(Location location, ArrayList<AccessPointSighting> sightings) {
+        mLocation = location;
+        mScanResults = sightings;
+    }
+
+    public HocLocation(Location location) {
+        mLocation = location;
+        mScanResults = new ArrayList<AccessPointSighting>();
+    }
+
     public List<AccessPointSighting> getScanResults() {
         return mScanResults;
     }
@@ -166,5 +176,17 @@ public class HocLocation {
 
     public double getLongitude() {
         return mLocation.getLongitude();
+    }
+
+    void setLatitude(double latitude) {
+        mLocation.setLatitude(latitude);
+    }
+
+    void setLongitude(double longitude) {
+        mLocation.setLongitude(longitude);
+    }
+
+    void setAccuracy(int accuracy) {
+        mLocation.setAccuracy(accuracy);
     }
 }

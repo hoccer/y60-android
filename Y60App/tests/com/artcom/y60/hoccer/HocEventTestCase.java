@@ -29,7 +29,7 @@ public class HocEventTestCase extends AndroidTestCase {
             location.setAccuracy(100);
             location.setLatitude((Math.random() + 0.1) * 20);
             location.setLongitude((Math.random() + 0.1) * 20);
-            mLocation = HocLocation.createFromLocation(location, new ArrayList<ScanResult>());
+            mLocation = new HocLocation(location, new ArrayList<ScanResult>());
         }
     }
 
@@ -67,8 +67,7 @@ public class HocEventTestCase extends AndroidTestCase {
         location.setAccuracy(mLocation.getAccuracy());
         location.setLatitude(mLocation.getLatitude());
         location.setLongitude(mLocation.getLongitude());
-        HocLocation hocLocation = HocLocation.createFromLocation(location);
-        hocLocation.setAccesPointSightings(sightings);
+        HocLocation hocLocation = new HocLocation(location, sightings);
 
         return hocLocation;
     }

@@ -13,7 +13,7 @@ public class TestHocLocation extends AndroidTestCase {
         location.setLatitude(42);
         location.setAccuracy(199);
 
-        HocLocation hocLocation = HocLocation.createFromLocation(location);
+        HocLocation hocLocation = new HocLocation(location);
         assertEquals(2, hocLocation.getQuality());
     }
 
@@ -23,7 +23,7 @@ public class TestHocLocation extends AndroidTestCase {
         location.setLatitude(42);
         location.setAccuracy(2001);
 
-        HocLocation hocLocation = HocLocation.createFromLocation(location);
+        HocLocation hocLocation = new HocLocation(location);
         assertEquals(0, hocLocation.getQuality());
     }
 
@@ -33,12 +33,12 @@ public class TestHocLocation extends AndroidTestCase {
         location.setLatitude(42);
         location.setAccuracy(1999);
 
-        HocLocation hocLocation = HocLocation.createFromLocation(location);
+        HocLocation hocLocation = new HocLocation(location);
         assertEquals(1, hocLocation.getQuality());
 
         location.setAccuracy(201);
 
-        hocLocation = HocLocation.createFromLocation(location);
+        hocLocation = new HocLocation(location);
         assertEquals(1, hocLocation.getQuality());
     }
 
@@ -48,7 +48,7 @@ public class TestHocLocation extends AndroidTestCase {
         location.setLatitude(42);
         location.setAccuracy(199);
 
-        HocLocation hocLocation = HocLocation.createFromLocation(location);
+        HocLocation hocLocation = new HocLocation(location);
         assertNull(hocLocation.getHocLocationProblem(new MockedProblemDescriptor()));
     }
 
@@ -58,7 +58,7 @@ public class TestHocLocation extends AndroidTestCase {
         location.setLatitude(42);
         location.setAccuracy(1999);
 
-        HocLocation hocLocation = HocLocation.createFromLocation(location);
+        HocLocation hocLocation = new HocLocation(location);
         assertTrue(hocLocation.getHocLocationProblem(new MockedProblemDescriptor())
                 .getRecoverySuggestion().contains("go_outside"));
 
