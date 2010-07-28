@@ -23,7 +23,7 @@ public class HocLocation {
         setScanResult(scanResults);
     }
 
-    private boolean hasLatLong() {
+    public boolean hasLatLong() {
         return mLocation != null;
     }
 
@@ -58,6 +58,10 @@ public class HocLocation {
 
         if (mScanResults != null && mScanResults.size() > 0) {
             quality += 1;
+        }
+
+        if (!hasLatLong()) {
+            return quality;
         }
 
         if (getAccuracy() < 200) {

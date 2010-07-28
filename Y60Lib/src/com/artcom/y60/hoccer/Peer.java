@@ -139,12 +139,15 @@ public abstract class Peer {
         }
 
         Map<String, String> parameters = new HashMap<String, String>();
-        parameters.put("event[" + Parameter.LATITUDE + "]", Double.toString(mHocLocation
-                .getLatitude()));
-        parameters.put("event[" + Parameter.LONGITUDE + "]", Double.toString(mHocLocation
-                .getLongitude()));
-        parameters.put("event[" + Parameter.LOCATION_ACCURACY + "]", Double.toString(mHocLocation
-                .getAccuracy()));
+
+        if (mHocLocation.hasLatLong()) {
+            parameters.put("event[" + Parameter.LATITUDE + "]", Double.toString(mHocLocation
+                    .getLatitude()));
+            parameters.put("event[" + Parameter.LONGITUDE + "]", Double.toString(mHocLocation
+                    .getLongitude()));
+            parameters.put("event[" + Parameter.LOCATION_ACCURACY + "]", Double
+                    .toString(mHocLocation.getAccuracy()));
+        }
         parameters.put("event[" + Parameter.BSSIDS + "]", getAccessPointSightings());
         return parameters;
     }

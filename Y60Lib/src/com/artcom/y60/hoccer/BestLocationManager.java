@@ -43,8 +43,8 @@ public class BestLocationManager implements LocationListener {
         Logger.v(LOG_TAG, "getting best location");
         mScanResults = mWifiManager.getScanResults();
         if (mScanResults == null) {
+            mScanResults = new ArrayList<ScanResult>();
         }
-        mScanResults = new ArrayList<ScanResult>();
 
         Location networkLocation = mLocationManager
                 .getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
