@@ -54,7 +54,7 @@ public class TestSweepingData extends HocEventTestCase {
                     }
                 });
         assertPollingHasStopped(sweepOut);
-        assertTrue("should have been notified about error", eventCallback.hadError);
+        assertTrue("should have been notified about abort", eventCallback.wasAborted);
     }
 
     public void testLonelySweepInEvent() throws Exception {

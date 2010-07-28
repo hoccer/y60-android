@@ -10,13 +10,16 @@ import com.artcom.y60.data.ProblemDescriptor;
 
 public class HocLocation {
 
-    private static final String       LOG_TAG       = "HocLocation";
+    private static final String       LOG_TAG          = "HocLocation";
 
-    private List<AccessPointSighting> mScanResults  = null;
+    private List<AccessPointSighting> mScanResults     = null;
     private String                    mAddress;
     private final Location            mLocation;
 
-    private final long                mCreationTime = System.currentTimeMillis();
+    public static final int           OPTIMAL_ACCURACY = 200;
+    public static final int           WORST_ACCURACY   = 5000;
+
+    private final long                mCreationTime    = System.currentTimeMillis();
 
     HocLocation(Location pLocation, List<ScanResult> scanResults) {
         mLocation = pLocation;
@@ -74,9 +77,9 @@ public class HocLocation {
             return quality;
         }
 
-        if (getAccuracy() < 200) {
+        if (getAccuracy() < OPTIMAL_ACCURACY) {
             quality += 2;
-        } else if (getAccuracy() < 5000) {
+        } else if (getAccuracy() < WORST_ACCURACY) {
             quality += 1;
         }
 

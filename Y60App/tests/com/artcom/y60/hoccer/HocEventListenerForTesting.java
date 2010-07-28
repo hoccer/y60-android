@@ -7,6 +7,7 @@ public class HocEventListenerForTesting implements HocEventListener {
     private static final String LOG_TAG = "HocEventListenerForTesting";
     public boolean              hadError;
     public boolean              wasSuccessful;
+    public boolean              wasAborted;
 
     @Override
     public void onError(HocEventException e) {
@@ -39,8 +40,8 @@ public class HocEventListenerForTesting implements HocEventListener {
 
     @Override
     public void onAbort(HocEvent hoc) {
-        // TODO Auto-generated method stub
-
+        Logger.v(LOG_TAG, "on abort, ", hoc);
+        wasAborted = true;
     }
 
 }

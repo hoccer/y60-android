@@ -21,7 +21,7 @@ public class TestHocLocation extends AndroidTestCase {
         Location location = new Location("GPS_PROVIDER");
         location.setLongitude(13);
         location.setLatitude(42);
-        location.setAccuracy(2001);
+        location.setAccuracy(HocLocation.WORST_ACCURACY + 1);
 
         HocLocation hocLocation = new HocLocation(location);
         assertEquals(0, hocLocation.getQuality());
@@ -36,7 +36,7 @@ public class TestHocLocation extends AndroidTestCase {
         HocLocation hocLocation = new HocLocation(location);
         assertEquals(1, hocLocation.getQuality());
 
-        location.setAccuracy(201);
+        location.setAccuracy(HocLocation.OPTIMAL_ACCURACY + 1);
 
         hocLocation = new HocLocation(location);
         assertEquals(1, hocLocation.getQuality());
@@ -46,24 +46,25 @@ public class TestHocLocation extends AndroidTestCase {
         Location location = new Location("GPS_PROVIDER");
         location.setLongitude(13);
         location.setLatitude(42);
-        location.setAccuracy(199);
+        location.setAccuracy(HocLocation.OPTIMAL_ACCURACY - 1);
 
         HocLocation hocLocation = new HocLocation(location);
-        assertNull(hocLocation.getHocLocationProblem(new MockedProblemDescriptor()));
+        assertEquals(2, hocLocation.getQuality());
+        assertEquals(hocLocation.getHocLocationProblem(new MockedProblemDescriptor())
+                .getRecoverySuggestion(),
+                ProblemDescriptor.Suggestions.HOCCABILITY_2_GPS_GOOD_BSSIDS_BAD);
     }
 
     public void testRecoverySuggestionContainsGoOutsideWhenLocationIsBad() {
         Location location = new Location("GPS_PROVIDER");
         location.setLongitude(13);
         location.setLatitude(42);
-        location.setAccuracy(1999);
+        location.setAccuracy(HocLocation.WORST_ACCURACY - 1);
 
         HocLocation hocLocation = new HocLocation(location);
-        assertTrue(hocLocation.getHocLocationProblem(new MockedProblemDescriptor())
-                .getRecoverySuggestion().contains("go_outside"));
-
-        assertTrue(hocLocation.getHocLocationProblem(new MockedProblemDescriptor())
-                .getRecoverySuggestion().contains("turn_wifi_on"));
+        assertEquals(hocLocation.getHocLocationProblem(new MockedProblemDescriptor())
+                .getRecoverySuggestion(),
+                ProblemDescriptor.Suggestions.HOCCABILITY_1_GPS_OK_BSSIDS_BAD);
     }
 
     private class MockedProblemDescriptor implements ProblemDescriptor {
