@@ -54,19 +54,19 @@ public class HocLocation {
      * @return quality of the hoc location (0=ultra bad, 1=may work, 2=seems ok, 3=super)
      */
     public int getQuality() {
-        int hoccability = 0;
+        int quality = 0;
 
         if (mScanResults != null && mScanResults.size() > 0) {
-            hoccability += 1;
+            quality += 1;
         }
 
         if (getAccuracy() < 200) {
-            hoccability += 2;
+            quality += 2;
         } else if (getAccuracy() < 5000) {
-            hoccability += 1;
+            quality += 1;
         }
 
-        return hoccability;
+        return quality;
     }
 
     float getAccuracy() {
