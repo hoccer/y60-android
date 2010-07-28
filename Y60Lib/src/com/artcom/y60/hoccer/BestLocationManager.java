@@ -1,6 +1,7 @@
 package com.artcom.y60.hoccer;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import android.content.Context;
@@ -41,12 +42,15 @@ public class BestLocationManager implements LocationListener {
     public HocLocation getBestLocation() throws UnknownLocationException {
         Logger.v(LOG_TAG, "getting best location");
         mScanResults = mWifiManager.getScanResults();
-        HocLocation networkLocation = HocLocation.createFromLocation(mLocationManager
-                .getLastKnownLocation(LocationManager.NETWORK_PROVIDER), mScanResults);
-        HocLocation gpsLocation = HocLocation.createFromLocation(mLocationManager
-                .getLastKnownLocation(LocationManager.GPS_PROVIDER), mScanResults);
+        if (mScanResults == null) {
+            mScanResults = new ArrayList<ScanResult>();
+        }
 
-        if (gpsLocation == null && networkLocation == null) {
+        Location networkLocation = mLocationManager
+                .getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+        Location gpsLocation = mLocationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+
+        if (gpsLocation == null && networkLocation == null && mScanResults.isEmpty()) {
 
             if (mLastKnownLocation != null
                     && System.currentTimeMillis() - mLastKnownLocation.getTime() < 5000) {
@@ -57,20 +61,21 @@ public class BestLocationManager implements LocationListener {
             }
         }
 
-        if (gpsLocation == null && networkLocation != null)
-            mLastKnownLocation = networkLocation;
-        else if (networkLocation == null && gpsLocation != null)
-            mLastKnownLocation = gpsLocation;
-        else if (networkLocation.getTime() > gpsLocation.getTime())
-            mLastKnownLocation = networkLocation;
+        Location bestLocation = null;
+
+        if (networkLocation == null && gpsLocation != null)
+            bestLocation = gpsLocation;
+        else if (gpsLocation == null && networkLocation != null)
+            bestLocation = networkLocation;
+        else if (networkLocation != null && gpsLocation != null
+                && networkLocation.getAccuracy() < gpsLocation.getAccuracy())
+            bestLocation = networkLocation;
         else
-            mLastKnownLocation = gpsLocation;
+            bestLocation = gpsLocation;
 
-        if (mLastKnownLocation == null) {
-            throw new UnknownLocationException();
-        }
+        mLastKnownLocation = new HocLocation(bestLocation, mScanResults);
 
-        mLastKnownLocation.setAddress(getDisplayableAddress());
+        // mLastKnownLocation.setAddress(getDisplayableAddress());
         return mLastKnownLocation;
     }
 
@@ -100,8 +105,8 @@ public class BestLocationManager implements LocationListener {
     public void onStatusChanged(String provider, int status, Bundle extras) {
     }
 
-    public Address getAddress(Location pLocation) throws IOException {
-        if (pLocation == null) {
+    public Address getAddress(HocLocation location) throws IOException {
+        if (location == null) {
             return new Address(null);
         }
 
@@ -109,7 +114,7 @@ public class BestLocationManager implements LocationListener {
         // Logger.v(LOG_TAG, "location: ", pLocation);
 
         Address address = null;
-        List<Address> addresses = gc.getFromLocation(pLocation.getLatitude(), pLocation
+        List<Address> addresses = gc.getFromLocation(location.getLatitude(), location
                 .getLongitude(), 1);
         if (addresses.size() > 0) {
             address = addresses.get(0);
@@ -121,7 +126,7 @@ public class BestLocationManager implements LocationListener {
         if (mLastKnownLocation == null) {
             return UNKNOWN_LOCATION_TEXT;
         }
-        Location location = mLastKnownLocation;
+        HocLocation location = mLastKnownLocation;
 
         try {
             Address address = getAddress(location);

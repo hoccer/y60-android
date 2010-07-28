@@ -5,54 +5,31 @@ import java.util.List;
 
 import android.location.Location;
 import android.net.wifi.ScanResult;
-import android.os.Parcel;
-import android.os.Parcelable;
 
 import com.artcom.y60.data.ProblemDescriptor;
 
-public class HocLocation extends Location {
+public class HocLocation {
 
-    private static final String       LOG_TAG      = "HocLocation";
+    private static final String       LOG_TAG       = "HocLocation";
 
-    private List<AccessPointSighting> mScanResults = null;
+    private List<AccessPointSighting> mScanResults  = null;
     private String                    mAddress;
+    private final Location            mLocation;
 
-    private HocLocation(Location pLocation) {
-        super(pLocation);
+    private final long                mCreationTime = System.currentTimeMillis();
+
+    HocLocation(Location pLocation, List<ScanResult> scanResults) {
+        mLocation = pLocation;
+        setScanResult(scanResults);
     }
 
-    /**
-     * copy constructor
-     */
+    private boolean hasLatLong() {
+        return mLocation != null;
+    }
+
     public HocLocation(HocLocation hocLocation) {
-        super(hocLocation);
+        mLocation = hocLocation.mLocation;
         mScanResults = hocLocation.mScanResults;
-    }
-
-    private HocLocation(Parcel pIn) {
-        super(Location.CREATOR.createFromParcel(pIn));
-        mScanResults = new ArrayList<AccessPointSighting>();
-
-        pIn.readList(mScanResults, null);
-    }
-
-    public static HocLocation createFromLocation(Location pLocation) {
-        if (pLocation == null) {
-            return null;
-        } else {
-            HocLocation hocLocation = new HocLocation(pLocation);
-            return hocLocation;
-        }
-    }
-
-    public static HocLocation createFromLocation(Location pLocation, List<ScanResult> pScanResults) {
-        if (pLocation == null) {
-            return null;
-        } else {
-            HocLocation hocLocation = new HocLocation(pLocation);
-            hocLocation.setScanResult(pScanResults);
-            return hocLocation;
-        }
     }
 
     public List<AccessPointSighting> getScanResults() {
@@ -92,6 +69,10 @@ public class HocLocation extends Location {
         return hoccability;
     }
 
+    float getAccuracy() {
+        return mLocation.getAccuracy();
+    }
+
     public String getProblemDescription() {
 
         return null;
@@ -100,25 +81,6 @@ public class HocLocation extends Location {
     public String getResolvingHelp() {
         return null;
     }
-
-    @Override
-    public void writeToParcel(Parcel pDest, int pFlags) {
-        super.writeToParcel(pDest, pFlags);
-
-        pDest.writeList(mScanResults);
-    }
-
-    public static final Parcelable.Creator<HocLocation> CREATOR = new Parcelable.Creator<HocLocation>() {
-                                                                    public HocLocation createFromParcel(
-                                                                            Parcel in) {
-                                                                        return new HocLocation(in);
-                                                                    }
-
-                                                                    public HocLocation[] newArray(
-                                                                            int size) {
-                                                                        return new HocLocation[size];
-                                                                    }
-                                                                };
 
     public HoccabilityProblem getHocLocationProblem(ProblemDescriptor descriptor) {
 
@@ -184,5 +146,21 @@ public class HocLocation extends Location {
 
     public String getAddress() {
         return mAddress;
+    }
+
+    public long getTime() {
+        if (!hasLatLong()) {
+            return mCreationTime;
+        }
+
+        return mLocation.getTime();
+    }
+
+    public double getLatitude() {
+        return mLocation.getLatitude();
+    }
+
+    public double getLongitude() {
+        return mLocation.getLongitude();
     }
 }
