@@ -50,6 +50,7 @@ public class BestLocationManager implements LocationListener {
                 .getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
         Location gpsLocation = mLocationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
 
+        // if we can not get any location information right now
         if (gpsLocation == null && networkLocation == null && mScanResults.isEmpty()) {
 
             if (mLastKnownLocation != null
@@ -63,15 +64,32 @@ public class BestLocationManager implements LocationListener {
 
         Location bestLocation = null;
 
-        if (networkLocation == null && gpsLocation != null)
+        // use gps if we have no network
+        if (networkLocation == null && gpsLocation != null) {
             bestLocation = gpsLocation;
-        else if (gpsLocation == null && networkLocation != null)
+        }
+        // use cell towers if we have no gps
+        else if (gpsLocation == null && networkLocation != null) {
             bestLocation = networkLocation;
-        else if (networkLocation != null && gpsLocation != null
-                && networkLocation.getAccuracy() < gpsLocation.getAccuracy())
-            bestLocation = networkLocation;
-        else
-            bestLocation = gpsLocation;
+        }
+        // if we have cell and gps location
+        else if (networkLocation != null && gpsLocation != null) {
+
+            // if both locations are about same age, take the one with best accuracy
+            if (Math.abs(networkLocation.getTime() - gpsLocation.getTime()) < 1000) {
+                if (networkLocation.getAccuracy() < gpsLocation.getAccuracy())
+                    bestLocation = networkLocation;
+                else
+                    bestLocation = gpsLocation;
+            }
+            // else take the newest one
+            else {
+                if (networkLocation.getTime() < gpsLocation.getTime())
+                    bestLocation = networkLocation;
+                else
+                    bestLocation = gpsLocation;
+            }
+        }
 
         mLastKnownLocation = new HocLocation(bestLocation, mScanResults);
 
