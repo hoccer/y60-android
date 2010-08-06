@@ -103,6 +103,11 @@ public abstract class HocEvent {
         synchronized (mCallbackList) {
             mCallbackList.add(pListener);
         }
+
+        if (hasError()) {
+            pListener.onError(new HocEventException("hoc error: ", getState(),
+                    getResourceLocation()));
+        }
     }
 
     public void removeCallback(HocEventListener hocEventListener) {
@@ -199,10 +204,24 @@ public abstract class HocEvent {
         mLinkedPeerCount = count;
     }
 
-    protected void updateStatusFromJson(JSONObject status) throws JSONException, IOException {
+    protected void updateStatus(String state, String message) {
+
+        Logger.v(LOG_TAG, "updating status to ", state);
+
+        mMessage = message;
+        updateState(state);
+    }
+
+    protected void updateStatus(JSONObject status) throws JSONException, IOException {
+
         Logger.v(LOG_TAG, "updating status to ", status);
         if (status.has("message")) {
             mMessage = status.getString("message");
+        } else {
+            Exception e = new Exception("No message in JSON Object " + status);
+            e.fillInStackTrace();
+            getPeer().getErrorReporter().notify(LOG_TAG, e, HocEvent.this.toString());
+            mMessage = "";
         }
 
         if (status.has("expires")) {
@@ -329,21 +348,23 @@ public abstract class HocEvent {
                     mResourceLocation = mStatusFetcher.getUri();
                     Logger.v(LOG_TAG, "rtt: ", mStatusFetcher.getRtt(), " http request is: ",
                             mStatusFetcher.getClass());
-                    updateStatusFromJson(new JSONObject(body.toString()));
+
+                    updateStatus(new JSONObject(body.toString()));
+
                     launchNewPollingRequest();
+
                 } catch (JSONException e) {
                     getPeer().getErrorReporter().notify(LOG_TAG, e,
                             "HTTP Status Code: " + statusCode + " " + HocEvent.this.toString());
-                    updateState("json error");
+                    updateStatus("json error", "Connection error");
                 } catch (IOException e) {
                     getPeer().getErrorReporter().notify(LOG_TAG, e,
                             "HTTP Status Code: " + statusCode + " " + HocEvent.this.toString());
-                    updateState("io error");
+                    updateStatus("io error", "Conneciton error");
                 } catch (NullPointerException e) {
                     getPeer().getErrorReporter().notify(LOG_TAG, e,
                             "HTTP Status Code: " + statusCode + " " + HocEvent.this.toString());
-                    updateState("empty");
-                    mMessage = "empty response from server";
+                    updateStatus("empty", "Empty response from server");
                 }
             }
 
