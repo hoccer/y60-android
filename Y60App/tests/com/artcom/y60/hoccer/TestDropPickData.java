@@ -14,7 +14,7 @@ public class TestDropPickData extends HocEventTestCase {
 
     public void testDrop() throws Exception {
 
-        DropEvent hoc = getPeer().drop(new StreamableString("my hocced data"), 20);
+        DropEvent hoc = getPeer().dropIt(new StreamableString("my hocced data"), 20);
         blockUntilEventIsAlive("drop", hoc);
 
         TestHelper.assertMatches("event should have a valid resource location", getPeer()
@@ -31,7 +31,7 @@ public class TestDropPickData extends HocEventTestCase {
 
     public void testEmptyPick() throws Exception {
 
-        PickEvent hoc = getPeer().pick();
+        PickEvent hoc = getPeer().pickIt();
         HocEventListenerForTesting eventCallback = new HocEventListenerForTesting();
         hoc.addCallback(eventCallback);
         blockUntilEventIsExpired("pick", hoc);
@@ -50,12 +50,12 @@ public class TestDropPickData extends HocEventTestCase {
 
     public void testDropAndPick() throws Exception {
 
-        DropEvent drop = getPeer().drop(new StreamableString("the dropped data"), 5);
+        DropEvent drop = getPeer().dropIt(new StreamableString("the dropped data"), 5);
         blockUntilEventIsAlive("drop", drop);
         blockUntilDataHasBeenUploaded(drop);
         TestHelper.assertGreater("lifetime should be fine", 4, drop.getRemainingLifetime());
 
-        PickEvent pick = getPeer().pick();
+        PickEvent pick = getPeer().pickIt();
         blockUntilEventIsExpired("pick", pick);
         blockUntilEventIsLinked(pick);
 
@@ -78,10 +78,10 @@ public class TestDropPickData extends HocEventTestCase {
 
     public void testPickingFileWithinEventListenerCallback() throws Exception {
 
-        DropEvent drop = getPeer().drop(new StreamableString("dropped data"), 10);
+        DropEvent drop = getPeer().dropIt(new StreamableString("dropped data"), 10);
         blockUntilDataHasBeenUploaded(drop);
 
-        final PickEvent pick = getPeer().pick();
+        final PickEvent pick = getPeer().pickIt();
         PickSecondFileCallback callback = new PickSecondFileCallback(pick);
         pick.addCallback(callback);
 

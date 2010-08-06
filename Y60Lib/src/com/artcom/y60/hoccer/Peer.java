@@ -104,12 +104,12 @@ public abstract class Peer {
         return new ThrowEvent(pStreamableData, this);
     }
 
-    public DropEvent drop(StreamableContent pStreamableData, long lifetime)
+    public DropEvent dropIt(StreamableContent pStreamableData, long lifetime)
             throws UnknownLocationException {
         return new DropEvent(pStreamableData, lifetime, this);
     }
 
-    public PickEvent pick() throws UnknownLocationException {
+    public PickEvent pickIt() throws UnknownLocationException {
         return new PickEvent(this);
     }
 
