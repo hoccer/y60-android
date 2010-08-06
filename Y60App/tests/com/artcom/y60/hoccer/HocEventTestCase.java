@@ -123,7 +123,7 @@ public class HocEventTestCase extends AndroidTestCase {
 
                     @Override
                     public boolean isSatisfied() throws Exception {
-                        return !pEvent.mState.equals("unborn") && !pEvent.isOpenForLinking();
+                        return !pEvent.getState().equals("unborn") && !pEvent.isOpenForLinking();
                     }
                 });
     }

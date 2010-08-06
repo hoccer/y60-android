@@ -34,6 +34,10 @@ public class ErrorReporter implements UncaughtExceptionHandler {
         notify("UnknownComponent", e);
     }
 
+    public void notify(String component, Throwable e, String details) {
+        notify(component, details + "\n" + Log.getStackTraceString(e));
+    }
+
     public void notify(String component, Throwable e) {
         notify(component, Log.getStackTraceString(e));
     }

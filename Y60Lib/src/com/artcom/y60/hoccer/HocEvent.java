@@ -23,7 +23,7 @@ import com.artcom.y60.http.HttpServerException;
 public abstract class HocEvent {
 
     private static final String               LOG_TAG             = "HocEvent";
-    String                                    mState              = "unborn";
+    private String                            mState              = "unborn";
     private double                            mRemainingLifetime  = -1;
     private int                               mLinkedPeerCount    = 0;
     private UUID                              mUuid               = null;
@@ -93,6 +93,10 @@ public abstract class HocEvent {
 
     protected Peer getPeer() {
         return mPeer;
+    }
+
+    public String getState() {
+        return mState;
     }
 
     public void addCallback(HocEventListener pListener) {
@@ -315,26 +319,29 @@ public abstract class HocEvent {
 
             @Override
             public void onSuccess(int statusCode, StreamableContent body) {
-                processServerResponse(body);
+                processServerResponse(statusCode, body);
             }
 
-            private void processServerResponse(StreamableContent body) {
+            private void processServerResponse(int statusCode, StreamableContent body) {
                 if (mStatusFetcher == null)
                     return;
                 try {
                     mResourceLocation = mStatusFetcher.getUri();
                     Logger.v(LOG_TAG, "rtt: ", mStatusFetcher.getRtt(), " http request is: ",
                             mStatusFetcher.getClass());
-                    updateStatusFromJson(new JSONObject(body.toString()));
+                    updateStatusFromJson(new JSONObject("<gtn> " + body.toString() + "%&}}"));
                     launchNewPollingRequest();
                 } catch (JSONException e) {
-                    getPeer().getErrorReporter().notify(LOG_TAG, e);
+                    getPeer().getErrorReporter().notify(LOG_TAG, e,
+                            "HTTP Status Code: " + statusCode + " " + HocEvent.this.toString());
                     updateState("json error");
                 } catch (IOException e) {
-                    getPeer().getErrorReporter().notify(LOG_TAG, e);
+                    getPeer().getErrorReporter().notify(LOG_TAG, e,
+                            "HTTP Status Code: " + statusCode + " " + HocEvent.this.toString());
                     updateState("io error");
                 } catch (NullPointerException e) {
-                    getPeer().getErrorReporter().notify(LOG_TAG, e);
+                    getPeer().getErrorReporter().notify(LOG_TAG, e,
+                            "HTTP Status Code: " + statusCode + " " + HocEvent.this.toString());
                     updateState("empty");
                     mMessage = "empty response from server";
                 }
@@ -376,7 +383,7 @@ public abstract class HocEvent {
             @Override
             public void onError(int statusCode, StreamableContent body) {
                 Logger.e(LOG_TAG, "onError: ", body, " with status code: ", statusCode);
-                processServerResponse(body);
+                processServerResponse(statusCode, body);
             }
 
             @Override
@@ -415,4 +422,10 @@ public abstract class HocEvent {
         onAbort();
     }
 
+    @Override
+    public String toString() {
+        String txt = this.getClass().getSimpleName() + " at '" + getResourceLocation()
+                + "' with state " + getState() + " and lifetime: " + getRemainingLifetime();
+        return txt;
+    }
 }
