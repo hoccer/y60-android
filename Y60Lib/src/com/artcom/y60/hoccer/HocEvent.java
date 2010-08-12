@@ -12,13 +12,11 @@ import org.json.JSONObject;
 import com.artcom.y60.Logger;
 import com.artcom.y60.ReflectionHelper;
 import com.artcom.y60.data.StreamableContent;
+import com.artcom.y60.http.AsyncHttpDelete;
 import com.artcom.y60.http.AsyncHttpGet;
 import com.artcom.y60.http.AsyncHttpPost;
 import com.artcom.y60.http.AsyncHttpRequest;
-import com.artcom.y60.http.HttpClientException;
-import com.artcom.y60.http.HttpHelper;
 import com.artcom.y60.http.HttpResponseHandler;
-import com.artcom.y60.http.HttpServerException;
 
 public abstract class HocEvent {
 
@@ -423,23 +421,14 @@ public abstract class HocEvent {
     public void abort() throws HocEventException {
         isAborted = true;
         Logger.v(LOG_TAG, "aborting event ", mResourceLocation);
-        try {
-            if (mStatusFetcher != null) {
-                mStatusFetcher.interrupt();
+        if (mStatusFetcher != null) {
+            mStatusFetcher.interrupt();
 
-                if (mResourceLocation != null) {
-                    HttpHelper.delete(mResourceLocation);
-                }
+            if (mResourceLocation != null) {
+                new AsyncHttpDelete(mResourceLocation);
             }
-        } catch (HttpClientException e) {
-            throw new HocEventException(e);
-        } catch (HttpServerException e) {
-            Logger.e(LOG_TAG, e);
-        } catch (IOException e) {
-            Logger.e(LOG_TAG, e);
-        } finally {
-            mStatusFetcher = null;
         }
+
         onAbort();
     }
 
