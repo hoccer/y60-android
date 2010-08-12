@@ -261,7 +261,7 @@ public abstract class HocEvent {
 
         isReady = true;
         stopPolling();
-
+        Logger.v(LOG_TAG, "HocEvent tryForSuccess");
         Logger.v(LOG_TAG, ReflectionHelper.callingMethodName());
 
         synchronized (mCallbackList) {
@@ -272,7 +272,7 @@ public abstract class HocEvent {
         }
     };
 
-    private void stopPolling() {
+    protected void stopPolling() {
         if (mStatusFetcher == null) {
             return;
         }

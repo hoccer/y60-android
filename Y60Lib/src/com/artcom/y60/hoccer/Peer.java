@@ -223,4 +223,9 @@ public abstract class Peer {
     public boolean hasLocation() {
         return mHocLocation != null;
     }
+
+    public HocLocation getHocLocation() {
+        return mHocLocation;
+    }
+
 }

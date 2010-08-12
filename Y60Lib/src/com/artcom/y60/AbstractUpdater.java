@@ -32,7 +32,9 @@ public abstract class AbstractUpdater {
                                      };
 
     public void start() {
-        updateThrad.start();
+        if (!updateThrad.isAlive()) {
+            updateThrad.start();
+        }
     }
 
     public void join() throws InterruptedException {
@@ -45,6 +47,10 @@ public abstract class AbstractUpdater {
 
     public void shutdown() {
         mDoUpdates = false;
+        try {
+            join();
+        } catch (InterruptedException e) {
+        }
     }
 
     abstract protected void update();

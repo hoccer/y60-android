@@ -15,6 +15,7 @@ public class PickEvent extends ReceiveEvent {
 
     @Override
     protected void onPossibleDownloadsAvailable(JSONArray pieces) {
+        stopPolling();
         mPieces = pieces;
     }
 
