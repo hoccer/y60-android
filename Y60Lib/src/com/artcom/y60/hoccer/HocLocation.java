@@ -10,8 +10,6 @@ import com.artcom.y60.data.ProblemDescriptor;
 
 public class HocLocation {
 
-    private static final String       LOG_TAG          = "HocLocation";
-
     private List<AccessPointSighting> mScanResults     = null;
     private String                    mAddress;
     private final Location            mLocation;
