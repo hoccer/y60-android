@@ -1,27 +1,29 @@
 package com.artcom.y60.hoccer;
 
 import java.util.HashMap;
-import java.util.Map;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.artcom.y60.Logger;
 
-public class PickableItem {
+public class PickableItem extends HashMap<String, String> {
 
-    private static final String LOG_TAG = "PickableItem";
-    private Map<String, String> mPickableItem;
+    private static final long   serialVersionUID = 4009536136213288289L;
+    private static final String LOG_TAG          = "PickableItem";
 
     public PickableItem(JSONObject jsonPickable) throws JSONException {
-        mPickableItem = new HashMap<String, String>();
-        mPickableItem.put("uri", jsonPickable.getString("uri"));
-        mPickableItem.put("content_type", jsonPickable.getString("content_type"));
-        mPickableItem.put("filename", jsonPickable.getString("filename"));
+        put("uri", jsonPickable.getString("uri"));
+        put("content_type", jsonPickable.getString("content_type"));
+        put("filename", jsonPickable.getString("filename"));
     }
 
     public String getUri() {
-        return mPickableItem.get("uri");
+        return get("uri");
+    }
+
+    public String getFilename() {
+        return get("filename");
     }
 
     @Override
