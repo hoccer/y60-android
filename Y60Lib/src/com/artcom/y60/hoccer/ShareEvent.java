@@ -15,7 +15,7 @@ import com.artcom.y60.http.MultipartHttpEntity;
 
 public abstract class ShareEvent extends HocEvent {
 
-    private static final String     LOG_TAG       = "TransferOutEvent";
+    private static final String     LOG_TAG       = "ShareEvent";
     private final StreamableContent mOutgoingData;
     AsyncHttpPut                    mDataUploader = null;
 
@@ -47,7 +47,7 @@ public abstract class ShareEvent extends HocEvent {
         return super.wasSuccessful() && hasDataBeenUploaded();
     }
 
-    private void uploadDataTo(String uri) throws JSONException, IOException {
+    private void uploadDataTo(final String uri) throws JSONException, IOException {
         Logger.v(LOG_TAG, "starting upload of '", mOutgoingData, "' to " + uri);
         mDataUploader = new AsyncHttpPut(uri);
         MultipartHttpEntity multipart = new MultipartHttpEntity();
@@ -69,6 +69,11 @@ public abstract class ShareEvent extends HocEvent {
             @Override
             public void onError(int statusCode, StreamableContent body) {
                 Logger.e(LOG_TAG, "onError: ", body, " with status code: ", statusCode);
+                if (statusCode == 500) {
+                    getPeer().getErrorReporter().notify(
+                            "Internal Server Error while uploading '" + mOutgoingData + "' to "
+                                    + uri);
+                }
                 ShareEvent.this.onError(new HocEventException("upload failed with status code "
                         + statusCode, "failed", "<unknown uri>"));
             }
