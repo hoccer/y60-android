@@ -29,6 +29,7 @@ public abstract class ReceiveEvent extends HocEvent {
         if (status.has("uploads")) {
             JSONArray possible_pieces = status.getJSONArray("uploads");
             if (possible_pieces.length() > 0) {
+
                 onPossibleDownloadsAvailable(possible_pieces);
             }
         }

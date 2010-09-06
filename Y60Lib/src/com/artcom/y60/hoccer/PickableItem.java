@@ -26,6 +26,10 @@ public class PickableItem extends HashMap<String, String> {
         return get("filename");
     }
 
+    public String getContentType() {
+        return get("content_type");
+    }
+
     @Override
     public String toString() {
         return this.getClass().getSimpleName() + " " + "uri: " + getUri();

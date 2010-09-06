@@ -136,7 +136,7 @@ public class IntentHelper {
         try {
             icon = context.getPackageManager().getActivityIcon(pIntent);
         } catch (NameNotFoundException e) {
-            Logger.v(LOG_TAG, e);
+            icon = context.getResources().getDrawable(android.R.drawable.ic_menu_help);
         }
 
         return icon;
