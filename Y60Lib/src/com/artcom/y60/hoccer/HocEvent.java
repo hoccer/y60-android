@@ -344,7 +344,7 @@ public abstract class HocEvent {
                     return;
                 try {
                     mResourceLocation = mStatusFetcher.getUri();
-                    Logger.v(LOG_TAG, "rtt: ", mStatusFetcher.getRtt(), " http request is: ",
+                    Logger.v(LOG_TAG, "rtt: ", mStatusFetcher.getUploadTime(), " http request is: ",
                             mStatusFetcher.getClass());
 
                     updateStatus(new JSONObject(body.toString()));
@@ -383,7 +383,7 @@ public abstract class HocEvent {
                     }
                 }
                 // mStatusPollingDelay += mStatusPollingDelay;
-                long tmpRtt = mStatusFetcher.getRtt();
+                long tmpRtt = mStatusFetcher.getUploadTime();
                 mStatusFetcher = new AsyncHttpGet(mStatusFetcher.getUri(), mPeer.getHttpClient());
                 mStatusFetcher.addAdditionalHeaderParam("X-Rtt", String.valueOf(tmpRtt));
                 mStatusFetcher.addAdditionalHeaderParam("X-Client-Uuid", mPeer.getClientUuid());
