@@ -4,6 +4,7 @@ import java.lang.Thread.UncaughtExceptionHandler;
 
 import android.util.Log;
 
+import com.artcom.y60.ErrorHandling;
 import com.artcom.y60.Logger;
 
 public class ErrorReporter implements UncaughtExceptionHandler {
@@ -44,6 +45,10 @@ public class ErrorReporter implements UncaughtExceptionHandler {
 
     public void notify(String component, String errorMessage) {
         notify(component + ": " + errorMessage);
+    }
+
+    public void notifyWithStacktrace(String errorMessage) {
+        notify(errorMessage + "\n" + ErrorHandling.getCurrentStackTrace());
     }
 
     public void notify(String errorMessage) {

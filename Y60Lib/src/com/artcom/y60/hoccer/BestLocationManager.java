@@ -39,6 +39,10 @@ public class BestLocationManager implements LocationListener {
         mWifiManager = (WifiManager) pContext.getSystemService(Context.WIFI_SERVICE);
     }
 
+    public Context getContext() {
+        return mContext;
+    }
+
     public HocLocation getBestLocation() throws UnknownLocationException {
         Logger.v(LOG_TAG, "getting best location");
         mScanResults = mWifiManager.getScanResults();
