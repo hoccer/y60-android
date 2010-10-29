@@ -23,7 +23,7 @@ public class ErrorPresentationActivity extends Activity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        Logger.v(LOG_TAG, "oncreate");
+        Logger.v(LOG_TAG, "on Create");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.error_presentation);
         mTextView = (TextView) findViewById(R.id.error_text);
