@@ -77,10 +77,10 @@ public class DeviceConfiguration {
     }
 
     /**
-     * @return true iff the code is executed on an emulator
+     * @return true if the code is executed via vpn from the Artcom developer network.
      */
-    public static boolean isRunningAsEmulator() throws IpAddressNotFoundException {
-        if (NetworkHelper.getDeviceIpAddress().startsWith("10.0.2.")) {
+    public static boolean isRunningViaArtcomDevelopmentVpn() throws IpAddressNotFoundException {
+        if (NetworkHelper.getDeviceIpAddress().startsWith("10.")) {
             return true;
         }
         return false;

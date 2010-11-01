@@ -90,9 +90,9 @@ public class DeviceControllerService extends Y60Service {
         try {
             // do not update uri if executed in the emulator; the host will need
             // to take care of this
-            if (!DeviceConfiguration.isRunningAsEmulator()) {
+            if (!DeviceConfiguration.isRunningViaArtcomDevelopmentVpn()) {
                 ipAddress = NetworkHelper.getDeviceIpAddress();
-                GomHttpWrapper.updateOrCreateAttribute(deviceUri + ":ip_address", ipAddress);
+                GomHttpWrapper.updateOrCreateAttribute(deviceUri + ":" + Constants.Network.IP_ADDRESS_ATTRIBUTE, ipAddress);
                 GomHttpWrapper.updateOrCreateAttribute(deviceUri + ":rtp_address", ipAddress);
                 GomHttpWrapper.updateOrCreateAttribute(deviceUri + ":rtp_port", "16384");
             } else {
