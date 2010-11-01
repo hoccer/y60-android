@@ -93,10 +93,10 @@ def main pj_names
   "
   
   if success
-    puts "all tests run succsesfull"
+    puts "all tests succeeded"
     exit 0
   else
-    puts "There where test failures in #{failing_projects.join ', '}"
+    puts "There were test failures in #{failing_projects.join ', '}"
     last_project_sorting = failing_projects + (last_project_sorting - failing_projects)
     
     File.open(last_project_sorting_file, 'w') {|f| f.write(last_project_sorting.to_yaml) }
