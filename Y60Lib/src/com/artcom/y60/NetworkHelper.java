@@ -149,7 +149,7 @@ public class NetworkHelper {
         try {
             addresses = NetworkHelper.getLocalIpAddresses();
         } catch (SocketException e1) {
-            throw new IpAddressNotFoundException("could not retive a valid ip address");
+            throw new IpAddressNotFoundException("could not retrieve a valid ip address");
         }
 
         Iterator<InetAddress> itr = addresses.iterator();
@@ -161,6 +161,6 @@ public class NetworkHelper {
             }
         }
 
-        throw new IpAddressNotFoundException("could not retive a valid ip address");
+        throw new IpAddressNotFoundException("could not retrieve a valid ip address");
     }
 }
