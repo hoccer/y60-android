@@ -36,7 +36,7 @@ class Project
     sorted_pjs = []
     while !unsorted_pjs.empty? 
       project = unsorted_pjs.delete_at 0
-      puts "loading dependencies:"
+      puts "loading dependencies for project '#{project}':"
       project.resolve_dependencies
       puts "loaded dependencies for #{name}"
 
@@ -55,7 +55,6 @@ class Project
   end
   
   def self.find_or_create name, base_path = nil
-  
     puts "#{base_path}"
     @@project_paths[name] = "#{base_path}/#{name}" if base_path != nil
     
