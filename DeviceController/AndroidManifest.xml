@@ -1,10 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.artcom.y60.dc">
+    
+    <uses-sdk android:targetSdkVersion="4" android:minSdkVersion="4"></uses-sdk>
+    <uses-permission android:name="android.permission.READ_CONTACTS"/>
+    <uses-permission android:name="android.permission.WRITE_CONTACTS"/>
+    <uses-permission android:name="android.permission.WRITE_SETTINGS"/>
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.RUN_INSTRUMENTATION"/>
+    <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    
     <application android:label="@string/manage_jetty" android:icon="@drawable/smooth" android:debuggable="true">
-    
-    <uses-library android:name="android.test.runner" />
-    
+        <uses-library android:name="android.test.runner" />
         <activity android:name=".DeviceControllerActivity"
                   android:label="@string/manage_jetty"
                   android:icon="@drawable/smooth"
@@ -40,20 +48,10 @@
                 <action android:name="android.intent.action.SCREEN_OFF" /> 
             </intent-filter>
         </receiver>
-
     </application>
-    
-    <uses-permission android:name="android.permission.READ_CONTACTS"/>
-    <uses-permission android:name="android.permission.WRITE_CONTACTS"/>
-    <uses-permission android:name="android.permission.WRITE_SETTINGS"/>
-    <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.RUN_INSTRUMENTATION" />
     
     <instrumentation android:name="android.test.InstrumentationTestRunner" 
       android:targetPackage="com.artcom.y60.dc" 
       android:label="DeviceController">
     </instrumentation>
-<uses-permission android:name="android.permission.CHANGE_NETWORK_STATE"></uses-permission>
-<uses-sdk android:targetSdkVersion="4" android:minSdkVersion="4"></uses-sdk>
-<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"></uses-permission>
 </manifest> 

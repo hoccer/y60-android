@@ -7,9 +7,9 @@
     <uses-permission android:name="android.permission.SET_PREFERRED_APPLICATIONS" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.VIBRATE" />   
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
      
     <application  android:icon="@drawable/default_icon" android:label="Y60" android:debuggable="true">
-    
         <activity 
             android:name=".Y60" 
             android:label="@string/app_name"
@@ -28,8 +28,7 @@
         
         <activity 
         	android:name=".ErrorPresentationActivity"  
-        	android:exported="true"
-        	>
+        	android:exported="true">
             <intent-filter>
                 <action android:name="y60.intent.ERROR_PRESENTATION" />
                 <category android:name="android.intent.category.DEFAULT" />
@@ -89,24 +88,16 @@
         </activity>
         
         
-    <receiver
-          android:name="com.artcom.y60.DeviceReporter">
+        <receiver android:name="com.artcom.y60.DeviceReporter">
             <intent-filter >
             <action android:name="com.artcom.y60.logDeviceInfo" />
             </intent-filter>          
-       </receiver>
-
-        
+        </receiver>
         <uses-library android:name="android.test.runner" />
-        
     </application>
     
     <instrumentation android:name="android.test.InstrumentationTestRunner" 
       android:targetPackage="com.artcom.y60" 
       android:label="Y60 Infrastructure Tests">
     </instrumentation>
-
-
-<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"></uses-permission>
 </manifest> 
-
