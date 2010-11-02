@@ -152,7 +152,7 @@ class Project
   
     dependencies.each do |dep_pj|
       if !dep_pj.respond_to? :jar_path
-        puts "Warning: Can't depend on project #{dep_pj.name}, becaus it doesn't have a jar!"
+        puts "Warning: Can't depend on project #{dep_pj.name}, because it doesn't have a jar!"
       else
         run "copying #{dep_pj.name}s jar", <<-EOT
           cp #{dep_pj.jar_path} #{path}/libs/
