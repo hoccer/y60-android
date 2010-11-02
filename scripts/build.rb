@@ -11,7 +11,7 @@ def main pj_names
  
   # build all projects
   projects.each do |project| 
-    puts "--- doing project #{project.name}"
+    puts "--- building project #{project.name}..."
     project.cleanup
     project.create_build_env
     project.merge_dependencies
