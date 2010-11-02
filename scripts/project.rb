@@ -234,7 +234,7 @@ class Project
         pj_path = pj_path_list.join("/")
         pj_name = pj_path_list.pop
         
-        puts "found #{pj_name}:\n\t\t\t '#{pj_path}'"
+        puts "found #{pj_name}:\n\t  at path: '#{pj_path}'"
         
         # add to paths only if all project paths are to be loaded
         @@project_paths[pj_name] = pj_path if (all_or_names == :all) or all_or_names.member? pj_name
