@@ -1,4 +1,4 @@
-#!/usr/bin/ruby
+#!/usr/bin/env ruby
 
 class AndroidProject < Project
 
@@ -10,7 +10,6 @@ class AndroidProject < Project
     manifest_file = "#{path}/AndroidManifest.xml"
     puts "reading manifest for #{name} from #{manifest_file}"
     @manifest_xml = REXML::Document.new(File.new(manifest_file))
-    
   end
 
   def create_build_env
@@ -67,14 +66,13 @@ class AndroidProject < Project
   end
 
   def reinstall device_id=""
-  
     # adb can reinstall apps when using the -r flag 
     install device_id, "-r"
   end
 
   # run adroid instumentation tests; returns true if succsessfull
   def test
-    puts "testing #{name}"    
+    puts "testing #{name}"
    
     # check the manifest instrumentation test definiton
     node = REXML::XPath.first(@manifest_xml, "*/instrumentation")
@@ -109,8 +107,6 @@ class AndroidProject < Project
       puts test_result
       return {:was_succsessful => false}
     end
-
   end
 
-  
 end

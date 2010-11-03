@@ -1,5 +1,4 @@
 #!/usr/bin/env ruby
-
 require "yaml"
 
 $:.unshift File.join(File.dirname(__FILE__), '..', 'scripts')
@@ -8,7 +7,6 @@ require 'java_project'
 require 'android_project'
 
 def main pj_names
-
   last_project_sorting_file = "/tmp/project_sorting.yaml"
   if File.exists? last_project_sorting_file then
     last_project_sorting = YAML::load_file(last_project_sorting_file);
@@ -22,7 +20,6 @@ def main pj_names
   
   
   last_project_sorting.each { |name|
-    
     index = project_paths.index{|p| p.include? name}
     if index != nil then
       puts "adding #{name} to projects (was at index #{index})"
@@ -40,7 +37,6 @@ def main pj_names
   failing_projects = []
   tests_run = tests_failed = tests_with_exception = broken_instrumentations = 0
 
- 
   projects = projects.select { |p| p.respond_to? :test }
   puts "testing #{projects.map {|p| p.name}.join(' ')}"
   puts "testing #{projects.size}"

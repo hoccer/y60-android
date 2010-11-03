@@ -18,7 +18,6 @@ usage: $ #{__FILE__} <action>
      uninstall   removes installed apks
 EOT
 
-
 def get_git_version
   log = open "|git log --summary HEAD"
   version = log.gets[7..-1][0..6]
@@ -27,7 +26,6 @@ def get_git_version
   return version
 end
 
-
 def remember_version device_flag
   version = get_git_version
   puts "remembering version '#{version}'"
@@ -35,9 +33,7 @@ def remember_version device_flag
 end
 
 def main action, device_id, pj_names
-  
   projects = Project.load_in_dependency_order(pj_names)
-  
   projects = projects.select { |p| p.respond_to? :reinstall }
 
   puts "#{action}ing #{projects.map {|p| p.name}.join(' ')}"
@@ -54,11 +50,12 @@ def main action, device_id, pj_names
   system "adb #{device} shell rm /data/local/*apk"
 
   remember_version device unless action == "uninstall"
-  
 rescue => e
   puts "oops: #{e}\n#{e.backtrace.join "\n"}"
   puts Usage
   exit 1
 end
 
-(__FILE__ == $0) and (main ARGV[0], ARGV[1], nil)
+if __FILE__ == $0
+  main ARGV[0], ARGV[1], nil
+end
