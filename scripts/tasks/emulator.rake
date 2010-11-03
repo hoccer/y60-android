@@ -3,9 +3,10 @@ require 'yaml'
 namespace :emulator do
   
   desc "starts the default emulator or a specific one"
-  task :boot do
-    if avd_name
-      fail unless boot_emulator(avd_name)
+  task :boot => ['config:load'] do
+    my_avd_name = avd_name
+    if my_avd_name
+      fail unless boot_emulator(my_avd_name)
     else
       puts "FAILURE: Cannot determine emulator avd_name to boot!"
       fail
@@ -26,6 +27,11 @@ namespace :emulator do
   task :port_forward do
     puts " ... you may also need to use rinetd (linux) or ipfw (osx)"
     fail unless system "adb forward tcp:4042 tcp:4042"
+  end
+  
+  desc "Kills all currently running emulator instances"
+  task :kill_all do
+    fail unless system 'killall emulator || echo "no emulator running"'
   end
   
   namespace :y60 do
@@ -57,10 +63,9 @@ namespace :emulator do
 end
 
 def avd_name
-  config = YAML::load(File.open("#{@config_path}/app_settings.yml"))
-  if config["avd_name"]
-    puts "Determined avd_name '#{config["avd_name"]}' determined from app_settings.yml"
-    return config['avd_name']
+  if @config["avd_name"]
+    puts "Determined avd_name '#{@config["avd_name"]}' from app_settings.yml"
+    return @config['avd_name']
   end
   puts "Could not determine avd_name - check the file #{@config_path}/app_settings.yml"
   nil
