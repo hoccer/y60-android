@@ -41,6 +41,8 @@ public class DeviceControllerService extends Y60Service {
     @Override
     public void onCreate() {
 
+    	Logger.v(LOG_TAG, "onCreate START");
+    	
         // this helps to prevent this service from being killed
         setForeground(true);
 
@@ -53,13 +55,16 @@ public class DeviceControllerService extends Y60Service {
         }
 
         try {
+        	Logger.v(LOG_TAG, "onCreate updating gom attributes for device... START");
             updateGomAttributesForDevice();
             updateVersionAttributeForDevice();
+            Logger.v(LOG_TAG, "onCreate updating gom attributes for device... DONE");
         } catch (IOException e) {
             ErrorHandling.signalIOError(LOG_TAG, e, this);
         } catch (HttpException e) {
             ErrorHandling.signalHttpError(LOG_TAG, e, this);
         }
+        Logger.v(LOG_TAG, "onCreate END");
         super.onCreate();
     }
 
