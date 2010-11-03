@@ -1,5 +1,3 @@
-require 'yaml'
-
 namespace :emulator do
   
   desc "starts the default emulator or a specific one"
