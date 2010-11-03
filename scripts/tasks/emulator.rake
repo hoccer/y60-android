@@ -22,6 +22,12 @@ namespace :emulator do
     fail unless system cmd
   end
   
+  desc "forwards the host machines DeviceController Port to the Emulator (which needs to run)"
+  task :port_forward do
+    puts " ... you may also need to use rinetd (linux) or ipfw (osx)"
+    fail unless system "adb forward tcp:4042 tcp:4042"
+  end
+  
   namespace :y60 do
   
     desc "Initializes Y60 on a running emulator (this will take some time although this command exits immediately)"
