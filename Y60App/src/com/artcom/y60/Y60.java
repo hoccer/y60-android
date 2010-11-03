@@ -292,7 +292,6 @@ public class Y60 extends Activity {
         }
 
         public void onNothingSelected(AdapterView<?> arg0) {
-
             // don't care
         }
     }
