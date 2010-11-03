@@ -2,6 +2,7 @@ namespace :emulator do
   
   desc "starts the default emulator or a specific one"
   task :boot => ['config:load'] do
+    # TODO make this defensive -> do not start if already started...
     my_avd_name = avd_name
     if my_avd_name
       fail unless boot_emulator(my_avd_name)
@@ -19,6 +20,22 @@ namespace :emulator do
       cmd = "adb logcat -v time"
     end
     fail unless system cmd
+  end
+  
+  desc "Deactivate Screen Lock permanently"
+  task :deactivate_screen_lock do #=> ['emulator:kill_all', 'emulator:boot'] do
+    SQL_PATCH = 'UPDATE "secure" SET VALUE="0" WHERE NAME="device_provisioned";'
+    mySqlPatchFile = Tempfile.new 'disable_screen_lock'
+    mySqlPatchFile << SQL_PATCH
+    mySqlPatchFile.flush
+    
+    puts mySqlPatchFile.path
+    
+    system "adb pull /data/data/com.android.providers.settings/databases/settings.db /tmp/settings.db"
+    system "sqlite3 /tmp/settings.db < #{mySqlPatchFile.path}"
+    system "adb push /tmp/settings.db /data/data/com.android.providers.settings/databases/settings.db"
+    mySqlPatchFile.close
+    system "rm /tmp/settings.db"
   end
   
   desc "forwards the host machines DeviceController Port to the Emulator (which needs to run)"
