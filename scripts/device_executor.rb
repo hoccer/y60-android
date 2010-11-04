@@ -11,16 +11,16 @@ def putsf s
   $stdout.flush
 end
 
-# http://ph7spot.com/articles/system_timer
-begin
-  require 'system_timer'
-  MyTimer = SystemTimer
-rescue LoadError
-  puts "Using green threads for timeout because SystemTimer wasn't installed. For native threads:"
-  puts "sudo gem install SystemTimer"
-  require 'timeout'
-  MyTimer = Timeout
-end
+## http://ph7spot.com/articles/system_timer
+#begin
+#  require 'system_timer'
+#  MyTimer = SystemTimer
+#rescue LoadError
+#  puts "Using green threads for timeout because SystemTimer wasn't installed. For native threads:"
+#  puts "sudo gem install SystemTimer"
+#  require 'timeout'
+#  MyTimer = Timeout
+#end
 
 class DeviceExecutor
   
@@ -62,6 +62,7 @@ class DeviceExecutor
       if known_device_ids.include? device_id
         known_device_ids.delete device_id
       else
+        putsf "new Device connected: #{device_id}"
         @connected_devices << Device.new(device_id)
       end
     end
