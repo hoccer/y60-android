@@ -1,3 +1,6 @@
 #Create an app_settings.yml file from this template and store it in the <y60-path>/config folder.
 #Since app_settings.yml is listed in .gitignore it wont be tracked.
 avd_name: "my_avd_name"
+gom: "gom2.t-gallery.act"
+device_path: "/areas/mobile/emulator_for_hudson"
+user_path: "/tours/mobile_ci/guests/blue"

@@ -20,4 +20,14 @@ namespace :config do
     puts "Your current configuration:\n#{@config.inspect}\n"
   end
   
+  #desc "Generates device_config.json file from settings in config (app_settings.yml)"
+  #task :generate_device_config do
+  #  
+  #end
+  
+  #desc "uploads config into devices sdcard"
+  #task :upload_device_config do
+  #  #
+  #end
+  
 end
