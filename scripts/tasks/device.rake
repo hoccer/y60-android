@@ -45,6 +45,7 @@ end
 
 desc "Removes all packages in namespaces #{@package_namespaces.inspect}"
 task :removeartcom do
+  puts "Preparing removing all packages from the following namespaces: #{@package_namespaces.inspect}"
   remove_packages(get_packages(@package_namespaces))
 end
 
