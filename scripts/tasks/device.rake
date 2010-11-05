@@ -59,8 +59,8 @@ def remove pkg
 end
 
 def remove_packages list
-  puts "removing the following packages: #{list.inspect}"
-  list.each {|line|
+  puts "removing the following packages: #{list.map {|line| line.strip[/:(.*)/,1]}.inspect}"
+  list.each { |line|
       pkg = line.strip[/:(.*)/,1] # cutting "package:" string at beginning
       remove pkg
   }
