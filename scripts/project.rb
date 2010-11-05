@@ -9,14 +9,12 @@ require 'rexml/document'
 require 'rexml/xpath'
 require 'erb'
 
-
 class Project
-  # class variables ------------------------------------------------------
   
   @@project_paths = {}
   @@projects      = {}
   
-  # public class methods -------------------------------------------------
+  attr_reader :dependencies, :name, :path, :parent_dir
   
   def self.load_in_dependency_order pj_names = nil
     load_all = (pj_names.nil? or pj_names.empty?)
@@ -73,14 +71,6 @@ class Project
     pj
   end
   
-  
-  # instance variables ---------------------------------------------------
-  
-  attr_reader :dependencies, :name, :path, :parent_dir
-
-
-  # initializers ---------------------------------------------------------
-  
   def initialize pj_name
     puts "creating #{pj_name}"
     @dependencies = []
@@ -94,7 +84,6 @@ class Project
     
     puts "created #{to_s}"
   end
-
 
   # public instance methods ----------------------------------------------
 
@@ -121,8 +110,7 @@ class Project
       end
     end
   end
- 
- 
+  
   # remove all generated files to start a fresh build
   def cleanup
     puts "cleaning up #{name}"
@@ -135,11 +123,8 @@ class Project
   # generates the build.xml and configs for ant
   def create_build_env
     puts "creating build environment for #{name}"
-  
     build_template = self.class.name.underscore.split("_")[0] + "_build.xml.erb"
-  
     generate_from_template "build.xml", build_template
-
     # creating libs dir for ant
     File.makedirs "#{path}/libs"
   end
@@ -148,7 +133,6 @@ class Project
   # source folder
   def merge_dependencies
     puts "merging dependencies into #{name}"
-  
     dependencies.each do |dep_pj|
       if !dep_pj.respond_to? :jar_path
         puts "Warning: Can't depend on project #{dep_pj.name}, because it doesn't have a jar!"
@@ -180,7 +164,6 @@ class Project
     end
   end
   
-  
   def to_s
     "project #{name} at #{path}, depending on #{dependencies.map{|p| p.name}.inspect}"
   end
@@ -196,15 +179,16 @@ class Project
   end
   
   protected
-  def generate_from_template target_file_name, template_file_name = nil
-    if template_file_name.nil?
-      template_file_name = target_file_name+".erb"
+  
+    def generate_from_template target_file_name, template_file_name = nil
+      if template_file_name.nil?
+        template_file_name = target_file_name+".erb"
+      end
+      
+      template = ERB.new IO.read(File.join(File.dirname(__FILE__), template_file_name))
+      txt = template.result binding
+      File.open("#{path}/#{target_file_name}", "w") { |fd| fd.write txt; fd.close }
     end
-    
-    template = ERB.new IO.read(File.join(File.dirname(__FILE__), template_file_name))
-    txt = template.result binding
-    File.open("#{path}/#{target_file_name}", "w") { |fd| fd.write txt; fd.close }
-  end
   
   private
   
