@@ -148,7 +148,7 @@ class Project
   def build
     puts "starting ant build for #{name}"
     run "building", <<-EOT
-      cd #{path} && ant debug
+      cd #{path} && ant debug -q
     EOT
 # unnecessary since 1.6:
 #    if File.exists?("#{path}/bin/#{name}-debug.apk")
