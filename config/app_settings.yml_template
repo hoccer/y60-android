@@ -3,4 +3,3 @@
 avd_name: "my_avd_name"
 gom: "gom2.t-gallery.act"
 device_path: "/areas/mobile/emulator_for_hudson"
-user_path: "/tours/mobile_ci/guests/blue"
