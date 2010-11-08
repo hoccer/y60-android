@@ -4,21 +4,22 @@
       android:versionCode="1"
       android:versionName="1.0.0">
     
-    <application android:icon="@drawable/icon" android:label="@string/app_name" android:debuggable="true">
-        <uses-library android:name="android.test.runner" />  
-        <service android:name=".GomProxyService"> <!-- android:process=":remote">  -->
-            <intent-filter><action android:name="com.artcom.y60.gom.IGomProxyService"/></intent-filter> 
-            <intent-filter><action android:name="y60.intent.SERVICE_GOM_PROXY"/></intent-filter> 
-        </service>
-        
-    </application>
+  <uses-sdk android:targetSdkVersion="4" android:minSdkVersion="4"></uses-sdk>
+  <uses-permission android:name="android.permission.INTERNET" />
+  <uses-permission android:name="android.permission.RUN_INSTRUMENTATION" />
+  <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
     
-    <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.RUN_INSTRUMENTATION" />
-    <instrumentation android:name="android.test.InstrumentationTestRunner" 
-      android:targetPackage="com.artcom.y60.gom" 
-      android:label="Infrastructure">
-    </instrumentation>
-<uses-sdk android:targetSdkVersion="4" android:minSdkVersion="4"></uses-sdk>
-<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"></uses-permission>
+  <application android:icon="@drawable/icon" android:label="@string/app_name" android:debuggable="true">
+    <uses-library android:name="android.test.runner" />  
+      <service android:name=".GomProxyService"> <!-- android:process=":remote">  -->
+        <intent-filter><action android:name="com.artcom.y60.gom.IGomProxyService"/></intent-filter> 
+        <intent-filter><action android:name="y60.intent.SERVICE_GOM_PROXY"/></intent-filter> 
+      </service>
+        
+  </application>
+    
+  <instrumentation android:name="android.test.InstrumentationTestRunner" 
+    android:targetPackage="com.artcom.y60.gom" 
+    android:label="Infrastructure">
+  </instrumentation>
 </manifest> 
