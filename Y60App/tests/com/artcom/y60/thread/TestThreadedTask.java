@@ -45,7 +45,7 @@ public class TestThreadedTask extends AndroidTestCase {
         assertProgress("progress should increase", 1);
         assertProgress("progress should increase", 53);
         assertProgress("progress should increase", 99);
-        assertProgress("progress should automaticly be setted to 100% if task is done", 100);
+        assertProgress("progress should automaticly be set to 100% if task is done", 100);
     }
     
     public void testProgressWithBadValues() throws Exception {
