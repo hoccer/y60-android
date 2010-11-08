@@ -89,8 +89,8 @@ public class GomProxyServiceTest extends ServiceTestCase<GomProxyService> {
 
         assertTrue("Attribute should be in cache", service.hasAttributeInCache(attrRef.path()));
 
-        LinkedList attrList = new LinkedList<String>();
-        LinkedList nodeList = new LinkedList<String>();
+        LinkedList<String> attrList = new LinkedList<String>();
+        LinkedList<String> nodeList = new LinkedList<String>();
         service.getCachedNodeData(attrRef.parent().path(), nodeList, attrList);
         assertEquals("Node should have 0 subnodes", 0, nodeList.size());
         assertEquals("Node should have 1 attribute", 1, attrList.size());
@@ -118,8 +118,8 @@ public class GomProxyServiceTest extends ServiceTestCase<GomProxyService> {
 
         assertTrue("Node should be in cache", service.hasNodeInCache(subNodeRef.path()));
 
-        LinkedList attrList = new LinkedList<String>();
-        LinkedList nodeList = new LinkedList<String>();
+        LinkedList<String> attrList = new LinkedList<String>();
+        LinkedList<String> nodeList = new LinkedList<String>();
         service.getCachedNodeData(subNodeRef.parent().path(), nodeList, attrList);
         assertEquals("Node should have 1 subnodes", 1, nodeList.size());
         assertEquals("Node should have 0 attribute", 0, attrList.size());
