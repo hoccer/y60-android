@@ -55,7 +55,7 @@ public class DeviceControllerHandler extends DefaultHandler {
         try {
 
             String method = pRequest.getMethod();
-            String path = pRequest.getPathInfo();
+            //String path = pRequest.getPathInfo();
 
             Logger.v(LOG_TAG, "Incoming HTTP request________");
 

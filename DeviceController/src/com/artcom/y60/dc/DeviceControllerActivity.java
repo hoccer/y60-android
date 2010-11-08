@@ -21,13 +21,14 @@ import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
-import android.widget.ListView;
+//import android.widget.ListView;
 
 public class DeviceControllerActivity extends Activity {
     public static final String  __PORT_DEFAULT = "4042";
     public static final boolean __NIO_DEFAULT  = true;
 
-    private static final String LOG_TAG        = "DeviceController";
+    @SuppressWarnings("unused")
+	private static final String LOG_TAG        = "DeviceController";
 
     public void onCreate(Bundle icicle) {
         super.onCreate(icicle);
@@ -57,7 +58,8 @@ public class DeviceControllerActivity extends Activity {
             }
         });
 
-        ListView list = (ListView) findViewById(R.id.list);
+        // TODO: is this needed for some weird hack?
+        //ListView list = (ListView) findViewById(R.id.list);
 
         // Automatically start the device controller. Useful during development,
         // possibly remove/refactor

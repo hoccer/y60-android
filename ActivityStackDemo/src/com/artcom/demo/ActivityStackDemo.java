@@ -1,7 +1,7 @@
 package com.artcom.demo;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
+//import java.text.SimpleDateFormat;
+//import java.util.Date;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -20,8 +20,8 @@ public class ActivityStackDemo extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
         mTextView = (TextView) findViewById(R.id.mytext);
-        Date date = new Date();
-        SimpleDateFormat df = new SimpleDateFormat("HH:mm:ss");
+        //Date date = new Date();
+        //SimpleDateFormat df = new SimpleDateFormat("HH:mm:ss");
         mTextView.setText("Activity Stack Demo - understanding launch modes.\n\n"
                 + "In order to understand the differences between the various launch modes it is "
                 + "advised to temporally set this application as HOME application.\n");

@@ -1,16 +1,16 @@
 package com.artcom.y60.dc;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.List;
+//import java.io.BufferedReader;
+//import java.io.IOException;
+//import java.io.InputStreamReader;
+//import java.util.ArrayList;
+//import java.util.List;
 
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Intent;
-import android.net.Uri;
+//import android.net.Uri;
 import android.os.IBinder;
 
 import com.artcom.y60.DeviceConfiguration;
@@ -82,7 +82,7 @@ public class StatusWatcher extends Y60GomService {
     class HeartbeatLoop implements Runnable {
 
         private static final int GOM_NOT_ACCESSIBLE_NOTIFICATION_ID = 42;
-        private String           mHistoryLog;
+        //private String           mHistoryLog;
 
         @Override
         public void run() {
@@ -124,7 +124,7 @@ public class StatusWatcher extends Y60GomService {
             // appendToLog(pTimestamp + ": network failure");
         }
 
-        private void updatePingStatistics() {
+        /*private void updatePingStatistics() {
             Runtime runtime = Runtime.getRuntime();
             Process process = null;
             try {
@@ -153,12 +153,11 @@ public class StatusWatcher extends Y60GomService {
 
             appendToLog(pingStatistic.get(pingStatistic.size() - 2));
 
-        }
+        }*/
 
-        private void appendToLog(String pLogInfo) {
-
+        /*private void appendToLog(String pLogInfo) {
             mHistoryLog += "\n" + pLogInfo;
-        }
+        }*/
 
     };
 
