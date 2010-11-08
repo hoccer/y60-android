@@ -18,6 +18,7 @@ import com.artcom.y60.http.HttpServerException;
 
 public class GomHttpWrapper {
     
+	// TODO: Why is this deprecated? Seems to me (AM) that passing in a Uri instead of a string is definitely correcter
     @Deprecated
     public static HttpResponse updateOrCreateAttribute(Uri pUri, String pValue)
             throws HttpClientException, HttpServerException, IOException {

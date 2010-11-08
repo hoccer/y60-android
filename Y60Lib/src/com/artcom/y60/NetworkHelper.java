@@ -133,9 +133,7 @@ public class NetworkHelper {
             Logger.v(LOG_TAG, "ip str '", ipStr, "'");
 
             return InetAddress.getByName(ipStr);
-
         } catch (Exception ex) {
-
             throw new IpAddressNotFoundException("could not retrieve a valid ip address", ex);
         }
     }
