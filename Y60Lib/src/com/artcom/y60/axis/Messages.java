@@ -28,7 +28,7 @@ import java.util.ResourceBundle;
  * @author Glen Daniels (gdaniels@apache.org)
  */
 public class Messages {
-    private static final Class          thisClass     = Messages.class;
+    private static final Class<Messages>          thisClass     = Messages.class;
 
     private static final String         projectName   = MessagesConstants.projectName;
 
