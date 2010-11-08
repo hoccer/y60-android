@@ -18,7 +18,7 @@ import android.widget.TextView;
 import com.artcom.y60.DeviceConfiguration;
 import com.artcom.y60.ErrorHandling;
 import com.artcom.y60.Logger;
-import com.artcom.y60.gom.GomNode;
+//import com.artcom.y60.gom.GomNode;
 import com.artcom.y60.gom.GomProxyHelper;
 import com.artcom.y60.http.HttpException;
 import com.artcom.y60.http.HttpHelper;
@@ -36,12 +36,11 @@ public class NetworkChecker extends Activity {
     private TableLayout         m_Layout;
     private Button              m_Button;
     private int                 m_CurrentStep;
-    private GomNode             m_SelfNode    = null;
+    //private GomNode             m_SelfNode    = null;
     private static final int    NUM_STEPS     = 6;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
-
         super.onCreate(savedInstanceState);
 
         m_CurrentStep = 2;
@@ -93,7 +92,6 @@ public class NetworkChecker extends Activity {
     }
 
     private void executeStep(int step) throws IOException, HttpException {
-
         if (step < 0 || step >= NUM_STEPS) {
             Logger.e(LOG_TAG, "You are trying to execute step ", step,
                     ", which doesn't exist. Resetting to 0.");
@@ -131,12 +129,11 @@ public class NetworkChecker extends Activity {
         }
     }
 
-    private synchronized void reset_step() {
+    /*private synchronized void reset_step() {
         m_CurrentStep = 0;
-    }
+    }*/
 
     private void step0() throws IOException, HttpException {
-
         for (int i = 0; i < REPEAT; i++) {
             // Do a GET on GOM top-level resource using the HTTPHelper
 
@@ -176,7 +173,7 @@ public class NetworkChecker extends Activity {
             say("[" + i + "]" + ">> Retrieving 'self' node from GOM");
             GomProxyHelper rep = new GomProxyHelper(this, null);
             try {
-                m_SelfNode = rep.getNode(m_SelfPath);
+                rep.getNode(m_SelfPath);
             } catch (Exception gx) {
                 ErrorHandling.signalGomError(LOG_TAG, gx, this);
                 return;
@@ -217,7 +214,6 @@ public class NetworkChecker extends Activity {
             rest(500);
             // TODO Post something to the GOM
         }
-
     }
 
     private void say(String msg) {
@@ -236,7 +232,6 @@ public class NetworkChecker extends Activity {
     }
 
     class ContinueListener implements View.OnClickListener {
-
         @Override
         public void onClick(View v) {
             try {

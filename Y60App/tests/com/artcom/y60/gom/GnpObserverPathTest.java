@@ -71,8 +71,7 @@ public class GnpObserverPathTest extends GomActivityUnitTestCase {
         String observerUri = Constants.Gom.URI + GomNotificationHelper.getObserverPathFor(nodePath);
         
         try {
-            
-            String result = HttpHelper.getAsString(observerUri);
+            //String result = HttpHelper.getAsString(observerUri);
             fail("Expected a 404 on observer " + observerUri + ", which shouldn't exist");
             
         } catch (Exception ex) {
