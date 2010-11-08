@@ -4,7 +4,9 @@ import java.io.Serializable;
 
 public class MiddlewareException extends Exception implements Serializable{
 
-    public MiddlewareException() {
+	private static final long serialVersionUID = 3475321083263218301L;
+
+	public MiddlewareException() {
         super();
         // TODO Auto-generated constructor stub
     }

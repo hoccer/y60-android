@@ -2,7 +2,8 @@ package com.artcom.y60.thread;
 
 public abstract class ThreadedTask extends Thread {
 
-    private static String LOG_TAG   = "ThreadedTask";
+    @SuppressWarnings("unused")
+	private static String LOG_TAG   = "ThreadedTask";
     private int           mProgress = 0;
 
     public abstract void doInBackground();

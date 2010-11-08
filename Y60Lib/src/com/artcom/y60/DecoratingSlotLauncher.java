@@ -4,7 +4,8 @@ public abstract class DecoratingSlotLauncher extends SlotLauncher {
 
     // Constants ---------------------------------------------------------
 
-    private static final String LOG_TAG = "DecoratingSlotLauncher";
+    @SuppressWarnings("unused")
+	private static final String LOG_TAG = "DecoratingSlotLauncher";
 
     // Instance Variables ------------------------------------------------
 

@@ -14,7 +14,8 @@ import com.artcom.y60.http.HttpHelper;
 public class FileTestHelperTest extends AndroidTestCase {
 
     private static final String IMAGE_WEB_RESOURCE = "http://artcom.de/templates/artcom/css/images/artcom_rgb_screen_193x22.png";
-    private static final String LOG_TAG            = "HoccerTestHelperTest";
+    @SuppressWarnings("unused")
+	private static final String LOG_TAG            = "HoccerTestHelperTest";
 
     public void testWritingImageStreamToContentResolver() throws Exception {
 

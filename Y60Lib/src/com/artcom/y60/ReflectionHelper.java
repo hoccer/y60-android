@@ -2,7 +2,8 @@ package com.artcom.y60;
 
 public class ReflectionHelper {
 
-    private static final String LOG_TAG = "ReflectionHelper";
+    @SuppressWarnings("unused")
+	private static final String LOG_TAG = "ReflectionHelper";
 
     public static String thisMethodName() {
 
@@ -13,14 +14,14 @@ public class ReflectionHelper {
         return stack[3].getMethodName();
     }
 
-    private static void logStackTrace(StackTraceElement[] pStack) {
+    /*private static void logStackTrace(StackTraceElement[] pStack) {
 
         Logger.v(LOG_TAG, "stack trace:");
 
         for (StackTraceElement elem : pStack) {
             Logger.v(LOG_TAG, elem.getMethodName());
         }
-    }
+    }*/
 
     public static String callingMethodName() {
 

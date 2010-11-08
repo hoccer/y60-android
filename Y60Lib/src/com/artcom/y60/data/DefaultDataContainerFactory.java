@@ -4,7 +4,8 @@ import java.io.FileNotFoundException;
 
 public class DefaultDataContainerFactory extends DataContainerFactory {
     
-    private static final String LOG_TAG = "DefaultDataContainerFactory";
+    @SuppressWarnings("unused")
+	private static final String LOG_TAG = "DefaultDataContainerFactory";
     
     @Override
     public StreamableContent createStreamableContent(String pMimeType, String pFilename)

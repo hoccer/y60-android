@@ -305,7 +305,7 @@ public class HttpHelper {
     public static String urlEncodeKeysAndValues(Map<String, String> pData) {
 
         StringBuffer tmp = new StringBuffer();
-        Set keys = pData.keySet();
+        Set<String> keys = pData.keySet();
         int idx = 0;
         for (Object key : keys) {
             tmp.append(URLEncoder.encode(String.valueOf(key)));
@@ -324,7 +324,7 @@ public class HttpHelper {
     public static String urlEncodeValues(Map<String, String> pData) {
 
         StringBuffer tmp = new StringBuffer();
-        Set keys = pData.keySet();
+        Set<String> keys = pData.keySet();
         int idx = 0;
         for (Object key : keys) {
             tmp.append(String.valueOf(key));

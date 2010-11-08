@@ -5,7 +5,8 @@ import java.util.Map;
 
 public class SweepInEvent extends ReceiveEvent {
 
-    private static String LOG_TAG = "SweepInEvent";
+    @SuppressWarnings("unused")
+	private static String LOG_TAG = "SweepInEvent";
 
     SweepInEvent(Peer peer) throws UnknownLocationException {
         super(peer);

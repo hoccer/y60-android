@@ -62,8 +62,8 @@ public class RemoteMousepointerClient {
     }
     
     
-    private boolean isConnected() {
+    /*private boolean isConnected() {
         
         return (mSocket != null) && (mSocket.isConnected());
-    }
+    }*/
 }

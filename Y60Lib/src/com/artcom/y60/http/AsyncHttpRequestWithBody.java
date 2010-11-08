@@ -13,7 +13,8 @@ import com.artcom.y60.thread.StatusHandler;
 
 public abstract class AsyncHttpRequestWithBody extends AsyncHttpRequest {
 
-    private static final String LOG_TAG = "AsyncHttpRequestWithBody";
+    @SuppressWarnings("unused")
+	private static final String LOG_TAG = "AsyncHttpRequestWithBody";
 
     public AsyncHttpRequestWithBody(String pUrl) {
         super(pUrl);

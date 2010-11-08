@@ -7,7 +7,8 @@ import com.artcom.y60.data.StreamableContent;
 
 public class SweepOutEvent extends ShareEvent {
 
-    private static final String LOG_TAG = "SweepOutEvent";
+    @SuppressWarnings("unused")
+	private static final String LOG_TAG = "SweepOutEvent";
 
     SweepOutEvent(HocLocation pLocation, StreamableContent pOutgoingData, Peer peer)
             throws UnknownLocationException {

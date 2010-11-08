@@ -28,7 +28,8 @@ import java.util.Calendar;
  *      3.2.6</a>
  */
 public class Duration implements java.io.Serializable {
-    boolean isNegative = false;
+	private static final long serialVersionUID = 1367268540985185310L;
+	boolean isNegative = false;
     int     years;
     int     months;
     int     days;
@@ -422,7 +423,7 @@ public class Duration implements java.io.Serializable {
             return false;
         }
 
-        Calendar thisCalendar = this.getAsCalendar();
+        //Calendar thisCalendar = this.getAsCalendar();
         Duration duration = (Duration) object;
 
         return this.isNegative == duration.isNegative

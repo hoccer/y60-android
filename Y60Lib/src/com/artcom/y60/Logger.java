@@ -206,7 +206,7 @@ public class Logger {
 
     public static void logMemoryInfo(String pLogTag, Context pContext) {
         ActivityManager actMgr = (ActivityManager) pContext
-                .getSystemService(pContext.ACTIVITY_SERVICE);
+                .getSystemService(Context.ACTIVITY_SERVICE);
         MemoryInfo memInfo = new MemoryInfo();
         actMgr.getMemoryInfo(memInfo);
         d(pLogTag, "available memory: ", readable(memInfo.availMem));

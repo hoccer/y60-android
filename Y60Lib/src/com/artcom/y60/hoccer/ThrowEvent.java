@@ -7,7 +7,8 @@ import com.artcom.y60.data.StreamableContent;
 
 public class ThrowEvent extends ShareEvent {
 
-    private static final String LOG_TAG = "ThrowEvent";
+    @SuppressWarnings("unused")
+	private static final String LOG_TAG = "ThrowEvent";
 
     ThrowEvent(StreamableContent pOutgoingData, Peer peer) throws UnknownLocationException {
         super(pOutgoingData, peer);

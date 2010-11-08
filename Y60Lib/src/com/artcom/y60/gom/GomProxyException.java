@@ -2,7 +2,9 @@ package com.artcom.y60.gom;
 
 public class GomProxyException extends GomException {
 
-    public GomProxyException() {
+	private static final long serialVersionUID = 4365641133189765265L;
+
+	public GomProxyException() {
         super();
     }
 

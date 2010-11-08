@@ -57,7 +57,7 @@ public class RingTest extends AndroidTestCase {
     }
 
     public void testInsertingNullObjects() {
-        Ring ring = new Ring<String>();
+        Ring<String> ring = new Ring<String>();
 
         ring.add("one");
         ring.add(null);

@@ -8,7 +8,9 @@ package com.artcom.y60.gom;
  */
 public class GomEntryTypeMismatchException extends GomException {
 
-    public GomEntryTypeMismatchException() {
+	private static final long serialVersionUID = 937733259134130588L;
+
+	public GomEntryTypeMismatchException() {
         super();
         // TODO Auto-generated constructor stub
     }

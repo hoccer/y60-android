@@ -2,7 +2,9 @@ package com.artcom.y60.gom;
 
 public class GomResolutionFailedException extends GomException {
 
-    public GomResolutionFailedException() {
+	private static final long serialVersionUID = 7577247199522220958L;
+
+	public GomResolutionFailedException() {
         super();
         // TODO Auto-generated constructor stub
     }

@@ -13,7 +13,9 @@ package com.artcom.y60;
  */
 public class DefectiveContentException extends Exception {
 
-    public DefectiveContentException() {
+	private static final long serialVersionUID = 5506518898962505368L;
+
+	public DefectiveContentException() {
         super();
         // TODO Auto-generated constructor stub
     }

@@ -8,7 +8,8 @@ import com.artcom.y60.TestHelper;
 
 public class TestStreamableContent extends AndroidTestCase {
     
-    private static final String LOG_TAG = "TestStreamableContent";
+    @SuppressWarnings("unused")
+	private static final String LOG_TAG = "TestStreamableContent";
     
     public void testReadingDynamicSteamableContent() throws Exception {
         

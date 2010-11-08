@@ -6,7 +6,9 @@ import org.apache.http.HttpResponse;
 
 public class HttpClientException extends HttpException {
 
-    public HttpClientException(String pUrl, HttpResponse pResponse) throws IOException {
+	private static final long serialVersionUID = 8333060373751327614L;
+
+	public HttpClientException(String pUrl, HttpResponse pResponse) throws IOException {
         super(pUrl, pResponse);
     }
 

@@ -2,7 +2,9 @@ package com.artcom.y60;
 
 public class BindingException extends RuntimeException {
 
-    public BindingException() {
+	private static final long serialVersionUID = 8060726500142928571L;
+
+	public BindingException() {
         super();
         // TODO Auto-generated constructor stub
     }

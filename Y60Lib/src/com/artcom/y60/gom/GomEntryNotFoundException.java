@@ -2,7 +2,9 @@ package com.artcom.y60.gom;
 
 public class GomEntryNotFoundException extends GomException {
 
-    public GomEntryNotFoundException() {
+	private static final long serialVersionUID = 8590933029300763147L;
+
+	public GomEntryNotFoundException() {
         super();
     }
 

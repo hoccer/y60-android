@@ -7,10 +7,7 @@ import org.apache.http.HttpResponse;
 public abstract class HttpException extends Exception {
     
     // Static Methods ----------------------------------------------------
-    
-    /**
-     * 
-     */
+
     private static final long serialVersionUID = -7901299732283491664L;
     
     public static void throwIfError(String pUrl, HttpResponse pResponse)

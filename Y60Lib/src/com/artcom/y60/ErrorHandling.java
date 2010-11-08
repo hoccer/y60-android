@@ -220,7 +220,7 @@ public class ErrorHandling {
 
     public static void clearErrorAndWarningNotifications(Context pContext) {
         NotificationManager notifier = (NotificationManager) pContext
-                .getSystemService(pContext.NOTIFICATION_SERVICE);
+                .getSystemService(Context.NOTIFICATION_SERVICE);
         notifier.cancel(Y60_ERROR_NOTIFICATION_ID);
     }
 
@@ -271,7 +271,7 @@ public class ErrorHandling {
             Intent pErrorPresentationIntent) {
 
         NotificationManager notifier = (NotificationManager) pContext
-                .getSystemService(pContext.NOTIFICATION_SERVICE);
+                .getSystemService(Context.NOTIFICATION_SERVICE);
         PendingIntent pint = PendingIntent.getActivity(pContext, 0, pErrorPresentationIntent,
                 PendingIntent.FLAG_UPDATE_CURRENT);
         Notification notification = new Notification(android.R.drawable.stat_notify_error, "Error",
@@ -285,7 +285,7 @@ public class ErrorHandling {
             Intent pErrorPresentationIntent) {
 
         NotificationManager notifier = (NotificationManager) pContext
-                .getSystemService(pContext.NOTIFICATION_SERVICE);
+                .getSystemService(Context.NOTIFICATION_SERVICE);
         PendingIntent pint = PendingIntent.getActivity(pContext, 0, pErrorPresentationIntent,
                 PendingIntent.FLAG_UPDATE_CURRENT);
         Notification notification = new Notification(android.R.drawable.stat_sys_warning,

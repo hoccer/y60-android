@@ -4,7 +4,8 @@ import android.test.AndroidTestCase;
 
 public class AndroidStreamableContentTest extends AndroidTestCase {
 
-    private static final String LOG_TAG = "AndroidStreamableContentTest";
+    @SuppressWarnings("unused")
+	private static final String LOG_TAG = "AndroidStreamableContentTest";
 
     public void testCreatingEmptyObject() throws Exception {
         GenericAndroidStreamableContent streamableContent = new GenericAndroidStreamableContent(

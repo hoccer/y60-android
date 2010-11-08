@@ -2,7 +2,9 @@ package com.artcom.y60;
 
 public class InitProcessException extends Exception {
 
-    public InitProcessException(String pMessage) {
+	private static final long serialVersionUID = -103796926729214550L;
+
+	public InitProcessException(String pMessage) {
         super(pMessage);
     }
 

@@ -7,7 +7,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.FileWriter;
+//import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -177,8 +177,7 @@ public class IoHelper {
 
     }
 
-    private void writeMyLifecycleOnSdcard() {
-
+    /*private void writeMyLifecycleOnSdcard() {
         File f = new File(Constants.Device.ALIVE_SERVICES_PATH);
         if (f.exists() == false) {
             f.mkdirs();
@@ -195,7 +194,7 @@ public class IoHelper {
         } catch (IOException e) {
             // ErrorHandling.signalIOError(LOG_TAG, e, this);
         }
-    }
+    }*/
 
     protected void deleteMyLifecycleFromSdcard() {
         boolean deletedMySelf = false;
@@ -359,7 +358,7 @@ public class IoHelper {
     }
 
     public static List<RunningServiceInfo> getRunningServices(Context pContext) {
-        ActivityManager am = (ActivityManager) pContext.getSystemService(pContext.ACTIVITY_SERVICE);
+        ActivityManager am = (ActivityManager) pContext.getSystemService(Context.ACTIVITY_SERVICE);
         return am.getRunningServices(100);
     }
 

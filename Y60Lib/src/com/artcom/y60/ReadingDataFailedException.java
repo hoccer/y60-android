@@ -9,7 +9,9 @@ package com.artcom.y60;
  */
 public class ReadingDataFailedException extends RuntimeException {
 
-    public ReadingDataFailedException() {
+	private static final long serialVersionUID = -1187283029918266338L;
+
+	public ReadingDataFailedException() {
         super();
         // TODO Auto-generated constructor stub
     }

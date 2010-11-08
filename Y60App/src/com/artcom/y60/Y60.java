@@ -173,15 +173,14 @@ public class Y60 extends Activity {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-
         return true;
     }
 
-    private void launchEntryPoint() {
-
+    
+    /*private void launchEntryPoint() {
         Intent intent = new Intent("y60.intent.SHOW_LAUNCHERS");
         startActivity(intent);
-    }
+    }*/
 
     @Override
     protected void onDestroy() {

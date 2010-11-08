@@ -6,7 +6,8 @@ import com.artcom.y60.http.HttpHelper;
 
 public class IoHelperTest extends TestCase {
 
-    private static final String LOG_TAG = "IoHelperTest";
+    @SuppressWarnings("unused")
+	private static final String LOG_TAG = "IoHelperTest";
     private static final String FILE_1  = "/sdcard/test_file_"
                                                 + String.valueOf(System.currentTimeMillis());
     private static final String FILE_2  = "/sdcard/test_file_"

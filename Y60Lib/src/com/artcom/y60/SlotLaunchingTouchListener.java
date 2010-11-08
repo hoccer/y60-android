@@ -13,7 +13,8 @@ class SlotLaunchingTouchListener implements OnTouchListener {
 
     // Constants ---------------------------------------------------------
 
-    private static final String LOG_TAG = "SlotLaunchingClickListener";
+    @SuppressWarnings("unused")
+	private static final String LOG_TAG = "SlotLaunchingClickListener";
 
     // Instance Variables ------------------------------------------------
 
