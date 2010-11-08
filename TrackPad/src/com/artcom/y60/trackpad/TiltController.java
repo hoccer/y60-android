@@ -14,7 +14,7 @@ import android.content.Intent;
 import android.hardware.SensorListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
-import android.view.MotionEvent;
+//import android.view.MotionEvent;
 
 public class TiltController extends Activity {
 
@@ -23,8 +23,8 @@ public class TiltController extends Activity {
     public static final String ADDRESS_EXTRA = "com.artcom.y60.trackpad.ADDRESS";
     public static final String PORT_EXTRA = "com.artcom.y60.trackpad.PORT";
 
-    private float mOldX = -1;
-    private float mOldY = -1;
+    //private float mOldX = -1;
+    //private float mOldY = -1;
 
     private InetAddress mAddress;
     private int mPort;
@@ -88,7 +88,7 @@ public class TiltController extends Activity {
         return mRemote;
     }
 
-    private void move(MotionEvent pEvent) {
+    /*private void move(MotionEvent pEvent) {
 
         if (mOldX > -1 && mOldY > -1) {
 
@@ -105,7 +105,7 @@ public class TiltController extends Activity {
             Logger.v(LOG_TAG, "ignoring unexpected move event, x = ", pEvent.getX(), ", y = ",
                     pEvent.getY());
         }
-    }
+    }*/
 
     private void move(float pX, float pY) {
 

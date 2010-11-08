@@ -236,7 +236,7 @@ public class TrackPad extends Activity {
         // flash the screen
 
         LinearLayout layout = (LinearLayout) findViewById(R.id.layout);
-        Drawable oldBg = layout.getBackground();
+        //Drawable oldBg = layout.getBackground();
 
         layout.setBackgroundColor(Color.WHITE);
 

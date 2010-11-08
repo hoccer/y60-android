@@ -62,7 +62,6 @@ public class HttpHelper {
 
     public static HttpResponse putUrlEncoded(String pUrl, Map<String, String> pData)
             throws IOException, HttpClientException, HttpServerException {
-
         HttpPut put = new HttpPut(pUrl);
         String body = urlEncodeKeysAndValues(pData);
         insertUrlEncodedAcceptingJson(body, put);
@@ -129,7 +128,6 @@ public class HttpHelper {
 
     public static String post(String uri, String body, String pContentType, String pAcceptMimeType)
             throws IOException, HttpClientException, HttpServerException {
-
         HttpResponse response = post(uri, body, pContentType, pAcceptMimeType, POST_TIMEOUT);
         return extractBodyAsString(response.getEntity());
     }
@@ -137,7 +135,6 @@ public class HttpHelper {
     public static HttpResponse post(String uri, String body, String pContentType,
             String pAcceptMimeType, int pTimeout) throws IOException, HttpClientException,
             HttpServerException {
-
         HttpPost post = new HttpPost(uri);
         insert(body, pContentType, pAcceptMimeType, post);
         return executeHTTPMethod(post, pTimeout);
@@ -145,7 +142,6 @@ public class HttpHelper {
 
     public static InputStream getAsInStream(String uri_string) throws IOException,
             HttpClientException, HttpServerException {
-
         HttpGet get = new HttpGet(uri_string);
         HttpEntity entity = executeHTTPMethod(get).getEntity();
 
@@ -158,7 +154,6 @@ public class HttpHelper {
 
     public static Drawable getAsDrawable(String pUri) throws IOException, HttpClientException,
             HttpServerException {
-
         return new BitmapDrawable(getAsInStream(pUri));
     }
 
@@ -199,21 +194,18 @@ public class HttpHelper {
 
     public static byte[] getAsByteArray(String uri) throws IllegalStateException, IOException,
             HttpClientException, HttpServerException {
-
         HttpEntity result = getAsHttpEntity(uri);
         return extractBodyAsByteArray(result);
     }
 
     public static HttpResponse get(String pUri) throws IOException, HttpClientException,
             HttpServerException {
-
         HttpGet get = new HttpGet(pUri);
         return executeHTTPMethod(get);
     }
 
     public static HttpResponse fetchUriToFile(String uriString, String filename)
             throws IOException, HttpClientException, HttpServerException {
-
         Logger.v(LOG_TAG, "Uri download string: ", uriString);
         Logger.v(LOG_TAG, "Filename string: ", filename);
 
@@ -231,16 +223,13 @@ public class HttpHelper {
 
     public static JSONObject getJson(String pUrl) throws JSONException, IOException,
             HttpClientException, HttpServerException {
-
         String url = toJsonUrl(pUrl);
         String result = getAsString(url);
-
         return new JSONObject(result);
     }
 
     public static Uri getLocationHeader(String url) throws IOException, HttpClientException,
             HttpServerException {
-
         HttpHead head = new HttpHead(url);
         HttpResponse response = executeHTTPMethod(head);
 
@@ -257,7 +246,6 @@ public class HttpHelper {
 
     public static long getSize(String url) throws IOException, HttpClientException,
             HttpServerException {
-
         HttpHead head = new HttpHead(url);
         HttpResponse response = executeHTTPMethod(head);
 
@@ -265,7 +253,6 @@ public class HttpHelper {
             Logger.e(LOG_TAG, "HTTP response does not contain a Content-Length header");
             throw new RuntimeException("Could not retrieve content-length header.");
         }
-
         return new Long(response.getFirstHeader("Content-Length").getValue());
     }
 
@@ -274,13 +261,11 @@ public class HttpHelper {
     }
 
     public static int getStatusCode(String url, int timeout) throws IOException {
-
         HttpHead head = new HttpHead(url);
         try {
 
             HttpResponse response = executeHTTPMethod(head, timeout);
             return response.getStatusLine().getStatusCode();
-
         } catch (HttpException ex) {
             return ex.getStatusCode();
         }
@@ -288,22 +273,18 @@ public class HttpHelper {
 
     public static HttpResponse postUrlEncoded(String pUrl, Map<String, String> pData)
             throws IOException, HttpClientException, HttpServerException {
-
         String body = urlEncodeKeysAndValues(pData);
         return postUrlEncoded(pUrl, body);
     }
 
     public static HttpResponse postUrlEncoded(String pUrl, String pUrlEncodedData)
             throws IOException, HttpClientException, HttpServerException {
-
         HttpPost post = new HttpPost(pUrl);
-
         insertUrlEncodedAcceptingJson(pUrlEncodedData, post);
         return executeHTTPMethod(post);
     }
 
     public static String urlEncodeKeysAndValues(Map<String, String> pData) {
-
         StringBuffer tmp = new StringBuffer();
         Set<String> keys = pData.keySet();
         int idx = 0;
@@ -317,12 +298,10 @@ public class HttpHelper {
                 tmp.append("&");
             }
         }
-
         return tmp.toString();
     }
 
     public static String urlEncodeValues(Map<String, String> pData) {
-
         StringBuffer tmp = new StringBuffer();
         Set<String> keys = pData.keySet();
         int idx = 0;
@@ -336,31 +315,26 @@ public class HttpHelper {
                 tmp.append("&");
             }
         }
-
         return tmp.toString();
     }
 
     public static String extractBodyAsString(HttpEntity entity) throws IOException {
-
         return extractBody(entity).toString();
     }
 
     public static byte[] extractBodyAsByteArray(HttpEntity entity) throws IllegalStateException,
             IOException {
-
         return extractBody(entity).toByteArray();
     }
 
     static HttpEntity getAsHttpEntity(String uri) throws IOException, HttpClientException,
             HttpServerException {
-
         HttpGet get = new HttpGet(uri);
         HttpResponse response = executeHTTPMethod(get);
         return response.getEntity();
     }
 
     static ByteArrayOutputStream extractBody(HttpEntity entity) throws IOException {
-
         ByteArrayOutputStream ostream = new ByteArrayOutputStream();
         entity.writeTo(ostream);
         // Logger.v(LOG_TAG, ostream.toString());
@@ -368,25 +342,21 @@ public class HttpHelper {
     }
 
     static void insertXML(String body, HttpEntityEnclosingRequestBase method) {
-
         insert(body, "text/xml", "text/xml", method);
     }
 
     static void insertUrlEncodedAcceptingJson(String pEncodedBody,
             HttpEntityEnclosingRequestBase method) {
-
         insert(pEncodedBody, "application/x-www-form-urlencoded", "application/json", method);
     }
 
     static void insert(String pBody, String pContentType, String pAcceptMimeType,
             HttpEntityEnclosingRequestBase pMethod) {
-
         insert(pBody, pContentType, pMethod);
         pMethod.addHeader("Accept", pAcceptMimeType);
     }
 
     static void insert(String pBody, String pContentType, HttpEntityEnclosingRequestBase pMethod) {
-
         StringEntity entity;
         try {
             entity = new StringEntity(pBody);
@@ -405,7 +375,6 @@ public class HttpHelper {
 
     private static HttpResponse executeHTTPMethod(HttpRequestBase pMethod, int pConnectionTimeout)
             throws IOException, HttpClientException, HttpServerException {
-
         HttpParams httpParams = new BasicHttpParams();
         HttpConnectionParams.setConnectionTimeout(httpParams, pConnectionTimeout);
         HttpConnectionParams.setSoTimeout(httpParams, pConnectionTimeout);
@@ -478,7 +447,6 @@ public class HttpHelper {
     }
 
     private static String toJsonUrl(String pUrl) {
-
         if (pUrl.endsWith(".xml")) {
             // an xml uri means that someone is using this method in a wrong way
             // --> fail fast
@@ -496,12 +464,10 @@ public class HttpHelper {
         if (!pUrl.endsWith(".json")) {
             pUrl = pUrl + ".json";
         }
-
         return pUrl;
     }
 
     public static boolean isReachable(String pUri) {
-
         HttpHead head = new HttpHead(pUri);
         try {
             executeHTTPMethod(head);
@@ -510,17 +476,14 @@ public class HttpHelper {
         } catch (IOException e) {
             return false;
         }
-
         return true;
     }
 
     public static String getHeadersAsString(Header[] pHeaders) {
         String headers = "";
-
         for (Header header : pHeaders) {
             headers += header.getName() + ":" + header.getValue() + "\n";
         }
-
         return headers;
     }
 }

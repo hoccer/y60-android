@@ -25,7 +25,6 @@ public class HttpProxyServiceTest extends ServiceTestCase<HttpProxyService> {
     // Constructors ------------------------------------------------------
 
     public HttpProxyServiceTest() {
-
         super(HttpProxyService.class);
     }
 
@@ -33,21 +32,18 @@ public class HttpProxyServiceTest extends ServiceTestCase<HttpProxyService> {
 
     @Override
     protected void setUp() throws Exception {
-
         super.setUp();
         mIntent = new Intent(getContext(), HttpProxyService.class);
     }
 
     @Override
     protected void tearDown() throws Exception {
-
         super.tearDown();
     }
 
     // Public Instance Methods -------------------------------------------
 
     public void testMultipleGet() throws Exception {
-
         startService(mIntent);
 
         HttpProxyService service = getService();
@@ -77,9 +73,8 @@ public class HttpProxyServiceTest extends ServiceTestCase<HttpProxyService> {
     }
 
     public void testGettingBigData() throws Exception {
-        Logger
-                .v(LOG_TAG,
-                        "start test.......................................................................");
+        Logger.v(LOG_TAG,
+                 "start test.......................................................................");
         startService(mIntent);
         HttpProxyService service = getService();
 
