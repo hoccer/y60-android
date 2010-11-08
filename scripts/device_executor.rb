@@ -1,3 +1,5 @@
+#!/usr/bin/env ruby
+
 require 'rubygems'
 require 'activesupport'
 
@@ -10,17 +12,6 @@ def putsf s
   puts s
   $stdout.flush
 end
-
-## http://ph7spot.com/articles/system_timer
-#begin
-#  require 'system_timer'
-#  MyTimer = SystemTimer
-#rescue LoadError
-#  puts "Using green threads for timeout because SystemTimer wasn't installed. For native threads:"
-#  puts "sudo gem install SystemTimer"
-#  require 'timeout'
-#  MyTimer = Timeout
-#end
 
 class DeviceExecutor
   
@@ -78,16 +69,15 @@ class DeviceExecutor
   
   private
   
-  def extract_device_id line
-    line.strip.split[0]
-  end
-  
-  def is_connected? device
-    refresh_device_list.include? device
-  end
+    def extract_device_id line
+      line.strip.split[0]
+    end
+    
+    def is_connected? device
+      refresh_device_list.include? device
+    end
   
 end
-
 
 def main args
   

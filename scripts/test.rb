@@ -1,4 +1,5 @@
 #!/usr/bin/env ruby
+
 require "yaml"
 
 $:.unshift File.join(File.dirname(__FILE__), '..', 'scripts')
@@ -17,7 +18,6 @@ def main pj_names
   project_paths = Dir["#{Dir.getwd}/*/.project"]
   puts "project paths #{project_paths}"
   projects = []
-  
   
   last_project_sorting.each { |name|
     index = project_paths.index{|p| p.include? name}
@@ -104,4 +104,4 @@ rescue => e
   exit 1
 end
 
-(__FILE__ == $0) and (main ARGV) #end.
+(__FILE__ == $0) and (main ARGV)

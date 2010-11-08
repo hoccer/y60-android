@@ -7,10 +7,7 @@ require 'erb'
 require 'device_executor'
 
 class DeviceWatcher < DeviceExecutor
-  
-  
 end
-
 
 def main
   

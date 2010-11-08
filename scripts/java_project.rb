@@ -1,10 +1,9 @@
-#!/usr/bin/ruby
+#!/usr/bin/env ruby
 
 class JavaProject < Project
 
   def initialize pj_name
     super pj_name
-
   end
 
   def jar_path

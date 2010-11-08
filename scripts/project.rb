@@ -1,4 +1,4 @@
-#!/usr/bin/ruby
+#!/usr/bin/env ruby
 
 require 'rubygems'
 require 'activesupport'
@@ -84,8 +84,6 @@ class Project
     
     puts "created #{to_s}"
   end
-
-  # public instance methods ----------------------------------------------
 
   def depends_on project
     @dependencies.member? project

@@ -12,14 +12,14 @@ def main action, pj_names
   projects = projects.select { |p| p.is_t_gallery_project? and File.exist? p.path+"/res" } 
   
   sourceProject = Project.find_or_create "TgCommonLib"
-
+  
   projects.each do |project| 
      Dir[sourceProject.path+"/theme/*/*"].each do |file| 
        fileParts = file.split("/")
 
        dir = fileParts[fileParts.size-2] 
        filename = fileParts[fileParts.size-1]
-     
+       
        target_path = project.path + "/res/" + dir + "/" + filename
        
        #puts file + " -> " + target_path
