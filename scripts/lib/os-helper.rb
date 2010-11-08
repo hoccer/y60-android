@@ -13,13 +13,9 @@ module OS
   
   def self.execute cmd, err_str, timeout = nil
     putsf "executing '#{cmd}'"
-    
     MyTimer::timeout(timeout) do
-      successful = system cmd
-      if !successful
-        raise "error while "+err_str
-      end
-    end    
+      raise "error while #{err_str}" if !system(cmd)
+    end
   rescue Timeout::Error
     raise "Timeout while executing cmd: '#{cmd}'"
   end
