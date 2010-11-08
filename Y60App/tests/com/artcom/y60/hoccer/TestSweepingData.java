@@ -6,9 +6,12 @@ import com.artcom.y60.data.StreamableContent;
 import com.artcom.y60.data.StreamableString;
 import com.artcom.y60.http.HttpHelper;
 
+import android.test.suitebuilder.annotation.Suppress;
+
 public class TestSweepingData extends HocEventTestCase {
 
-    private static final String LOG_TAG = "TestSweepingData";
+    @SuppressWarnings("unused")
+	private static final String LOG_TAG = "TestSweepingData";
     private HocEvent            mEvent;
 
     public void testLonelySweepOutEvent() throws Exception {
@@ -33,6 +36,7 @@ public class TestSweepingData extends HocEventTestCase {
         assertPollingHasStopped(hocEvent);
     }
 
+    @Suppress
     public void testAbortingLonelySweepOutEvent() throws Exception {
         final SweepOutEvent sweepOut = getPeer().sweepOut(new StreamableString("my hocced data"));
         HocEventListenerForTesting eventCallback = new HocEventListenerForTesting();
@@ -76,8 +80,8 @@ public class TestSweepingData extends HocEventTestCase {
         assertTrue("should have got error callback", eventCallback.hadError);
     }
 
+    @Suppress
     public void testTransferingStringBetweenSweepInAndOutEvents() throws Exception {
-
         GenericStreamableContent content = new GenericStreamableContent();
         content.setContentType("text/plain");
         content.setFilename("thedemofilename.txt");
@@ -104,8 +108,8 @@ public class TestSweepingData extends HocEventTestCase {
         assertPollingHasStopped(sweepOut);
     }
 
+    @Suppress
     public void testTransferingImageBetweenSweepInAndOutEvents() throws Exception {
-
         GenericStreamableContent content = new GenericStreamableContent();
         content.setContentType("image/png");
         content.setFilename("thedemofilename.png");
@@ -136,8 +140,8 @@ public class TestSweepingData extends HocEventTestCase {
                 .getData().getFilename());
     }
 
+    @Suppress
     public void testOnSuccessNotificationWhenUploadIsDoneBeforLinkEstablished() throws Exception {
-
         StreamableContent content = new StreamableString("hocci");
         final SweepOutEvent sweepOut = getPeer().sweepOut(content);
         HocEventListenerForTesting eventCallback = new HocEventListenerForTesting();
@@ -156,7 +160,6 @@ public class TestSweepingData extends HocEventTestCase {
     }
 
     public void testOnSuccessNotificationWhenUploadIsDoneAfterLinkEstablished() throws Exception {
-
         RetainStreamableString content = new RetainStreamableString("hocci");
         final SweepOutEvent sweepOut = getPeer().sweepOut(content);
         HocEventListenerForTesting eventCallback = new HocEventListenerForTesting();
@@ -176,8 +179,8 @@ public class TestSweepingData extends HocEventTestCase {
 
     }
 
+    @Suppress
     public void testOnSuccessNotificationWhenDownloadIsDoneAndLinkEstablished() throws Exception {
-
         StreamableContent content = new StreamableString("hocci");
         final SweepOutEvent sweepOut = getPeer().sweepOut(content);
         blockUntilEventIsAlive("sweepOut", sweepOut);

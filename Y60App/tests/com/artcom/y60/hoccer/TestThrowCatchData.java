@@ -5,10 +5,12 @@ import com.artcom.y60.data.GenericStreamableContent;
 import com.artcom.y60.data.StreamableString;
 import com.artcom.y60.http.HttpHelper;
 
+import android.test.suitebuilder.annotation.Suppress;
+
 public class TestThrowCatchData extends HocEventTestCase {
 
+	@Suppress
     public void testLonelyThrow() throws Exception {
-
         ThrowEvent hocEvent = getPeer().throwIt(new StreamableString("my hocced data"));
         HocEventListenerForTesting eventCallback = new HocEventListenerForTesting();
         hocEvent.addCallback(eventCallback);
@@ -29,8 +31,8 @@ public class TestThrowCatchData extends HocEventTestCase {
         assertPollingHasStopped(hocEvent);
     }
 
+    @Suppress
     public void testCollisionOfTwoThrowersOneCatcher() throws Exception {
-
         StreamableString content = new StreamableString("provoke collision");
 
         final ThrowEvent throwEventA = getPeer().throwIt(content);
@@ -54,8 +56,8 @@ public class TestThrowCatchData extends HocEventTestCase {
         assertPollingHasStopped(throwEventB);
     }
 
+    @Suppress
     public void testThrowingImageDataToTwoCatchers() throws Exception {
-
         GenericStreamableContent content = new GenericStreamableContent();
         content.setContentType("image/png");
         content.setFilename("thedemofilename.png");

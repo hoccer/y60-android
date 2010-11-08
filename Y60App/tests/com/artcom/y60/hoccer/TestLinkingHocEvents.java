@@ -5,8 +5,11 @@ import java.util.ArrayList;
 import com.artcom.y60.TestHelper;
 import com.artcom.y60.data.StreamableString;
 
+import android.test.suitebuilder.annotation.Suppress;
+
 public class TestLinkingHocEvents extends HocEventTestCase {
 
+	@Suppress
     public void testLinkingSweepInAndOutEvents() throws Exception {
         SweepOutEvent sweepOut = getPeer().sweepOut(new StreamableString("my hocced data"));
         blockUntilEventIsAlive("sweepOut", sweepOut);
@@ -21,6 +24,7 @@ public class TestLinkingHocEvents extends HocEventTestCase {
         blockUntilEventIsLinked(sweepIn);
     }
 
+	@Suppress
     public void testLinkingWithDelayedSweepIn() throws Exception {
         SweepOutEvent sweepOut = getPeer().sweepOut(new StreamableString("my hocced data"));
         blockUntilEventIsAlive("sweepOut", sweepOut);
