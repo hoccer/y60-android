@@ -13,9 +13,7 @@ public class TestUriHelper {
     // Static Methods ----------------------------------------------------
 
     public static Uri createUri() throws URISyntaxException {
-
         return Uri.parse(BASE_URI);
         // return Uri.parse(BASE_URI + "?timestamp=" + System.currentTimeMillis());
     }
-
 }
