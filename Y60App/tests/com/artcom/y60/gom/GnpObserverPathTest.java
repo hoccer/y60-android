@@ -17,14 +17,11 @@ public class GnpObserverPathTest extends GomActivityUnitTestCase {
     @Override
     public void setUp() throws Exception {
         super.setUp();
-        
         mMockGomObserver = new GomObserver() {
             public void onEntryCreated(String pPath, JSONObject pData) {
             }
-            
             public void onEntryDeleted(String pPath, JSONObject pData) {
             }
-            
             public void onEntryUpdated(String pPath, JSONObject pData) {
             }
         };
@@ -32,7 +29,6 @@ public class GnpObserverPathTest extends GomActivityUnitTestCase {
     
     // tests for creation of observer nodes in gom
     public void testObserverForAttributeAppearsInGom() throws Exception {
-        
         initializeActivity();
         GomProxyHelper helper = createHelper();
         
@@ -41,9 +37,7 @@ public class GnpObserverPathTest extends GomActivityUnitTestCase {
         String attrPath = testPath + ":" + timestamp;
         final String observerUri = Constants.Gom.URI
                 + GomNotificationHelper.getObserverPathFor(attrPath);
-        
         try {
-            
             HttpHelper.getAsString(observerUri);
             fail("Expected a 404 on observer " + observerUri + ", which shouldn't exist");
             
@@ -52,39 +46,32 @@ public class GnpObserverPathTest extends GomActivityUnitTestCase {
             boolean is404 = ex.toString().contains("404");
             assertTrue("expected a 404", is404);
         }
-        
         GomNotificationHelper.createObserverAndNotify(attrPath, mMockGomObserver, helper);
-        
         // check that the observer has arrived in gom
         TestHelper.blockUntilResourceAvailable("Observer should now be in GOM", observerUri);
-        
     }
     
     public void testObserverForNodeAppearsInGom() throws Exception {
-        
-        initializeActivity();
+        Logger.v(LOG_TAG, "---------------------------------------");
+    	
+    	initializeActivity();
         GomProxyHelper helper = createHelper();
         
         String timestamp = String.valueOf(System.currentTimeMillis());
         String testPath = TEST_BASE_PATH + "/test_observer_for_node_appears_in_gom";
         String nodePath = testPath + "/" + timestamp;
-        String observerUri = Constants.Gom.URI + GomNotificationHelper.getObserverPathFor(nodePath);
+        String observerPath = GomNotificationHelper.getObserverPathFor(nodePath);
         
         try {
-            //String result = HttpHelper.getAsString(observerUri);
-            fail("Expected a 404 on observer " + observerUri + ", which shouldn't exist");
-            
-        } catch (Exception ex) {
-            
-            boolean is404 = ex.toString().contains("404");
-            assertTrue("expected a 404", is404);
+        	GomNode node = helper.getNode(observerPath);
+        	node.entries(); // lazy loading accesses the GOM here, not before
+            fail("Expected a 404 on observer " + observerPath + ", which shouldn't exist");
+        } catch (GomEntryNotFoundException ex) {
+        	Logger.v(LOG_TAG, "GomEntryNotFound!!! ", ex);
+            assertTrue("expected a 404 exception in the service", ex.getMessage().contains("404"));
         }
-        
         GomNotificationHelper.createObserverAndNotify(nodePath, mMockGomObserver, helper);
-        
         // check that the observer has arrived in gom
-        TestHelper.blockUntilResourceAvailable("Observer should now be in GOM", observerUri);
-        
+        TestHelper.blockUntilResourceAvailable("Observer should now be in GOM", Constants.Gom.URI + observerPath); 
     }
-    
 }
