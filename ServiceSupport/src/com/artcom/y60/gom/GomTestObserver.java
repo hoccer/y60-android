@@ -65,7 +65,7 @@ public class GomTestObserver implements GomObserver {
     }
 
     public void assertUpdateNotCalled() {
-        mTest.assertTrue("update called", mUpdateCount == 0);
+    	mTest.assertTrue("update called", mUpdateCount == 0);
     }
 
     public int getUpdateCount() {

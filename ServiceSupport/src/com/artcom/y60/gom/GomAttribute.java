@@ -21,11 +21,7 @@ import com.artcom.y60.http.HttpServerException;
  */
 public class GomAttribute extends GomEntry {
 
-    // Constants ---------------------------------------------------------
-
     private final static String LOG_TAG = "GomAttribute";
-
-    // Static Methods ----------------------------------------------------
 
     public static String extractNameFromPath(String pPath) {
 
@@ -34,45 +30,35 @@ public class GomAttribute extends GomEntry {
 
     /** The attribute value */
     private String       mValue;
-
+    
     private final String mNodePath;
-
-    // Constructors ------------------------------------------------------
 
     /**
      * Used internally only. Use the methods of GomRepository to load resource states.
      */
     protected GomAttribute(String pPath, GomProxyHelper pProxy, String pValue)
             throws RemoteException {
-
         super(extractNameFromPath(pPath), pPath, pProxy);
-
         mNodePath = pPath.substring(0, pPath.lastIndexOf(":"));
         mValue = pValue;
     }
 
-    // Public Instance Methods -------------------------------------------
-
     public String getValue() {
-
         return mValue;
     }
 
     public GomNode getNode() throws GomEntryTypeMismatchException {
-
         return getGomProxyHelper().getNode(mNodePath);
     }
 
     public void putValue(String pValue) throws IOException, HttpClientException,
             HttpServerException {
-
         GomHttpWrapper.updateOrCreateAttribute(getUri(), pValue);
         mValue = pValue;
     }
 
     @Override
     public JSONObject toJson() {
-
         // { "attribute": {
         // "name": <name>,
         // "node": <node-path>,
@@ -81,7 +67,6 @@ public class GomAttribute extends GomEntry {
         // } }
 
         try {
-
             JSONObject json = new JSONObject();
 
             JSONObject attr = new JSONObject();
@@ -91,25 +76,19 @@ public class GomAttribute extends GomEntry {
             attr.put(Constants.Gom.Keywords.NODE, mNodePath);
             attr.put(Constants.Gom.Keywords.VALUE, getValue());
             attr.put(Constants.Gom.Keywords.TYPE, "string");
-
             return json;
-
         } catch (JSONException e) {
-
             throw new RuntimeException(e);
         }
     }
 
     @Override
     public boolean equals(Object pObj) {
-
         if ((pObj != null) && (pObj instanceof GomAttribute) && super.equals(pObj)) {
-
             GomAttribute other = (GomAttribute) pObj;
             return mValue.equals(other.mValue);
 
         } else {
-
             return false;
         }
     }
@@ -125,11 +104,8 @@ public class GomAttribute extends GomEntry {
      */
     public GomEntry resolveReference() throws GomResolutionFailedException,
             GomEntryTypeMismatchException, GomEntryNotFoundException {
-
         GomEntry entry = getGomProxyHelper().getEntry(mValue);
-
         Logger.v(LOG_TAG, "resolved ", mValue, " to ", entry);
-
         return entry;
     }
 }

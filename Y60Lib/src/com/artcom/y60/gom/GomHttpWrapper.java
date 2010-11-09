@@ -22,27 +22,22 @@ public class GomHttpWrapper {
     @Deprecated
     public static HttpResponse updateOrCreateAttribute(Uri pUri, String pValue)
             throws HttpClientException, HttpServerException, IOException {
-        
         return updateOrCreateAttribute(pUri.toString(), pValue);
     }
     
     public static HttpResponse updateOrCreateAttribute(String pUri, String pValue)
             throws HttpClientException, HttpServerException, IOException {
-        
         Map<String, String> formData = new HashMap<String, String>();
         formData.put(Constants.Gom.Keywords.ATTRIBUTE, pValue);
-        
         return HttpHelper.putUrlEncoded(pUri, formData);
     }
     
     public static HttpResponse deleteAttribute(String pUri) throws HttpClientException,
             HttpServerException, IOException {
-        
         return HttpHelper.delete(pUri);
     }
     
     public static HttpResponse deleteAttributeAndIgnoreNotFound(String pUri) {
-        
         try {
             return HttpHelper.delete(pUri);
         } catch (HttpException e) {
@@ -66,35 +61,28 @@ public class GomHttpWrapper {
     
     public static HttpResponse deleteNode(String pUri) throws HttpClientException,
             HttpServerException, IOException {
-        
         return HttpHelper.delete(pUri);
     }
     
     @Deprecated
     public static String getAttributeValue(Uri pAttrUrl) throws HttpClientException,
             HttpServerException, IOException {
-        
         return getAttributeValue(pAttrUrl.toString());
     }
     
     public static String getAttributeValue(String pAttrUrl) throws HttpClientException,
             HttpServerException, IOException {
-        
         try {
             JSONObject wrapper = HttpHelper.getJson(pAttrUrl);
             JSONObject attr = wrapper.getJSONObject(Constants.Gom.Keywords.ATTRIBUTE);
             String value = attr.getString(Constants.Gom.Keywords.VALUE);
-            
             return value;
-            
         } catch (JSONException jsx) {
-            
             throw new RuntimeException(jsx);
         }
     }
     
     public static JSONObject getAttributeJsonOrNull(String pAttrUrl) {
-        
         try {
             JSONObject wrapper = HttpHelper.getJson(pAttrUrl);
             JSONObject attr = wrapper.getJSONObject(Constants.Gom.Keywords.ATTRIBUTE);
@@ -136,7 +124,6 @@ public class GomHttpWrapper {
     
     public static HttpResponse createNode(String pNodeUrl) throws HttpClientException,
             HttpServerException, IOException {
-        
         return HttpHelper.putXML(pNodeUrl, "<node/>");
     }
     
@@ -148,14 +135,10 @@ public class GomHttpWrapper {
     
     public static HttpResponse putNodeWithAttributes(String pNodeUrl, HashMap<String, String> pAttrs)
             throws HttpClientException, HttpServerException, IOException {
-        
         HashMap<String, String> formData = new HashMap<String, String>(pAttrs.size());
         for (String attrName : pAttrs.keySet()) {
-            
             formData.put("attributes[" + attrName + "]", pAttrs.get(attrName));
         }
         return HttpHelper.putUrlEncoded(pNodeUrl, formData);
-        
     }
-    
 }

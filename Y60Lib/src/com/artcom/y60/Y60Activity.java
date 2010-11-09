@@ -99,8 +99,8 @@ public abstract class Y60Activity extends Activity {
     }
 
     protected boolean isGomfreeTest() {
-        return getIntent().getExtras() != null
-                && getIntent().getExtras().getBoolean("isGomfreeTest");
+        return getIntent().getExtras() != null &&
+               getIntent().getExtras().getBoolean("isGomfreeTest");
     }
 
     public int getResponsivnessCounterForTestPurposes() {
