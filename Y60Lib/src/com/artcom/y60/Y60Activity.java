@@ -94,8 +94,8 @@ public abstract class Y60Activity extends Activity {
     }
 
     protected void startDeviceController() {
-        Logger.v(LOG_TAG, "starting device controller");
-        startService(new Intent("y60.intent.SERVICE_DEVICE_CONTROLLER"));
+        Logger.v(LOG_TAG, "starting device controller by ", this.getClass().getSimpleName());
+        startService(new Intent(Y60Action.SERVICE_DEVICE_CONTROLLER));
     }
 
     protected boolean isGomfreeTest() {
@@ -110,7 +110,7 @@ public abstract class Y60Activity extends Activity {
     @Override
     public boolean onKeyDown(int pKeyCode, KeyEvent pEvent) {
         if (pKeyCode == KeyEvent.KEYCODE_T) {
-            // used to test the responsivness of the gui
+            // used to test the responsiveness of the gui
             mResponsivnessCounterForTestPurposesOnly++;
         }
 

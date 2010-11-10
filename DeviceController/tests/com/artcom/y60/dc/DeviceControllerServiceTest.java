@@ -16,6 +16,7 @@ import com.artcom.y60.DeviceConfiguration;
 import com.artcom.y60.Logger;
 import com.artcom.y60.NetworkHelper;
 import com.artcom.y60.TestHelper;
+import com.artcom.y60.Y60Action;
 import com.artcom.y60.http.HttpHelper;
 
 public class DeviceControllerServiceTest extends ServiceTestCase<DeviceControllerService> {
@@ -54,7 +55,7 @@ public class DeviceControllerServiceTest extends ServiceTestCase<DeviceControlle
         assertNoWebserverIsRunning();
 
         assertNull(getService());
-        Intent startIntent = new Intent("y60.intent.SERVICE_DEVICE_CONTROLLER");
+        Intent startIntent = new Intent(Y60Action.SERVICE_DEVICE_CONTROLLER);
         startService(startIntent);
         TestHelper.blockUntilDeviceControllerIsRunning();
         assertNotNull(getService());
@@ -74,7 +75,7 @@ public class DeviceControllerServiceTest extends ServiceTestCase<DeviceControlle
         assertNoWebserverIsRunning();
 
         assertNull(getService());
-        Intent startIntent = new Intent("y60.intent.SERVICE_DEVICE_CONTROLLER");
+        Intent startIntent = new Intent(Y60Action.SERVICE_DEVICE_CONTROLLER);
         startService(startIntent);
         TestHelper.blockUntilDeviceControllerIsRunning();
         assertNotNull("service should be available", getService());
@@ -103,7 +104,7 @@ public class DeviceControllerServiceTest extends ServiceTestCase<DeviceControlle
 
         assertNoWebserverIsRunning();
 
-        Intent startIntent = new Intent("y60.intent.SERVICE_DEVICE_CONTROLLER");
+        Intent startIntent = new Intent(Y60Action.SERVICE_DEVICE_CONTROLLER);
         startService(startIntent);
 
         TestHelper.blockUntilDeviceControllerIsRunning();
@@ -120,7 +121,7 @@ public class DeviceControllerServiceTest extends ServiceTestCase<DeviceControlle
 
         assertNoWebserverIsRunning();
 
-        Intent startIntent = new Intent("y60.intent.SERVICE_DEVICE_CONTROLLER");
+        Intent startIntent = new Intent(Y60Action.SERVICE_DEVICE_CONTROLLER);
         startService(startIntent);
 
         TestHelper.blockUntilDeviceControllerIsRunning();
@@ -149,7 +150,7 @@ public class DeviceControllerServiceTest extends ServiceTestCase<DeviceControlle
 
         assertNoWebserverIsRunning();
 
-        Intent startIntent = new Intent("y60.intent.SERVICE_DEVICE_CONTROLLER");
+        Intent startIntent = new Intent(Y60Action.SERVICE_DEVICE_CONTROLLER);
         startService(startIntent);
 
         TestHelper.blockUntilDeviceControllerIsRunning();
@@ -167,7 +168,7 @@ public class DeviceControllerServiceTest extends ServiceTestCase<DeviceControlle
     public void testStartup() throws NumberFormatException, UnknownHostException, IOException {
         assertNoWebserverIsRunning();
 
-        Intent startIntent = new Intent("y60.intent.SERVICE_DEVICE_CONTROLLER");
+        Intent startIntent = new Intent(Y60Action.SERVICE_DEVICE_CONTROLLER);
         startService(startIntent);
 
         blockUntilWebserverIsStarted();
@@ -178,7 +179,7 @@ public class DeviceControllerServiceTest extends ServiceTestCase<DeviceControlle
         assertNoWebserverIsRunning();
 
         assertNull(getService());
-        Intent startIntent = new Intent("y60.intent.SERVICE_DEVICE_CONTROLLER");
+        Intent startIntent = new Intent(Y60Action.SERVICE_DEVICE_CONTROLLER);
         startService(startIntent);
 
         TestHelper.blockUntilEquals("webserver should present expected status code", 6000, 404,

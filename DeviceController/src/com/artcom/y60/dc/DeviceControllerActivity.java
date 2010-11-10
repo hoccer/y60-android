@@ -15,6 +15,8 @@
 
 package com.artcom.y60.dc;
 
+import com.artcom.y60.Y60Action;
+
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
@@ -28,7 +30,7 @@ public class DeviceControllerActivity extends Activity {
     public static final boolean __NIO_DEFAULT  = true;
 
     @SuppressWarnings("unused")
-	private static final String LOG_TAG        = "DeviceController";
+	private static final String LOG_TAG = "DeviceController";
 
     public void onCreate(Bundle icicle) {
         super.onCreate(icicle);
@@ -38,12 +40,12 @@ public class DeviceControllerActivity extends Activity {
         final Button startButton = (Button) findViewById(R.id.start);
         startButton.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
-                Intent startDcIntent = new Intent("y60.intent.SERVICE_DEVICE_CONTROLLER");
+                Intent startDcIntent = new Intent(Y60Action.SERVICE_DEVICE_CONTROLLER);
                 startDcIntent.putExtra(DeviceControllerService.DEFAULT_PORTNAME, __PORT_DEFAULT);
                 startDcIntent.putExtra(DeviceControllerService.DEFAULT_NIONAME, __NIO_DEFAULT);
                 startService(startDcIntent);
 
-                Intent startSwIntent = new Intent("y60.intent.SERVICE_STATUS_WATCHER");
+                Intent startSwIntent = new Intent(Y60Action.SERVICE_STATUS_WATCHER);
                 startService(startSwIntent);
             }
         });
@@ -51,9 +53,9 @@ public class DeviceControllerActivity extends Activity {
         Button stopButton = (Button) findViewById(R.id.stop);
         stopButton.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
-                Intent stopDcIntent = new Intent("y60.intent.SERVICE_DEVICE_CONTROLLER");
+                Intent stopDcIntent = new Intent(Y60Action.SERVICE_DEVICE_CONTROLLER);
                 stopService(stopDcIntent);
-                Intent stopSwIntent = new Intent("y60.intent.SERVICE_STATUS_WATCHER");
+                Intent stopSwIntent = new Intent(Y60Action.SERVICE_STATUS_WATCHER);
                 stopService(stopSwIntent);
             }
         });
@@ -65,12 +67,12 @@ public class DeviceControllerActivity extends Activity {
         // possibly remove/refactor
         // in the production code.
 
-        Intent startDcIntent = new Intent("y60.intent.SERVICE_DEVICE_CONTROLLER");
+        Intent startDcIntent = new Intent(Y60Action.SERVICE_DEVICE_CONTROLLER);
         startDcIntent.putExtra(DeviceControllerService.DEFAULT_PORTNAME, __PORT_DEFAULT);
         startDcIntent.putExtra(DeviceControllerService.DEFAULT_NIONAME, __NIO_DEFAULT);
         startService(startDcIntent);
 
-        Intent startSwIntent = new Intent("y60.intent.SERVICE_STATUS_WATCHER");
+        Intent startSwIntent = new Intent(Y60Action.SERVICE_STATUS_WATCHER);
         startService(startSwIntent);
     }
 

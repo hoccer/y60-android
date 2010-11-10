@@ -107,9 +107,9 @@ public class Y60 extends Activity {
         mStopDcButton.setOnClickListener(new OnClickListener() {
             // @Override
             public void onClick(View v) {
-                Intent stopDcIntent = new Intent("y60.intent.SERVICE_DEVICE_CONTROLLER");
+                Intent stopDcIntent = new Intent(Y60Action.SERVICE_DEVICE_CONTROLLER);
                 stopService(stopDcIntent);
-                Intent stopSwIntent = new Intent("y60.intent.SERVICE_STATUS_WATCHER");
+                Intent stopSwIntent = new Intent(Y60Action.SERVICE_STATUS_WATCHER);
                 stopService(stopSwIntent);
             }
         });
