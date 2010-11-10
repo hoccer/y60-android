@@ -28,11 +28,7 @@ import com.artcom.y60.http.HttpHelper;
 
 public class TestHelper {
 
-    // Constants ---------------------------------------------------------
-
     static final String LOG_TAG = "TestHelper";
-
-    // Static Methods ----------------------------------------------------
 
     /**
      * @param pFailMessage
@@ -42,7 +38,6 @@ public class TestHelper {
      */
     public static void blockUntilTrue(String pFailMessage, long pTimeout, TestHelper.Condition pCon)
             throws Exception {
-
         long start = System.currentTimeMillis();
         while (System.currentTimeMillis() - start < pTimeout) {
 
@@ -51,7 +46,6 @@ public class TestHelper {
             }
             Thread.sleep(20);
         }
-
         throw new AssertionError(pFailMessage);
     }
 
@@ -63,7 +57,6 @@ public class TestHelper {
      */
     public static void blockUntilFalse(String pFailMessage, long pTimeout,
             final TestHelper.Condition pCon) throws Exception {
-
         blockUntilTrue(pFailMessage, pTimeout, new TestHelper.Condition() {
             public boolean isSatisfied() throws Exception {
 
@@ -73,7 +66,6 @@ public class TestHelper {
     }
 
     public static String createJsonFromAttr(String pParentNode, String pName, String pValue) {
-
         return "{ \"attribute\": {\"name\": \"" + pName + "\"," + "\"node\": \"" + pParentNode
                 + "\",\"value\": \"" + pValue + "\",\"type\": \"string\","
                 + "\"mtime\": \"2009-07-06T16:01:24+02:00\","
@@ -81,21 +73,17 @@ public class TestHelper {
     }
 
     public static String createFakeJsonFromAttr(String pParentNode, String pName, String pValue) {
-
         return "{ \"attribute\": {\"name\": \"" + pName + "\"," + "\"node\": \"" + pParentNode
                 + "\"," + "\"value\": \"" + pValue + "\"} }";
     }
 
     public static String createFake2JsonFromAttr(String pParentNode, String pName, String pValue) {
-
         return "{ \"attribute\": {\"value\": \"" + pValue + "\"," + "\"node\": \"" + pParentNode
                 + "\"," + "\"name\": \"" + pName + "\"}}";
     }
 
     public static boolean assertJsonEquality(JSONObject pA, JSONObject pB) {
-
         return false;
-
     }
 
     /**
@@ -111,15 +99,11 @@ public class TestHelper {
 
     public static void blockUntilNotNull(String pFailMessage, long pTimeout,
             final TestHelper.Measurement pMeasurement) throws Exception {
-
         blockUntilTrue(pFailMessage, pTimeout, new Condition() {
-
             @Override
             public boolean isSatisfied() throws Exception {
-
                 return pMeasurement.getActualValue() != null;
             }
-
         });
     }
 
@@ -135,16 +119,13 @@ public class TestHelper {
      */
     public static void blockUntilEquals(String pFailMessage, long pTimeout, Object pExpected,
             final TestHelper.Measurement pMesurement) throws Exception {
-
         Object mesuredValue = null;
         long start = System.currentTimeMillis();
         while (System.currentTimeMillis() - start < pTimeout) {
-
             mesuredValue = pMesurement.getActualValue();
             if (pExpected.equals(mesuredValue)) {
                 return;
             }
-
             try {
                 Thread.sleep(20);
             } catch (InterruptedException e) {
@@ -158,20 +139,16 @@ public class TestHelper {
 
     public static void blockUntilBackendAvailable(final Y60Activity pActivity) throws Exception {
         blockUntilTrue("Backend is not available", 10000, new TestHelper.Condition() {
-
             @Override
             public boolean isSatisfied() {
                 return pActivity.hasBackendAvailableBeenCalled();
             }
-
         });
-
     }
 
     public static void blockUntilBackendResumed(final Y60Activity pActivity, int pTimeout)
             throws Exception {
         blockUntilBackendAvailable(pActivity);
-
         blockUntilTrue("ResumeWithBackend should have been called", pTimeout,
                 new TestHelper.Condition() {
 
@@ -179,7 +156,6 @@ public class TestHelper {
                     public boolean isSatisfied() {
                         return pActivity.hasResumeWithBackendBeenCalled();
                     }
-
                 });
 
     }
@@ -195,7 +171,6 @@ public class TestHelper {
 
     public static void blockUntilResourceAvailable(String pFailMessage, final String pUrl,
             int pTimeout) throws Exception {
-
         blockUntilTrue(pFailMessage, pTimeout, new TestHelper.Condition() {
             @Override
             public boolean isSatisfied() {
@@ -223,11 +198,9 @@ public class TestHelper {
                 }
             }
         });
-
     }
 
     public static void assertDeviceControlerIsRunning(Context pContext) throws Exception {
-
         Intent startIntent = new Intent("y60.intent.SERVICE_DEVICE_CONTROLLER");
         pContext.startService(startIntent);
         TestHelper.blockUntilDeviceControllerIsRunning();
@@ -238,7 +211,6 @@ public class TestHelper {
     }
 
     public static void blockUntilDeviceControllerIsRunning(long pTimeout) throws Exception {
-
         TestHelper.blockUntilEquals("device controller should have started within " + pTimeout
                 + " milliseconds", pTimeout, "404", new TestHelper.Measurement() {
             @Override
@@ -257,11 +229,9 @@ public class TestHelper {
                 return statusCode;
             }
         });
-
     }
 
     public static void sendCreateAttributeNotificationBroadcast(String pPath, Context pContext) {
-
         sendNotificationBroadcast(pPath, generateAttributeDummyJsonString(pPath), "create",
                 pContext);
     }
@@ -321,10 +291,7 @@ public class TestHelper {
         return "{ \"node\": { \"uri\" : \"" + pPath + "\", \"entries\" : [] } }";
     }
 
-    // Inner Classes -----------------------------------------------------
-
     public interface Condition {
-
         public boolean isSatisfied() throws Exception;
     }
 
@@ -332,7 +299,6 @@ public class TestHelper {
      * Mesures current state of an object.
      */
     public interface Measurement {
-
         public Object getActualValue() throws Exception;
     }
 
@@ -516,7 +482,6 @@ public class TestHelper {
 
     public static void logServicesOnSdcard(String pLOG_TAG, String additionalLog) throws Exception {
         String aliveServicesDirectory = Constants.Device.ALIVE_SERVICES_PATH;
-
         File dir = new File(aliveServicesDirectory);
         if (!dir.exists()) {
             Logger.v(pLOG_TAG, "_____ no alive services folder");
