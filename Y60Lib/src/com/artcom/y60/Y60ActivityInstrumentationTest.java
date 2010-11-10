@@ -23,7 +23,6 @@ import android.view.View;
 public abstract class Y60ActivityInstrumentationTest<T extends Activity> extends
         ActivityInstrumentationTestCase2<T> {
 
-    // Constants ---------------------------------------------------------
     private static String      LOG_TAG       = "Y60ActivityInstrumentationTest";
 
     /**
@@ -38,8 +37,6 @@ public abstract class Y60ActivityInstrumentationTest<T extends Activity> extends
      */
     protected final static int SCREEN_HEIGHT = 480;
 
-    // Constructors ------------------------------------------------------
-
     public Y60ActivityInstrumentationTest(String pkg, Class<T> activityClass,
             boolean initialTouchMode) {
         super(pkg, activityClass);
@@ -50,8 +47,6 @@ public abstract class Y60ActivityInstrumentationTest<T extends Activity> extends
         super(pkg, activityClass);
         // TODO Auto-generated constructor stub
     }
-
-    // Public Instance Methods -------------------------------------------
 
     @Override
     public void setUp() throws Exception {
@@ -112,7 +107,6 @@ public abstract class Y60ActivityInstrumentationTest<T extends Activity> extends
 
     @Override
     public void tearDown() throws Exception {
-
         d(" --- " + getName() + " -- tearDown -----"
                 + "-------------------------------------------------------");
         Logger.logMemoryInfo(tag(), getInstrumentation().getContext());
@@ -124,7 +118,6 @@ public abstract class Y60ActivityInstrumentationTest<T extends Activity> extends
     // Protected Instance Methods ----------------------------------------
 
     protected void assertIsShown(int pViewId) {
-
         View view = getActivity().findViewById(pViewId);
         assertTrue("view '" + getActivity().getResources().getResourceName(pViewId)
                 + "' should be visible", view.isShown());
@@ -137,12 +130,10 @@ public abstract class Y60ActivityInstrumentationTest<T extends Activity> extends
      * events.
      */
     protected void fling(Direction pDirection) {
-
         fling(pDirection, SCREEN_HEIGHT - 10);
     }
 
     protected void fling(Direction pDirection, int pY) {
-
         // fling to next
         int y = pY;
         int fromX = SCREEN_WIDTH / 2;
@@ -156,7 +147,6 @@ public abstract class Y60ActivityInstrumentationTest<T extends Activity> extends
 
         MotionEvent[] moves = new MotionEvent[20];
         for (int mov = 0; mov < 20; mov++) {
-
             time += 10;
             x += deltaX;
 
@@ -176,7 +166,6 @@ public abstract class Y60ActivityInstrumentationTest<T extends Activity> extends
     }
 
     protected void touch(int pX, int pY) {
-
         Logger.v(LOG_TAG, "touching ", pX, ", ", pY);
         sendMotionEventAndSync(MotionEvent.ACTION_DOWN, pX, pY);
         try {
@@ -187,7 +176,6 @@ public abstract class Y60ActivityInstrumentationTest<T extends Activity> extends
     }
 
     protected void release(int pX, int pY) {
-
         Logger.v(LOG_TAG, "release ", pX, ", ", pY);
         sendMotionEventAndSync(MotionEvent.ACTION_UP, pX, pY);
         try {
@@ -198,7 +186,6 @@ public abstract class Y60ActivityInstrumentationTest<T extends Activity> extends
     }
 
     protected void move(int pToX, int pToY) {
-
         sendMotionEventAndSync(MotionEvent.ACTION_MOVE, pToX, pToY);
         try {
             Thread.sleep(20);
@@ -208,14 +195,12 @@ public abstract class Y60ActivityInstrumentationTest<T extends Activity> extends
     }
 
     protected void moveAndRelease(int pToX, int pToY) {
-
         move(pToX, pToY);
         release(pToX, pToY);
 
     }
 
     protected void touch(View pView) {
-
         int y = pView.getTop() + pView.getHeight() / 2;
         int x = pView.getLeft() + pView.getWidth() / 2;
 
@@ -223,7 +208,6 @@ public abstract class Y60ActivityInstrumentationTest<T extends Activity> extends
     }
 
     protected void release(View pView) {
-
         int y = pView.getTop() + pView.getHeight() / 2;
         int x = pView.getLeft() + pView.getWidth() / 2;
 
@@ -231,7 +215,6 @@ public abstract class Y60ActivityInstrumentationTest<T extends Activity> extends
     }
 
     protected void sendMotionEventAndSync(int pAction, int pX, int pY) {
-
         long time = SystemClock.uptimeMillis();
 
         MotionEvent eve = MotionEvent.obtain(time, time, pAction, pX, pY, 1);
@@ -246,7 +229,6 @@ public abstract class Y60ActivityInstrumentationTest<T extends Activity> extends
      * codes.
      */
     protected void pressKey(int pKeyCode, long pDurationMillis) throws InterruptedException {
-
         Instrumentation instrumentation = getInstrumentation();
         instrumentation.sendKeySync(new KeyEvent(KeyEvent.ACTION_DOWN, pKeyCode));
         Thread.sleep(pDurationMillis);
@@ -255,7 +237,6 @@ public abstract class Y60ActivityInstrumentationTest<T extends Activity> extends
 
     protected void pressContinuouslyKey(int pKeyCode, long pDurationMillis)
             throws InterruptedException {
-
         Instrumentation instrumentation = getInstrumentation();
         int repeatCode = 0;
         instrumentation.sendKeySync(new KeyEvent(0, 0, KeyEvent.ACTION_DOWN, pKeyCode, repeatCode));
@@ -286,32 +267,26 @@ public abstract class Y60ActivityInstrumentationTest<T extends Activity> extends
      * Shorthand for <code>getClass().getSimpleName()</code>, to be used for logcat logging.
      */
     protected String tag() {
-
         return getClass().getSimpleName();
     }
 
     protected void v(Object... pToLog) {
-
         Logger.v(tag(), pToLog);
     }
 
     protected void d(Object... pToLog) {
-
         Logger.d(tag(), pToLog);
     }
 
     protected void i(Object... pToLog) {
-
         Logger.i(tag(), pToLog);
     }
 
     protected void w(Object... pToLog) {
-
         Logger.w(tag(), pToLog);
     }
 
     protected void e(Object... pToLog) {
-
         Logger.e(tag(), pToLog);
     }
 }
