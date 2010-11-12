@@ -11,6 +11,7 @@ import org.json.JSONObject;
 import android.net.Uri;
 
 import com.artcom.y60.Constants;
+import com.artcom.y60.Logger;
 import com.artcom.y60.http.HttpClientException;
 import com.artcom.y60.http.HttpException;
 import com.artcom.y60.http.HttpHelper;
@@ -18,6 +19,8 @@ import com.artcom.y60.http.HttpServerException;
 
 public class GomHttpWrapper {
     
+	private static final String LOG_TAG = "GomHttpWrapper";
+
 	// TODO: Why is this deprecated? Seems to me (AM) that passing in a Uri instead of a string is definitely correcter
     @Deprecated
     public static HttpResponse updateOrCreateAttribute(Uri pUri, String pValue)
@@ -107,6 +110,19 @@ public class GomHttpWrapper {
         } catch (IOException e) {
             return false;
         }
+        return true;
+    }
+    
+    public static boolean isNodeExisting(String pUri) {
+        try {
+        	HttpHelper.getJson(pUri);
+        } catch (HttpException e) {
+            return false;
+        } catch (IOException e) {
+            return false;
+        } catch (JSONException e) {
+			return false;
+		}
         return true;
     }
     
