@@ -11,7 +11,6 @@ import org.json.JSONObject;
 import android.net.Uri;
 
 import com.artcom.y60.Constants;
-import com.artcom.y60.Logger;
 import com.artcom.y60.http.HttpClientException;
 import com.artcom.y60.http.HttpException;
 import com.artcom.y60.http.HttpHelper;
@@ -19,6 +18,7 @@ import com.artcom.y60.http.HttpServerException;
 
 public class GomHttpWrapper {
     
+	@SuppressWarnings("unused")
 	private static final String LOG_TAG = "GomHttpWrapper";
 
 	// TODO: Why is this deprecated? Seems to me (AM) that passing in a Uri instead of a string is definitely correcter
