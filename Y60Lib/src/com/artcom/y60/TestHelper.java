@@ -200,7 +200,7 @@ public class TestHelper {
         });
     }
 
-    public static void assertDeviceControlerIsRunning(Context pContext) throws Exception {
+    public static void assertDeviceControllerIsRunning(Context pContext) throws Exception {
         Intent startIntent = new Intent(Y60Action.SERVICE_DEVICE_CONTROLLER);
         pContext.startService(startIntent);
         TestHelper.blockUntilDeviceControllerIsRunning();
