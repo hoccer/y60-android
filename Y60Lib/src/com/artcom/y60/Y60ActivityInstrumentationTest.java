@@ -53,7 +53,7 @@ public abstract class Y60ActivityInstrumentationTest<T extends Activity> extends
         d(" --- " + getName()
                 + " -- setUp ------------------------------------------------------------");
         Logger.logMemoryInfo(tag(), getInstrumentation().getContext());
-        TestHelper.assertDeviceControlerIsRunning(getInstrumentation().getContext());
+        TestHelper.assertDeviceControllerIsRunning(getInstrumentation().getContext());
 
         super.setUp();
         //assertNoErrorLogOnSdcard();
