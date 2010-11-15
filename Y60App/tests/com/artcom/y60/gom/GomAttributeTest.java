@@ -40,17 +40,14 @@ public class GomAttributeTest extends AndroidTestCase {
     }
 
     public void testGetPath() {
-
         assertEquals(mTestRef.path(), mTestAttr.getPath());
     }
 
     public void testGetName() {
-
         assertEquals(mTestRef.name(), mTestAttr.getName());
     }
 
     public void testResolveReference() throws GomException {
-
         GomEntry entry = mTestAttr.resolveReference();
 
         assertEquals(mValue, entry.getPath());

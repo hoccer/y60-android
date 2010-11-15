@@ -24,13 +24,11 @@ public class GomAttribute extends GomEntry {
     private final static String LOG_TAG = "GomAttribute";
 
     public static String extractNameFromPath(String pPath) {
-
         return pPath.substring(pPath.lastIndexOf(":") + 1);
     }
 
     /** The attribute value */
     private String       mValue;
-    
     private final String mNodePath;
 
     /**
@@ -68,7 +66,6 @@ public class GomAttribute extends GomEntry {
 
         try {
             JSONObject json = new JSONObject();
-
             JSONObject attr = new JSONObject();
             json.put(Constants.Gom.Keywords.ATTRIBUTE, attr);
 
@@ -87,7 +84,6 @@ public class GomAttribute extends GomEntry {
         if ((pObj != null) && (pObj instanceof GomAttribute) && super.equals(pObj)) {
             GomAttribute other = (GomAttribute) pObj;
             return mValue.equals(other.mValue);
-
         } else {
             return false;
         }

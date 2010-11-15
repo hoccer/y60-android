@@ -21,12 +21,11 @@ public class GomHttpWrapper {
 	@SuppressWarnings("unused")
 	private static final String LOG_TAG = "GomHttpWrapper";
 
-	// TODO: Why is this deprecated? Seems to me (AM) that passing in a Uri instead of a string is definitely correcter
-    @Deprecated
+	/*@Deprecated
     public static HttpResponse updateOrCreateAttribute(Uri pUri, String pValue)
             throws HttpClientException, HttpServerException, IOException {
         return updateOrCreateAttribute(pUri.toString(), pValue);
-    }
+    }*/
     
     public static HttpResponse updateOrCreateAttribute(String pUri, String pValue)
             throws HttpClientException, HttpServerException, IOException {
@@ -67,11 +66,11 @@ public class GomHttpWrapper {
         return HttpHelper.delete(pUri);
     }
     
-    @Deprecated
+    /*@Deprecated
     public static String getAttributeValue(Uri pAttrUrl) throws HttpClientException,
             HttpServerException, IOException {
         return getAttributeValue(pAttrUrl.toString());
-    }
+    }*/
     
     public static String getAttributeValue(String pAttrUrl) throws HttpClientException,
             HttpServerException, IOException {

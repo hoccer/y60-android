@@ -24,7 +24,6 @@ public class GnpRegistrationTest extends GomActivityUnitTestCase {
     // -> exception | entry deleted callback
     
     public void testAttributeNotInProxyNotInGom() throws Exception {
-        
         initializeActivity();
         GomProxyHelper helper = createHelper();
         
@@ -37,12 +36,10 @@ public class GnpRegistrationTest extends GomActivityUnitTestCase {
         GomNotificationHelper.createObserverAndNotify(attrPath, gto, helper);
         
         TestHelper.blockUntilTrue("delete not called", 3000, new TestHelper.Condition() {
-            
             @Override
             public boolean isSatisfied() {
                 return gto.getDeleteCount() == 1;
             }
-            
         });
         
         gto.assertDeleteCalled();
@@ -76,22 +73,18 @@ public class GnpRegistrationTest extends GomActivityUnitTestCase {
         GomNotificationHelper.createObserverAndNotify(attrPath, gto, helper);
         
         TestHelper.blockUntilTrue("update not called", 3000, new TestHelper.Condition() {
-            
             @Override
             public boolean isSatisfied() {
                 Logger.v(LOG_TAG, gto.toString());
                 return gto.getUpdateCount() == 1;
             }
-            
         });
         
         TestHelper.blockUntilTrue("delete not called", 3000, new TestHelper.Condition() {
-            
             @Override
             public boolean isSatisfied() {
                 return gto.getDeleteCount() == 1;
             }
-            
         });
         
         gto.assertDeleteCalled();
@@ -104,11 +97,9 @@ public class GnpRegistrationTest extends GomActivityUnitTestCase {
         gto.assertCreateNotCalled();
         
         assertFalse("Value should now be deleted in proxy", helper.hasInCache(attrPath));
-        
     }
     
     public void testNodeInProxyNotInGom() throws Exception {
-        
         initializeActivity();
         GomProxyHelper helper = createHelper();
         
@@ -124,21 +115,17 @@ public class GnpRegistrationTest extends GomActivityUnitTestCase {
         GomNotificationHelper.createObserverAndNotify(nodePath, gto, helper);
         
         TestHelper.blockUntilTrue("update not called", 3000, new TestHelper.Condition() {
-            
             @Override
             public boolean isSatisfied() {
                 return gto.getUpdateCount() == 1;
             }
-            
         });
         
         TestHelper.blockUntilTrue("delete not called", 3000, new TestHelper.Condition() {
-            
             @Override
             public boolean isSatisfied() {
                 return gto.getDeleteCount() == 1;
             }
-            
         });
         
         gto.assertDeleteCalled();
@@ -186,7 +173,6 @@ public class GnpRegistrationTest extends GomActivityUnitTestCase {
         assertEquals("Update should not be called another time", 1, gto.getUpdateCount());
         gto.assertCreateNotCalled();
         gto.assertDeleteNotCalled();
-        
         assertTrue("Value should now be in proxy", helper.hasInCache(attrPath));
     }
     
