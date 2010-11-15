@@ -4,7 +4,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import android.content.BroadcastReceiver;
-import android.net.Uri;
+//import android.net.Uri;
 
 import com.artcom.y60.Constants;
 import com.artcom.y60.Logger;
@@ -157,28 +157,24 @@ public class GnpRegistrationTest extends GomActivityUnitTestCase {
     // -> one entry updated callback, value is in proxy
     
     public void testAttrInGomNotInProxy() throws Exception {
-        
         initializeActivity();
         GomProxyHelper helper = createHelper();
         
         String timestamp = String.valueOf(System.currentTimeMillis());
         
         String attrPath = TEST_BASE_PATH + "/test_attr_in_gom_not_in_proxy" + ":" + timestamp;
-        Uri attrUrl = Uri.parse(Constants.Gom.URI + attrPath);
         String attrValue = "value_im_gom";
         
-        GomHttpWrapper.updateOrCreateAttribute(attrUrl, attrValue);
+        GomHttpWrapper.updateOrCreateAttribute(Constants.Gom.URI + attrPath, attrValue);
         
         final GomTestObserver gto = new GomTestObserver(this);
         GomNotificationHelper.createObserverAndNotify(attrPath, gto, helper);
         
         TestHelper.blockUntilTrue("update not called", 3000, new TestHelper.Condition() {
-            
             @Override
             public boolean isSatisfied() {
                 return gto.getUpdateCount() == 1;
             }
-            
         });
         
         List<Event> events = gto.getEvents();
@@ -199,14 +195,12 @@ public class GnpRegistrationTest extends GomActivityUnitTestCase {
     // in proxy
     
     public void testOldAttrInProxyNewInGom() throws Exception {
-        
         initializeActivity();
         GomProxyHelper helper = createHelper();
         
         String timestamp = String.valueOf(System.currentTimeMillis());
         
         String attrPath = TEST_BASE_PATH + "/test_old_attr_in_proxy_new_in_gom" + ":" + timestamp;
-        Uri attrUrl = Uri.parse(Constants.Gom.URI + attrPath);
         String oldAttrValue = "alt_im_proxy";
         String newAttrValue = "neu_im_gom";
         
@@ -214,18 +208,16 @@ public class GnpRegistrationTest extends GomActivityUnitTestCase {
         assertTrue("Attribute should now be in proxy before register Observer", helper
                 .hasInCache(attrPath));
         
-        GomHttpWrapper.updateOrCreateAttribute(attrUrl, newAttrValue);
+        GomHttpWrapper.updateOrCreateAttribute(Constants.Gom.URI + attrPath, newAttrValue);
         
         final GomTestObserver gto = new GomTestObserver(this);
         GomNotificationHelper.createObserverAndNotify(attrPath, gto, helper);
         
         TestHelper.blockUntilTrue("update not called", 3000, new TestHelper.Condition() {
-            
             @Override
             public boolean isSatisfied() {
                 return gto.getUpdateCount() == 2;
             }
-            
         });
         
         List<Event> events = gto.getEvents();
@@ -247,14 +239,12 @@ public class GnpRegistrationTest extends GomActivityUnitTestCase {
     // -> one callback. done.
     
     public void testSameAttrInGomAndProxy() throws Exception {
-        
         initializeActivity();
         GomProxyHelper helper = createHelper();
         
         String timestamp = String.valueOf(System.currentTimeMillis());
         
         String attrPath = TEST_BASE_PATH + "/test_same_attr_in_gom_and_proxy" + ":" + timestamp;
-        Uri attrUrl = Uri.parse(Constants.Gom.URI + attrPath);
         String attrValue = "hans-peter";
         
         helper.saveAttribute(attrPath, attrValue);
@@ -267,8 +257,8 @@ public class GnpRegistrationTest extends GomActivityUnitTestCase {
         Logger.v(LOG_TAG, "attr value from proxy, getatrrvalue()", helper.getAttribute(attrPath)
                 .getValue());
         
-        GomHttpWrapper.updateOrCreateAttribute(attrUrl, attrValue);
-        assertTrue("Value should be in Gom", HttpHelper.getJson(attrUrl.toString()).toString()
+        GomHttpWrapper.updateOrCreateAttribute(Constants.Gom.URI + attrPath, attrValue);
+        assertTrue("Value should be in Gom", HttpHelper.getJson(Constants.Gom.URI + attrPath).toString()
                 .contains(attrValue));
         
         final GomTestObserver gto = new GomTestObserver(this);

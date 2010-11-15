@@ -138,8 +138,8 @@ public class GnpRoundtripTest extends GomActivityUnitTestCase {
         
         // create attribute in gom
         String visibleAttrPath = nodePath + ":attribute";
-        Uri visibleAttrUrl = Uri.parse(Constants.Gom.URI + visibleAttrPath);
-        GomHttpWrapper.updateOrCreateAttribute(visibleAttrUrl, "who cares?");
+        //Uri visibleAttrUrl = Uri.parse(Constants.Gom.URI + visibleAttrPath);
+        GomHttpWrapper.updateOrCreateAttribute(Constants.Gom.URI + visibleAttrPath, "who cares?");
         
         TestHelper.blockUntilTrue("create not called", 4000, new TestHelper.Condition() {
             @Override
@@ -181,7 +181,7 @@ public class GnpRoundtripTest extends GomActivityUnitTestCase {
         assertEquals("create should be called only once", 1, observer.getCreateCount());
         assertEquals("update should be called 3 times", 3, observer.getUpdateCount());
         
-        GomHttpWrapper.updateOrCreateAttribute(visibleAttrUrl, "who else cares?");
+        GomHttpWrapper.updateOrCreateAttribute(Constants.Gom.URI + visibleAttrPath, "who else cares?");
         
         TestHelper.blockUntilTrue("update not called", 3000, new TestHelper.Condition() {
             @Override

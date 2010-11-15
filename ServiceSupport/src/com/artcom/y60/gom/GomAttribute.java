@@ -53,7 +53,7 @@ public class GomAttribute extends GomEntry {
 
     public void putValue(String pValue) throws IOException, HttpClientException,
             HttpServerException {
-        GomHttpWrapper.updateOrCreateAttribute(getUri(), pValue);
+        GomHttpWrapper.updateOrCreateAttribute(getUri().toString(), pValue);
         mValue = pValue;
     }
 
