@@ -8,8 +8,6 @@ import org.apache.http.HttpResponse;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.net.Uri;
-
 import com.artcom.y60.Constants;
 import com.artcom.y60.http.HttpClientException;
 import com.artcom.y60.http.HttpException;

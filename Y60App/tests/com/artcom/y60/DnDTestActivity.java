@@ -18,7 +18,7 @@ public class DnDTestActivity extends Activity {
     
     private ImageView mResourceScreenshot;
     
-    private BitmapDrawable mDrawable;
+    //private BitmapDrawable mDrawable;
 
     private AbsoluteLayout mLayout;
     
@@ -46,37 +46,28 @@ public class DnDTestActivity extends Activity {
         sendToImage.setBackgroundResource(R.drawable.red80);
         sendToImage.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT));
         SlotLauncher launcher= new SlotLauncher() {
-
             @Override
             public void launch() {
-                
                 mIsDroppedOnTarget = true;
-                
             }
-            
         };
         mDragonDropper.addDropTarget(new Slot("CONTACTS", launcher, new StaticSlotViewer(sendToImage)));
-        
     }
     
     public ImageView getDragResource(){
-        
         return mResourceScreenshot;
         
     }
     
     DragAndDropHelper getDragAndDropHelper() {
-        
         return mDragonDropper;
     }
     
     public boolean isDroppedOnTarget() {
-        
         return mIsDroppedOnTarget;
     }
     
     public AbsoluteLayout getAbsoluteLayout(){
-        
         return mLayout;
     }
     

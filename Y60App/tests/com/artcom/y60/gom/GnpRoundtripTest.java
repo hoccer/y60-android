@@ -7,7 +7,6 @@ import org.apache.http.StatusLine;
 import org.json.JSONObject;
 
 import android.content.BroadcastReceiver;
-import android.net.Uri;
 import android.test.suitebuilder.annotation.LargeTest;
 
 import com.artcom.y60.Constants;
