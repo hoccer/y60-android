@@ -56,7 +56,7 @@ public abstract class Y60ActivityInstrumentationTest<T extends Activity> extends
         TestHelper.assertDeviceControllerIsRunning(getInstrumentation().getContext());
 
         super.setUp();
-        assertNoErrorLogOnSdcard();
+        //assertNoErrorLogOnSdcard();
     }
 
     public void blockUntilActivityIsResponsive() throws Exception {
@@ -112,7 +112,7 @@ public abstract class Y60ActivityInstrumentationTest<T extends Activity> extends
         Logger.logMemoryInfo(tag(), getInstrumentation().getContext());
 
         super.tearDown();
-        assertNoErrorLogOnSdcard();
+        //assertNoErrorLogOnSdcard();
     }
 
     // Protected Instance Methods ----------------------------------------
@@ -169,7 +169,7 @@ public abstract class Y60ActivityInstrumentationTest<T extends Activity> extends
         Logger.v(LOG_TAG, "touching ", pX, ", ", pY);
         sendMotionEventAndSync(MotionEvent.ACTION_DOWN, pX, pY);
         try {
-            Thread.sleep(20);
+            Thread.sleep(5);
         } catch (InterruptedException e) {
             Logger.e(LOG_TAG, e);
         }
@@ -213,13 +213,37 @@ public abstract class Y60ActivityInstrumentationTest<T extends Activity> extends
 
         release(x, y);
     }
+        
+    protected void touchRelease(View pView,long downTime) {
+        Instrumentation instrumentation = getInstrumentation();
+
+        long touchDownTime = SystemClock.uptimeMillis();
+        long eventDownTime = SystemClock.uptimeMillis();
+        long touchUpTime = touchDownTime + downTime;
+        long eventUpTime = eventDownTime + downTime;
+       
+        int y = pView.getTop() + pView.getHeight() / 2;
+        int x = pView.getLeft() + pView.getWidth() / 2;
+        
+        MotionEvent downEvent = MotionEvent.obtain(touchDownTime, eventDownTime, 
+                MotionEvent.ACTION_DOWN, x, y, 1);
+        MotionEvent upEvent = MotionEvent.obtain(touchUpTime, eventUpTime, 
+                MotionEvent.ACTION_UP, x, y, 1);
+        
+        instrumentation.sendPointerSync(downEvent);
+        instrumentation.sendPointerSync(upEvent);
+        instrumentation.waitForIdleSync();
+        
+    }
 
     protected void sendMotionEventAndSync(int pAction, int pX, int pY) {
-        long time = SystemClock.uptimeMillis();
-
-        MotionEvent eve = MotionEvent.obtain(time, time, pAction, pX, pY, 1);
-
         Instrumentation instrumentation = getInstrumentation();
+        long touch = SystemClock.uptimeMillis();
+        long event = SystemClock.uptimeMillis();
+
+        MotionEvent eve = MotionEvent.obtain(touch, event, pAction, pX, pY, 1);
+
+        
         instrumentation.sendPointerSync(eve);
         instrumentation.waitForIdleSync();
     }
