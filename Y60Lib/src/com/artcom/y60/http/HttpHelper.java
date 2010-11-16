@@ -186,11 +186,11 @@ public class HttpHelper {
         return extractBodyAsString(result);
     }
 
-    @Deprecated
+    /*@Deprecated
     public static byte[] getAsByteArray(Uri uri) throws IllegalStateException, IOException,
             HttpClientException, HttpServerException {
         return getAsByteArray(uri.toString());
-    }
+    }*/
 
     public static byte[] getAsByteArray(String uri) throws IllegalStateException, IOException,
             HttpClientException, HttpServerException {

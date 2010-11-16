@@ -8,6 +8,7 @@ import android.widget.LinearLayout;
 /**
  * A {@link SlotHolder} used for drag-and-dropping.
  */
+@SuppressWarnings("deprecation")
 public class DropTargetCollection extends SlotHolder implements DragListener {
 
     @SuppressWarnings("unused")
@@ -15,12 +16,12 @@ public class DropTargetCollection extends SlotHolder implements DragListener {
 
     // Instance Variables ------------------------------------------------
 
-    private AbsoluteLayout      mAbsoluteLayout;
+    //private AbsoluteLayout      mAbsoluteLayout;
     private LinearLayout        mLinearLayout;
 
     public DropTargetCollection(Context pContext, AbsoluteLayout pAbsoluteLayout) {
         super(pContext);
-        mAbsoluteLayout = pAbsoluteLayout;
+        //mAbsoluteLayout = pAbsoluteLayout;
         mLinearLayout = new LinearLayout(pContext);
     }
 

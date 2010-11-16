@@ -3,6 +3,7 @@ package com.artcom.y60;
 import android.view.View;
 import android.widget.AbsoluteLayout;
 
+@SuppressWarnings("deprecation")
 public interface DragListener {
 
     public void onDraggingStarted(View pOrigin);
