@@ -75,18 +75,12 @@ public class HttpProxyHelper {
     private boolean                                mShutdown;
 
     private IHttpProxyService                      mProxy;
-
     private final HttpProxyServiceConnection       mConnection;
-
     private final BindingListener<HttpProxyHelper> mBindingListener;
-
     private final HttpResourceUpdateReceiver       mUpdateReceiver;
     private final HttpResourceNotAvailableReceiver mNotAvailableReceiver;
 
-    // Constructors ------------------------------------------------------
-
     public HttpProxyHelper(Context pContext, BindingListener<HttpProxyHelper> pBindingListener) {
-
         mShutdown = false;
         mContext = pContext;
         mUpdateNotificationQueue = new LinkedList<Uri>();
@@ -113,8 +107,6 @@ public class HttpProxyHelper {
         mUpdateThread.start();
     }
 
-    // Public Instance Methods -------------------------------------------
-
     public void unbind() {
         mContext.unbindService(mConnection);
         mContext.unregisterReceiver(mUpdateReceiver);
@@ -122,9 +114,7 @@ public class HttpProxyHelper {
     }
 
     public void assertConnected() {
-
         if (mProxy == null) {
-
             throw new RuntimeException("Unable to bind proxy!");
         }
     }
@@ -154,10 +144,10 @@ public class HttpProxyHelper {
         return new String(IoHelper.convertResourceBundleToByteArray(resourceDescription));
     }
 
-    @Deprecated
+    /*@Deprecated
     public void requestResourceWhichIsDeprecated(Uri pUri) {
         requestResource(pUri.toString());
-    }
+    }*/
 
     public void requestResource(String pUri) {
         RpcStatus status = new RpcStatus();
@@ -196,7 +186,6 @@ public class HttpProxyHelper {
     }
 
     public byte[] fetchFromCache(Uri pUri) {
-
         RpcStatus status = new RpcStatus();
         Bundle content;
         try {
@@ -218,7 +207,6 @@ public class HttpProxyHelper {
     }
 
     public File fetchFromCacheAsFile(Uri pUri) throws IOException {
-
         RpcStatus status = new RpcStatus();
         Bundle bundle;
 
@@ -239,24 +227,19 @@ public class HttpProxyHelper {
             ErrorHandling.signalIllegalArgumentError(LOG_TAG, new IllegalArgumentException(
                     "Resource for URI " + pUri + " is not available as file!"), mContext);
         }
-
         return new File(resourcePath);
     }
 
     public Drawable fetchDrawableFromCache(Uri pUri) {
-
         byte[] bytes = fetchFromCache(pUri);
         InputStream is = new ByteArrayInputStream(bytes);
         return Drawable.createFromStream(is, pUri.toString());
-
     }
 
     public Bitmap fetchBitmapFromCache(Uri pUri) {
-
         byte[] bytes = fetchFromCache(pUri);
         InputStream is = new ByteArrayInputStream(bytes);
         return BitmapFactory.decodeStream(is);
-
     }
 
     public String fetchStringFromCache(Uri pUri) {
@@ -265,12 +248,10 @@ public class HttpProxyHelper {
     }
 
     public void removeFromCache(Uri pUri) {
-
         removeFromCache(pUri.toString());
     }
 
     public void removeFromCache(String pUri) {
-
         RpcStatus status = new RpcStatus();
         try {
             mProxy.removeFromCache(pUri, status);
@@ -317,7 +298,6 @@ public class HttpProxyHelper {
         synchronized (listeners) {
             listeners.add(pListener);
         }
-
         if (isInCache(pUri.toString())) {
             new Thread() {
                 @Override
@@ -340,45 +320,32 @@ public class HttpProxyHelper {
     }
 
     public void shutdown() {
-
         mShutdown = true;
         mContext.unbindService(mConnection);
     }
 
-    // Private Instance Methods ------------------------------------------
-
     private Set<ResourceListener> getOrCreateListenersFor(Uri pUri) {
-
         Set<ResourceListener> listeners = getListenersFor(pUri);
         if (listeners == null) {
-
             listeners = new HashSet<ResourceListener>();
             synchronized (mListeners) {
-
                 mListeners.put(pUri, listeners);
             }
         }
-
         return listeners;
     }
 
     private Set<ResourceListener> getListenersFor(Uri pUri) {
-
         synchronized (mListeners) {
-
             return mListeners.get(pUri);
         }
     }
 
     private String logTag() {
-
         return "HttpProxyHelper(" + mContext.getPackageName() + ")";
     }
 
-    // Inner Classes -----------------------------------------------------
-
     class HttpResourceUpdateReceiver extends BroadcastReceiver {
-
         @Override
         public void onReceive(Context pCtx, Intent pIntent) {
             synchronized (mUpdateNotificationQueue) {
@@ -390,7 +357,6 @@ public class HttpProxyHelper {
     }
 
     class HttpResourceNotAvailableReceiver extends BroadcastReceiver {
-
         @Override
         public void onReceive(Context pCtx, Intent pIntent) {
             synchronized (mNotAvailableNotificationQueue) {
@@ -402,7 +368,6 @@ public class HttpProxyHelper {
     }
 
     class Updater implements Runnable {
-
         public void run() {
             while (!mShutdown) {
                 Uri updatedUri = null;
@@ -463,15 +428,12 @@ public class HttpProxyHelper {
     }
 
     class HttpProxyServiceConnection implements ServiceConnection {
-
         public void onServiceConnected(ComponentName pName, IBinder pBinder) {
-
             mProxy = IHttpProxyService.Stub.asInterface(pBinder);
             mBindingListener.bound(HttpProxyHelper.this);
         }
 
         public void onServiceDisconnected(ComponentName arg0) {
-
             mProxy = null;
             Logger.w(LOG_TAG, "HTTP proxy service has been disconnected unexpectedly!");
             mBindingListener.unbound(HttpProxyHelper.this);

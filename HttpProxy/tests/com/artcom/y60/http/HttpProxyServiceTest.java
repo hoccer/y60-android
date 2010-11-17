@@ -17,18 +17,12 @@ import com.artcom.y60.Logger;
  */
 public class HttpProxyServiceTest extends ServiceTestCase<HttpProxyService> {
 
-    // Instance Variables ------------------------------------------------
-
     private static final String LOG_TAG = "HttpProxyServiceTest";
     private Intent              mIntent;
-
-    // Constructors ------------------------------------------------------
 
     public HttpProxyServiceTest() {
         super(HttpProxyService.class);
     }
-
-    // Protected Instance Methods ----------------------------------------
 
     @Override
     protected void setUp() throws Exception {
@@ -40,8 +34,6 @@ public class HttpProxyServiceTest extends ServiceTestCase<HttpProxyService> {
     protected void tearDown() throws Exception {
         super.tearDown();
     }
-
-    // Public Instance Methods -------------------------------------------
 
     public void testMultipleGet() throws Exception {
         startService(mIntent);
@@ -65,7 +57,7 @@ public class HttpProxyServiceTest extends ServiceTestCase<HttpProxyService> {
         assertNotNull("resource path from cache was null", cached
                 .getByteArray(HttpProxyConstants.BYTE_ARRAY_TAG));
 
-        byte[] fromHttp = HttpHelper.getAsByteArray(uri);
+        byte[] fromHttp = HttpHelper.getAsByteArray(uri.toString());
         byte[] cachedArray = IoHelper.convertResourceBundleToByteArray(cached);
         assertNotNull("conversion to array returned null", cachedArray);
         assertTrue("cached data is to small", cachedArray.length > 1000);

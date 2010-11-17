@@ -5,9 +5,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-//import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -129,98 +127,6 @@ public class IoHelper {
             return jo.getString(name);
         }
         return "";
-    }
-
-    public static boolean isWantedServiceClassNameOnSdcard(String pWantedService)
-            throws FileNotFoundException {
-        String[] sdcardFiles = getAliveServicesFromSdcard();
-        for (String filename : sdcardFiles) {
-            if (filename.equals(pWantedService)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    public static String[] getAliveServicesFromSdcard() throws FileNotFoundException {
-        String aliveServicesDirectory = Constants.Device.ALIVE_SERVICES_PATH;
-
-        File dir = new File(aliveServicesDirectory);
-        String[] children = dir.list();
-        if (children == null) {
-            throw new FileNotFoundException("Either " + aliveServicesDirectory
-                    + " does not exist or is not a directory");
-        } else {
-            return children;
-        }
-    }
-
-    public static void cleanAllServicesOnSdcard() throws Exception {
-
-        File f = new File(Constants.Device.ALIVE_SERVICES_PATH);
-        if (!f.exists()) {
-            return;
-        }
-
-        String aliveServicesDirectory = Constants.Device.ALIVE_SERVICES_PATH;
-        File dir = new File(aliveServicesDirectory);
-        String[] children = dir.list();
-        if (children == null) {
-            throw new Exception("Either " + aliveServicesDirectory
-                    + " does not exist or is not a directory");
-        } else {
-            for (String filename : children) {
-                Logger.v(TestHelper.LOG_TAG, "deleting: ", filename);
-                new File(aliveServicesDirectory + "/" + filename).delete();
-            }
-        }
-
-    }
-
-    /*private void writeMyLifecycleOnSdcard() {
-        File f = new File(Constants.Device.ALIVE_SERVICES_PATH);
-        if (f.exists() == false) {
-            f.mkdirs();
-        }
-
-        FileWriter fw;
-        try {
-            fw = new FileWriter(Constants.Device.ALIVE_SERVICES_PATH + "/" + getClass().getName());
-            fw.write("");
-            fw.flush();
-            fw.close();
-            Logger.v(LOG_TAG, "____ Wrote: ", Constants.Device.ALIVE_SERVICES_PATH + "/"
-                    + getClass().getName(), " on sdcard");
-        } catch (IOException e) {
-            // ErrorHandling.signalIOError(LOG_TAG, e, this);
-        }
-    }*/
-
-    protected void deleteMyLifecycleFromSdcard() {
-        boolean deletedMySelf = false;
-        String aliveServicesDirectory = Constants.Device.ALIVE_SERVICES_PATH;
-
-        File dir = new File(aliveServicesDirectory);
-        String[] children = dir.list();
-        if (children == null) {
-            Logger.e(LOG_TAG, "No services at all listed in alive services on sdcard");
-        } else {
-            for (String filename : children) {
-                Logger.v(LOG_TAG, "deleteMyLifecycleFromSdcard: ", filename, ", i am: ", getClass()
-                        .getName());
-
-                if (filename.equals(getClass().getName())) {
-                    File myClassName = new File(aliveServicesDirectory + "/" + filename);
-                    myClassName.delete();
-                    Logger.v(LOG_TAG, "deleted: ", filename);
-                    deletedMySelf = true;
-                }
-            }
-        }
-        if (deletedMySelf) {
-            return;
-        }
-        Logger.e(LOG_TAG, "I am not listed in alive services on sdcard");
     }
 
     public static boolean areWeEqual(byte[] pArray1, byte[] pArray2) {

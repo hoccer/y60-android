@@ -23,6 +23,7 @@ import android.widget.AbsoluteLayout.LayoutParams;
 /**
  * Helper for adding drag-and-drop functionality to views.
  */
+@SuppressWarnings("deprecation")
 public class DragAndDropHelper implements OnTouchListener {
 
     enum State {
@@ -68,8 +69,6 @@ public class DragAndDropHelper implements OnTouchListener {
     private boolean              mIsDropTargetEnabled;
     private State                mState;
 
-    // Static Methods ----------------------------------------------------
-
     /**
      * Makes the given draggable (activated by a long press). Uses the given
      * default as view for dragging.
@@ -92,8 +91,6 @@ public class DragAndDropHelper implements OnTouchListener {
         return enableDragAndDrop(pView, pLayout, pActivityViewGroup, pActivity, null);
     }
 
-    // Constructors ------------------------------------------------------
-
     public DragAndDropHelper(View pView, AbsoluteLayout pLayout, View pActivityViewGroup,
             Activity pActivity, View pThumbnail) {
 
@@ -115,8 +112,6 @@ public class DragAndDropHelper implements OnTouchListener {
         mDragListenerList = new LinkedList<DragListener>();
         mGest = new GestureDetector(new ShareGestureListener());
     }
-
-    // Public Instance Methods -------------------------------------------
 
     /**
      * We take complete responsibility for handling incoming touch events. Since
@@ -203,8 +198,6 @@ public class DragAndDropHelper implements OnTouchListener {
         mDropTargetCollection.removeSlots();
     }
 
-    // Private Instance Methods ------------------------------------------
-
     private void drag(MotionEvent pEvent) {
         LayoutParams position = positionForDragging(pEvent);
         mThumbView.setLayoutParams(position);
@@ -265,11 +258,9 @@ public class DragAndDropHelper implements OnTouchListener {
         return new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT, x, y);
     }
 
-    private boolean isCurrentlyDragging() {
+    /*private boolean isCurrentlyDragging() {
         return mThumbView != null && mThumbView.getVisibility() == View.VISIBLE;
-    }
-
-    // Inner Classes -----------------------------------------------------
+    }*/
 
     class ShareGestureListener implements OnGestureListener {
 

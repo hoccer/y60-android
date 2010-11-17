@@ -104,10 +104,10 @@ public class HttpProxyService extends Y60Service {
                 Bundle oldContent;
 
                 synchronized (mCachedContent) {
-                    Logger.v(LOG_TAG, "in synchriized");
+                    Logger.v(LOG_TAG, "in 'synchronized'");
                     oldContent = mCachedContent.get(pUri);
                 }
-                Logger.v(LOG_TAG, "out of synchriized");
+                Logger.v(LOG_TAG, "out of 'synchronized'");
                 Bundle newContent = null;
                 try {
                     Logger.v(LOG_TAG, "get new content...");
@@ -164,8 +164,6 @@ public class HttpProxyService extends Y60Service {
         sendBroadcast(intent);
     }
 
-    // Implementation of aidl methods -------------------------------------------------
-
     public Bundle getDataSyncronously(String pUri) throws HttpClientException, HttpServerException,
             IOException {
         Bundle newContent = ResourceDownloadHelper.downloadAndCreateResourceBundle(CACHE_DIR, pUri);
@@ -197,8 +195,6 @@ public class HttpProxyService extends Y60Service {
         }
     }
 
-    // Private Instance Methods ------------------------------------------
-
     private void clear() {
         Logger.d(LOG_TAG, "clearing HTTP cache");
         synchronized (mCachedContent) {
@@ -224,8 +220,6 @@ public class HttpProxyService extends Y60Service {
     Map<String, Bundle> getCachedContent() {
         return mCachedContent;
     }
-
-    // Inner Classes -----------------------------------------------------
 
     class HttpProxyRemote extends IHttpProxyService.Stub {
 
@@ -284,7 +278,6 @@ public class HttpProxyService extends Y60Service {
             } catch (Exception e) {
                 status.setError(e);
             }
-
         }
 
         @Override
@@ -302,7 +295,6 @@ public class HttpProxyService extends Y60Service {
 
         @Override
         public void onReceive(Context pContext, Intent pIntent) {
-
             HttpProxyService.this.clear();
         }
     }

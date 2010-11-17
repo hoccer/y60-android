@@ -5,6 +5,7 @@ import android.view.View;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.AbsoluteLayout;
 
+@SuppressWarnings("deprecation")
 public class ViewHelper {
 
     public static View getCurrentView(int pId, Activity pActivity) {

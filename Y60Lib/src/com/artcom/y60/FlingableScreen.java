@@ -12,6 +12,7 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 
+@SuppressWarnings("deprecation")
 public class FlingableScreen implements AnimationListener {
 
     // Enumerations -----------------------------------------------------

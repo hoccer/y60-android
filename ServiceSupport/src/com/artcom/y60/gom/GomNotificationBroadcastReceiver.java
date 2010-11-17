@@ -18,16 +18,10 @@ public class GomNotificationBroadcastReceiver extends BroadcastReceiver {
     private static final String LOG_TAG = "GomNotificationBroadcastReceiver";
 
     private String              mPath;
-
     private boolean             mBubbleUp;
-
     private GomObserver         mGomObserver;
-
     private String              mRegEx;
-
     private GomProxyHelper      mGomProxy;
-
-    // Constructors ------------------------------------------------------
 
     public GomNotificationBroadcastReceiver(String pPath, GomObserver pObserver, boolean pBubbleUp,
             GomProxyHelper pGomProxy) {
@@ -45,7 +39,6 @@ public class GomNotificationBroadcastReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context pContext, Intent pIntent) {
-
         // Logger.d(LOG_TAG, "BroadcastReceiver ", this, " for ", mPath,
         // " onReceive with intent: ",
         // pIntent.toString(), " - with bubble up? ", mBubbleUp);
@@ -55,7 +48,6 @@ public class GomNotificationBroadcastReceiver extends BroadcastReceiver {
 
         String notificationPath = pIntent.getStringExtra(IntentExtraKeys.NOTIFICATION_PATH);
         if (notificationPathIsObservedByMe(notificationPath)) {
-
             Logger.d(LOG_TAG, "BroadcastReceiver ", mPath, " , ok, the path is relevant to me");
 
             String jsnStr = pIntent.getStringExtra(IntentExtraKeys.NOTIFICATION_DATA_STRING);
@@ -76,7 +68,6 @@ public class GomNotificationBroadcastReceiver extends BroadcastReceiver {
                     mGomProxy.createEntry(path, data.toString());
                     // Logger.v(LOG_TAG, "dannnnaaaach DER : ");
                     mGomObserver.onEntryCreated(path, data);
-
                     // update proxy
                 } else if ("update".equals(operation)) {
                     // Logger
@@ -88,7 +79,6 @@ public class GomNotificationBroadcastReceiver extends BroadcastReceiver {
                     // data);
                     mGomProxy.updateEntry(path, data.toString());
                     mGomObserver.onEntryUpdated(path, data);
-
                     // update proxy
                 } else if ("delete".equals(operation)) {
                     Logger.v(LOG_TAG, "BroadcastReceiver ", mPath, " , it's a DELETE notification");
@@ -99,42 +89,31 @@ public class GomNotificationBroadcastReceiver extends BroadcastReceiver {
                     mGomObserver.onEntryDeleted(path, data);
                     // update proxy
                 } else {
-
                     Logger.w(LOG_TAG, "BroadcastReceiver ", mPath,
                             " , GOM notification with unknown operation: ", operation);
                 }
-
             } catch (JSONException e) {
-
                 throw new RuntimeException(e);
             }
         } else {
-
             Logger.d(LOG_TAG, "BroadcastReceiver ", mPath, " , path is not relevant to me");
         }
     }
 
     private String getAffectedEntryPath(JSONObject pData) throws JSONException {
-
         if (pData.has(Constants.Gom.Keywords.ATTRIBUTE)) {
-
             JSONObject attrJson = pData.getJSONObject(Constants.Gom.Keywords.ATTRIBUTE);
             return attrJson.getString(Constants.Gom.Keywords.NODE) + ":"
                     + attrJson.getString(Constants.Gom.Keywords.NAME);
-
         } else if (pData.has(Constants.Gom.Keywords.NODE)) {
-
             JSONObject nodeJson = pData.getJSONObject(Constants.Gom.Keywords.NODE);
             return nodeJson.getString(Constants.Gom.Keywords.URI);
         }
-
         return null;
     }
 
     public boolean notificationPathIsObservedByMe(String pNotificationPath) {
-
         return (mBubbleUp && GomReference.isSelfOrAncestorOf(mPath, pNotificationPath))
                 || (Pattern.matches(mRegEx, pNotificationPath));
     }
-
 }

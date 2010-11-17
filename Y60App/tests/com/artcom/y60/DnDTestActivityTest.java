@@ -4,13 +4,15 @@ import android.view.View;
 import android.widget.AbsoluteLayout;
 import android.widget.LinearLayout;
 
+@SuppressWarnings("deprecation")
 public class DnDTestActivityTest extends Y60ActivityInstrumentationTest<DnDTestActivity> implements
         DragListener {
 
     protected static final String LOG_TAG = "DnDTestActivityTest";
     private DraggingStartedEvent  mDraggingStarted;
     private DraggingAbortedEvent  mDraggingAboarted;
-    private DraggedEvent          mDragged;
+    @SuppressWarnings("unused")
+	private DraggedEvent          mDragged;
 
     @Override
     public void setUp() throws Exception {
@@ -123,7 +125,7 @@ public class DnDTestActivityTest extends Y60ActivityInstrumentationTest<DnDTestA
         assertNotNull("dragging didn't start for " + pInterval + " millis!", mDraggingStarted);
     }
 
-    private void waitForDragging(long pInterval) throws InterruptedException {
+    /*private void waitForDragging(long pInterval) throws InterruptedException {
 
         long time = System.currentTimeMillis();
         while (mDragged == null && System.currentTimeMillis() - time < pInterval) {
@@ -131,7 +133,7 @@ public class DnDTestActivityTest extends Y60ActivityInstrumentationTest<DnDTestA
         }
 
         assertNotNull("dragging didn't occur for " + pInterval + " millis!", mDragged);
-    }
+    }*/
 
     private void assertDragWasAborted(long pInterval) throws InterruptedException {
 
