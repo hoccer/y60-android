@@ -87,12 +87,16 @@ class AndroidProject < Project
     suite_list = []
     puts "======================= before suite parsing"
     while (line = adb_test_suites.gets)
-        puts "original line: #{line}"
+        puts "original line>>>>: #{line}"
         if line.include? "#{package}" then
-            suite = line.split(":").first
-            puts "parsing suite: #{suite}"
-            suite_list.push(suite)
-            #suite_list.push(line.split(":").first)
+            #puts "second string:-->>" + line.split(":")[1] + "<<--"
+            #if ( line.split(":")[1]=~/\A\.*$/)==0 then
+            if ( line.split(":").first.include? "#{package}" ) then
+                suite = line.split(":").first
+                puts "parsing suite>>>>: #{suite}"
+                suite_list.push(suite)
+                #suite_list.push(line.split(":").first)
+            end
         end
     end
     puts "======================= after suite parsing"
@@ -102,11 +106,6 @@ class AndroidProject < Project
     failed_tests = 0
     tests_with_exception = 0
     test_suite_success = false
-    return {:was_succsessful => test_suite_success, 
-            :tests_run => successful_tests, 
-            :tests_failed => failed_tests,
-            :tests_with_exception => tests_with_exception,
-            :broken_instrumentation => broken_instrumentations}
 
     suite_list.each { |suite|
         puts "test_suite: #{suite}"
@@ -136,6 +135,11 @@ class AndroidProject < Project
             end
         end
     }
+    return {:was_succsessful => test_suite_success, 
+            :tests_run => successful_tests, 
+            :tests_failed => failed_tests,
+            :tests_with_exception => tests_with_exception,
+            :broken_instrumentation => broken_instrumentations}
   end
 
 end
