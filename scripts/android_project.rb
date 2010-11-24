@@ -85,21 +85,17 @@ class AndroidProject < Project
     run "changing path", "cd #{path}"
     adb_test_suites = open "|#{log_command}"
     suite_list = []
-    puts "======================= before suite parsing"
     while (line = adb_test_suites.gets)
-        puts "original line>>>>: #{line}"
-        if line.include? "#{package}" then
-            #puts "second string:-->>" + line.split(":")[1] + "<<--"
-            #if ( line.split(":")[1]=~/\A\.*$/)==0 then
-            if ( line.split(":").first.include? "#{package}" ) then
-                suite = line.split(":").first
-                puts "parsing suite>>>>: #{suite}"
-                suite_list.push(suite)
-                #suite_list.push(line.split(":").first)
+        if line.include? ":" then
+            line_array = line.split(":")
+            line_first_part = line_array[0]
+            line_second_part = line_array[1]
+            if (line_first_part.include? "#{package}" ) and ((line_second_part =~ /\A\.+\s*$/) == 0) then
+                puts "parsed suite: #{line_first_part}"
+                suite_list.push(line_first_part)
             end
         end
     end
-    puts "======================= after suite parsing"
 
     successful_tests = 0
     broken_instrumentations = 0
@@ -110,12 +106,14 @@ class AndroidProject < Project
     suite_list.each { |suite|
         puts "test_suite: #{suite}"
 
-        puts "before rake task removeartcom"
+        puts "before rake task removeartcom & install"
         run "changing path", "cd #{path}/../"
-        puts system("rake removeartcom")
-        puts system("rake install")
+        #puts system("rake removeartcom")
+        #puts system("rake install")
+        system("rake removeartcom")
+        system("rake install")
         run "changing path", "cd #{path}"
-        puts "after rake task removeartcom"
+        puts "after rake task removeartcom & install"
         
         test_log_output = open "|adb shell am instrument -w -e class #{suite} #{package}/#{testrunner}"
         while(line=test_log_output.gets)

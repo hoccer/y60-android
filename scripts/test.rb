@@ -69,7 +69,7 @@ def main pj_names
     
     elapsedSeconds = Time.new - starttime
     puts "test duration: #{elapsedSeconds} seconds"
-    puts test_result[:was_succsessful]
+    puts "test result: #{test_result[:was_succsessful]}"
     test_result[:was_succsessful] and yet    
   end
   
