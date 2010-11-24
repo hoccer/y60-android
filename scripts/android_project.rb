@@ -80,33 +80,64 @@ class AndroidProject < Project
     
     package = node.attributes["targetPackage"]
     testrunner = node.attributes["name"]
-    
-    tmpfile = Tempfile.new node.hash
-    cmd = "adb shell am instrument -w #{package}/#{testrunner} > #{tmpfile.path}"
-    puts cmd
-    run "running tests", <<-EOT
-      cd #{path} && #{cmd}
-    EOT
-    
-    test_result = tmpfile.read
-  
-    if test_result.include? "INSTRUMENTATION" then
-      puts test_result
-      return {:was_succsessful => false, :broken_instrumentation => true}
-    elsif test_result.include? "OK (" then
-      tests_run = test_result.scan(/OK \((\d*) tests\)/)[0][0].to_i
-      return {:was_succsessful => true, :tests_run => tests_run}
-    elsif test_result.include? "FAILURES!!!" then
-        statistics = test_result.scan(/Tests run: (\d*),  Failures: (\d*),  Errors: (\d*)/)[0]
-        puts test_result
-        return {:was_succsessful => false, 
-                :tests_run => statistics[0].to_i, 
-                :tests_failed => statistics[1].to_i,
-                :tests_with_exception => statistics[2].to_i}
-    else
-      puts test_result
-      return {:was_succsessful => false}
+
+    log_command = "adb shell am instrument -w -e log true #{package}/#{testrunner}"
+    run "changing path", "cd #{path}"
+    adb_test_suites = open "|#{log_command}"
+    suite_list = []
+    while (line = adb_test_suites.gets)
+        if line.include? ":" then
+            line_array = line.split(":")
+            line_first_part = line_array[0]
+            line_second_part = line_array[1]
+            if (line_first_part.include? "#{package}" ) and ((line_second_part =~ /\A\.+\s*$/) == 0) then
+                puts "parsed suite: #{line_first_part}"
+                suite_list.push(line_first_part)
+            end
+        end
     end
+
+    successful_tests = 0
+    broken_instrumentations = 0
+    failed_tests = 0
+    tests_with_exception = 0
+    test_suite_success = false
+
+    suite_list.each { |suite|
+        puts "test_suite: #{suite}"
+
+        puts "before rake task removeartcom & install"
+        run "changing path", "cd #{path}/../"
+        #puts system("rake removeartcom")
+        #puts system("rake install")
+        system("rake removeartcom")
+        system("rake install")
+        run "changing path", "cd #{path}"
+        puts "after rake task removeartcom & install"
+        
+        test_log_output = open "|adb shell am instrument -w -e class #{suite} #{package}/#{testrunner}"
+        while(line=test_log_output.gets)
+            puts line
+            if line.include? "INSTRUMENTATION" then
+              broken_instrumentations += 1
+              test_suite_success = false
+            elsif line.include? "OK (" then
+              successful_tests += line.scan(/OK \((\d*) tests\)/)[0][0].to_i
+              test_suite_success = true
+            elsif line.include? "FAILURES!!!" then
+              successful_tests += line.scan(/Tests run: (\d*)/)[0][0].to_i
+              failed_tests += line.scan(/Failures: (\d*)/)[0][0].to_i
+              tests_with_exception += line.scan(/Errors: (\d*)/)[0][0].to_i
+              test_suite_success = false
+              break
+            end
+        end
+    }
+    return {:was_succsessful => test_suite_success, 
+            :tests_run => successful_tests, 
+            :tests_failed => failed_tests,
+            :tests_with_exception => tests_with_exception,
+            :broken_instrumentation => broken_instrumentations}
   end
 
 end

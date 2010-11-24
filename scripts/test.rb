@@ -55,7 +55,8 @@ def main pj_names
     end
     
     if test_result.has_key? :broken_instrumentation then 
-      broken_instrumentations += 1
+      #broken_instrumentations += 1
+      broken_instrumentations += test_result[:broken_instrumentation]
     end
     
     if test_result.has_key? :tests_failed then 
@@ -68,6 +69,7 @@ def main pj_names
     
     elapsedSeconds = Time.new - starttime
     puts "test duration: #{elapsedSeconds} seconds"
+    puts "test result: #{test_result[:was_succsessful]}"
     test_result[:was_succsessful] and yet    
   end
   
