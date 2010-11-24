@@ -55,4 +55,6 @@ public class IntentExtraKeys {
     public static final String ODP_AGC_ENABLED          = "odp_agc_enabled";
     public static final String EXCLUDE_LIST             = "exclude_list";
     public static final String POSSESSION_PATH          = "possession_path";
+    public static final String WIDGET_ARGS_PATH         = "widget_args_path";
+    
 }
