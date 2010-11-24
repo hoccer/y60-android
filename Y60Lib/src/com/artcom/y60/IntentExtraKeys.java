@@ -40,7 +40,7 @@ public class IntentExtraKeys {
 
     public static final String DETAIL                   = "detail";
     public static final String MODE                     = "mode";
-    public static final String GOM_PATH                 = "gom_path";
+    public static final String VICO_STREAM_URI_GOM_PATH = "vico_stream_uri_gom_path";
     public static final String IS_IN_INIT_CHAIN         = "is_in_init_chain";
     public static final String TRACK_NUMBER             = "track_number";
     public static final String TRACK_POSITION           = "track_position";
