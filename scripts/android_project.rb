@@ -1,5 +1,8 @@
 #!/usr/bin/env ruby
 
+$:.unshift File.join(File.dirname(__FILE__), '..', 'scripts')
+require 'project'
+
 class AndroidProject < Project
 
   attr_reader :manifest_xml
@@ -7,8 +10,8 @@ class AndroidProject < Project
   def initialize pj_name
     super pj_name
   
-    manifest_file = "#{path}/AndroidManifest.xml"
-    puts "reading manifest for #{name} from #{manifest_file}"
+    manifest_file = "#{@path}/AndroidManifest.xml"
+    puts "reading manifest for project '#{@name}' from '#{manifest_file}'"
     @manifest_xml = REXML::Document.new(File.new(manifest_file))
   end
 
@@ -72,11 +75,22 @@ class AndroidProject < Project
 
   # run adroid instumentation tests; returns true if succsessfull
   def test
-    puts "testing #{name}"
-   
+    LOGGER.info " * Testing project '#{@name}':"
+    
+    successful_tests        = 0
+    broken_instrumentations = 0
+    failed_tests            = 0
+    tests_with_exception    = 0
+    test_suite_success      = false
+    
+    LOGGER.info "    * Reinstalling packages..."
+    system("rake removeartcom") # TODO handle error
+    system("rake install") # TODO handle error
+    LOGGER.info "    * Reinstalling packages... DONE"
+    
     # check the manifest instrumentation test definiton
     node = REXML::XPath.first(@manifest_xml, "*/instrumentation")
-    return {:was_succsessful => true} unless node
+    return {:was_successful => true} unless node
     
     package = node.attributes["targetPackage"]
     testrunner = node.attributes["name"]
@@ -86,45 +100,45 @@ class AndroidProject < Project
     adb_test_suites = open "|#{log_command}"
     suite_list = []
     while (line = adb_test_suites.gets)
-        if line.include? ":" then
-            line_array = line.split(":")
-            line_first_part = line_array[0]
-            line_second_part = line_array[1]
-            if (line_first_part.include? "#{package}" ) and ((line_second_part =~ /\A\.+\s*$/) == 0) then
-                puts "parsed suite: #{line_first_part}"
-                suite_list.push(line_first_part)
-            end
+      if line.include? ":" then
+        line_array = line.split(":")
+        line_first_part = line_array[0]
+        line_second_part = line_array[1]
+        if (line_first_part.include? "#{package}" ) and ((line_second_part =~ /\A\.+\s*$/) == 0) then
+          #puts "parsed suite: #{line_first_part}"
+          suite_list.push(line_first_part)
         end
+      end
     end
 
-    successful_tests = 0
-    broken_instrumentations = 0
-    failed_tests = 0
-    tests_with_exception = 0
-    test_suite_success = false
+    LOGGER.info "Found #{suite_list.size} Testsuites: #{suite_list.inspect}"
 
     suite_list.each { |suite|
-        puts "test_suite: #{suite}"
-
-        puts "before rake task removeartcom & install"
+        LOGGER.info "Running Testsuite: #{suite} in project #{@name}"
         run "changing path", "cd #{path}/../"
-        #puts system("rake removeartcom")
-        #puts system("rake install")
+        
+        LOGGER.info "    * Reinstalling packages..."
         system("rake removeartcom")
         system("rake install")
         run "changing path", "cd #{path}"
-        puts "after rake task removeartcom & install"
+        LOGGER.info "    * Reinstalling packages... DONE"
         
         test_log_output = open "|adb shell am instrument -w -e class #{suite} #{package}/#{testrunner}"
-        while(line=test_log_output.gets)
+        while (line=test_log_output.gets)
             puts line
             if line.include? "INSTRUMENTATION" then
               broken_instrumentations += 1
               test_suite_success = false
             elsif line.include? "OK (" then
-              successful_tests += line.scan(/OK \((\d*) tests\)/)[0][0].to_i
+              successful_tests += line.scan(/OK \((\d*) \w+\)/)[0][0].to_i
               test_suite_success = true
             elsif line.include? "FAILURES!!!" then
+              puts "_______________________"
+              
+              puts line
+              
+              puts "_______________________"
+              
               successful_tests += line.scan(/Tests run: (\d*)/)[0][0].to_i
               failed_tests += line.scan(/Failures: (\d*)/)[0][0].to_i
               tests_with_exception += line.scan(/Errors: (\d*)/)[0][0].to_i
@@ -133,7 +147,7 @@ class AndroidProject < Project
             end
         end
     }
-    return {:was_succsessful => test_suite_success, 
+    return {:was_successful => test_suite_success, 
             :tests_run => successful_tests, 
             :tests_failed => failed_tests,
             :tests_with_exception => tests_with_exception,
