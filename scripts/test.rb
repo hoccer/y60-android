@@ -17,7 +17,7 @@ def main pj_names
   end
   
   project_paths = Dir["#{Dir.getwd}/*/.project"]
-  LOGGER.info "Project paths: \n\t#{project_paths}"
+  LOGGER.info "Project paths: \n\t#{project_paths.inspect}"
   projects = []
   
   last_project_sorting.each { |name|

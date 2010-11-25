@@ -3,6 +3,8 @@ require "rubygems"
 require "rexml/document"
 
 $:.unshift File.join(File.dirname(__FILE__), '..', 'scripts')
+require 'logging'
+
 require 'project'
 require 'java_project'
 require 'android_project'
@@ -22,13 +24,13 @@ def get_git_version
   log = open "|git log --summary HEAD"
   version = log.gets[7..-1][0..6]
   log.close
-  puts "got git version '#{version}'"
+  LOGGER.info "got git version '#{version}'"
   return version
 end
 
 def remember_version device_flag
   version = get_git_version
-  puts "remembering version '#{version}'"
+  LOGGER.info "remembering version '#{version}'"
   system %(adb #{device_flag} shell "echo '#{version}' > /sdcard/deployed_version.txt")
 end
 
@@ -51,8 +53,8 @@ def main action, device_id, pj_names
 
   remember_version device unless action == "uninstall"
 rescue => e
-  puts "oops: #{e}\n#{e.backtrace.join "\n"}"
-  puts Usage
+  LOGGER.error "oops: #{e}\n#{e.backtrace.join "\n"}"
+  LOGGER.error Usage
   exit 1
 end
 

@@ -9,9 +9,8 @@ class AndroidProject < Project
 
   def initialize pj_name
     super pj_name
-  
     manifest_file = "#{@path}/AndroidManifest.xml"
-    puts "reading manifest for project '#{@name}' from '#{manifest_file}'"
+    LOGGER.debug "reading manifest for project '#{@name}' from '#{manifest_file}'"
     @manifest_xml = REXML::Document.new(File.new(manifest_file))
   end
 
@@ -22,11 +21,11 @@ class AndroidProject < Project
   end
   
   def merge_source_folders
-    puts "merging source folders for #{name}"
+    LOGGER.info " * Merging source folders for #{name}"
     File.makedirs "#{path}/merged_src"
     
     if File.exists?("#{path}/src")
-      run "merging source folders", <<-EOT
+      LOGGER.info " * Merging source folders", <<-EOT
         cp -r #{path}/src/* #{path}/merged_src
       EOT
     end
@@ -47,9 +46,9 @@ class AndroidProject < Project
   def uninstall device_id = ""
     s = "-s #{device_id}" unless device_id.nil? || device_id.empty?
 
-    puts "uninstalling #{name} on device id #{device_id}"
+    LOGGER.info " * Uninstalling #{name} on device id #{device_id}"
     package = @manifest_xml.root.attributes["package"]
-    puts "uninstalling package: #{package}"
+    LOGGER.info "   * Uninstalling package: #{package}"
     run "uninstalling with adb", <<-EOT
       adb #{s} uninstall #{package} 
     EOT

@@ -32,3 +32,4 @@ end
 LOGGER = Logger.instance
 LOGGER.formatter = Logger::Formatter.new
 LOGGER.datetime_format = "%H:%M:%S"
+LOGGER.level = Logger::INFO
