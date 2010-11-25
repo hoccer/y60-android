@@ -46,7 +46,7 @@ class AndroidProject < Project
   def uninstall device_id = ""
     s = "-s #{device_id}" unless device_id.nil? || device_id.empty?
 
-    LOGGER.info " * Uninstalling #{name} on device id #{device_id}"
+    LOGGER.info " * Uninstalling '#{name}' on device id: '#{device_id}'"
     package = @manifest_xml.root.attributes["package"]
     LOGGER.info "   * Uninstalling package: #{package}"
     run "uninstalling with adb", <<-EOT
@@ -58,7 +58,7 @@ class AndroidProject < Project
     s = "-s #{device_id}" unless device_id.nil? || device_id.empty?
 
     apk_dir = "#{path}/bin"
-    puts "installing #{name} on #{device_id}, looking for apk in #{apk_dir}"
+    LOGGER.info " * Installing '#{name}' on device id: '#{device_id}', looking for apk in '#{apk_dir}'"
     Dir["#{apk_dir}/*.apk"].each do |apk|
       run "installing", <<-EOT
         adb #{s} push #{apk} /data/local/
@@ -82,7 +82,7 @@ class AndroidProject < Project
     tests_with_exception    = 0
     test_suite_success      = false
     
-    LOGGER.info "    * Reinstalling packages..."
+    LOGGER.info "    * Reinstalling packages (to determine testsuites present)..."
     system("rake removeartcom") # TODO handle error
     system("rake install") # TODO handle error
     LOGGER.info "    * Reinstalling packages... DONE"
@@ -95,7 +95,6 @@ class AndroidProject < Project
     testrunner = node.attributes["name"]
 
     log_command = "adb shell am instrument -w -e log true #{package}/#{testrunner}"
-    #run "changing path", "cd #{@path}"
     adb_test_suites = open "|#{log_command}"
     suite_list = []
     while (line = adb_test_suites.gets)
@@ -104,27 +103,29 @@ class AndroidProject < Project
         line_first_part = line_array[0]
         line_second_part = line_array[1]
         if (line_first_part.include? "#{package}" ) and ((line_second_part =~ /\A\.+\s*$/) == 0) then
-          #puts "parsed suite: #{line_first_part}"
           suite_list.push(line_first_part)
         end
       end
     end
 
     LOGGER.info "Found #{suite_list.size} Testsuites: #{suite_list.inspect}"
-
-    suite_list.each { |suite|
-        LOGGER.info "Running Testsuite: #{suite} in project #{@name}"
-        #run "changing path", "cd #{path}/../"
-        
-        LOGGER.info "    * Reinstalling packages..."
-        system("rake removeartcom")
-        system("rake install")
-        #run "changing path", "cd #{path}"
-        LOGGER.info "    * Reinstalling packages... DONE"
-        
+    
+    suite_list.each_with_index { |suite, index|
+        exception_next_line = false
+        LOGGER.info " * Suite: #{suite} ... START"
+        if index != 0
+          LOGGER.info " * Preparing testrun for Testsuite: #{suite} in project #{@name}"
+          LOGGER.info "    * Reinstalling packages..."
+          system("rake removeartcom")
+          system("rake install")
+          LOGGER.info "    * Reinstalling packages... DONE"
+        else
+          LOGGER.info " * Preparation is not necessary since packages were installed freshly since the last test run"
+        end
+        LOGGER.info " * Executing testsuite #{suite} in project #{@name}"
         test_log_output = open "|adb shell am instrument -w -e class #{suite} #{package}/#{testrunner}"
         while (line=test_log_output.gets)
-            puts line
+            LOGGER.info line
             if line.include? "INSTRUMENTATION" then
               broken_instrumentations += 1
               test_suite_success = false
@@ -132,12 +133,10 @@ class AndroidProject < Project
               successful_tests += line.scan(/OK \((\d*) \w+\)/)[0][0].to_i
               test_suite_success = true
             elsif line.include? "FAILURES!!!" then
-              puts "_______________________"
-              
-              puts line
-              
-              puts "_______________________"
-              
+              exception_next_line = true
+            end
+            if exception_next_line
+              exception_next_line = false
               successful_tests += line.scan(/Tests run: (\d*)/)[0][0].to_i
               failed_tests += line.scan(/Failures: (\d*)/)[0][0].to_i
               tests_with_exception += line.scan(/Errors: (\d*)/)[0][0].to_i
@@ -145,6 +144,7 @@ class AndroidProject < Project
               break
             end
         end
+        LOGGER.info " * Suite: #{suite} ... END"
     }
     return {:was_successful => test_suite_success, 
             :tests_run => successful_tests, 
