@@ -25,7 +25,7 @@ class AndroidProject < Project
     File.makedirs "#{path}/merged_src"
     
     if File.exists?("#{path}/src")
-      LOGGER.info " * Merging source folders", <<-EOT
+      run "merging source folders", <<-EOT
         cp -r #{path}/src/* #{path}/merged_src
       EOT
     end
