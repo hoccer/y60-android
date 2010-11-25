@@ -24,13 +24,13 @@ def get_git_version
   log = open "|git log --summary HEAD"
   version = log.gets[7..-1][0..6]
   log.close
-  LOGGER.info "got git version '#{version}'"
+  LOGGER.debug "got git version '#{version}'"
   return version
 end
 
 def remember_version device_flag
   version = get_git_version
-  LOGGER.info "remembering version '#{version}'"
+  LOGGER.debug "remembering version '#{version}'"
   system %(adb #{device_flag} shell "echo '#{version}' > /sdcard/deployed_version.txt")
 end
 
@@ -38,7 +38,7 @@ def main action, device_id, pj_names
   projects = Project.load_in_dependency_order(pj_names)
   projects = projects.select { |p| p.respond_to? :reinstall }
 
-  puts "#{action}ing #{projects.map {|p| p.name}.join(' ')}"
+  LOGGER.info "#{action.capitalize}ing #{projects.map {|p| p.name}.join(' ')}"
   
   # uninstall requires reverse projects order
   projects = projects.reverse if action == "uninstall"
