@@ -96,7 +96,7 @@ class AndroidProject < Project
     testrunner = node.attributes["name"]
 
     log_command = "adb shell am instrument -w -e log true #{package}/#{testrunner}"
-    run "changing path", "cd #{path}"
+    #run "changing path", "cd #{@path}"
     adb_test_suites = open "|#{log_command}"
     suite_list = []
     while (line = adb_test_suites.gets)
@@ -115,7 +115,7 @@ class AndroidProject < Project
 
     suite_list.each { |suite|
         LOGGER.info "Running Testsuite: #{suite} in project #{@name}"
-        run "changing path", "cd #{path}/../"
+        #run "changing path", "cd #{path}/../"
         
         LOGGER.info "    * Reinstalling packages..."
         system("rake removeartcom")
