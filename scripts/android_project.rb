@@ -120,7 +120,7 @@ class AndroidProject < Project
         LOGGER.info "    * Reinstalling packages..."
         system("rake removeartcom")
         system("rake install")
-        run "changing path", "cd #{path}"
+        #run "changing path", "cd #{path}"
         LOGGER.info "    * Reinstalling packages... DONE"
         
         test_log_output = open "|adb shell am instrument -w -e class #{suite} #{package}/#{testrunner}"
