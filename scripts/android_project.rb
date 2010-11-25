@@ -126,6 +126,14 @@ class AndroidProject < Project
         test_log_output = open "|adb shell am instrument -w -e class #{suite} #{package}/#{testrunner}"
         while (line=test_log_output.gets)
             LOGGER.info line
+            if exception_next_line
+              exception_next_line = false
+              successful_tests += line.scan(/Tests run: (\d*)/)[0][0].to_i
+              failed_tests += line.scan(/Failures: (\d*)/)[0][0].to_i
+              tests_with_exception += line.scan(/Errors: (\d*)/)[0][0].to_i
+              test_suite_success = false
+              break
+            end
             if line.include? "INSTRUMENTATION" then
               broken_instrumentations += 1
               test_suite_success = false
@@ -134,14 +142,6 @@ class AndroidProject < Project
               test_suite_success = true
             elsif line.include? "FAILURES!!!" then
               exception_next_line = true
-            end
-            if exception_next_line
-              exception_next_line = false
-              successful_tests += line.scan(/Tests run: (\d*)/)[0][0].to_i
-              failed_tests += line.scan(/Failures: (\d*)/)[0][0].to_i
-              tests_with_exception += line.scan(/Errors: (\d*)/)[0][0].to_i
-              test_suite_success = false
-              break
             end
         end
         LOGGER.info " * Suite: #{suite} ... END"
