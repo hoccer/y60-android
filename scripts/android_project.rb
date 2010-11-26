@@ -7,6 +7,8 @@ class AndroidProject < Project
 
   attr_reader :manifest_xml
 
+  ADB_SLEEP_TIME = 4
+
   def initialize pj_name
     super pj_name
     manifest_file = "#{@path}/AndroidManifest.xml"
@@ -50,6 +52,7 @@ class AndroidProject < Project
     package = @manifest_xml.root.attributes["package"]
     LOGGER.info "   * Uninstalling package: #{package}"
     run "uninstalling with adb", <<-EOT
+      sleep #{ADB_SLEEP_TIME}
       adb #{s} uninstall #{package} 
     EOT
   end
@@ -61,7 +64,9 @@ class AndroidProject < Project
     LOGGER.info " * Installing '#{name}' on device id: '#{device_id}', looking for apk in '#{apk_dir}'"
     Dir["#{apk_dir}/*.apk"].each do |apk|
       run "installing", <<-EOT
+        sleep #{ADB_SLEEP_TIME}
         adb #{s} push #{apk} /data/local/
+        sleep #{ADB_SLEEP_TIME}
         adb #{s} shell pm install #{additional_install_flags} /data/local/#{File.basename apk}
       EOT
     end
@@ -83,9 +88,7 @@ class AndroidProject < Project
     test_suite_success      = false
     
     LOGGER.info "    * Reinstalling packages (to determine testsuites present)..."
-    system("rake removeartcom") # TODO handle error
-    system("rake install") # TODO handle error
-    LOGGER.info "    * Reinstalling packages... DONE"
+    AndroidProject::reinstall_artcom_packages
     
     # check the manifest instrumentation test definiton
     node = REXML::XPath.first(@manifest_xml, "*/instrumentation")
@@ -115,10 +118,7 @@ class AndroidProject < Project
         LOGGER.info " * Suite: #{suite} ... START"
         if index != 0
           LOGGER.info " * Preparing testrun for Testsuite: #{suite} in project #{@name}"
-          LOGGER.info "    * Reinstalling packages..."
-          system("rake removeartcom")
-          system("rake install")
-          LOGGER.info "    * Reinstalling packages... DONE"
+          AndroidProject::reinstall_artcom_packages
         else
           LOGGER.info " * Preparation is not necessary since packages were installed freshly since the last test run"
         end
@@ -152,5 +152,18 @@ class AndroidProject < Project
             :tests_with_exception => tests_with_exception,
             :broken_instrumentation => broken_instrumentations}
   end
+  
+  private
+  
+    def self.reinstall_artcom_packages
+      LOGGER.info "    * Reinstalling packages... START"
+      system("rake removeartcom")
+      LOGGER.info "      * sleeping 5 secs..."
+      sleep 5
+      system("rake install")
+      LOGGER.info "      * sleeping 5 secs..."
+      sleep 5
+      LOGGER.info "    * Reinstalling packages... DONE"
+    end
 
 end
