@@ -2,12 +2,13 @@
 
 $:.unshift File.join(File.dirname(__FILE__), '..', 'scripts')
 require 'project'
+require 'open3'
 
 class AndroidProject < Project
 
   attr_reader :manifest_xml
 
-  ADB_SLEEP_TIME = 4
+  ADB_SLEEP_TIME = 3
 
   def initialize pj_name
     super pj_name
@@ -88,7 +89,7 @@ class AndroidProject < Project
     test_suite_success      = false
     
     LOGGER.info "    * Reinstalling packages (to determine testsuites present)..."
-    AndroidProject::reinstall_artcom_packages
+    AndroidProject::reinstall_artcom_packages true
     
     # check the manifest instrumentation test definiton
     node = REXML::XPath.first(@manifest_xml, "*/instrumentation")
@@ -115,7 +116,7 @@ class AndroidProject < Project
     
     suite_list.each_with_index { |suite, index|
         exception_next_line = false
-        LOGGER.info " * Suite: #{suite} ... START"
+        LOGGER.info " * Suite: #{suite} ... START (#{index} of #{suite_list.size})"
         if index != 0
           LOGGER.info " * Preparing testrun for Testsuite: #{suite} in project #{@name}"
           AndroidProject::reinstall_artcom_packages
@@ -155,11 +156,62 @@ class AndroidProject < Project
   
   private
   
-    def self.reinstall_artcom_packages
+    def self.get_device_list
+      stdin, stdout, stderr = Open3.popen3("adb devices")
+      stderr = stderr.read
+      stdout = stdout.read
+      raise stderr if stderr != ''
+      devices = []
+      stdout.split("\n").each { |line|
+        devices << line.split("\t").first if line.to_s.end_with?("device")
+      }
+      return devices
+    end
+  
+    def self.reboot_emulator trial=0
+      LOGGER.info "Rebooting emulator : try: #{trial}"
+      
+      system("rake emulator:kill_all")
+      LOGGER.info "      * sleeping 5 secs..."
+      sleep 5
+      system("adb kill-server")
+      LOGGER.info "      * sleeping 5 secs..."
+      sleep 5
+      system("adb start-server")
+      LOGGER.info "      * sleeping 5 secs..."
+      sleep 5
+      system("rake emulator:boot")
+      LOGGER.info "      * sleeping 120 secs..."
+      sleep 120
+      if trial == 0 and
+         AndroidProject::get_device_list.size == 0
+        LOGGER.info "cannot see devices - rebooting once more..."
+        AndroidProject::reboot_emulator trial + 1
+      elsif trial > 0 and
+        AndroidProject::get_device_list.size == 0
+        LOGGER.error "Cannot boot device - giving up"
+        raise "Cannot reboot emulator - giving up tries: #{trial}"
+      end
+      LOGGER.info "Emulator seems to have booted fine..."
+      system("rake emulator:port_forward")
+      LOGGER.info "      * sleeping 5 secs..."
+      sleep 5
+    end
+  
+    def self.reinstall_artcom_packages with_reboot=false
+      rebooted = false
+      if AndroidProject::get_device_list.size == 0
+        LOGGER.info "First rebooting emulator since it seems not to be running...."
+        AndroidProject::reboot_emulator
+        rebooted = true
+      end
       LOGGER.info "    * Reinstalling packages... START"
       system("rake removeartcom")
       LOGGER.info "      * sleeping 5 secs..."
       sleep 5
+      if with_reboot and !rebooted
+        AndroidProject::reboot_emulator
+      end
       system("rake install")
       LOGGER.info "      * sleeping 5 secs..."
       sleep 5
