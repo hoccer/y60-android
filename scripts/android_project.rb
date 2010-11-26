@@ -15,6 +15,10 @@ class AndroidProject < Project
     manifest_file = "#{@path}/AndroidManifest.xml"
     LOGGER.debug "reading manifest for project '#{@name}' from '#{manifest_file}'"
     @manifest_xml = REXML::Document.new(File.new(manifest_file))
+    
+    @test_settings = YAML::load(File.open(File.join(@path, 'test_settings.yml'))) rescue {:suites => {}}
+    #puts @test_settings.inspect
+    #puts @test_settings['suites']['com.artcom.y60.dc.DeviceControllerHandlerTest']['testmode'].to_sym
   end
 
   def create_build_env
@@ -117,33 +121,44 @@ class AndroidProject < Project
     suite_list.each_with_index { |suite, index|
         exception_next_line = false
         LOGGER.info " * Suite: #{suite} ... START (#{index} of #{suite_list.size})"
-        if index != 0
-          LOGGER.info " * Preparing testrun for Testsuite: #{suite} in project #{@name}"
-          AndroidProject::reinstall_artcom_packages
+        suite_testsetting = @test_settings['suites'][suite]['testmode'] rescue 'normal'
+        LOGGER.info "   * testsetting: '#{suite_testsetting}'"
+        
+        if suite_testsetting != 'skip'
+          if suite_testsetting == 'normal'
+            if index != 0
+              LOGGER.info " * Preparing testrun for Testsuite: #{suite} in project #{@name}"
+              AndroidProject::reinstall_artcom_packages
+            else
+              LOGGER.info " * Preparation is not necessary since packages were installed freshly since the last test run"
+            end
+          elsif suite_testsetting == 'no-reinstall'
+            LOGGER.info "  * Not reinstalling according to test_setting for this suite."
+          end
+          LOGGER.info " * Executing testsuite #{suite} in project #{@name}"
+          test_log_output = open "|adb shell am instrument -w -e class #{suite} #{package}/#{testrunner}"
+          while (line=test_log_output.gets)
+              LOGGER.info line
+              if exception_next_line
+                exception_next_line = false
+                successful_tests += line.scan(/Tests run: (\d*)/)[0][0].to_i
+                failed_tests += line.scan(/Failures: (\d*)/)[0][0].to_i
+                tests_with_exception += line.scan(/Errors: (\d*)/)[0][0].to_i
+                test_suite_success = false
+                break
+              end
+              if line.include? "INSTRUMENTATION" then
+                broken_instrumentations += 1
+                test_suite_success = false
+              elsif line.include? "OK (" then
+                successful_tests += line.scan(/OK \((\d*) \w+\)/)[0][0].to_i
+                test_suite_success = true
+              elsif line.include? "FAILURES!!!" then
+                exception_next_line = true
+              end
+          end
         else
-          LOGGER.info " * Preparation is not necessary since packages were installed freshly since the last test run"
-        end
-        LOGGER.info " * Executing testsuite #{suite} in project #{@name}"
-        test_log_output = open "|adb shell am instrument -w -e class #{suite} #{package}/#{testrunner}"
-        while (line=test_log_output.gets)
-            LOGGER.info line
-            if exception_next_line
-              exception_next_line = false
-              successful_tests += line.scan(/Tests run: (\d*)/)[0][0].to_i
-              failed_tests += line.scan(/Failures: (\d*)/)[0][0].to_i
-              tests_with_exception += line.scan(/Errors: (\d*)/)[0][0].to_i
-              test_suite_success = false
-              break
-            end
-            if line.include? "INSTRUMENTATION" then
-              broken_instrumentations += 1
-              test_suite_success = false
-            elsif line.include? "OK (" then
-              successful_tests += line.scan(/OK \((\d*) \w+\)/)[0][0].to_i
-              test_suite_success = true
-            elsif line.include? "FAILURES!!!" then
-              exception_next_line = true
-            end
+          LOGGER.info "   * skipped suite '#{suite}' as indicated by 'test_setting.yml'"
         end
         LOGGER.info " * Suite: #{suite} ... END"
     }
