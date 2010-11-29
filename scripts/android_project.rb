@@ -86,14 +86,7 @@ class AndroidProject < Project
   # run android instumentation tests; returns true if succsessfull
   def test
     LOGGER.info " * Testing project '#{@name}':"
-    
     myTestResultCollector = TestResultCollector.new
-    
-    #tests_run               = 0
-    #broken_instrumentations = 0
-    #failed_tests            = 0
-    #tests_with_exception    = 0
-    #test_suite_success      = false
     
     # check the manifest instrumentation test definiton
     node = REXML::XPath.first(@manifest_xml, "*/instrumentation")
@@ -123,7 +116,6 @@ class AndroidProject < Project
     LOGGER.info "Found #{suite_list.size} Testsuites: #{suite_list.inspect}"
     
     suite_list.each_with_index { |suite, index|
-        #exception_next_line = false
         LOGGER.info " * Suite: #{suite} ... START (#{index + 1} of #{suite_list.size})"
         suite_testsetting = @test_settings['suites'][suite]['testmode'] rescue 'normal'
         LOGGER.info "   * testsetting: '#{suite_testsetting}'"
@@ -148,10 +140,6 @@ class AndroidProject < Project
                 test_result.test_suite_name = suite
                 LOGGER.info "\n#{test_result}"
                 myTestResultCollector << test_result
-                #tests_run += result[:tests]
-                #failed_tests += result[:failures]
-                #tests_with_exception += result[:exceptions]
-                #broken_instrumentations += result[:broken_instrumentation]
               end
           end
         else
@@ -160,11 +148,6 @@ class AndroidProject < Project
         LOGGER.info " * Suite: #{suite} ... END"
     }
     return myTestResultCollector
-    #return {:was_successful => test_suite_success, 
-    #        :tests_run => tests_run, 
-    #        :tests_failed => failed_tests,
-    #        :tests_with_exception => tests_with_exception,
-    #        :broken_instrumentation => broken_instrumentations}
   end
   
   private

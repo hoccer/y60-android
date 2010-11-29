@@ -12,9 +12,7 @@ class TestResultCollector
     if theTestResult.kind_of?(TestResult)
       @test_results << theTestResult
     elsif theTestResult.kind_of?(TestResultCollector)
-      #puts "adding another collector"
       theTestResult.test_results.each { |sub_test_result|
-        #puts "adding #{sub_test_result}"
         @test_results << sub_test_result
       }
     else
