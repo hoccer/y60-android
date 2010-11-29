@@ -174,7 +174,7 @@ public class Logger {
                 log,
                 (intent + " getAction: " + intent.getAction() + " getData: " + intent.getData()
                         + " getType: " + intent.getType() + " extras: " + intent.getExtras()
-                        + " keyset: " + keyset + " values: " + values), " - END" };
+                        + " keyset: " + keyset + " intent extra values: " + values), " END OF PRINTING INTENT" };
 
         Level.VERBOSE.log(pTag, logIntent);
     }
