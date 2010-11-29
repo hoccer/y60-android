@@ -94,6 +94,30 @@ namespace :emulator do
     
   end
   
+  namespace :snapshot do
+  
+    desc "Takes a snapshot of the emulator"
+    task :take => ['config:verify'] do
+      ensure_emulator_is_stopped
+      my_avd_name = avd_name
+      myAvdDirectoryPath = File::expand_path(".android/avd/#{my_avd_name}.avd", "~")
+      mySnapshotDirectoryPath = "#{@y60_path}/snapshots/#{my_avd_name}"
+
+      fail unless File.exists?(myAvdDirectoryPath)
+      puts "Taking a snapshot from '' to '#{@y60_path}/snapshots/#{my_avd_name}' ..."
+      `rm -f #{mySnapshotDirectoryPath}/*`
+      `mkdir -p #{mySnapshotDirectoryPath}`
+      `cp -R #{myAvdDirectoryPath}/* #{mySnapshotDirectoryPath}`
+      puts "... done"
+    end
+    
+    desc "Restores a snapshot (if present)"
+    task :restore => ['config:verify'] do
+      ensure_emulator_is_stopped
+      
+    end
+  end
+  
 end
 
 def avd_name
@@ -109,6 +133,10 @@ def boot_emulator avd_name
   cmd = "emulator -avd #{avd_name} -no-boot-anim &"
   puts " * Starting emulator via command:\n\t#{cmd}"
   system cmd
+end
+
+def ensure_emulator_is_stopped
+  raise "Emulator must not be running" if emulators_running? > 0
 end
 
 def emulators_running?
