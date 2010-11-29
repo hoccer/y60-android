@@ -1,5 +1,8 @@
 #!/usr/bin/env ruby
 
+$:.unshift File.join(File.dirname(__FILE__), '..', 'scripts')
+require 'logging'
+
 require 'rubygems'
 require 'activesupport'
 require 'fileutils'
@@ -16,13 +19,26 @@ class Project
   
   attr_reader :dependencies, :name, :path, :parent_dir
   
+  def initialize pj_name
+    #LOGGER.info "creating #{pj_name}"
+    @dependencies = []
+    @name = pj_name
+    @path = @@project_paths[pj_name]
+    
+    path_list = @path.split('/')
+    path_list.pop
+    @parent_dir = path_list.join('/') 
+    @parent_dir += "/" if @parent_dir != ""
+    #puts "created #{to_s} --- #{name}"
+  end
+  
   def self.load_in_dependency_order pj_names = nil
     load_all = (pj_names.nil? or pj_names.empty?)
     if load_all
-      puts "no projects given - proceeding to load all projects"
+      LOGGER.debug "No projects given - proceeding to load all projects"
       find_project_paths :all
     else
-      puts "loading: #{pj_names.inspect}"
+      LOGGER.debug "Loading: #{pj_names.inspect}"
       find_project_paths pj_names
     end
     
@@ -34,9 +50,9 @@ class Project
     sorted_pjs = []
     while !unsorted_pjs.empty? 
       project = unsorted_pjs.delete_at 0
-      puts "loading dependencies for project '#{project}':"
+      LOGGER.debug " * Loading dependencies for project '#{project}':"
       project.resolve_dependencies
-      puts "loaded dependencies for #{name}"
+      LOGGER.debug " * Loaded dependencies for #{project.name}"
 
       unless sorted_pjs.member? project 
         copy_to_front = (project.dependencies - sorted_pjs)
@@ -49,11 +65,12 @@ class Project
         end
       end
     end
+    LOGGER.info " * Loaded projects in the following order: #{sorted_pjs.map{ |proj| proj.name}.inspect}"
     sorted_pjs
   end
   
   def self.find_or_create name, base_path = nil
-    puts "#{base_path}"
+    #puts "#{base_path}"
     @@project_paths[name] = "#{base_path}/#{name}" if base_path != nil
     
     pj = @@projects[name]
@@ -64,25 +81,20 @@ class Project
         nature = :android if e.text.include? "com.android.ide.eclipse.adt.AndroidNature"
         nature ||= :java if e.text.include? "org.eclipse.jdt.core.javanature" 
       end
-      puts "loading #{nature} project #{name}"
-      pj = (nature.to_s+"Project").camelize.constantize.new name
+      LOGGER.debug " * Loading #{nature} project #{name}"
+      #pj = (nature.to_s+"Project").camelize.constantize.new name
+      if nature == :android
+        pj = AndroidProject.new name
+      elsif nature == :java
+        pj = JavaProject.new name
+      elsif nature.nil? # RubyNature
+        pj = Project.new name
+      else
+        raise "Unknown project-nature '#{nature}'! Cannot create project instance!"
+      end
       @@projects[name] = pj
     end
     pj
-  end
-  
-  def initialize pj_name
-    puts "creating #{pj_name}"
-    @dependencies = []
-    @name = pj_name
-    @path = @@project_paths[pj_name]
-    
-    path_list = @path.split('/')
-    path_list.pop
-    @parent_dir = path_list.join('/') 
-    @parent_dir += "/" if @parent_dir != ""
-    
-    puts "created #{to_s}"
   end
 
   def depends_on project
@@ -96,12 +108,11 @@ class Project
     cp_xml.elements.each("*/classpathentry | */*[local-name()='hidden-build-dependency']") do |path_entry| 
       if path_entry.attributes["kind"] == "src" then
         dep_name = path_entry.attributes["path"]
-        puts ".....#{dep_name}  #{dep_name[0]}"
-        
+        LOGGER.debug "    * #{dep_name}  #{dep_name[0]}"
         # it's a project only if it's a path starting with a slash
         if dep_name[0] == "/"[0] then
           n = dep_name[1..-1]
-          puts name + " depends on " + n
+          LOGGER.debug name + " depends on " + n
           dep_pj = Project.find_or_create(n)
           @dependencies << dep_pj
         end
@@ -200,12 +211,12 @@ class Project
     # - 'find_project_paths <array-of-names>' finds only project paths for the given project names
     def self.find_project_paths all_or_names
       raise "no y60 path defined" unless self.y60_path
-      puts "adding '#{y60_path}' to project search path"
+      LOGGER.debug " * adding '#{y60_path}' to project search path"
       dirs = Dir["#{y60_path}/*/.classpath"]
       
       my_path = File.expand_path Dir.getwd
       if my_path != y60_path
-        puts "adding '#{my_path}' to project search path"
+        LOGGER.debug " * adding '#{my_path}' to project search path"
         dirs.concat Dir["#{my_path}/*/.classpath"]
       end
       
@@ -215,7 +226,7 @@ class Project
         pj_path = pj_path_list.join("/")
         pj_name = pj_path_list.pop
         
-        puts "found #{pj_name}:\n\t  at path: '#{pj_path}'"
+        LOGGER.debug " * Found #{pj_name}:\n\t  at path: '#{pj_path}'"
         
         # add to paths only if all project paths are to be loaded
         @@project_paths[pj_name] = pj_path if (all_or_names == :all) or all_or_names.member? pj_name

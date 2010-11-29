@@ -1,3 +1,4 @@
+require 'open3'
 
 #namespace :device do
 
@@ -45,7 +46,15 @@ def remove_packages list
 end
 
 def get_packages namespaces=[]
-  pkgs_io = open "|adb #{@device_flag} shell pm list packages"
+  stdin, pkgs_io, stderr = Open3::popen3 "adb #{@device_flag} shell pm list packages"
+  stderr = stderr.read
+  if stderr != ""
+    raise <<-ERROR
+  Error occured:
+    #{stderr.split("\n").join("\n    ")}
+  --aborting--
+ERROR
+  end
   list = pkgs_io.to_a
   pkgs_io.close
   
