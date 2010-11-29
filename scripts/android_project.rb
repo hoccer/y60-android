@@ -3,6 +3,7 @@
 $:.unshift File.join(File.dirname(__FILE__), '..', 'scripts')
 require 'project'
 require 'open3'
+require 'lib/test_result_collector'
 
 class AndroidProject < Project
 
@@ -82,22 +83,25 @@ class AndroidProject < Project
     install device_id, "-r"
   end
 
-  # run adroid instumentation tests; returns true if succsessfull
+  # run android instumentation tests; returns true if succsessfull
   def test
     LOGGER.info " * Testing project '#{@name}':"
     
-    successful_tests        = 0
-    broken_instrumentations = 0
-    failed_tests            = 0
-    tests_with_exception    = 0
-    test_suite_success      = false
+    myTestResultCollector = TestResultCollector.new
     
-    LOGGER.info "    * Reinstalling packages (to determine testsuites present)..."
-    AndroidProject::reinstall_artcom_packages true
+    #tests_run               = 0
+    #broken_instrumentations = 0
+    #failed_tests            = 0
+    #tests_with_exception    = 0
+    #test_suite_success      = false
     
     # check the manifest instrumentation test definiton
     node = REXML::XPath.first(@manifest_xml, "*/instrumentation")
-    return {:was_successful => true} unless node
+    # No Tests - early exit
+    return myTestResultCollector unless node
+    
+    LOGGER.info "    * Reinstalling packages (to determine testsuites present)..."
+    AndroidProject::reinstall_artcom_packages true
     
     package = node.attributes["targetPackage"]
     testrunner = node.attributes["name"]
@@ -119,8 +123,8 @@ class AndroidProject < Project
     LOGGER.info "Found #{suite_list.size} Testsuites: #{suite_list.inspect}"
     
     suite_list.each_with_index { |suite, index|
-        exception_next_line = false
-        LOGGER.info " * Suite: #{suite} ... START (#{index} of #{suite_list.size})"
+        #exception_next_line = false
+        LOGGER.info " * Suite: #{suite} ... START (#{index + 1} of #{suite_list.size})"
         suite_testsetting = @test_settings['suites'][suite]['testmode'] rescue 'normal'
         LOGGER.info "   * testsetting: '#{suite_testsetting}'"
         
@@ -139,22 +143,15 @@ class AndroidProject < Project
           test_log_output = open "|adb shell am instrument -w -e class #{suite} #{package}/#{testrunner}"
           while (line=test_log_output.gets)
               LOGGER.info line
-              if exception_next_line
-                exception_next_line = false
-                successful_tests += line.scan(/Tests run: (\d*)/)[0][0].to_i
-                failed_tests += line.scan(/Failures: (\d*)/)[0][0].to_i
-                tests_with_exception += line.scan(/Errors: (\d*)/)[0][0].to_i
-                test_suite_success = false
-                break
-              end
-              if line.include? "INSTRUMENTATION" then
-                broken_instrumentations += 1
-                test_suite_success = false
-              elsif line.include? "OK (" then
-                successful_tests += line.scan(/OK \((\d*) \w+\)/)[0][0].to_i
-                test_suite_success = true
-              elsif line.include? "FAILURES!!!" then
-                exception_next_line = true
+              test_result = AndroidProject::extract_test_status line
+              if test_result
+                test_result.test_suite_name = suite
+                LOGGER.info "\n#{test_result}"
+                myTestResultCollector << test_result
+                #tests_run += result[:tests]
+                #failed_tests += result[:failures]
+                #tests_with_exception += result[:exceptions]
+                #broken_instrumentations += result[:broken_instrumentation]
               end
           end
         else
@@ -162,15 +159,41 @@ class AndroidProject < Project
         end
         LOGGER.info " * Suite: #{suite} ... END"
     }
-    return {:was_successful => test_suite_success, 
-            :tests_run => successful_tests, 
-            :tests_failed => failed_tests,
-            :tests_with_exception => tests_with_exception,
-            :broken_instrumentation => broken_instrumentations}
+    return myTestResultCollector
+    #return {:was_successful => test_suite_success, 
+    #        :tests_run => tests_run, 
+    #        :tests_failed => failed_tests,
+    #        :tests_with_exception => tests_with_exception,
+    #        :broken_instrumentation => broken_instrumentations}
   end
   
   private
   
+    def self.extract_test_status line
+      # Format for ok:
+      #  OK (1 test) or OK (x tests) where x is > 1
+      result = line.match(/^OK \((\d*) \w+\)/)
+      if result
+        return TestResult.new result[1].to_i,0,0,0
+      end
+      
+      # Format for failures:
+      #  Tests run: %d, Failures: %d, Errors: %d
+      result = line.match(/^Tests run: (\d*),  Failures: (\d*),  Errors: (\d*)/)
+      if result
+        return TestResult.new result[1].to_i,result[2].to_i,result[3].to_i,0
+      end
+      
+      # Format for broken instrumentations:
+      #  INSTRUMENTATION_FAILED: <class-path>
+      result = line.match(/INSTRUMENTATION_FAILED: ([a-zA-Z.0-9\/]*InstrumentationTestRunner)/)
+      if result
+        return TestResult.new 0,0,0,1
+      end
+      
+      return nil
+    end
+    
     def self.get_device_list
       stdin, stdout, stderr = Open3.popen3("adb devices")
       stderr = stderr.read

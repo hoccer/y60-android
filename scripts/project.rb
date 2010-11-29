@@ -65,7 +65,7 @@ class Project
         end
       end
     end
-    LOGGER.info " * Loaded projects in the following order: #{sorted_pjs.map{ |proj| proj.name}.inspect}"
+    LOGGER.debug " * Loaded projects in the following order: #{sorted_pjs.map{ |proj| proj.name}.inspect}"
     sorted_pjs
   end
   

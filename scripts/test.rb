@@ -7,6 +7,7 @@ require "yaml"
 require 'project'
 require 'java_project'
 require 'android_project'
+require 'lib/test_result_collector'
 
 def main pj_names
   last_project_sorting_file = "/tmp/project_sorting.yaml"
@@ -23,7 +24,7 @@ def main pj_names
   last_project_sorting.each { |name|
     index = project_paths.index{|p| p.include? name}
     if index != nil then
-      LOGGER.info " - Adding #{name} to projects (was at index #{index})"
+      LOGGER.debug " - Adding #{name} to projects (was at index #{index})"
       projects << Project.find_or_create(name, Dir.getwd)
       project_paths.delete_at index
     end
@@ -35,42 +36,49 @@ def main pj_names
   }
   
   failing_projects = []
-  tests_run = tests_failed = tests_with_exception = broken_instrumentations = 0
+  #tests_run = tests_failed = tests_with_exception = broken_instrumentations = 0
 
   projects = projects.select { |p| p.respond_to? :test }
   LOGGER.info "Testing #{projects.size} projects: #{projects.map {|p| p.name}.join(' ')}"
   
-  success = projects.inject(true) do |yet, project|
+  myTestResultCollector = TestResultCollector.new
+  
+  projects.each do |project|
     starttime = Time.new
-
-    test_result = project.test
     
-    if !test_result[:was_successful] then 
+    test_result = project.test
+    myTestResultCollector << test_result
+    #if !test_result[:was_successful] then 
+    if !test_result.succeeded? then
       failing_projects.push project.name
     end
     
-    if test_result.has_key? :tests_run then 
-      tests_run += test_result[:tests_run]
-    end
-    
-    if test_result.has_key? :broken_instrumentation then 
-      #broken_instrumentations += 1
-      broken_instrumentations += test_result[:broken_instrumentation]
-    end
-    
-    if test_result.has_key? :tests_failed then 
-      tests_failed += test_result[:tests_failed]
-    end
-    
-    if test_result.has_key? :tests_with_exception then 
-      tests_with_exception += test_result[:tests_with_exception]
-    end
+    #if test_result.has_key? :tests_run then 
+    #  tests_run += test_result[:tests_run]
+    #end
+    #
+    #if test_result.has_key? :broken_instrumentation then 
+    #  #broken_instrumentations += 1
+    #  broken_instrumentations += test_result[:broken_instrumentation]
+    #end
+    #
+    #if test_result.has_key? :tests_failed then 
+    #  tests_failed += test_result[:tests_failed]
+    #end
+    #
+    #if test_result.has_key? :tests_with_exception then 
+    #  tests_with_exception += test_result[:tests_with_exception]
+    #end
     
     elapsedSeconds = Time.new - starttime
-    LOGGER.info "test duration: #{elapsedSeconds} seconds"
-    LOGGER.info "test result: #{test_result[:was_successful]}"
-    test_result[:was_successful] and yet
+    LOGGER.info "Results for project: '#{project}':"
+    LOGGER.info "duration: #{elapsedSeconds} seconds"
+    LOGGER.info "result: #{TestResult::STATUS_NAMES[test_result.succeeded?.to_s]}"
+    LOGGER.info "\n#{test_result}"
+    #test_result[:was_successful] and yet
   end
+  
+  success = myTestResultCollector.succeeded?
   
   system "adb pull /sdcard/error_log.txt /tmp/error_log.txt"
   if File.exists? "/tmp/error_log.txt" then
@@ -80,13 +88,14 @@ def main pj_names
     system "adb shell rm /sdcard/error_log.txt"
     FileUtils.rm "/tmp/error_log.txt"
   end
+  LOGGER.info "\n#{myTestResultCollector}"
  
-  LOGGER.info "
-  tests run: #{tests_run},
-  tests failed: #{tests_failed}, 
-  tests with exception: #{tests_with_exception}, 
-  broken instrumentations: #{broken_instrumentations}
-  "
+  #LOGGER.info "
+  #tests run: #{tests_run},
+  #tests failed: #{tests_failed}, 
+  #tests with exception: #{tests_with_exception}, 
+  #broken instrumentations: #{broken_instrumentations}
+  #"
   
   if success
     LOGGER.info "all tests succeeded"
