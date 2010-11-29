@@ -22,7 +22,7 @@ public class ErrorReporter implements UncaughtExceptionHandler {
 
     @Override
     public void uncaughtException(Thread pThread, Throwable e) {
-        Logger.e(LOG_TAG, "There was an uncaught excepiton:" + e);
+        Logger.e(LOG_TAG, "There was an uncaught exception:" + e);
         onException(e);
         mOriginalExceptionHandler.uncaughtException(pThread, e);
     }

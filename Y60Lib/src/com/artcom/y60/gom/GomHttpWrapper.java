@@ -8,8 +8,6 @@ import org.apache.http.HttpResponse;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.net.Uri;
-
 import com.artcom.y60.Constants;
 import com.artcom.y60.http.HttpClientException;
 import com.artcom.y60.http.HttpException;
@@ -18,12 +16,14 @@ import com.artcom.y60.http.HttpServerException;
 
 public class GomHttpWrapper {
     
-	// TODO: Why is this deprecated? Seems to me (AM) that passing in a Uri instead of a string is definitely correcter
-    @Deprecated
+	@SuppressWarnings("unused")
+	private static final String LOG_TAG = "GomHttpWrapper";
+
+	/*@Deprecated
     public static HttpResponse updateOrCreateAttribute(Uri pUri, String pValue)
             throws HttpClientException, HttpServerException, IOException {
         return updateOrCreateAttribute(pUri.toString(), pValue);
-    }
+    }*/
     
     public static HttpResponse updateOrCreateAttribute(String pUri, String pValue)
             throws HttpClientException, HttpServerException, IOException {
@@ -64,11 +64,11 @@ public class GomHttpWrapper {
         return HttpHelper.delete(pUri);
     }
     
-    @Deprecated
+    /*@Deprecated
     public static String getAttributeValue(Uri pAttrUrl) throws HttpClientException,
             HttpServerException, IOException {
         return getAttributeValue(pAttrUrl.toString());
-    }
+    }*/
     
     public static String getAttributeValue(String pAttrUrl) throws HttpClientException,
             HttpServerException, IOException {
@@ -107,6 +107,19 @@ public class GomHttpWrapper {
         } catch (IOException e) {
             return false;
         }
+        return true;
+    }
+    
+    public static boolean isNodeExisting(String pUri) {
+        try {
+        	HttpHelper.getJson(pUri);
+        } catch (HttpException e) {
+            return false;
+        } catch (IOException e) {
+            return false;
+        } catch (JSONException e) {
+			return false;
+		}
         return true;
     }
     

@@ -8,7 +8,6 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import android.content.BroadcastReceiver;
-import android.net.Uri;
 
 import com.artcom.y60.Constants;
 import com.artcom.y60.Logger;
@@ -21,27 +20,13 @@ public class GnpUpdatesGomProxyTest extends GomActivityUnitTestCase {
     protected final String LOG_TAG        = "GnpUpdatesGomProxyTest";
     protected final String TEST_BASE_PATH = "/test/android/y60/infrastructure_gom/" + LOG_TAG;
     
-    private GomObserver    mMockGomObserver;
-    
     @Override
     public void setUp() throws Exception {
         super.setUp();
-        
-        mMockGomObserver = new GomObserver() {
-            public void onEntryCreated(String pPath, JSONObject pData) {
-            }
-            
-            public void onEntryDeleted(String pPath, JSONObject pData) {
-            }
-            
-            public void onEntryUpdated(String pPath, JSONObject pData) {
-            }
-        };
     }
     
     // node(<-registered):attribute(<-created) = create on node
     public void testAttributeCreatedOnObservedNode() throws Exception {
-        
         initializeActivity();
         TestHelper.blockUntilDeviceControllerIsRunning();
         GomProxyHelper proxy = createHelper();
@@ -71,8 +56,8 @@ public class GnpUpdatesGomProxyTest extends GomActivityUnitTestCase {
         
         // create attribute in the test node
         String attrName = "test_attribute";
-        Uri attrUri = Uri.parse(nodeUrl + ":" + attrName);
-        GomHttpWrapper.updateOrCreateAttribute(attrUri, "who cares?");
+        //Uri attrUri = Uri.parse(nodeUrl + ":" + attrName);
+        GomHttpWrapper.updateOrCreateAttribute(nodeUrl + ":" + attrName, "who cares?");
         
         // update may take a while
         TestHelper.blockUntilTrue("gnp create callback should have been called once", 5000,
@@ -91,7 +76,6 @@ public class GnpUpdatesGomProxyTest extends GomActivityUnitTestCase {
     
     // node(<-registered):attribute(<-updated) = update on node
     public void testAttributeUpdatedOnObservedNode() throws Exception {
-        
         initializeActivity();
         
         TestHelper.blockUntilDeviceControllerIsRunning();
@@ -176,7 +160,6 @@ public class GnpUpdatesGomProxyTest extends GomActivityUnitTestCase {
     
     // node(<-registered):attribute(<-deleted) = delete on node
     public void testAttributeDeletedOnObservedNode() throws Exception {
-        
         initializeActivity();
         TestHelper.blockUntilDeviceControllerIsRunning();
         GomProxyHelper proxy = createHelper();
@@ -233,9 +216,7 @@ public class GnpUpdatesGomProxyTest extends GomActivityUnitTestCase {
     
     // node(<-registered)/subnode(<-created) = create on node
     public void testSubnodeCreatedOnObservedNode() throws Exception {
-        
         initializeActivity();
-        
         TestHelper.blockUntilDeviceControllerIsRunning();
         
         GomProxyHelper helper = createHelper();
@@ -315,7 +296,6 @@ public class GnpUpdatesGomProxyTest extends GomActivityUnitTestCase {
     
     // node(<-registered)/subnode(<-deleted) = delete on node
     public void testSubnodeDeletedOnObservedNode() throws Exception {
-        
         initializeActivity();
         TestHelper.blockUntilDeviceControllerIsRunning();
         GomProxyHelper proxy = createHelper();
@@ -376,7 +356,6 @@ public class GnpUpdatesGomProxyTest extends GomActivityUnitTestCase {
     
     // node(<-registered)/subnode(<-deleted)/subsubnode = 1 delete on node
     public void testSubnodeWithNodeDeletedOnObservedNode() throws Exception {
-        
         initializeActivity();
         TestHelper.blockUntilDeviceControllerIsRunning();
         GomProxyHelper proxy = createHelper();
@@ -396,7 +375,7 @@ public class GnpUpdatesGomProxyTest extends GomActivityUnitTestCase {
         // create subSubNode in the test subnode
         String subSubNodeName = "sub_sub_node";
         String subSubNodeUrl = subNodeUrl + "/" + subSubNodeName;
-        String subSubNodePath = subNodePath + "/" + subSubNodeName;
+        //String subSubNodePath = subNodePath + "/" + subSubNodeName;
         GomHttpWrapper.createNode(subSubNodeUrl);
         
         TestHelper.blockUntilResourceAvailable("sub sub node should be in GOM", subSubNodeUrl);
@@ -437,7 +416,6 @@ public class GnpUpdatesGomProxyTest extends GomActivityUnitTestCase {
     
     // node(<-registered, <-deleted) = delete on node
     public void testObservedNodeDeleted() throws Exception {
-        
         initializeActivity();
         TestHelper.blockUntilDeviceControllerIsRunning();
         GomProxyHelper proxy = createHelper();
@@ -484,7 +462,6 @@ public class GnpUpdatesGomProxyTest extends GomActivityUnitTestCase {
     
     // node(<-registered, <-deleted), /subnode, :attribute = delete on node,
     public void testObservedNodeWithSubnodeAndAttributeDeleted() throws Exception {
-        
         initializeActivity();
         TestHelper.blockUntilDeviceControllerIsRunning();
         final GomProxyHelper proxy = createHelper();
@@ -559,7 +536,6 @@ public class GnpUpdatesGomProxyTest extends GomActivityUnitTestCase {
     
     // attribute(<-registered, <-deleted) = delete on attribute
     public void testObservedAttributeDeleted() throws Exception {
-        
         initializeActivity();
         TestHelper.blockUntilDeviceControllerIsRunning();
         GomProxyHelper proxy = createHelper();
@@ -568,7 +544,7 @@ public class GnpUpdatesGomProxyTest extends GomActivityUnitTestCase {
         
         String attrPath = TEST_BASE_PATH + "/test_observed_attribute_deleted:" + timestamp;
         String attrUrl = UriHelper.join(Constants.Gom.URI, attrPath);
-        GomHttpWrapper.updateOrCreateAttribute(Uri.parse(attrUrl), "mango");
+        GomHttpWrapper.updateOrCreateAttribute(attrUrl, "mango");
         
         TestHelper.blockUntilResourceAvailable("node should be in GOM", attrUrl);
         
@@ -599,12 +575,10 @@ public class GnpUpdatesGomProxyTest extends GomActivityUnitTestCase {
                 });
         
         assertFalse("node is in cache", proxy.hasInCache(attrPath));
-        
     }
     
     // attribute(<-registered, <-updated) = update on attribute
     public void testObservedAttributeUpdated() throws Exception {
-        
         initializeActivity();
         TestHelper.blockUntilDeviceControllerIsRunning();
         GomProxyHelper proxy = createHelper();
@@ -613,7 +587,7 @@ public class GnpUpdatesGomProxyTest extends GomActivityUnitTestCase {
         
         String attrPath = TEST_BASE_PATH + "/test_observed_attribute_updated:" + timestamp;
         String attrUrl = UriHelper.join(Constants.Gom.URI, attrPath);
-        GomHttpWrapper.updateOrCreateAttribute(Uri.parse(attrUrl), "mango");
+        GomHttpWrapper.updateOrCreateAttribute(attrUrl, "mango");
         
         TestHelper.blockUntilResourceAvailable("node should be in GOM", attrUrl);
         
@@ -632,7 +606,7 @@ public class GnpUpdatesGomProxyTest extends GomActivityUnitTestCase {
         
         assertTrue("attribute should be in cache", proxy.hasInCache(attrPath));
         
-        GomHttpWrapper.updateOrCreateAttribute(Uri.parse(attrUrl), "banana");
+        GomHttpWrapper.updateOrCreateAttribute(attrUrl, "banana");
         
         // update may take a while
         TestHelper.blockUntilTrue("gnp update callback should have been called once more", 5000,

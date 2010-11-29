@@ -8,7 +8,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.SocketTimeoutException;
-import java.util.LinkedList;
 import java.util.List;
 
 import junit.framework.Assert;
@@ -200,7 +199,7 @@ public class TestHelper {
         });
     }
 
-    public static void assertDeviceControlerIsRunning(Context pContext) throws Exception {
+    public static void assertDeviceControllerIsRunning(Context pContext) throws Exception {
         Intent startIntent = new Intent(Y60Action.SERVICE_DEVICE_CONTROLLER);
         pContext.startService(startIntent);
         TestHelper.blockUntilDeviceControllerIsRunning();
@@ -457,47 +456,6 @@ public class TestHelper {
                 return request.isTaskCompleted();
             }
         });
-    }
-
-    public static void blockUntilAllServiceClassNamesAreDeletedFromSdcard(long pTimeout,
-            final LinkedList<String> pClassNames) throws Exception {
-
-        blockUntilTrue("Not all services are deleted on sdcard", pTimeout, new Condition() {
-            @Override
-            public boolean isSatisfied() throws Exception {
-                boolean areAllWantedServicesDeleted = true;
-                String[] sdcardFiles = IoHelper.getAliveServicesFromSdcard();
-
-                for (String filename : sdcardFiles) {
-                    for (String wantedService : pClassNames) {
-                        if (filename.equals(wantedService)) {
-                            areAllWantedServicesDeleted = false;
-                        }
-                    }
-                }
-                return areAllWantedServicesDeleted;
-            }
-        });
-    }
-
-    public static void logServicesOnSdcard(String pLOG_TAG, String additionalLog) throws Exception {
-        String aliveServicesDirectory = Constants.Device.ALIVE_SERVICES_PATH;
-        File dir = new File(aliveServicesDirectory);
-        if (!dir.exists()) {
-            Logger.v(pLOG_TAG, "_____ no alive services folder");
-            return;
-        }
-
-        String[] children = dir.list();
-        if (children == null) {
-            throw new Exception("Either " + aliveServicesDirectory
-                    + " does not exist or is not a directory");
-        } else {
-            Logger.v(pLOG_TAG, "_____", additionalLog, ": ");
-            for (String filename : children) {
-                Logger.v(pLOG_TAG, filename);
-            }
-        }
     }
 
     public static void logServices(String pLOG_TAG, List<RunningServiceInfo> runningServices) {
