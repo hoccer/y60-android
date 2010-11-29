@@ -21,6 +21,10 @@ class TestResultCollector
     @test_results
   end
   
+  def failed?
+    !succeeded?
+  end
+  
   def succeeded?
     return @test_results.inject(true) { |memo, test_result|
       memo and test_result.succeeded?
