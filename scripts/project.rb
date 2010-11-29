@@ -232,7 +232,8 @@ class Project
         @@project_paths[pj_name] = pj_path if (all_or_names == :all) or all_or_names.member? pj_name
       end
     end
-      
+    
+    # TODO better error reporting via Open3::popen3
     def run message, cmdline
       if $project_test
         puts "executing #{cmdline.split.join(" ")}"
