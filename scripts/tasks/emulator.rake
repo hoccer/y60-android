@@ -190,7 +190,7 @@ def execute_command cmd, message="command"
   result = system cmd
   puts "------------"
   if !result
-    puts "An error occured while #{msg}:"
+    puts "An error occured while #{message}:"
     puts $?
   end
   result
