@@ -14,7 +14,7 @@ class AndroidProjectTest < Test::Unit::TestCase
     assert_equal 0, result.failures
     assert_equal 0, result.exceptions
     assert_equal 0, result.broken_instrumentations
-
+    
     result = AndroidProject::extract_test_status "OK (2 tests)"
     assert_equal 2, result.tests_run
     assert_equal 0, result.failures
@@ -28,8 +28,7 @@ class AndroidProjectTest < Test::Unit::TestCase
     assert_equal 1, result.failures
     assert_equal 0, result.exceptions
     assert_equal 0, result.broken_instrumentations
-
-
+    
     result = AndroidProject::extract_test_status "Tests run: 7,  Failures: 0,  Errors: 3"
     assert_equal 7, result.tests_run
     assert_equal 0, result.failures
@@ -44,8 +43,17 @@ class AndroidProjectTest < Test::Unit::TestCase
     assert_equal 0, result.exceptions
     assert_equal 1, result.broken_instrumentations
     
-    result = AndroidProject::extract_test_status "Blahfasel com.artcom.y60/android.test.InstrumentationTestRunner"
-    assert_equal nil, result
+    result = AndroidProject::extract_test_status "INSTRUMENTATION_RESULT: shortMsg=java.lang.ExceptionInInitializerError"
+    assert_equal 0, result.tests_run
+    assert_equal 0, result.failures
+    assert_equal 0, result.exceptions
+    assert_equal 1, result.broken_instrumentations
+    
+    result = AndroidProject::extract_test_status "INSTRUMENTATION_CODE: 0"
+    assert_equal 0, result.tests_run
+    assert_equal 0, result.failures
+    assert_equal 0, result.exceptions
+    assert_equal 1, result.broken_instrumentations
   end
   
   def test_non_matching_lines_produce_nil
@@ -53,7 +61,7 @@ class AndroidProjectTest < Test::Unit::TestCase
     assert_equal nil, result
     result = AndroidProject::extract_test_status "OK"
     assert_equal nil, result
-    result = AndroidProject::extract_test_status "INSTRUMENTATION:"
+    result = AndroidProject::extract_test_status "Blahfasel com.artcom.y60/android.test.InstrumentationTestRunner"
     assert_equal nil, result
     result = AndroidProject::extract_test_status "Tests"
     assert_equal nil, result

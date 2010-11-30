@@ -93,10 +93,8 @@ class AndroidProject < Project
     # No Tests - early exit
     return myTestResultCollector unless node
     
+    LOGGER.info "    * Determining testsuites present ..."
     AndroidProject::restore_from_snapshot
-    
-    #LOGGER.info "    * Reinstalling packages (to determine testsuites present)..."
-    #AndroidProject::reinstall_artcom_packages true
     
     package = node.attributes["targetPackage"]
     testrunner = node.attributes["name"]
@@ -127,7 +125,6 @@ class AndroidProject < Project
             if index != 0
               LOGGER.info " * Preparing testrun for Testsuite: #{suite} in project #{@name}"
               AndroidProject::restore_from_snapshot
-              #AndroidProject::reinstall_artcom_packages
             else
               LOGGER.info " * Preparation is not necessary since packages were installed freshly since the last test run"
             end
@@ -136,14 +133,15 @@ class AndroidProject < Project
           end
           LOGGER.info " * Executing testsuite #{suite} in project #{@name}"
           test_log_output = open "|adb shell am instrument -w -e class #{suite} #{package}/#{testrunner}"
+          test_result = nil
           while (line=test_log_output.gets)
               LOGGER.info line
               test_result = AndroidProject::extract_test_status line
-              if test_result
-                test_result.test_suite_name = suite
-                LOGGER.info "\n#{test_result}"
-                myTestResultCollector << test_result
-              end
+          end
+          if test_result
+            test_result.test_suite_name = suite
+            LOGGER.info "\n#{test_result}"
+            myTestResultCollector << test_result
           end
         else
           LOGGER.info "   * skipped suite '#{suite}' as indicated by 'test_setting.yml'"
@@ -171,8 +169,9 @@ class AndroidProject < Project
       end
       
       # Format for broken instrumentations:
-      #  INSTRUMENTATION_FAILED: <class-path>
-      result = line.match(/INSTRUMENTATION_FAILED: ([a-zA-Z.0-9\/]*InstrumentationTestRunner)/)
+      #  INSTRUMENTATION in the line
+      #result = line.match(/INSTRUMENTATION_FAILED: ([a-zA-Z.0-9\/]*InstrumentationTestRunner)/)
+      result = line.match(/^(INSTRUMENTATION).*$/)
       if result
         return TestResult.new 0,0,0,1
       end
@@ -243,14 +242,9 @@ class AndroidProject < Project
     end
 
     def self.restore_from_snapshot
+      LOGGER.info "    * Restoring from snapshot..."
+      LOGGER.info "    * Stopping all emulators."
       system("rake emulator:kill_all")
-      LOGGER.info "      * sleeping 5 secs..."
-      sleep 5
-      system("adb kill-server")
-      LOGGER.info "      * sleeping 5 secs..."
-      sleep 5
-      system("adb start-server")
-      LOGGER.info "      * sleeping 5 secs..."
       sleep 5
       
       LOGGER.info "    * Restoring snapshot and booting device..."
