@@ -93,8 +93,10 @@ class AndroidProject < Project
     # No Tests - early exit
     return myTestResultCollector unless node
     
-    LOGGER.info "    * Reinstalling packages (to determine testsuites present)..."
-    AndroidProject::reinstall_artcom_packages true
+    AndroidProject::restore_from_snapshot
+    
+    #LOGGER.info "    * Reinstalling packages (to determine testsuites present)..."
+    #AndroidProject::reinstall_artcom_packages true
     
     package = node.attributes["targetPackage"]
     testrunner = node.attributes["name"]
@@ -124,7 +126,8 @@ class AndroidProject < Project
           if suite_testsetting == 'normal'
             if index != 0
               LOGGER.info " * Preparing testrun for Testsuite: #{suite} in project #{@name}"
-              AndroidProject::reinstall_artcom_packages
+              AndroidProject::restore_from_snapshot
+              #AndroidProject::reinstall_artcom_packages
             else
               LOGGER.info " * Preparation is not necessary since packages were installed freshly since the last test run"
             end
@@ -205,7 +208,7 @@ class AndroidProject < Project
       LOGGER.info "      * sleeping 120 secs..."
       sleep 120
       if trial == 0 and
-         AndroidProject::get_device_list.size == 0
+        AndroidProject::get_device_list.size == 0
         LOGGER.info "cannot see devices - rebooting once more..."
         AndroidProject::reboot_emulator trial + 1
       elsif trial > 0 and
@@ -237,6 +240,23 @@ class AndroidProject < Project
       LOGGER.info "      * sleeping 5 secs..."
       sleep 5
       LOGGER.info "    * Reinstalling packages... DONE"
+    end
+
+    def self.restore_from_snapshot
+      system("rake emulator:kill_all")
+      LOGGER.info "      * sleeping 5 secs..."
+      sleep 5
+      system("adb kill-server")
+      LOGGER.info "      * sleeping 5 secs..."
+      sleep 5
+      system("adb start-server")
+      LOGGER.info "      * sleeping 5 secs..."
+      sleep 5
+      
+      LOGGER.info "    * Restoring snapshot and booting device..."
+      system("rake emulator:snapshot:restore")
+      sleep 5
+      AndroidProject::reboot_emulator
     end
 
 end

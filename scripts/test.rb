@@ -20,6 +20,7 @@ def main pj_names
   project_paths = Dir["#{Dir.getwd}/*/.project"]
   LOGGER.info "Project paths: \n\t#{project_paths.inspect}"
   projects = []
+  failing_projects = []
   
   last_project_sorting.each { |name|
     index = project_paths.index{|p| p.include? name}
@@ -35,10 +36,10 @@ def main pj_names
     projects << Project.find_or_create(name, Dir.getwd)
   }
   
-  failing_projects = []
-
   projects = projects.select { |p| p.respond_to? :test }
   LOGGER.info "Testing #{projects.size} projects: #{projects.map {|p| p.name}.join(' ')}"
+  
+  prepare_emulator_snapshot
   
   myTestResultCollector = TestResultCollector.new
   
@@ -84,6 +85,41 @@ def main pj_names
 rescue => e
   LOGGER.error "oops: #{e}\n#{e.backtrace.join "\n"}"
   exit 1
+end
+
+def prepare_emulator_snapshot
+  LOGGER.info " * Preparing emulator snapshot"
+  
+  LOGGER.info "    * Shutting down all emulators"
+  system("rake emulator:kill_all")
+  sleep 5
+  
+  LOGGER.info "    * Restarting adb server"
+  system("adb kill-server")
+  sleep 5
+  system("adb start-server")
+  sleep 5
+  
+  LOGGER.info "    * Booting emulator... (120 seks startup...)"
+  system("rake emulator:boot")
+  sleep 120
+  LOGGER.info "     ... done"
+  
+  LOGGER.info "    * Removing packages..."
+  system("rake removeartcom")
+  sleep 5
+  
+  LOGGER.info "    * Installing packages ..."
+  system("rake install")
+  sleep 5
+  
+  LOGGER.info "    * Shutting down all emulators"
+  system("rake emulator:kill_all")
+  sleep 5
+  
+  LOGGER.info "    * Taking snapshot"
+  system("rake emulator:snapshot:take")
+  sleep 5
 end
 
 (__FILE__ == $0) and (main ARGV)
