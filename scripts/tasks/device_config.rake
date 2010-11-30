@@ -49,4 +49,20 @@ JSON
     end
   end
   
+  desc "Verifies that the device_config is present"
+  task :verify => ['config:verify','emulator:is_running'] do
+    puts "Verifying device_config.json on device"
+    my_avd_name = avd_name
+    puts " * avd-name: #{my_avd_name}"
+    
+    fh = open "|adb shell ls /sdcard/device_config.json"
+    device_config_json = fh.read
+    
+    if device_config_json.include? "No such file or directory"
+      puts "Device config json is not present!"
+      fail
+    end
+    puts "Device config json is present"
+  end
+  
 end
