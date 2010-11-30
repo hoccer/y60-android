@@ -219,6 +219,9 @@ class AndroidProject < Project
       system("rake emulator:port_forward")
       LOGGER.info "      * sleeping 5 secs..."
       sleep 5
+      LOGGER.info "verifying device_config.json presence"
+      result = system("rake device_config:verify")
+      raise "Device config is not present!" unless result
     end
   
     def self.reinstall_artcom_packages with_reboot=false
