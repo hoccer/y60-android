@@ -1,5 +1,47 @@
 namespace :emulator do
   
+  desc "Creates the emulatator specified in settings"
+  task :create => ['config:verify'] do
+    puts "Creating emulator:"
+    my_avd_name = avd_name
+    myAvdDirectoryPath = File::expand_path(".android/avd/#{my_avd_name}.avd", "~")
+
+    puts " * avd-name: #{my_avd_name}"
+    puts " * avd-path: #{myAvdDirectoryPath}"
+    
+    if File::exists?(myAvdDirectoryPath)
+      puts "The emulator '#{my_avd_name}' seems to already exist at '#{myAvdDirectoryPath}'! - ABORTING"
+      fail
+    end
+    
+    cmd = "echo no | android create avd --name #{my_avd_name} --target 2 --sdcard 128M"
+    fail unless execute_command cmd, "creating emulator"
+    puts "    ... done creating emulator."
+  end
+  
+  desc "Deletes the emulator instance as specified in settings"
+  task :delete => ['config:verify'] do
+    puts "Deleting emulator:"
+    if emulators_running? > 0
+      puts "There is at least one emulator running - stop them first"
+      fail
+    end
+    my_avd_name = avd_name
+    myAvdDirectoryPath = File::expand_path(".android/avd/#{my_avd_name}.avd", "~")
+    
+    puts " * avd-name: #{my_avd_name}"
+    puts " * avd-path: #{myAvdDirectoryPath}"
+    
+    if !File::exists?(myAvdDirectoryPath)
+      puts "The emulator '#{my_avd_name}' does not seem to exist at '#{myAvdDirectoryPath}'! - ABORTING"
+      fail
+    end
+    
+    cmd = "android delete avd --name #{my_avd_name}"
+    fail unless execute_command cmd, "deleting emulator"
+    puts "    ... done deleting emulator."
+  end
+  
   desc "starts the default emulator or a specific one"
   task :boot => ['config:load'] do
     # TODO make this defensive -> do not start if already started/starting...
@@ -140,6 +182,18 @@ namespace :emulator do
     end
   end
   
+end
+
+def execute_command cmd, message="command"
+  puts " * executing\n   '#{cmd}':"
+  puts "------------"
+  result = system cmd
+  puts "------------"
+  if !result
+    puts "An error occured while #{msg}:"
+    puts $?
+  end
+  result
 end
 
 def avd_name
