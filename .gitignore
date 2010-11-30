@@ -5,3 +5,4 @@ R.java
 .DS_Store
 config/app_settings.yml
 snapshots
+config/device_config.json
