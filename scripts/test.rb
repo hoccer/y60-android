@@ -39,7 +39,7 @@ def main pj_names
   projects = projects.select { |p| p.respond_to? :test }
   LOGGER.info "Testing #{projects.size} projects: #{projects.map {|p| p.name}.join(' ')}"
   
-  prepare_emulator_snapshot
+  prepare_emulator
   
   myTestResultCollector = TestResultCollector.new
   
@@ -87,8 +87,8 @@ rescue => e
   exit 1
 end
 
-def prepare_emulator_snapshot
-  LOGGER.info " * Preparing emulator snapshot"
+def prepare_emulator
+  LOGGER.info " * Preparing emulator (avd and a snapshot of it)"
   
   LOGGER.info "    * Shutting down all emulators"
   system("rake emulator:kill_all")
@@ -96,23 +96,42 @@ def prepare_emulator_snapshot
   
   LOGGER.info "    * Restarting adb server"
   system("adb kill-server")
+  system("killall adb")
   sleep 5
-  system("adb start-server")
+  #system("adb start-server")
+  #sleep 5
+  
+  LOGGER.info "    * Deleting emulator according to app_settings..."
+  system "rake emulator:delete"
+  sleep 5
+
+  LOGGER.info "    * Creating emulator according to app_settings..."
+  system "rake emulator:create"
   sleep 5
   
-  LOGGER.info "    * Booting emulator... (120 seks startup...)"
+  LOGGER.info "    * Booting emulator... (120 secs startup...)"
   system("rake emulator:boot")
   sleep 120
   LOGGER.info "     ... done"
   
-  LOGGER.info "    * Removing packages..."
-  system("rake removeartcom")
+  LOGGER.info "    * Creating and uploading device_config.json onto sdcard"
+  system "rake device_config:generate[true]"
+  system "rake device_config:upload"
   sleep 5
+  
+  LOGGER.info "    * Disabling screen lock"
+  system "rake emulator:deactivate_screen_lock"
+  sleep 5
+  
+  #LOGGER.info "    * Removing packages..."
+  #system("rake removeartcom")
+  #sleep 5
   
   LOGGER.info "    * Installing packages ..."
   system("rake install")
   sleep 5
   
+  sleep 15
   LOGGER.info "    * Shutting down all emulators"
   system("rake emulator:kill_all")
   sleep 5
