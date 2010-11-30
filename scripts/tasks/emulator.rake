@@ -14,7 +14,7 @@ namespace :emulator do
       fail
     end
     
-    cmd = "echo no | android create avd --name #{my_avd_name} --target 2 --sdcard 256M"
+    cmd = "echo no | android create avd --name #{my_avd_name} --target android-4 --sdcard 256M"
     fail unless execute_command cmd, "creating emulator"
     puts "    ... done creating emulator."
   end
