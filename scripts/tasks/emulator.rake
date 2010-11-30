@@ -103,10 +103,15 @@ namespace :emulator do
       myAvdDirectoryPath = File::expand_path(".android/avd/#{my_avd_name}.avd", "~")
       mySnapshotDirectoryPath = "#{@y60_path}/snapshots/#{my_avd_name}"
 
-      fail unless File.exists?(myAvdDirectoryPath)
-      puts "Taking a snapshot from '' to '#{@y60_path}/snapshots/#{my_avd_name}' ..."
-      `rm -f #{mySnapshotDirectoryPath}/*`
+      if !File.exists?(myAvdDirectoryPath)
+        puts " * The provided avd_name: '#{my_avd_name}' seems to be invalid - cannot find images in '#{myAvdDirectoryPath}'  - ABORTING"
+        fail
+      end
+      puts " Source Directory:\n    #{myAvdDirectoryPath}"
+      puts " Target Directory:\n    #{mySnapshotDirectoryPath}"
+      puts "Taking a snapshot ..."
       `mkdir -p #{mySnapshotDirectoryPath}`
+      `rm -f #{mySnapshotDirectoryPath}/*`
       `cp -R #{myAvdDirectoryPath}/* #{mySnapshotDirectoryPath}`
       puts "... done"
     end
@@ -114,7 +119,24 @@ namespace :emulator do
     desc "Restores a snapshot (if present)"
     task :restore => ['config:verify'] do
       ensure_emulator_is_stopped
+      my_avd_name = avd_name
+      myAvdDirectoryPath = File::expand_path(".android/avd/#{my_avd_name}.avd", "~")
+      mySnapshotDirectoryPath = "#{@y60_path}/snapshots/#{my_avd_name}"
       
+      if !File.exists?(mySnapshotDirectoryPath)
+        puts " * Cannot find snapshot for avd: '#{my_avd_name}' - ABORTING"
+        fail
+      end
+      if !File.exists?(myAvdDirectoryPath)
+        puts " * The provided avd_name: '#{my_avd_name}' seems to be invalid - cannot restore to '#{myAvdDirectoryPath}'  - ABORTING"
+        fail
+      end
+      puts " Source Directory:\n    #{mySnapshotDirectoryPath}"
+      puts " Target Directory:\n    #{myAvdDirectoryPath}"
+      
+      `rm -f #{myAvdDirectoryPath}/*`
+      `cp -R #{mySnapshotDirectoryPath}/* #{myAvdDirectoryPath}`
+      puts "... done"
     end
   end
   
