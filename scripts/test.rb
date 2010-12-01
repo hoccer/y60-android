@@ -102,7 +102,9 @@ def main pj_names
   LOGGER.info "\n#{myTestResultCollector}"
   
   if success
-    LOGGER.info "all tests succeeded"
+    LOGGER.info "all tests succeeded for #{projects.size} projects tested:"
+    known_project_names = projects.map { |p| p.name}
+    LOGGER.info "\n\t#{known_project_names.join("\n\t")}"
     exit 0
   else
     puts "There were test failures in #{failing_projects.join ', '}"
@@ -111,6 +113,9 @@ def main pj_names
     File.open(last_project_sorting_file, 'w') {|f| f.write(last_project_sorting.to_yaml) }
     exit 1
   end
+  
+  LOGGER.info " * Shutting down all emulators"
+  system("rake emulator:kill_all")
   
 rescue => e
   LOGGER.error "oops: #{e}\n#{e.backtrace.join "\n"}"
@@ -146,7 +151,7 @@ def prepare_emulator
   LOGGER.info "    * Creating and uploading device_config.json onto sdcard"
   system "rake device_config:generate[true]"
   system "rake device_config:upload"
-  system "rake device_config:verify --silent"
+  system "rake device_config:verify"
   sleep 5
   
   LOGGER.info "    * Disabling screen lock"
