@@ -210,7 +210,7 @@ class AndroidProject < Project
       sleep 5
       system("adb start-server")
       LOGGER.info "      * sleeping 5 secs..."
-      sleep 5
+      sleep 15
       
       if trial == 0 and
         AndroidProject::get_device_list.size == 0
