@@ -16,10 +16,6 @@ class AndroidProject < Project
     manifest_file = "#{@path}/AndroidManifest.xml"
     LOGGER.debug "reading manifest for project '#{@name}' from '#{manifest_file}'"
     @manifest_xml = REXML::Document.new(File.new(manifest_file))
-    
-    @test_settings = YAML::load(File.open(File.join(@path, 'test_settings.yml'))) rescue {:suites => {}}
-    #puts @test_settings.inspect
-    #puts @test_settings['suites']['com.artcom.y60.dc.DeviceControllerHandlerTest']['testmode'].to_sym
   end
 
   def create_build_env
@@ -117,37 +113,21 @@ class AndroidProject < Project
     
     suite_list.each_with_index { |suite, index|
         LOGGER.info " * Suite: #{suite} ... START (#{index + 1} of #{suite_list.size})"
-        suite_testsetting = @test_settings['suites'][suite]['testmode'] rescue 'normal'
-        LOGGER.info "   * testsetting: '#{suite_testsetting}'"
-        
-        if suite_testsetting != 'skip'
-          if suite_testsetting == 'normal'
-            if index != 0
-              LOGGER.info " * Preparing testrun for Testsuite: #{suite} in project #{@name}"
-              AndroidProject::restore_from_snapshot
-            else
-              LOGGER.info " * Preparation is not necessary since packages were installed freshly since the last test run"
+        AndroidProject::restore_from_snapshot
+        LOGGER.info " * Executing testsuite #{suite} in project #{@name}"
+        test_log_output = open "|adb shell am instrument -w -e class #{suite} #{package}/#{testrunner}"
+        test_result = nil
+        while (line=test_log_output.gets)
+            LOGGER.info line
+            if test_result.nil?
+              tmp_result = AndroidProject::extract_test_status line
+              test_result = tmp_result if tmp_result
             end
-          elsif suite_testsetting == 'no-reinstall'
-            LOGGER.info "  * Not reinstalling according to test_setting for this suite."
-          end
-          LOGGER.info " * Executing testsuite #{suite} in project #{@name}"
-          test_log_output = open "|adb shell am instrument -w -e class #{suite} #{package}/#{testrunner}"
-          test_result = nil
-          while (line=test_log_output.gets)
-              LOGGER.info line
-              if test_result.nil?
-                tmp_result = AndroidProject::extract_test_status line
-                test_result = tmp_result if tmp_result
-              end
-          end
-          if test_result
-            test_result.test_suite_name = suite
-            LOGGER.info "\n#{test_result}"
-            myTestResultCollector << test_result
-          end
-        else
-          LOGGER.info "   * skipped suite '#{suite}' as indicated by 'test_setting.yml'"
+        end
+        if test_result
+          test_result.test_suite_name = suite
+          LOGGER.info "\n#{test_result}"
+          myTestResultCollector << test_result
         end
         LOGGER.info " * Suite: #{suite} ... END"
     }
@@ -225,11 +205,11 @@ class AndroidProject < Project
         raise "Cannot reboot emulator - giving up tries: #{trial}"
       end
       LOGGER.info "Emulator seems to have booted fine..."
-      system("rake emulator:port_forward")
+      system("rake emulator:port_forward --silent")
       LOGGER.info "      * sleeping 5 secs..."
       sleep 5
       LOGGER.info "verifying device_config.json presence"
-      result = system("rake device_config:verify")
+      result = system("rake device_config:verify --silent")
       raise "Device config is not present!" unless result
     end
   
