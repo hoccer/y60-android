@@ -10,6 +10,15 @@ require 'android_project'
 require 'lib/test_result_collector'
 
 def main pj_names
+  
+  if pj_names.first == 'all' || pj_names == [] || pj_names.nil?
+    LOGGER.info "Executing tests for all projects."
+    myListOfProjectsToTest = []
+  else
+    LOGGER.info "Executing tests for projects: #{pj_names.inspect}"
+    myListOfProjectsToTest = pj_names
+  end
+  
   last_project_sorting_file = "/tmp/project_sorting.yaml"
   if File.exists? last_project_sorting_file then
     last_project_sorting = YAML::load_file(last_project_sorting_file);
@@ -37,12 +46,33 @@ def main pj_names
   }
   
   projects = projects.select { |p| p.respond_to? :test }
+  
+  if myListOfProjectsToTest != [] # We got a specific list of project names to test
+    known_project_names = projects.map { |p| p.name}
+    found_unknown_project_names = false
+    myListOfProjectsToTest.each { |project_name|
+      if !known_project_names.include? project_name
+        found_unknown_project_names = true
+        LOGGER.info " * The project named '#{project_name}' is unknown."
+      end
+    }
+    if found_unknown_project_names
+      LOGGER.info "ABORTED - found project names to be tested that cannot be found in the testable projects!"
+      LOGGER.info "Known testable project names: \n\t#{known_project_names.join("\n\t")}"
+      exit 1
+    end
+    
+    projects = projects.select{ |p| myListOfProjectsToTest.include? p.name}
+  end
+  
   LOGGER.info "Testing #{projects.size} projects: #{projects.map {|p| p.name}.join(' ')}"
+  if projects.size == 0
+    LOGGER.info "No projects to test - please verify input '#{pj_names}'"
+    exit 1
+  end
   
   prepare_emulator
-  
   myTestResultCollector = TestResultCollector.new
-  
   projects.each do |project|
     starttime = Time.new
     
