@@ -53,7 +53,7 @@ def main pj_names
     end
     
     elapsedSeconds = Time.new - starttime
-    LOGGER.info "Results for project: '#{project}':"
+    LOGGER.info "Results for project: '#{project.name}':"
     LOGGER.info "duration: #{elapsedSeconds} seconds"
     LOGGER.info "result: #{TestResult::STATUS_NAMES[test_result.succeeded?.to_s]}"
     LOGGER.info "\n#{test_result}"

@@ -94,7 +94,7 @@ class AndroidProject < Project
     package = node.attributes["targetPackage"]
     testrunner = node.attributes["name"]
     
-    LOGGER.info "    * Determining testsuites present ..."
+    LOGGER.info "    * Determining testsuites present for project '#{@name}' ..."
     log_command = "adb shell am instrument -w -e log true #{package}/#{testrunner}"
     adb_test_suites = open "|#{log_command}"
     suite_list = []
@@ -110,6 +110,7 @@ class AndroidProject < Project
         end
       end
     end
+    adb_test_suites.close
 
     LOGGER.info "Found #{suite_list.size} Testsuites: #{suite_list.inspect}"
     
@@ -117,31 +118,48 @@ class AndroidProject < Project
         LOGGER.info " * Suite: #{suite} ... START (#{index + 1} of #{suite_list.size})"
         
         if index != 0
-          LOGGER.info " * Preparing testrun for Testsuite: #{suite} in project #{@name}"
+          LOGGER.info " * Preparing testrun for Testsuite: '#{suite}' in project '#{@name}'"
           AndroidProject::restore_from_snapshot
         end
         
-        LOGGER.info " * Executing testsuite #{suite} in project #{@name}"
-        test_log_output = open "|adb shell am instrument -w -e class #{suite} #{package}/#{testrunner}"
+        LOGGER.info " * Executing testsuite '#{suite}' in project '#{@name}'"
+        testing_cmd = "adb shell am instrument -w -e class #{suite} #{package}/#{testrunner}"
+        LOGGER.info "    via command: '#{testing_cmd}'"
+        LOGGER.info " ------------------- OUTPUT START"
+
         test_result = nil
+        lineno = 0
+        test_log_output = open "|#{testing_cmd}"
         while (line=test_log_output.gets)
-            LOGGER.info line
+            lineno += 1
+            LOGGER.info "#{lineno}\t#{line}"
             if test_result.nil?
               tmp_result = AndroidProject::extract_test_status line
               test_result = tmp_result if tmp_result
             end
         end
+        test_log_output.close
+        LOGGER.info " ------------------- OUTPUT END"
         if test_result
           test_result.test_suite_name = suite
-          LOGGER.info "\n#{test_result}"
+          LOGGER.info "\n Result for suite '#{suite}' (#{index + 1} of #{suite_list.size}) in project '#{@name}':\n#{test_result}"
           myTestResultCollector << test_result
+          
+          if index + 1 != suite_list.size
+            LOGGER.info "Total results for project '#{@name}' so far ...:"
+            LOGGER.info "\n#{myTestResultCollector}\n"
+          end
+        else
+          LOGGER.info "    * Test result is still nil - something went wrong while parsing output? -ABORTING!"
+          raise "Error while executing testsuite #{suite} in project #{@name} - no test_result received"
         end
         LOGGER.info " * Suite: #{suite} ... END"
     }
+    
     if suite_list.size == myTestResultCollector.test_results.size
-      LOGGER.info " * Collected Testresults for #{suite_list.size} suites! OK"
+      LOGGER.info " * Collected Testresults for #{suite_list.size} suites in project '#{@name}'! OK"
     else
-      LOGGER.info " * Collected Testresults for ONLY #{myTestResultCollector.test_results.size} - Should have been #{suite_list.size}"
+      LOGGER.info " * Collected Testresults for ONLY #{myTestResultCollector.test_results.size} test suites in project '#{@name}' - Should have been #{suite_list.size}"
       raise "Invalid number of testsuite test results collected!"
     end
     return myTestResultCollector
