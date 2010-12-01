@@ -1,7 +1,5 @@
 require 'open3'
 
-#namespace :device do
-
 desc "Installs the built project on either the only connected device or the one specified in ENV via device_id"
 task :install do 
   fail unless system "#{@y60_scripts_path}/manage_apks.rb install #{ENV['device_id']}"
@@ -68,7 +66,3 @@ ERROR
     select_package
   }
 end
-
-
-
-#end

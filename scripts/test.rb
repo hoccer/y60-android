@@ -26,14 +26,14 @@ def main pj_names
     index = project_paths.index{|p| p.include? name}
     if index != nil then
       LOGGER.debug " - Adding #{name} to projects (was at index #{index})"
-      projects << Project.find_or_create(name, Dir.getwd)
+      projects << Project.find_or_create(name, Dir.getwd) if name != "Y60App" ################### 
       project_paths.delete_at index
     end
   }
   
   project_paths.each { |dir|
     name = File.basename(File.dirname dir)
-    projects << Project.find_or_create(name, Dir.getwd)
+    projects << Project.find_or_create(name, Dir.getwd) if name != "Y60App" #####################
   }
   
   projects = projects.select { |p| p.respond_to? :test }
@@ -96,10 +96,9 @@ def prepare_emulator
   
   LOGGER.info "    * Restarting adb server"
   system("adb kill-server")
-  system("killall adb")
   sleep 5
-  #system("adb start-server")
-  #sleep 5
+  system("adb start-server")
+  sleep 5
   
   LOGGER.info "    * Deleting emulator according to app_settings..."
   system "rake emulator:delete"
@@ -117,15 +116,12 @@ def prepare_emulator
   LOGGER.info "    * Creating and uploading device_config.json onto sdcard"
   system "rake device_config:generate[true]"
   system "rake device_config:upload"
+  system "rake device_config:verify --silent"
   sleep 5
   
   LOGGER.info "    * Disabling screen lock"
   system "rake emulator:deactivate_screen_lock"
   sleep 5
-  
-  #LOGGER.info "    * Removing packages..."
-  #system("rake removeartcom")
-  #sleep 5
   
   LOGGER.info "    * Installing packages ..."
   system("rake install")

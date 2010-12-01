@@ -44,16 +44,21 @@ JSON
       puts "The device config does not exist at '#{@device_config_file}' - generate it first"
     else
       puts " * uploading '#{@device_config_file}' to device's sdcard"
-      system "adb push #{@device_config_file} /sdcard/device_config.json"
-      puts " * done. The device should now be reinitialized"
+      result = system "adb push #{@device_config_file} /sdcard/device_config.json"
+      if result
+        puts " * done. The device should now be reinitialized"
+      else
+        puts " * ERROR occurred :#{$?}"
+        fail
+      end
     end
   end
   
   desc "Verifies that the device_config is present"
   task :verify => ['config:verify','emulator:is_running'] do
-    puts "Verifying device_config.json on device"
+    log "Verifying device_config.json on device"
     my_avd_name = avd_name
-    puts " * avd-name: #{my_avd_name}"
+    log " * avd-name: #{my_avd_name}"
     
     fh = open "|adb shell ls /sdcard/device_config.json"
     device_config_json = fh.read
