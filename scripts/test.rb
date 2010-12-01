@@ -94,11 +94,11 @@ def prepare_emulator
   system("rake emulator:kill_all")
   sleep 5
   
-  LOGGER.info "    * Restarting adb server"
-  system("adb kill-server")
-  sleep 5
-  system("adb start-server")
-  sleep 5
+  #LOGGER.info "    * Restarting adb server"
+  #system("adb kill-server")
+  #sleep 5
+  #system("adb start-server")
+  #sleep 5
   
   LOGGER.info "    * Deleting emulator according to app_settings..."
   system "rake emulator:delete"
@@ -112,6 +112,12 @@ def prepare_emulator
   system("rake emulator:boot")
   sleep 120
   LOGGER.info "     ... done"
+  
+  LOGGER.info "    * Restarting adb server"
+  system("adb kill-server")
+  sleep 5
+  system("adb start-server")
+  sleep 5
   
   LOGGER.info "    * Creating and uploading device_config.json onto sdcard"
   system "rake device_config:generate[true]"

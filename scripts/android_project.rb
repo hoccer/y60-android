@@ -89,21 +89,24 @@ class AndroidProject < Project
     # No Tests - early exit
     return myTestResultCollector unless node
     
-    LOGGER.info "    * Determining testsuites present ..."
+    
     AndroidProject::restore_from_snapshot
     
     package = node.attributes["targetPackage"]
     testrunner = node.attributes["name"]
-
+    
+    LOGGER.info "    * Determining testsuites present ..."
     log_command = "adb shell am instrument -w -e log true #{package}/#{testrunner}"
     adb_test_suites = open "|#{log_command}"
     suite_list = []
     while (line = adb_test_suites.gets)
+      puts line
       if line.include? ":" then
         line_array = line.split(":")
         line_first_part = line_array[0]
         line_second_part = line_array[1]
         if (line_first_part.include? "#{package}" ) and ((line_second_part =~ /\A\.+\s*$/) == 0) then
+          LOGGER.info "    * Adding Suite: '#{line_first_part}'"
           suite_list.push(line_first_part)
         end
       end
@@ -186,15 +189,25 @@ class AndroidProject < Project
       system("rake emulator:kill_all")
       LOGGER.info "      * sleeping 5 secs..."
       sleep 5
+      
+      #system("adb kill-server")
+      #LOGGER.info "      * sleeping 5 secs..."
+      #sleep 5
+      #system("adb start-server")
+      #LOGGER.info "      * sleeping 5 secs..."
+      #sleep 5
+      
+      system("rake emulator:boot")
+      LOGGER.info "      * sleeping 120 secs..."
+      sleep 120
+      
       system("adb kill-server")
       LOGGER.info "      * sleeping 5 secs..."
       sleep 5
       system("adb start-server")
       LOGGER.info "      * sleeping 5 secs..."
       sleep 5
-      system("rake emulator:boot")
-      LOGGER.info "      * sleeping 120 secs..."
-      sleep 120
+      
       if trial == 0 and
         AndroidProject::get_device_list.size == 0
         LOGGER.info "cannot see devices - rebooting once more..."
