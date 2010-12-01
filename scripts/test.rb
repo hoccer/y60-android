@@ -26,14 +26,14 @@ def main pj_names
     index = project_paths.index{|p| p.include? name}
     if index != nil then
       LOGGER.debug " - Adding #{name} to projects (was at index #{index})"
-      projects << Project.find_or_create(name, Dir.getwd) if name != "Y60App" ################### 
+      projects << Project.find_or_create(name, Dir.getwd) #if name != "Y60App" ################### 
       project_paths.delete_at index
     end
   }
   
   project_paths.each { |dir|
     name = File.basename(File.dirname dir)
-    projects << Project.find_or_create(name, Dir.getwd) if name != "Y60App" #####################
+    projects << Project.find_or_create(name, Dir.getwd) #if name != "Y60App" #####################
   }
   
   projects = projects.select { |p| p.respond_to? :test }

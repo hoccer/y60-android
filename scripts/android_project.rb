@@ -89,7 +89,6 @@ class AndroidProject < Project
     # No Tests - early exit
     return myTestResultCollector unless node
     
-    
     AndroidProject::restore_from_snapshot
     
     package = node.attributes["targetPackage"]
@@ -116,7 +115,12 @@ class AndroidProject < Project
     
     suite_list.each_with_index { |suite, index|
         LOGGER.info " * Suite: #{suite} ... START (#{index + 1} of #{suite_list.size})"
-        AndroidProject::restore_from_snapshot
+        
+        if index != 0
+          LOGGER.info " * Preparing testrun for Testsuite: #{suite} in project #{@name}"
+          AndroidProject::restore_from_snapshot
+        end
+        
         LOGGER.info " * Executing testsuite #{suite} in project #{@name}"
         test_log_output = open "|adb shell am instrument -w -e class #{suite} #{package}/#{testrunner}"
         test_result = nil
