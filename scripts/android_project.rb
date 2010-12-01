@@ -136,7 +136,10 @@ class AndroidProject < Project
           test_result = nil
           while (line=test_log_output.gets)
               LOGGER.info line
-              test_result = AndroidProject::extract_test_status line
+              if test_result.nil?
+                tmp_result = AndroidProject::extract_test_status line
+                test_result = tmp_result if tmp_result
+              end
           end
           if test_result
             test_result.test_suite_name = suite
@@ -148,6 +151,12 @@ class AndroidProject < Project
         end
         LOGGER.info " * Suite: #{suite} ... END"
     }
+    if suite_list.size == myTestResultCollector.test_results.size
+      LOGGER.info " * Collected Testresults for #{suite_list.size} suites! OK"
+    else
+      LOGGER.info " * Collected Testresults for ONLY #{myTestResultCollector.test_results.size} - Should have been #{suite_list.size}"
+      raise "Invalid number of testsuite test results collected!"
+    end
     return myTestResultCollector
   end
   
