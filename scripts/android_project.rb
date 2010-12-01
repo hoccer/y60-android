@@ -132,7 +132,7 @@ class AndroidProject < Project
         test_log_output = open "|#{testing_cmd}"
         while (line=test_log_output.gets)
             lineno += 1
-            LOGGER.info "#{lineno}\t#{line}"
+            LOGGER.info "#{lineno}\t#{line.chomp}"
             if test_result.nil?
               tmp_result = AndroidProject::extract_test_status line
               test_result = tmp_result if tmp_result
