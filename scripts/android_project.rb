@@ -209,7 +209,7 @@ class AndroidProject < Project
       LOGGER.info "      * sleeping 5 secs..."
       sleep 5
       system("adb start-server")
-      LOGGER.info "      * sleeping 5 secs..."
+      LOGGER.info "      * sleeping 15 secs..."
       sleep 15
       
       if trial == 0 and
