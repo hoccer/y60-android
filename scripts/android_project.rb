@@ -79,7 +79,7 @@ class AndroidProject < Project
     install device_id, "-r"
   end
 
-  # run android instumentation tests; returns true if succsessfull
+  # run android instumentation tests; returns TestResultCollector
   def test
     LOGGER.info " * Testing project '#{@name}':"
     myTestResultCollector = TestResultCollector.new
@@ -99,7 +99,7 @@ class AndroidProject < Project
     adb_test_suites = open "|#{log_command}"
     suite_list = []
     while (line = adb_test_suites.gets)
-      puts line
+      LOGGER.debug line
       if line.include? ":" then
         line_array = line.split(":")
         line_first_part = line_array[0]
@@ -166,7 +166,6 @@ class AndroidProject < Project
       
       # Format for broken instrumentations:
       #  INSTRUMENTATION in the line
-      #result = line.match(/INSTRUMENTATION_FAILED: ([a-zA-Z.0-9\/]*InstrumentationTestRunner)/)
       result = line.match(/^(INSTRUMENTATION).*$/)
       if result
         return TestResult.new 0,0,0,1
@@ -193,13 +192,6 @@ class AndroidProject < Project
       system("rake emulator:kill_all")
       LOGGER.info "      * sleeping 5 secs..."
       sleep 5
-      
-      #system("adb kill-server")
-      #LOGGER.info "      * sleeping 5 secs..."
-      #sleep 5
-      #system("adb start-server")
-      #LOGGER.info "      * sleeping 5 secs..."
-      #sleep 5
       
       system("rake emulator:boot")
       LOGGER.info "      * sleeping 120 secs..."
