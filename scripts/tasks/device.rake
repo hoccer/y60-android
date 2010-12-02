@@ -1,7 +1,5 @@
 require 'open3'
 
-#namespace :device do
-
 desc "Installs the built project on either the only connected device or the one specified in ENV via device_id"
 task :install do 
   fail unless system "#{@y60_scripts_path}/manage_apks.rb install #{ENV['device_id']}"
@@ -17,9 +15,10 @@ task :reinstall do
   fail unless system "#{@y60_scripts_path}/manage_apks.rb reinstall #{ENV['device_id']}"
 end
 
-desc "execute all tests"
-task :test do 
-  fail unless system "#{@y60_scripts_path}/test.rb" 
+desc "Execute tests (default 'all') - specify list of projects to be tests via rake test[\"ProjectName1 ProjectName2\"]"
+task :test, [:projects] do |t, args|
+  args.with_defaults(:projects => "all")
+  fail unless system "#{@y60_scripts_path}/test.rb #{args[:projects]}"
 end
 
 desc "Removes all packages in namespaces #{@package_namespaces.inspect}"
@@ -68,7 +67,3 @@ ERROR
     select_package
   }
 end
-
-
-
-#end

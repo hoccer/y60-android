@@ -16,10 +16,6 @@ class AndroidProject < Project
     manifest_file = "#{@path}/AndroidManifest.xml"
     LOGGER.debug "reading manifest for project '#{@name}' from '#{manifest_file}'"
     @manifest_xml = REXML::Document.new(File.new(manifest_file))
-    
-    @test_settings = YAML::load(File.open(File.join(@path, 'test_settings.yml'))) rescue {:suites => {}}
-    #puts @test_settings.inspect
-    #puts @test_settings['suites']['com.artcom.y60.dc.DeviceControllerHandlerTest']['testmode'].to_sym
   end
 
   def create_build_env
@@ -83,7 +79,7 @@ class AndroidProject < Project
     install device_id, "-r"
   end
 
-  # run android instumentation tests; returns true if succsessfull
+  # run android instumentation tests; returns TestResultCollector
   def test
     LOGGER.info " * Testing project '#{@name}':"
     myTestResultCollector = TestResultCollector.new
@@ -93,68 +89,77 @@ class AndroidProject < Project
     # No Tests - early exit
     return myTestResultCollector unless node
     
-    LOGGER.info "    * Determining testsuites present ..."
     AndroidProject::restore_from_snapshot
     
     package = node.attributes["targetPackage"]
     testrunner = node.attributes["name"]
-
+    
+    LOGGER.info "    * Determining testsuites present for project '#{@name}' ..."
     log_command = "adb shell am instrument -w -e log true #{package}/#{testrunner}"
     adb_test_suites = open "|#{log_command}"
     suite_list = []
     while (line = adb_test_suites.gets)
+      LOGGER.debug line
       if line.include? ":" then
         line_array = line.split(":")
         line_first_part = line_array[0]
         line_second_part = line_array[1]
         if (line_first_part.include? "#{package}" ) and ((line_second_part =~ /\A\.+\s*$/) == 0) then
+          LOGGER.info "    * Adding Suite: '#{line_first_part}'"
           suite_list.push(line_first_part)
         end
       end
     end
+    adb_test_suites.close
 
     LOGGER.info "Found #{suite_list.size} Testsuites: #{suite_list.inspect}"
     
     suite_list.each_with_index { |suite, index|
         LOGGER.info " * Suite: #{suite} ... START (#{index + 1} of #{suite_list.size})"
-        suite_testsetting = @test_settings['suites'][suite]['testmode'] rescue 'normal'
-        LOGGER.info "   * testsetting: '#{suite_testsetting}'"
         
-        if suite_testsetting != 'skip'
-          if suite_testsetting == 'normal'
-            if index != 0
-              LOGGER.info " * Preparing testrun for Testsuite: #{suite} in project #{@name}"
-              AndroidProject::restore_from_snapshot
-            else
-              LOGGER.info " * Preparation is not necessary since packages were installed freshly since the last test run"
+        if index != 0
+          LOGGER.info " * Preparing testrun for Testsuite: '#{suite}' in project '#{@name}'"
+          AndroidProject::restore_from_snapshot
+        end
+        
+        LOGGER.info " * Executing testsuite '#{suite}' in project '#{@name}'"
+        testing_cmd = "adb shell am instrument -w -e class #{suite} #{package}/#{testrunner}"
+        LOGGER.info "    via command: '#{testing_cmd}'"
+        LOGGER.info " ------------------- OUTPUT START"
+
+        test_result = nil
+        lineno = 0
+        test_log_output = open "|#{testing_cmd}"
+        while (line=test_log_output.gets)
+            lineno += 1
+            LOGGER.info "#{lineno}\t#{line.chomp}"
+            if test_result.nil?
+              tmp_result = AndroidProject::extract_test_status line
+              test_result = tmp_result if tmp_result
             end
-          elsif suite_testsetting == 'no-reinstall'
-            LOGGER.info "  * Not reinstalling according to test_setting for this suite."
-          end
-          LOGGER.info " * Executing testsuite #{suite} in project #{@name}"
-          test_log_output = open "|adb shell am instrument -w -e class #{suite} #{package}/#{testrunner}"
-          test_result = nil
-          while (line=test_log_output.gets)
-              LOGGER.info line
-              if test_result.nil?
-                tmp_result = AndroidProject::extract_test_status line
-                test_result = tmp_result if tmp_result
-              end
-          end
-          if test_result
-            test_result.test_suite_name = suite
-            LOGGER.info "\n#{test_result}"
-            myTestResultCollector << test_result
+        end
+        test_log_output.close
+        LOGGER.info " ------------------- OUTPUT END"
+        if test_result
+          test_result.test_suite_name = suite
+          LOGGER.info "\n Result for suite '#{suite}' (#{index + 1} of #{suite_list.size}) in project '#{@name}':\n#{test_result}"
+          myTestResultCollector << test_result
+          
+          if index + 1 != suite_list.size
+            LOGGER.info "Total results for project '#{@name}' so far ...:"
+            LOGGER.info "\n#{myTestResultCollector}\n"
           end
         else
-          LOGGER.info "   * skipped suite '#{suite}' as indicated by 'test_setting.yml'"
+          LOGGER.info "    * Test result is still nil - something went wrong while parsing output? -ABORTING!"
+          raise "Error while executing testsuite #{suite} in project #{@name} - no test_result received"
         end
         LOGGER.info " * Suite: #{suite} ... END"
     }
+    
     if suite_list.size == myTestResultCollector.test_results.size
-      LOGGER.info " * Collected Testresults for #{suite_list.size} suites! OK"
+      LOGGER.info " * Collected Testresults for #{suite_list.size} suites in project '#{@name}'! OK"
     else
-      LOGGER.info " * Collected Testresults for ONLY #{myTestResultCollector.test_results.size} - Should have been #{suite_list.size}"
+      LOGGER.info " * Collected Testresults for ONLY #{myTestResultCollector.test_results.size} test suites in project '#{@name}' - Should have been #{suite_list.size}"
       raise "Invalid number of testsuite test results collected!"
     end
     return myTestResultCollector
@@ -179,7 +184,6 @@ class AndroidProject < Project
       
       # Format for broken instrumentations:
       #  INSTRUMENTATION in the line
-      #result = line.match(/INSTRUMENTATION_FAILED: ([a-zA-Z.0-9\/]*InstrumentationTestRunner)/)
       result = line.match(/^(INSTRUMENTATION).*$/)
       if result
         return TestResult.new 0,0,0,1
@@ -206,15 +210,18 @@ class AndroidProject < Project
       system("rake emulator:kill_all")
       LOGGER.info "      * sleeping 5 secs..."
       sleep 5
+      
+      system("rake emulator:boot")
+      LOGGER.info "      * sleeping 120 secs..."
+      sleep 120
+      
       system("adb kill-server")
       LOGGER.info "      * sleeping 5 secs..."
       sleep 5
       system("adb start-server")
-      LOGGER.info "      * sleeping 5 secs..."
-      sleep 5
-      system("rake emulator:boot")
-      LOGGER.info "      * sleeping 120 secs..."
-      sleep 120
+      LOGGER.info "      * sleeping 15 secs..."
+      sleep 15
+      
       if trial == 0 and
         AndroidProject::get_device_list.size == 0
         LOGGER.info "cannot see devices - rebooting once more..."
@@ -225,11 +232,11 @@ class AndroidProject < Project
         raise "Cannot reboot emulator - giving up tries: #{trial}"
       end
       LOGGER.info "Emulator seems to have booted fine..."
-      system("rake emulator:port_forward")
+      system("rake emulator:port_forward --silent")
       LOGGER.info "      * sleeping 5 secs..."
       sleep 5
       LOGGER.info "verifying device_config.json presence"
-      result = system("rake device_config:verify")
+      result = system("rake device_config:verify --silent")
       raise "Device config is not present!" unless result
     end
   

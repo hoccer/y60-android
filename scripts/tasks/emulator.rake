@@ -72,9 +72,9 @@ namespace :emulator do
       fail
     end
     if found_emulators == 1
-      puts "Found one running emulator instance"
+      log "Found one running emulator instance"
     else
-      puts "Currently no emulator is running"
+      log "Currently no emulator is running"
     end
   end
   
@@ -99,7 +99,7 @@ namespace :emulator do
   desc "forwards the host machines DeviceController Port to the Emulator (which needs to run)"
   task :port_forward do
     fail if emulators_running? != 1
-    puts " ... you may also need to use rinetd (linux) or ipfw (osx)"
+    log " ... you may also need to use rinetd (linux) or ipfw (osx)"
     fail unless system "adb forward tcp:4042 tcp:4042"
   end
   
@@ -184,21 +184,9 @@ namespace :emulator do
   
 end
 
-def execute_command cmd, message="command"
-  puts " * executing\n   '#{cmd}':"
-  puts "------------"
-  result = system cmd
-  puts "------------"
-  if !result
-    puts "An error occured while #{message}:"
-    puts $?
-  end
-  result
-end
-
 def avd_name
   if @config["avd_name"]
-    puts "Determined avd_name '#{@config["avd_name"]}' from app_settings.yml"
+    log "Determined avd_name '#{@config["avd_name"]}' from app_settings.yml"
     return @config['avd_name']
   end
   puts "Could not determine avd_name - check the file #{@config_path}/app_settings.yml"
