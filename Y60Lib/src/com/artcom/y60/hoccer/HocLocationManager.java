@@ -1,7 +1,6 @@
 package com.artcom.y60.hoccer;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 import android.content.Context;
@@ -15,8 +14,10 @@ import android.net.wifi.WifiManager;
 import android.os.Bundle;
 
 import com.artcom.y60.Logger;
+import com.hoccer.api.UpdateException;
+import com.hoccer.api.android.AsyncLinccer;
 
-public class BestLocationManager implements LocationListener {
+public class HocLocationManager implements LocationListener {
 
     private static final String   LOG_TAG               = "BestLocationManager";
 
@@ -26,14 +27,18 @@ public class BestLocationManager implements LocationListener {
 
     private final Context         mContext;
 
-    private HocLocation           mLastKnownLocation    = null;
+    private final HocLocation     mLastKnownLocation    = null;
 
     private List<ScanResult>      mScanResults;
 
     private final WifiManager     mWifiManager;
 
-    public BestLocationManager(Context pContext) {
+    private final AsyncLinccer    mLinccer;
+
+    public HocLocationManager(Context pContext, AsyncLinccer linccer) {
         mContext = pContext;
+
+        mLinccer = linccer;
 
         mLocationManager = (LocationManager) pContext.getSystemService(Context.LOCATION_SERVICE);
         mWifiManager = (WifiManager) pContext.getSystemService(Context.WIFI_SERVICE);
@@ -43,62 +48,13 @@ public class BestLocationManager implements LocationListener {
         return mContext;
     }
 
-    public HocLocation getBestLocation() throws UnknownLocationException {
+    public void refreshLocation() throws UpdateException {
         Logger.v(LOG_TAG, "getting best location");
-        mScanResults = mWifiManager.getScanResults();
-        if (mScanResults == null) {
-            mScanResults = new ArrayList<ScanResult>();
-        }
 
-        Location networkLocation = mLocationManager
-                .getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
-        Location gpsLocation = mLocationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-
-        // if we can not get any location information right now
-        if (gpsLocation == null && networkLocation == null && mScanResults.isEmpty()) {
-
-            if (mLastKnownLocation != null
-                    && System.currentTimeMillis() - mLastKnownLocation.getTime() < 5000) {
-
-                return mLastKnownLocation;
-            } else {
-                throw new UnknownLocationException();
-            }
-        }
-
-        Location bestLocation = null;
-
-        // use gps if we have no network
-        if (networkLocation == null && gpsLocation != null) {
-            bestLocation = gpsLocation;
-        }
-        // use cell towers if we have no gps
-        else if (gpsLocation == null && networkLocation != null) {
-            bestLocation = networkLocation;
-        }
-        // if we have cell and gps location
-        else if (networkLocation != null && gpsLocation != null) {
-
-            // if both locations are about same age, take the one with best accuracy
-            if (Math.abs(networkLocation.getTime() - gpsLocation.getTime()) < 1000) {
-                if (networkLocation.getAccuracy() < gpsLocation.getAccuracy())
-                    bestLocation = networkLocation;
-                else
-                    bestLocation = gpsLocation;
-            }
-            // else take the newest one
-            else {
-                if (networkLocation.getTime() < gpsLocation.getTime())
-                    bestLocation = networkLocation;
-                else
-                    bestLocation = gpsLocation;
-            }
-        }
-
-        mLastKnownLocation = new HocLocation(bestLocation, mScanResults);
-
-        // mLastKnownLocation.setAddress(getDisplayableAddress());
-        return mLastKnownLocation;
+        mLinccer.onWifiScanResults(mWifiManager.getScanResults());
+        mLinccer.onNetworkChanged(mLocationManager
+                .getLastKnownLocation(LocationManager.NETWORK_PROVIDER));
+        mLinccer.onGpsChanged(mLocationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER));
     }
 
     public void deactivate() {
