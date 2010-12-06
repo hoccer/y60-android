@@ -5,8 +5,9 @@ import android.test.ServiceTestCase;
 
 public class Y60GomServiceTest extends ServiceTestCase<DemoY60GomService> {
 
-    boolean mHasCallbackBeenCalled      = false;
-    boolean mHasCallbackBeenCalledAgain = false;
+    protected static final String LOG_TAG                     = "Y60GomServiceTest";
+    boolean                       mHasCallbackBeenCalled      = false;
+    boolean                       mHasCallbackBeenCalledAgain = false;
 
     public Y60GomServiceTest() {
         super(DemoY60GomService.class);
@@ -17,7 +18,7 @@ public class Y60GomServiceTest extends ServiceTestCase<DemoY60GomService> {
         assertNotNull(getService());
 
         bindWithProxys(getService());
-        getService().blockUntilBoundToGom();
+        getService().blockUntilBoundToGom(2000);
 
         assertTrue("service should have bounded to gom", getService().isBoundToGom());
     }
@@ -45,7 +46,7 @@ public class Y60GomServiceTest extends ServiceTestCase<DemoY60GomService> {
     public void testSettingACallbackForBindToGomAfterBoundToGom() throws Exception {
         startService(new Intent("com.artcom.y60.DemoY60GomService"));
         bindWithProxys(getService());
-        getService().blockUntilBoundToGom();
+        getService().blockUntilBoundToGom(2000);
 
         getService().callOnBoundToGom(new Runnable() {
             @Override
@@ -54,8 +55,12 @@ public class Y60GomServiceTest extends ServiceTestCase<DemoY60GomService> {
             }
         });
 
-        assertTrue("callback should have been called", mHasCallbackBeenCalled);
-
+        TestHelper.blockUntilTrue("Callback should have been called", 1000,
+                new TestHelper.Condition() {
+                    public boolean isSatisfied() throws Exception {
+                        return mHasCallbackBeenCalled;
+                    }
+                });
     }
 
     public void testSettingTwoCallbacksForBindToGom() throws Exception {

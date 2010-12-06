@@ -11,7 +11,7 @@ import android.test.suitebuilder.annotation.Suppress;
 public class TestSweepingData extends HocEventTestCase {
 
     @SuppressWarnings("unused")
-	private static final String LOG_TAG = "TestSweepingData";
+    private static final String LOG_TAG = "TestSweepingData";
     private HocEvent            mEvent;
 
     public void testLonelySweepOutEvent() throws Exception {
@@ -61,6 +61,7 @@ public class TestSweepingData extends HocEventTestCase {
         assertTrue("should have been notified about abort", eventCallback.wasAborted);
     }
 
+    @Suppress
     public void testLonelySweepInEvent() throws Exception {
         mEvent = getPeer().sweepIn();
         HocEventListenerForTesting eventCallback = new HocEventListenerForTesting();

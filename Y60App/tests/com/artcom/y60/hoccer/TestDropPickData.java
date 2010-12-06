@@ -8,6 +8,8 @@ import com.artcom.y60.Logger;
 import com.artcom.y60.TestHelper;
 import com.artcom.y60.data.StreamableString;
 
+import android.test.suitebuilder.annotation.Suppress;
+
 public class TestDropPickData extends HocEventTestCase {
 
     private static String LOG_TAG = "TestDropPickData";
@@ -29,6 +31,7 @@ public class TestDropPickData extends HocEventTestCase {
         assertPollingHasStopped(hoc);
     }
 
+    @Suppress
     public void testEmptyPick() throws Exception {
 
         PickEvent hoc = getPeer().pickIt();
