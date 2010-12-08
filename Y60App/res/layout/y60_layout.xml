@@ -6,6 +6,13 @@ android:layout_width="fill_parent"
 android:layout_height="fill_parent"
 xmlns:android="http://schemas.android.com/apk/res/android"
 >
+<TextView
+android:id="@+id/deployed_version_label"
+android:layout_width="wrap_content"
+android:layout_height="wrap_content"
+android:layout_marginTop="11dip"
+android:text=""
+/>
 <EditText
 android:id="@+id/device_path_edit"
 android:layout_width="wrap_content"
@@ -40,6 +47,12 @@ android:id="@+id/init_y60_button"
 android:layout_width="160dip"
 android:layout_height="wrap_content"
 android:text="Init Y60"
+/>
+<Button
+android:id="@+id/clear_deployed_version_button"
+android:layout_width="160dip"
+android:layout_height="wrap_content"
+android:text="delete version id"
 />
 <Button
 android:id="@+id/preload_cache_button"

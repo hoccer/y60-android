@@ -16,6 +16,7 @@
 package com.artcom.y60;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -32,6 +33,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -40,8 +42,13 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.AdapterView.OnItemSelectedListener;
+
+import com.artcom.y60.http.HttpClientException;
+import com.artcom.y60.http.HttpHelper;
+import com.artcom.y60.http.HttpServerException;
 
 public class Y60 extends Activity {
 
@@ -53,6 +60,9 @@ public class Y60 extends Activity {
     private Button                             mPreloadButton;
     private Button                             mStopDcButton;
     private Button                             mWifiCfgButton;
+    private Button                             mClearButton;
+
+    private TextView                           mDeployedVersionText;
 
     private Spinner                            mChooseHomeButtonTarget;
     private ArrayAdapter<ComponentInformation> mCompInfoArrayAdapter;
@@ -91,6 +101,23 @@ public class Y60 extends Activity {
             // @Override
             public void onClick(View v) {
                 startService(new Intent("tgallery.intent.TG_INIT_SERVICE"));
+            }
+        });
+
+        mClearButton = (Button) findViewById(R.id.clear_deployed_version_button);
+        mClearButton.setOnClickListener(new OnClickListener() {
+            // @Override
+            public void onClick(View v) {
+                File deployedVersionFile = new File(Constants.Device.DEPLOYED_VERSION_FILE);
+                if (deployedVersionFile.exists()) {
+                    deployedVersionFile.delete();
+                }
+
+                File deploydroidServicePathFile= new File(Constants.Device.DEPLOYDROID_SERVICEPATH_FILE);
+                if (deploydroidServicePathFile.exists()) {
+                    deploydroidServicePathFile.delete();
+                }
+                updateDeployedVersionTest();
             }
         });
 
@@ -156,14 +183,62 @@ public class Y60 extends Activity {
         mChooseLogLevel.setSelection(selectedLevelIndex);
         mChooseLogLevel.setOnItemSelectedListener(new LogLevelSelectionListener());
 
-        BufferedReader br;
-        try {
-            br = new BufferedReader(new FileReader(Constants.Device.DEPLOYED_VERSION_FILE));
-            setTitle("Y60 " + br.readLine());
-            br.close();
-        } catch (Exception e) {
-            // Ok, no version available
+        mDeployedVersionText = (TextView) findViewById(R.id.deployed_version_label);
+
+        updateDeployedVersionTest();
+    }
+    
+    private void updateDeployedVersionTest() {
+        String deployedCodeGitHasth = "";
+
+        File deployedVersionFile = new File(Constants.Device.DEPLOYED_VERSION_FILE);
+        if (deployedVersionFile.exists()) {
+            try {
+                BufferedReader br = new BufferedReader(new FileReader(deployedVersionFile));
+                deployedCodeGitHasth = br.readLine();
+                br.close();
+            } catch (IOException e) {
+                Logger.v(LOG_TAG, "exception at reading from deployed_version file: ", e);
+            }
         }
+
+        String deploydroidName = "";
+        boolean versionEqualsDeploydroid = false;
+
+        File deploydroidServicePathFile = new File(Constants.Device.DEPLOYDROID_SERVICEPATH_FILE);
+        if (deploydroidServicePathFile.exists()) {
+            try {
+                BufferedReader br = new BufferedReader(new FileReader(deploydroidServicePathFile));
+                String deploydroidNodePath = Constants.Gom.URI + br.readLine();
+                String mobileCode = HttpHelper.getAsString(deploydroidNodePath+":mobile_code_version.txt");
+                if (deployedCodeGitHasth.equals(mobileCode) ) {
+                    versionEqualsDeploydroid = true;
+                } else {
+                    versionEqualsDeploydroid = false;
+                }
+                deploydroidName = HttpHelper.getAsString(deploydroidNodePath+":display_name.txt");
+                br.close();
+            } catch (IOException e) {
+                Logger.v(LOG_TAG, "exception at reading from deployed_version file: ", e);
+            } catch (HttpServerException e) {
+                Logger.v(LOG_TAG, "exception at retrieving attribute from deploydroid service: ", e);
+            } catch (HttpClientException e) {
+                Logger.v(LOG_TAG, "exception at retrieving attribute from deploydroid service: ", e);
+            }
+        }
+
+        String versionEqual = "";
+        if ( versionEqualsDeploydroid ) {
+            mDeployedVersionText.setTextColor(0xff00ff00);
+        } else {
+            mDeployedVersionText.setTextColor(0xffff0000);
+            versionEqual = " NOT";
+        }
+        String deployedVersionText = "id: " + deployedCodeGitHasth + " is" + versionEqual + " current from "
+            + deploydroidName;
+
+        mDeployedVersionText.setText(deployedVersionText);
+        mDeployedVersionText.setGravity(Gravity.CENTER_HORIZONTAL);
     }
 
     @Override

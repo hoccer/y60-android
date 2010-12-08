@@ -1,5 +1,7 @@
 package com.artcom.y60.dc;
 
+import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
@@ -11,6 +13,12 @@ import org.mortbay.jetty.bio.SocketConnector;
 import org.mortbay.jetty.handler.HandlerCollection;
 import org.mortbay.thread.QueuedThreadPool;
 
+import android.app.ActivityManager;
+import android.app.ActivityManager.MemoryInfo;
+import android.content.Intent;
+import android.os.Binder;
+import android.os.IBinder;
+
 import com.artcom.y60.Constants;
 import com.artcom.y60.DeviceConfiguration;
 import com.artcom.y60.ErrorHandling;
@@ -21,12 +29,6 @@ import com.artcom.y60.Y60Action;
 import com.artcom.y60.Y60Service;
 import com.artcom.y60.gom.GomHttpWrapper;
 import com.artcom.y60.http.HttpException;
-
-import android.app.ActivityManager;
-import android.app.ActivityManager.MemoryInfo;
-import android.content.Intent;
-import android.os.Binder;
-import android.os.IBinder;
 
 public class DeviceControllerService extends Y60Service {
 
@@ -58,6 +60,7 @@ public class DeviceControllerService extends Y60Service {
         	Logger.v(LOG_TAG, "onCreate updating gom attributes for device... START");
             updateGomAttributesForDevice();
             updateVersionAttributeForDevice();
+            updateDeployedByAttributeForDevice();
             Logger.v(LOG_TAG, "onCreate updating gom attributes for device... DONE");
         } catch (IOException e) {
             ErrorHandling.signalIOError(LOG_TAG, e, this);
@@ -145,6 +148,20 @@ public class DeviceControllerService extends Y60Service {
         String version = new String(inputBuffer);
 
         GomHttpWrapper.updateOrCreateAttribute(deviceUri + ":software_version", version);
+    }
+
+    private void updateDeployedByAttributeForDevice() throws HttpException, IOException {
+        File deploydroidServicePathFile = new File(Constants.Device.DEPLOYDROID_SERVICEPATH_FILE);
+        if (deploydroidServicePathFile.exists()) {
+            try {
+                BufferedReader br = new BufferedReader(new FileReader(deploydroidServicePathFile));
+                String deviceUri = Constants.Gom.URI + Constants.Gom.DEVICE_PATH;
+                GomHttpWrapper.updateOrCreateAttribute(deviceUri + ":deployed_by", br.readLine());
+                br.close();
+            } catch (FileNotFoundException e) {
+                Logger.e(LOG_TAG, "could not find deploydroid_servicepath on sdcard: ", e);
+            }
+        }
     }
 
     @Override
