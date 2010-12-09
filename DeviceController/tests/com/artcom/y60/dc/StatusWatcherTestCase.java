@@ -3,15 +3,16 @@ package com.artcom.y60.dc;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 
-import android.content.Intent;
-import android.test.AssertionFailedError;
-import android.test.ServiceTestCase;
-import android.test.suitebuilder.annotation.Suppress;
-
 import com.artcom.y60.DeviceConfiguration;
 import com.artcom.y60.Logger;
 import com.artcom.y60.Y60Action;
 import com.artcom.y60.http.HttpHelper;
+
+import android.content.Intent;
+import android.test.AssertionFailedError;
+import android.test.FlakyTest;
+import android.test.ServiceTestCase;
+import android.test.suitebuilder.annotation.Suppress;
 
 public class StatusWatcherTestCase extends ServiceTestCase<StatusWatcher> {
 
@@ -77,6 +78,7 @@ public class StatusWatcherTestCase extends ServiceTestCase<StatusWatcher> {
         }
     }
 
+    @FlakyTest
     public void testWatcherThreadRunning() throws InterruptedException {
         startService(mIntent);
 
