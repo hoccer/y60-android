@@ -122,7 +122,7 @@ rescue => e
   exit 1
 end
 
-def prepare_emulator
+def prepare_emulator trial = 0
   LOGGER.info " * Preparing emulator (avd and a snapshot of it)"
   
   LOGGER.info "    * Shutting down all emulators"
@@ -170,6 +170,47 @@ def prepare_emulator
   LOGGER.info "    * Taking snapshot"
   system("rake emulator:snapshot:take")
   sleep 5
+  
+  verifying_success = verify_emulator  
+  if trial == 0 and !verifying_success
+    LOGGER.error "Cannot find device config on prepared emulator - preparing a new one."
+    prepare_emulator trial + 1
+  elsif trial > 2 and !verifying_success
+    LOGGER.error "Cannot find device config on prepared emulator - tried hard for #{trial} times."
+    raise "Cannot find device config on prepared emulator - tried hard for #{trial} times."
+  end
+
+end
+
+def verify_emulator
+  LOGGER.info " * Verifying emulator - checking if device config is present"
+
+  LOGGER.info "    * Shutting down all emulators"
+  system("rake emulator:kill_all")
+  sleep 5
+  
+  LOGGER.info "    * Booting emulator... (120 secs startup...)"
+  system("rake emulator:boot")
+  sleep 120
+  LOGGER.info "     ... done"
+  
+  LOGGER.info "    * Restarting adb server"
+  system("adb kill-server")
+  sleep 5
+  system("adb start-server")
+  sleep 15
+  
+  LOGGER.info "    * Verifying device_config.json is stored persistently on sdcard"
+  result = system("rake device_config:verify")  
+  
+  if result
+    LOGGER.info " * Verifying emulator - SUCCESS"    
+    return true
+  end
+  
+  LOGGER.info " * Verifying emulator - FAILURE"  
+  return false
+  
 end
 
 (__FILE__ == $0) and (main ARGV)
