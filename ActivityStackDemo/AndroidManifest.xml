@@ -10,13 +10,15 @@
                   android:launchMode="singleInstance">
                   <!-- applications acting as home should use launchMode=singleInstance, 
                   because every application launched from home should be a new task -->
-            <intent-filter>
+            
+            <!-- fabian, 09.10.10: commented this out since it interferes with our ci; feel free to test locally-->
+            <!--intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
                 <category android:name="android.intent.category.HOME" />		
                 <category android:name="android.intent.category.DEFAULT" />
                 
-			</intent-filter>
+			</intent-filter-->
         </activity>
         
         <!-- use task affinities because the activites should feel like single 
