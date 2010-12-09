@@ -1,13 +1,13 @@
 # http://ph7spot.com/articles/system_timer
-begin
-  require 'system_timer'
-  MyTimer = SystemTimer
-rescue LoadError
-  puts "Using green threads for timeout because SystemTimer wasn't installed. For native threads:"
-  puts "sudo gem install SystemTimer"
+#begin
+#  require 'system_timer'
+#  MyTimer = SystemTimer
+#rescue LoadError
+#  puts "Using green threads for timeout because SystemTimer wasn't installed. For native threads:"
+#  puts "sudo gem install SystemTimer"
   require 'timeout'
   MyTimer = Timeout
-end
+#end
 
 module OS
   
