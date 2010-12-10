@@ -59,8 +59,6 @@ public class DeviceControllerService extends Y60Service {
         try {
         	Logger.v(LOG_TAG, "onCreate updating gom attributes for device... START");
             updateGomAttributesForDevice();
-            updateVersionAttributeForDevice();
-            updateDeployedByAttributeForDevice();
             Logger.v(LOG_TAG, "onCreate updating gom attributes for device... DONE");
         } catch (IOException e) {
             ErrorHandling.signalIOError(LOG_TAG, e, this);
@@ -129,38 +127,6 @@ public class DeviceControllerService extends Y60Service {
             throws HttpException, IOException {
         if (!GomHttpWrapper.isAttributeExisting(attributeUri)) {
             GomHttpWrapper.updateOrCreateAttribute(attributeUri, value);
-        }
-    }
-
-    private void updateVersionAttributeForDevice() throws HttpException, IOException {
-
-        String deviceUri = Constants.Gom.URI + Constants.Gom.DEVICE_PATH;
-
-        FileReader fr;
-        try {
-            fr = new FileReader(Constants.Device.DEPLOYED_VERSION_FILE);
-        } catch (FileNotFoundException e) {
-            Logger.e(LOG_TAG, "could not find version string on sdcard: ", e);
-            return;
-        }
-        char[] inputBuffer = new char[7];
-        fr.read(inputBuffer);
-        String version = new String(inputBuffer);
-
-        GomHttpWrapper.updateOrCreateAttribute(deviceUri + ":software_version", version);
-    }
-
-    private void updateDeployedByAttributeForDevice() throws HttpException, IOException {
-        File deploydroidServicePathFile = new File(Constants.Device.DEPLOYDROID_SERVICEPATH_FILE);
-        if (deploydroidServicePathFile.exists()) {
-            try {
-                BufferedReader br = new BufferedReader(new FileReader(deploydroidServicePathFile));
-                String deviceUri = Constants.Gom.URI + Constants.Gom.DEVICE_PATH;
-                GomHttpWrapper.updateOrCreateAttribute(deviceUri + ":deployed_by", br.readLine());
-                br.close();
-            } catch (FileNotFoundException e) {
-                Logger.e(LOG_TAG, "could not find deploydroid_servicepath on sdcard: ", e);
-            }
         }
     }
 
