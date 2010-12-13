@@ -18,6 +18,8 @@ import android.app.ActivityManager.MemoryInfo;
 import android.content.Intent;
 import android.os.Binder;
 import android.os.IBinder;
+import android.app.Notification;
+import android.app.PendingIntent;
 
 import com.artcom.y60.Constants;
 import com.artcom.y60.DeviceConfiguration;
@@ -35,6 +37,7 @@ public class DeviceControllerService extends Y60Service {
     public static final String  DEFAULT_NIONAME  = "com.artcom.y60.dc.nio";
     public static final String  DEFAULT_PORTNAME = "com.artcom.y60.dc.port";
     private static final String LOG_TAG          = "DeviceControllerService";
+    private final int           notificationId   = 55;
 
     Server                      mServer;
 
@@ -46,7 +49,11 @@ public class DeviceControllerService extends Y60Service {
     	Logger.v(LOG_TAG, "onCreate START");
     	
         // this helps to prevent this service from being killed
-        setForeground(true);
+        //setForeground(true);
+        Notification notification = new Notification( R.drawable.statusbar_dc, 
+            LOG_TAG, System.currentTimeMillis());
+        notification.setLatestEventInfo(this, LOG_TAG, "", PendingIntent.getBroadcast(this, 0, new Intent(), 0) );
+        startForeground(notificationId,notification);
 
         try {
             if (mServer == null) {
@@ -80,6 +87,13 @@ public class DeviceControllerService extends Y60Service {
         Logger.v(LOG_TAG, "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ sent broadcast device controller ready");
 
         super.onStart(pIntent, startId);
+    }
+
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        Logger.v(LOG_TAG,"service command started");
+        onStart(intent,startId);
+        return START_STICKY;
     }
 
     @Override
@@ -141,6 +155,7 @@ public class DeviceControllerService extends Y60Service {
                 ErrorHandling.signalServiceError(LOG_TAG, e, this);
             }
         }
+        stopForeground(true);
         super.onDestroy();
     }
 

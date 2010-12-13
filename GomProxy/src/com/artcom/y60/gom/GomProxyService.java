@@ -16,6 +16,8 @@ import android.content.IntentFilter;
 import android.net.Uri;
 import android.os.IBinder;
 import android.os.RemoteException;
+import android.app.Notification;
+import android.app.PendingIntent;
 
 import com.artcom.y60.Constants;
 import com.artcom.y60.JsonHelper;
@@ -30,7 +32,8 @@ public class GomProxyService extends Y60Service {
 
     // Constants --- ------------------------------------------------------
 
-    private static final String         LOG_TAG = "GomProxyService";
+    private static final String         LOG_TAG         = "GomProxyService";
+    private final int                   notificationId  = 55;
 
     // Instance Variables ------------------------------------------------
 
@@ -47,7 +50,6 @@ public class GomProxyService extends Y60Service {
     // Constructors ------------------------------------------------------
 
     public GomProxyService() {
-
         mNodes = new HashMap<String, NodeData>();
         mAttributes = new HashMap<String, String>();
         Logger.v(LOG_TAG, "GomProxyService instantiated");
@@ -58,8 +60,12 @@ public class GomProxyService extends Y60Service {
 
     @Override
     public void onCreate() {
-
         Logger.i(LOG_TAG, "GomProxyService.onCreate");
+
+        Notification notification = new Notification(0, LOG_TAG, System.currentTimeMillis());
+        notification.setLatestEventInfo(this, LOG_TAG, "", PendingIntent.getBroadcast(this, 0, new Intent(), 0) );
+        startForeground(notificationId,notification);
+        
         mRemote = new GomProxyRemote();
 
         IntentFilter filter = new IntentFilter(Y60Action.RESET_BC_GOM_PROXY);
@@ -80,10 +86,18 @@ public class GomProxyService extends Y60Service {
     }
 
     @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        Logger.v(LOG_TAG,"service command started");
+        onStart(intent,startId);
+        return START_STICKY;
+    }
+
+    @Override
     public void onDestroy() {
         Logger.v(LOG_TAG, "onDestroy");
         unregisterReceiver(mResetReceiver);
         sendBroadcast(new Intent(Y60Action.SERVICE_GOM_PROXY_DOWN));
+        stopForeground(true);
         super.onDestroy();
     }
 
