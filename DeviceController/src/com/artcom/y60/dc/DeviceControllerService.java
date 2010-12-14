@@ -37,7 +37,7 @@ public class DeviceControllerService extends Y60Service {
     public static final String  DEFAULT_NIONAME  = "com.artcom.y60.dc.nio";
     public static final String  DEFAULT_PORTNAME = "com.artcom.y60.dc.port";
     private static final String LOG_TAG          = "DeviceControllerService";
-    private final int           notificationId   = 55;
+    private final int           notificationId   = 58;
 
     Server                      mServer;
 

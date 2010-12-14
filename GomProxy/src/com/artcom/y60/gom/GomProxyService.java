@@ -33,7 +33,7 @@ public class GomProxyService extends Y60Service {
     // Constants --- ------------------------------------------------------
 
     private static final String         LOG_TAG         = "GomProxyService";
-    private final int                   notificationId  = 55;
+    private final int                   notificationId  = 59;
 
     // Instance Variables ------------------------------------------------
 

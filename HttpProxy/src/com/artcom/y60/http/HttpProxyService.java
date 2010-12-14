@@ -32,7 +32,7 @@ import android.app.PendingIntent;
 public class HttpProxyService extends Y60Service {
 
     private static final String LOG_TAG        = "HttpProxyService";
-    private final int           notificationId = 55;
+    private final int           notificationId = 60;
     static final String         CACHE_DIR      = "/sdcard/HttpProxyCache/";
     private ResourceManager     mResourceManager;
     private Map<String, Bundle> mCachedContent = null;
