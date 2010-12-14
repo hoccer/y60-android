@@ -55,8 +55,8 @@ public class StatusWatcher extends Y60GomService {
     }
 
     @Override
-    public void onStart(Intent intent, int startId) {
-        super.onStart(intent, startId);
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        return START_NOT_STICKY;
     }
 
     @Override

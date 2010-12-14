@@ -42,7 +42,6 @@ public class HttpProxyService extends Y60Service {
 
     @Override
     public void onCreate() {
-
         Notification notification = new Notification(0, LOG_TAG, System.currentTimeMillis());
         notification.setLatestEventInfo(this, LOG_TAG, "", PendingIntent.getBroadcast(this, 0, new Intent(), 0) );
         startForeground(notificationId,notification);
@@ -67,16 +66,10 @@ public class HttpProxyService extends Y60Service {
     }
 
     @Override
-    public void onStart(Intent pIntent, int startId) {
+    public int onStartCommand(Intent pIntent, int flags, int startId) {
+        Logger.v(LOG_TAG,"service command started");
         sendBroadcast(new Intent(Y60Action.SERVICE_HTTP_PROXY_READY));
         Logger.v(LOG_TAG, "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ sent broadcast http proxy ready");
-        super.onStart(pIntent, startId);
-    }
-
-    @Override
-    public int onStartCommand(Intent intent, int flags, int startId) {
-        Logger.v(LOG_TAG,"service command started");
-        onStart(intent,startId);
         return START_STICKY;
     }
 

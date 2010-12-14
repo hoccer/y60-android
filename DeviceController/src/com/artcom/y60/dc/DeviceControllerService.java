@@ -45,11 +45,8 @@ public class DeviceControllerService extends Y60Service {
 
     @Override
     public void onCreate() {
-
     	Logger.v(LOG_TAG, "onCreate START");
     	
-        // this helps to prevent this service from being killed
-        //setForeground(true);
         Notification notification = new Notification( R.drawable.statusbar_dc, 
             LOG_TAG, System.currentTimeMillis());
         notification.setLatestEventInfo(this, LOG_TAG, "", PendingIntent.getBroadcast(this, 0, new Intent(), 0) );
@@ -75,10 +72,21 @@ public class DeviceControllerService extends Y60Service {
         Logger.v(LOG_TAG, "onCreate END");
         super.onCreate();
     }
+    @Override
+    public void onStart(Intent pIntent, int startId) {
+        Logger.i(LOG_TAG, "onStartCommand called");
+
+        DeviceConfiguration conf = DeviceConfiguration.load();
+        Logger.setFilterLevel(conf.getLogLevel());
+
+        sendBroadcast(new Intent(Y60Action.DEVICE_CONTROLLER_READY));
+        Logger.v(LOG_TAG, "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ sent broadcast device controller ready");
+    }
+
 
     @Override
-    public void onStart(final Intent pIntent, int startId) {
-        Logger.i(LOG_TAG, "onStart called");
+    public int onStartCommand(Intent pIntent, int flags, int startId) {
+        Logger.i(LOG_TAG, "onStartCommand called");
 
         DeviceConfiguration conf = DeviceConfiguration.load();
         Logger.setFilterLevel(conf.getLogLevel());
@@ -86,13 +94,6 @@ public class DeviceControllerService extends Y60Service {
         sendBroadcast(new Intent(Y60Action.DEVICE_CONTROLLER_READY));
         Logger.v(LOG_TAG, "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ sent broadcast device controller ready");
 
-        super.onStart(pIntent, startId);
-    }
-
-    @Override
-    public int onStartCommand(Intent intent, int flags, int startId) {
-        Logger.v(LOG_TAG,"service command started");
-        onStart(intent,startId);
         return START_STICKY;
     }
 
