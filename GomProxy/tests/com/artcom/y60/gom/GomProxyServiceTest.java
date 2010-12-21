@@ -10,6 +10,7 @@ import org.apache.http.StatusLine;
 
 import android.content.Intent;
 import android.test.ServiceTestCase;
+import android.test.suitebuilder.annotation.Suppress;
 
 import com.artcom.y60.Constants;
 import com.artcom.y60.DeviceConfiguration;
@@ -17,6 +18,7 @@ import com.artcom.y60.Logger;
 import com.artcom.y60.UriHelper;
 import com.artcom.y60.http.HttpHelper;
 
+@Suppress
 public class GomProxyServiceTest extends ServiceTestCase<GomProxyService> {
 
     // Constants ---------------------------------------------------------

@@ -3,9 +3,11 @@ package com.artcom.y60.gom;
 import android.content.Intent;
 import android.net.Uri;
 import android.test.ServiceTestCase;
+import android.test.suitebuilder.annotation.Suppress;
 
 import com.artcom.y60.Constants;
 
+@Suppress
 public class GomProxyExceptionTest extends ServiceTestCase<GomProxyService> {
 
     private Intent mIntent;

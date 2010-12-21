@@ -2,7 +2,9 @@ package com.artcom.y60;
 
 import android.content.Intent;
 import android.test.ServiceTestCase;
+import android.test.suitebuilder.annotation.Suppress;
 
+@Suppress
 public class Y60GomServiceTest extends ServiceTestCase<DemoY60GomService> {
 
     protected static final String LOG_TAG                     = "Y60GomServiceTest";

@@ -1,8 +1,5 @@
 package com.artcom.y60.dc;
 
-
-
-
 import java.io.IOException;
 
 import org.json.JSONException;
@@ -10,10 +7,12 @@ import org.json.JSONObject;
 
 import android.content.Intent;
 import android.test.ServiceTestCase;
+import android.test.suitebuilder.annotation.Suppress;
 
 import com.artcom.y60.Constants;
 import com.artcom.y60.IntentExtraKeys;
 
+@Suppress
 public class DeviceControllerHandlerTest extends ServiceTestCase<DeviceControllerService> {
 
     public DeviceControllerHandlerTest() {
