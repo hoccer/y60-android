@@ -26,6 +26,7 @@ public class SynergyServerHandler extends DefaultHandler {
             HttpServletResponse pResponse, int pDispatch) {
         try {
             String method = pRequest.getMethod();
+            Logger.v(LOG_TAG, "request: ", pRequest);
             Logger.v(LOG_TAG, "Incoming HTTP request________",method);
             if ("HEAD".equals(method) || "GET".equals(method)) {
                 responseWithHtml(pResponse);
