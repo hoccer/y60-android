@@ -29,69 +29,82 @@ public class GameControl extends Activity implements SensorEventListener{
     
     private SynergyServer           synergyServer = new SynergyServer();
 
-
     private float                   mAccelerationX = 0;
     private float                   mAccelerationY = 0;
-    private float                   mAccelerationZ = 0;
+    //private float                   mAccelerationZ = 0;
 
+    private double                  mMousePosX = 0;
+    private double                  mMousePosY = 0;
 
-    private double                   mouseCenteredPosX = 0;
-    private double                   mouseCenteredPosY = 0;
-
-    private double                   mouseCenteredPosXOld = 0;
-    private double                   mouseCenteredPosYOld = 0;
+    private double                  mMousePosXOld = 0;
+    private double                  mMousePosYOld = 0;
     
+    private double                  mMouseMovementX = 0;
+    private double                  mMouseMovementY = 0;
+
+    private double                  mMousePosXDelta = 0;
+    private double                  mMousePosYDelta = 0;
+
+    private double                  mAccelerationFaktorX = 1.5;
+    private double                  mAccelerationFaktorY = 2.0;
+
+    private double                  mSquareLimit = 3.5;
+
+
+    private double accelerateMovement(double movement) {
+        if ( movement > mSquareLimit ) {
+            movement -= mSquareLimit;
+            movement *= movement;
+            movement += mSquareLimit;
+        } else if ( movement < -mSquareLimit ) {
+            movement += mSquareLimit;
+            movement *= movement;
+            movement *= -1;
+            movement -= mSquareLimit;
+        }
+        return movement;
+    }
 
     public void onSensorChanged(SensorEvent event) {
         if ( (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) && (event.values.length == 3)) {
-
             mAccelerationX = event.values[1];
             mAccelerationY = event.values[0];
-
             //mAccelerationZ = event.values[2];
 
             //Logger.v(LOG_TAG, ">> ", Math.round(event.values[0]) , " ",Math.round(event.values[1]),
             //    " ",Math.round(event.values[2]) );
 
-            double mouseMovementX = 0;
-            double mouseMovementY = 0;
-
-            mouseMovementX = mAccelerationX / 1.0;
-            mouseCenteredPosX += mouseMovementX;
-            if ( mouseCenteredPosX >= synergyServer.mClientScreenWidth ){
-                mouseCenteredPosX = synergyServer.mClientScreenWidth - 1;
+            mMouseMovementX = mAccelerationX * mAccelerationFaktorX;
+            mMouseMovementX = accelerateMovement(mMouseMovementX);
+            mMousePosX += mMouseMovementX;
+            if ( mMousePosX >= synergyServer.mClientScreenWidth ){
+                mMousePosX = synergyServer.mClientScreenWidth - 1;
             }
-            if ( mouseCenteredPosX >= 100 ){
-                //mouseCenteredPosX = 100 - 1;
-            }
-            if ( mouseCenteredPosX < 0 ){
-                mouseCenteredPosX = 0;
+            if ( mMousePosX < 0 ){
+                mMousePosX = 0;
             }
 
-            mouseMovementY = mAccelerationY / 1.0;
-            mouseCenteredPosY += mouseMovementY;
-            if ( mouseCenteredPosY >= synergyServer.mClientScreenHeight ){
-                mouseCenteredPosY = synergyServer.mClientScreenHeight - 1;
+            mMouseMovementY = mAccelerationY * mAccelerationFaktorY;
+            mMouseMovementY = accelerateMovement(mMouseMovementY);
+            mMousePosY += mMouseMovementY;
+            if ( mMousePosY >= synergyServer.mClientScreenHeight ){
+                mMousePosY = synergyServer.mClientScreenHeight - 1;
             }
-            if ( mouseCenteredPosY >= 100 ){
-                //mouseCenteredPosY = 100 - 1;
-            }
-            if ( mouseCenteredPosY < 0 ){
-                mouseCenteredPosY = 0;
+            if ( mMousePosY < 0 ){
+                mMousePosY = 0;
             }
 
-
-            if ((Math.abs(mouseMovementX)>1) || (Math.abs(mouseMovementY)>1) ) {
-            //    synergyServer.relativeMousePosition((int) mouseMovementX,(int) mouseMovementY);
+            mMousePosXDelta = Math.abs( mMousePosX - mMousePosXOld);
+            mMousePosYDelta = Math.abs( mMousePosY - mMousePosYOld);
+            if ( (mMousePosXDelta > 1) || (mMousePosYDelta > 1) ) {
+                synergyServer.absoluteMousePosition((int) Math.round(mMousePosX),(int) Math.round(mMousePosY));
+                mMousePosXOld = mMousePosX;
+                mMousePosYOld = mMousePosY;
             }
 
-            double mousePosXDelta = Math.abs( mouseCenteredPosX - mouseCenteredPosXOld);
-            double mousePosYDelta = Math.abs( mouseCenteredPosY - mouseCenteredPosYOld);
-            if ((mousePosXDelta>1) || (mousePosYDelta>1) ) {
-                synergyServer.absoluteMousePosition((int) mouseCenteredPosX,(int) mouseCenteredPosY);
-                mouseCenteredPosXOld = mouseCenteredPosX;
-                mouseCenteredPosYOld = mouseCenteredPosY;
-            }
+            //if ((Math.abs(mMouseMovementX)>1) || (Math.abs(mMouseMovementY)>1) ) {
+            //    synergyServer.relativeMousePosition((int) Math.round(mMouseMovementX),(int) Math.round(mMouseMovementY));
+            //}
 
         }
     }
@@ -105,18 +118,14 @@ public class GameControl extends Activity implements SensorEventListener{
         Logger.v(LOG_TAG, ">>> onCreate() ", this);
         setContentView(R.layout.main);
         mSensorManager = (SensorManager)getSystemService(Context.SENSOR_SERVICE);
-        //mSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_ORIENTATION);
-        //mSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
         mSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
 
         mButton1 = (Button) findViewById(R.id.button_1);
         mButton1.setOnTouchListener(new OnTouchListener() {
             public boolean onTouch(View v, MotionEvent event) {
                 if (event.getAction() == MotionEvent.ACTION_UP) {
-                    Logger.v(LOG_TAG,"button 1 touched up");
                     synergyServer.mouseButtonLeftUp();
                 } else if (event.getAction() == MotionEvent.ACTION_DOWN) {
-                    Logger.v(LOG_TAG,"button 1 touched down");
                     synergyServer.mouseButtonLeftDown();
                 }
                 return false;
@@ -127,10 +136,8 @@ public class GameControl extends Activity implements SensorEventListener{
         mButton2.setOnTouchListener(new OnTouchListener() {
             public boolean onTouch(View v, MotionEvent event) {
                 if (event.getAction() == MotionEvent.ACTION_UP) {
-                    Logger.v(LOG_TAG,"button 2 touched up");
                     synergyServer.mouseButtonRightUp();
                 } else if (event.getAction() == MotionEvent.ACTION_DOWN) {
-                    Logger.v(LOG_TAG,"button 2 touched down");
                     synergyServer.mouseButtonRightDown();
                 }
                 return false;
