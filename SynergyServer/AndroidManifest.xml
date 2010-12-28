@@ -14,17 +14,21 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
 
     <application android:icon="@drawable/icon" android:label="@string/app_name">
-        <activity android:name=".SynergyServer"
+
+        <activity android:name=".GameControl"
+                  android:screenOrientation="landscape"
+                  android:noHistory="true"
                   android:label="@string/app_name">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
             <intent-filter>
-                <action android:name="y60.intent.SYNERGY_SERVER" />
+                <action android:name="y60.intent.GAME_CONTROL" />
                 <category android:name="android.intent.category.DEFAULT" />    
             </intent-filter>
         </activity>
+
         <uses-library android:name="android.test.runner" />
     </application>
     <instrumentation android:name="android.test.InstrumentationTestRunner" 

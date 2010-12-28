@@ -4,26 +4,36 @@
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     >
-<TextView  
-    android:layout_width="fill_parent" 
-    android:layout_height="wrap_content" 
-    android:text="@string/hello"
-    />
     <LinearLayout
-    android:orientation="horizontal"
-    android:layout_width="fill_parent"
-    android:layout_height="wrap_content">
-    <Button
-    android:id="@+id/button_1"
-    android:layout_width="160dip"
-    android:layout_height="wrap_content"
-    android:text="button 1"
-    />
-    <Button
-    android:id="@+id/button_2"
-    android:layout_width="160dip"
-    android:layout_height="wrap_content"
-    android:text="button 2"
-    />
+        android:orientation="horizontal"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:layout_weight="1">
+            <Button
+            android:id="@+id/button_1"
+            android:layout_width="wrap_content"
+            android:layout_height="fill_parent"
+            android:text="left"
+            android:gravity="center_horizontal"
+            android:layout_weight="1"
+            android:background="#00aa00"
+            android:layout_marginLeft="6dip"
+            android:layout_marginTop="6dip"
+            android:layout_marginRight="6dip"
+            android:layout_marginBottom="6dip"
+            />
+            <Button
+            android:id="@+id/button_2"
+            android:layout_width="wrap_content"
+            android:layout_height="fill_parent"
+            android:text="right"
+            android:gravity="center_horizontal"
+            android:layout_weight="1"
+            android:background="#aa0000"
+            android:layout_marginLeft="6dip"
+            android:layout_marginTop="6dip"
+            android:layout_marginRight="6dip"
+            android:layout_marginBottom="6dip"
+            />
     </LinearLayout>
 </LinearLayout>
