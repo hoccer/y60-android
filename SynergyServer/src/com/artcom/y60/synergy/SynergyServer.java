@@ -25,9 +25,7 @@ public class SynergyServer {
     // ------------------------
     private static final String     LOG_TAG                 = "SynergyServer";
     private static final int        SYNERGY_PORT            = 24800;
-    private static final int        BITMASK                 = 0x000000FF;
     private static final byte[]     SYNERGY_VERSION         = {0,1,0,3};
-    private static final int        MESSAGE_SIZE_OFFSET     = 4;
 
     private static final int        SYNERGY_SOCKET_TIMEOUT  = 1000;
     private static final int        CONNECTION_TIMEOUT      = 3000;
@@ -50,44 +48,24 @@ public class SynergyServer {
     private long                    mConnectionTimer;
     private long                    mHeartBeatTimer;
 
-    // ------------------------
-    // |    Public Members    |
-    // ------------------------
-    public int                      mClientScreenPosLeft;
-    public int                      mClientScreenPosTop;
-    public int                      mClientScreenWidth = 0;
-    public int                      mClientScreenHeight = 0;
-    public int                      mClientScreenWarpZone;
-    public int                      mClientScreenMousePosX;
-    public int                      mClientScreenMousePosY;
+    private int                     mClientScreenPosLeft    = 0;
+    private int                     mClientScreenPosTop     = 0;
+    private int                     mClientScreenWarpZone   = 0;
+    private int                     mClientScreenMousePosX  = 0;
+    private int                     mClientScreenMousePosY  = 0;
+
+    public int                     mClientScreenWidth      = 0;
+    public int                     mClientScreenHeight     = 0;
 
     // -------------------------
     // |    Private Methods    |
     // -------------------------
-    private Vector<Byte> prepareMessageFromString(String pMessageString, int pDataLength) {
-        int messageLength = pMessageString.length() + pDataLength;
-        Vector<Byte> messageVector = new Vector<Byte>();
-        messageVector.add((byte)(messageLength >> 24 & BITMASK));
-        messageVector.add((byte)(messageLength >> 16 & BITMASK));
-        messageVector.add((byte)(messageLength >> 8 & BITMASK));
-        messageVector.add((byte)(messageLength & BITMASK));
-        for(int i=0; i<pMessageString.length(); ++i){
-           messageVector.add((byte)pMessageString.charAt(i)); 
-        }
-        return messageVector;
-    }
 
-    /*
-    private void sendMessage(String pMessageString, Vector<Byte> messageData) {
-        Vector<Byte> messageVector = prepareMessageFromString(pMessageString, messageData.size());
-        messageVector.addAll(messageData);
-        mSendQueue.add(messageVector);
-    }
-    */
-
+    // ..........................
+    // .    sending messages    .
+    // ..........................
     private void sendMessage(String pMessageString, byte[] pDataArray) {
-    //public void sendMessage(String pMessageString, byte[] pDataArray) {
-        Vector<Byte> messageVector = prepareMessageFromString(pMessageString, pDataArray.length);
+        Vector<Byte> messageVector = SynergyServerHelper.prepareMessageFromString(pMessageString, pDataArray.length);
         for(int i=0; i<pDataArray.length; ++i){
            messageVector.add((byte)pDataArray[i]); 
         }
@@ -95,10 +73,13 @@ public class SynergyServer {
     }
 
     private void sendMessage(String pMessageString) {
-        Vector<Byte> messageVector = prepareMessageFromString(pMessageString, 0);
+        Vector<Byte> messageVector = SynergyServerHelper.prepareMessageFromString(pMessageString, 0);
         mSendQueue.add(messageVector);
     }
 
+    // .....................................
+    // .    Hearbeat & Connection Timer    .
+    // .....................................
     private void resetConnectionTimer() {
         mConnectionTimer = System.currentTimeMillis();
     }
@@ -110,50 +91,24 @@ public class SynergyServer {
     private boolean checkConnectionTimeout() {
         if ( (System.currentTimeMillis() - mConnectionTimer) > CONNECTION_TIMEOUT ) {
             Logger.v(LOG_TAG, "Timeout reached");
-            closeClientConnection();
             return true;
         }
         return false;
     }
 
-    private void checkHeartBeatTimeout() {
+    private boolean checkHeartBeatTimeout() {
         if (mIsConnectedToClient) {
             if ( (System.currentTimeMillis() - mHeartBeatTimer) >= HEARTBEAT_TIMEOUT ) {
                 resetHeartBeatTimer();
-                sendMessage("CALV");
+                return true;
             }
         }
+        return false;
     }
 
-    private String messageToString(Vector<Byte> message) {
-        String       messageString = "";
-        for(int i=0;i<message.size();++i){
-            if ( i!=0 ){
-                messageString += ",";
-            }
-            messageString += (byte) message.get(i);
-            if ( Character.isISOControl( (char) (byte) message.get(i) ) == false ) {
-                messageString += "(" + (char) (byte) message.get(i) + ")";
-            }
-        }
-        return messageString;
-    }
-
-    private boolean messageSearchString(Vector<Byte> message, String string) {
-        boolean messageContainsString = true;
-        for(int i=0;i<string.length();++i) {
-            if ( (i+MESSAGE_SIZE_OFFSET) >= message.size() ) {
-                messageContainsString = false;
-                break;
-            }
-            if ( string.charAt(i) != message.get(i+MESSAGE_SIZE_OFFSET) ) {
-                messageContainsString = false;
-                break;
-            }
-        }
-        return messageContainsString;
-    }
-
+    // ............................
+    // .    message processing    .
+    // ............................
     private void receiveMessagesToQueue() {
         try{
             if ( mClientSocket.getInputStream().available() > 0) {
@@ -161,67 +116,41 @@ public class SynergyServer {
                 while ( mClientSocket.getInputStream().available() > 0) {
                     receivedMessage.add( (byte) mClientSocket.getInputStream().read() );
                 }
-                int messageLength = (receivedMessage.get(0) << 24) +
-                                    (receivedMessage.get(1) << 16) +
-                                    (receivedMessage.get(2) <<  8) +
-                                    (receivedMessage.get(3) );
-
-                if (receivedMessage.size() == (messageLength+MESSAGE_SIZE_OFFSET) ){
-                    mReceiveQueue.put(receivedMessage);
+                if(SynergyServerHelper.addMessagetoQueue(receivedMessage,mReceiveQueue) >0 ){
                     resetConnectionTimer();
-                } else {
-                    int i = 0;
-                    int j;
-                    while(true){
-                        if ( i >= receivedMessage.size() ) {
-                            break;
-                        }
-                        messageLength = (receivedMessage.get(i+0) << 24) +
-                                            (receivedMessage.get(i+1) << 16) +
-                                            (receivedMessage.get(i+2) <<  8) +
-                                            (receivedMessage.get(i+3) );
-                        if ( (i+MESSAGE_SIZE_OFFSET+messageLength) <= receivedMessage.size() ) {
-                            Vector<Byte> message = new Vector<Byte>();
-                            for(j=i;j<(i+MESSAGE_SIZE_OFFSET+messageLength);++j) {
-                                message.add( receivedMessage.get(j) );
-                            }
-                            mReceiveQueue.put(message);
-                            resetConnectionTimer();
-                            i += MESSAGE_SIZE_OFFSET;
-                            i += messageLength;
-                        }
-                    }
                 }
             }
         } catch (IOException e) {
             Logger.v(LOG_TAG, "IO exception at socket input stream reading: ", e);
+            // try to reconnect
+            closeClientConnection();
         } catch (InterruptedException e) {
             Logger.v(LOG_TAG, "interrupted exception at adding to message queue: ", e);
         }
     }
 
-    private void parseReceivedMesseges() {
+    private void parseReceivedMessages() {
         Vector<Byte> message;
         while(mReceiveQueue.peek()!= null){
             try{
                 message = mReceiveQueue.poll(0,TimeUnit.SECONDS);
 
-                if ( (messageSearchString(message,"CALV")!= true) &&
-                     (messageSearchString(message,"CNOP")!= true) 
+                if ( (SynergyServerHelper.messageSearchString(message,"CALV")!= true) &&
+                     (SynergyServerHelper.messageSearchString(message,"CNOP")!= true) 
                         ) {
-                    Logger.v(LOG_TAG, "reading message: ", messageToString(message) );
+                    Logger.v(LOG_TAG, "reading message: ", SynergyServerHelper.messageToString(message) );
                 }
 
-                if ( messageSearchString(message,"Synergy") ) {
+                if ( SynergyServerHelper.messageSearchString(message,"Synergy") ) {
                     Logger.v(LOG_TAG,"got hello message");
                     sendMessage("QINF");
                     resetConnectionTimer();
 
-                } else if ( messageSearchString(message,"CALV") ) {
+                } else if ( SynergyServerHelper.messageSearchString(message,"CALV") ) {
                     //Logger.v(LOG_TAG,"got keep alive message");
                     resetConnectionTimer();
 
-                } else if ( messageSearchString(message,"DINF") ) {
+                } else if ( SynergyServerHelper.messageSearchString(message,"DINF") ) {
                     Logger.v(LOG_TAG,"got Dinfo message");
 
                     mClientScreenPosLeft =  (message.get(8) << 8) + message.get(9);
@@ -242,10 +171,10 @@ public class SynergyServer {
                     }
                     resetConnectionTimer();
 
-                } else if ( messageSearchString(message,"CNOP") ) {
+                } else if ( SynergyServerHelper.messageSearchString(message,"CNOP") ) {
                     //Logger.v(LOG_TAG,"got nop message");
 
-                } else if ( messageSearchString(message,"CCLP") ) {
+                } else if ( SynergyServerHelper.messageSearchString(message,"CCLP") ) {
                     Logger.v(LOG_TAG,"got clipboard message");
                 }
             } catch (InterruptedException e){
@@ -262,21 +191,26 @@ public class SynergyServer {
                 for(int i=0;i<message.size();++i){
                     socketWriter.write( (int) message.get(i) );
                 }
-                if ( (messageSearchString(message,"CALV")!= true) 
-                     && (messageSearchString(message,"DMMV")!= true)
-                     && (messageSearchString(message,"DMRM")!= true)
+                if ( (SynergyServerHelper.messageSearchString(message,"CALV")!= true) 
+                     && (SynergyServerHelper.messageSearchString(message,"DMMV")!= true)
+                     && (SynergyServerHelper.messageSearchString(message,"DMRM")!= true)
                 ) {
-                    Logger.v(LOG_TAG, "writing message: ", messageToString(message) );
+                    Logger.v(LOG_TAG, "writing message: ", SynergyServerHelper.messageToString(message) );
                 }
                 socketWriter.flush();
             } catch (InterruptedException e){
                 Logger.v(LOG_TAG, "InterruptedException at message polling: ", e);
             } catch (IOException e){
                 Logger.v(LOG_TAG, "IOexception at message writing: ", e);
+                // try to reconnect
                 closeClientConnection();
             }
         }
     }
+
+    // ............................
+    // .    connection closing    .
+    // ............................
     private void closeClientConnection() {
         Logger.v(LOG_TAG, "closing connection");
         try {
@@ -298,8 +232,7 @@ public class SynergyServer {
         }
     }
 
-    private void closeConnection() {
-        closeClientConnection();
+    private void closeServerConnection() {
         try {
             if (mServerSocket != null) {
                 mServerSocket.close();
@@ -320,6 +253,7 @@ public class SynergyServer {
 
         mSendQueue.clear();
         mReceiveQueue.clear();
+
         try {
             mServerSocket = new ServerSocket(SYNERGY_PORT);
             mServerSocket.setSoTimeout(SYNERGY_SOCKET_TIMEOUT);
@@ -348,7 +282,7 @@ public class SynergyServer {
                     try {
                         Thread.sleep(MAIN_LOOP_TIMEOUT);
                     } catch (InterruptedException e ) {
-                        Logger.v(LOG_TAG, "sleep exception: ", e);
+                        Logger.v(LOG_TAG, "thread sleep exception: ", e);
                     }
                     if (mClientSocket == null) {
                         try {
@@ -360,6 +294,7 @@ public class SynergyServer {
                             resetConnectionTimer();
                             resetHeartBeatTimer();
                         } catch (SocketTimeoutException e) {
+                            // try to reconnect
                             continue;
                         } catch (IOException e) {
                             Logger.v(LOG_TAG,"I/O error: ",e);
@@ -376,15 +311,20 @@ public class SynergyServer {
                         }
                     } else {
                         if (checkConnectionTimeout()) {
-                            continue;
+                            closeClientConnection();
+                            // try to reconnect
+                            continue; 
                         }
                         receiveMessagesToQueue();
-                        parseReceivedMesseges(); 
-                        checkHeartBeatTimeout();
+                        parseReceivedMessages(); 
+                        if (checkHeartBeatTimeout()) {
+                            sendMessage("CALV");
+                        }
                         sendMessageQueue();
                     }
                 }
-                closeConnection();
+                closeClientConnection();
+                closeServerConnection();
                 Logger.v(LOG_TAG,"stopping socket thread");
             }
         });
@@ -392,7 +332,7 @@ public class SynergyServer {
     }
 
     public void stop() {
-        Logger.v(LOG_TAG, "trying to stop socket thread");
+        Logger.v(LOG_TAG, "stopping socket thread");
         sendMessage("CBYE");
         mSocketThreadRun = false;
         try {
@@ -413,20 +353,20 @@ public class SynergyServer {
     public void absoluteMousePosition(int x, int y){
         if (mIsConnectedToClient) {
             sendMessage("DMMV",new byte[]{  
-                    (byte) ((x>>8) & BITMASK),
-                    (byte) ( x & BITMASK),
-                    (byte) ((y>>8) & BITMASK),
-                    (byte) ( y & BITMASK) } );
+                    (byte) ((x>>8) & SynergyServerHelper.BITMASK),
+                    (byte) ( x & SynergyServerHelper.BITMASK),
+                    (byte) ((y>>8) & SynergyServerHelper.BITMASK),
+                    (byte) ( y & SynergyServerHelper.BITMASK) } );
         }
     }
 
     public void relativeMousePosition(int x, int y){
         if (mIsConnectedToClient) {
             sendMessage("DMRM",new byte[]{  
-                    (byte) ((x>>8) & BITMASK),
-                    (byte) ( x & BITMASK),
-                    (byte) ((y>>8) & BITMASK),
-                    (byte) ( y & BITMASK) } );
+                    (byte) ((x>>8) & SynergyServerHelper.BITMASK),
+                    (byte) ( x & SynergyServerHelper.BITMASK),
+                    (byte) ((y>>8) & SynergyServerHelper.BITMASK),
+                    (byte) ( y & SynergyServerHelper.BITMASK) } );
         }
     }
 
@@ -467,9 +407,31 @@ public class SynergyServer {
     }
 
     public void keyDown(int key){
+        if (mIsConnectedToClient) {
+            sendMessage("DKDN",new byte[]{0x00,0x00,0x00, 0x00,0x00,0x00});
+            
+            /*
+            sendMessage("DKDN",new byte[]{0xef,0x51,0x00, 0x00,0x00,0x7c}); // left arrow down
+            sendMessage("DKDN",new byte[]{0x00,0x61,0x00, 0x00,0x00,0x01}); // a down
+            sendMessage("DKDN",new byte[]{0x00,0x62,0x00, 0x00,0x00,0x0c}); // b down
+            sendMessage("DKDN",new byte[]{0x00,0x20,0x00, 0x00,0x00,0x32}); // space down
+            sendMessage("DKDN",new byte[]{0xef,0x0d,0x00, 0x00,0x00,0x25}); // CR down
+            sendMessage("DKDN",new byte[]{0xef,0xc2,0x00, 0x00,0x00,0x61}); // f5 down
+            sendMessage("DKDN",new byte[]{0x00,0x31,0x00, 0x00,0x00,0x13}); // 1 down
+            sendMessage("DKDN",new byte[]{0xef,0x53,0x00, 0x00,0x00,0x7d}); // right arrow down
+            */
+        }
     }
 
     public void keyUp(int key){
+        if (mIsConnectedToClient) {
+            sendMessage("DKUP",new byte[]{0x00,0x00,0x00, 0x00,0x00,0x00});
+
+            /*
+            sendMessage("DKUP",new byte[]{0x00,0x00,0x00, 0x00,0x00,0x7c}); // left arrow up
+            sendMessage("DKUP",new byte[]{0x00,0x00,0x00, 0x00,0x00,0x01}); // a up
+            */
+        }
     }
 
 }

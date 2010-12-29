@@ -31,7 +31,7 @@ public class GameControl extends Activity implements SensorEventListener{
 
     private float                   mAccelerationX = 0;
     private float                   mAccelerationY = 0;
-    //private float                   mAccelerationZ = 0;
+    private float                   mAccelerationZ = 0;
 
     private double                  mMousePosX = 0;
     private double                  mMousePosY = 0;
@@ -67,8 +67,10 @@ public class GameControl extends Activity implements SensorEventListener{
 
     public void onSensorChanged(SensorEvent event) {
         if ( (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) && (event.values.length == 3)) {
+
             mAccelerationX = event.values[1];
             mAccelerationY = event.values[0];
+
             //mAccelerationZ = event.values[2];
 
             //Logger.v(LOG_TAG, ">> ", Math.round(event.values[0]) , " ",Math.round(event.values[1]),
