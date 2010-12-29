@@ -189,6 +189,10 @@ public class SynergyServer {
             try{
                 message = mSendQueue.poll(0,TimeUnit.SECONDS);
                 for(int i=0;i<message.size();++i){
+                    if (socketWriter == null ) {
+                        Logger.v(LOG_TAG, " socket writer is null ?????");
+                        break;
+                    }
                     socketWriter.write( (int) message.get(i) );
                 }
                 if ( (SynergyServerHelper.messageSearchString(message,"CALV")!= true) 
@@ -197,7 +201,9 @@ public class SynergyServer {
                 ) {
                     Logger.v(LOG_TAG, "writing message: ", SynergyServerHelper.messageToString(message) );
                 }
-                socketWriter.flush();
+                if (socketWriter != null ) {
+                    socketWriter.flush();
+                }
             } catch (InterruptedException e){
                 Logger.v(LOG_TAG, "InterruptedException at message polling: ", e);
             } catch (IOException e){
@@ -212,7 +218,7 @@ public class SynergyServer {
     // .    connection closing    .
     // ............................
     private void closeClientConnection() {
-        Logger.v(LOG_TAG, "closing connection");
+        Logger.v(LOG_TAG, "closing Client connection");
         try {
             if (socketWriter != null) {
                 socketWriter.close();
@@ -233,6 +239,7 @@ public class SynergyServer {
     }
 
     private void closeServerConnection() {
+        Logger.v(LOG_TAG, "closing Server connection");
         try {
             if (mServerSocket != null) {
                 mServerSocket.close();
@@ -320,7 +327,9 @@ public class SynergyServer {
                         if (checkHeartBeatTimeout()) {
                             sendMessage("CALV");
                         }
-                        sendMessageQueue();
+                        if (socketWriter != null ) {
+                            sendMessageQueue();
+                        }
                     }
                 }
                 closeClientConnection();
@@ -434,4 +443,45 @@ public class SynergyServer {
         }
     }
 
+
+    public void keyDownArrowLeft() {
+        if (mIsConnectedToClient) {
+            sendMessage("DKDN",new byte[]{(byte)0xef,(byte)0x51,(byte)0x00, (byte)0x00,(byte)0x00,(byte)0x7c});
+        }
+    }
+    public void keyDownArrowRight() {
+        if (mIsConnectedToClient) {
+            sendMessage("DKDN",new byte[]{(byte)0xef,(byte)0x53,(byte)0x00, (byte)0x00,(byte)0x00,(byte)0x7d});
+        }
+    }
+    public void keyDownArrowUp() {
+        if (mIsConnectedToClient) {
+            sendMessage("DKDN",new byte[]{(byte)0xef,(byte)0x52,(byte)0x00, (byte)0x00,(byte)0x00,(byte)0x7f});
+        }
+    }
+    public void keyDownArrowDown() {
+        if (mIsConnectedToClient) {
+            sendMessage("DKDN",new byte[]{(byte)0xef,(byte)0x54,(byte)0x00, (byte)0x00,(byte)0x00,(byte)0x7e});
+        }
+    }
+    public void keyUpArrowLeft() {
+        if (mIsConnectedToClient) {
+            sendMessage("DKUP",new byte[]{(byte)0x00,(byte)0x00,(byte)0x00, (byte)0x00,(byte)0x00,(byte)0x7c});
+        }
+    }
+    public void keyUpArrowRight() {
+        if (mIsConnectedToClient) {
+            sendMessage("DKUP",new byte[]{(byte)0x00,(byte)0x00,(byte)0x00, (byte)0x00,(byte)0x00,(byte)0x7d});
+        }
+    }
+    public void keyUpArrowUp() {
+        if (mIsConnectedToClient) {
+            sendMessage("DKUP",new byte[]{(byte)0x00,(byte)0x00,(byte)0x00, (byte)0x00,(byte)0x00,(byte)0x7f});
+        }
+    }
+    public void keyUpArrowDown() {
+        if (mIsConnectedToClient) {
+            sendMessage("DKUP",new byte[]{(byte)0x00,(byte)0x00,(byte)0x00, (byte)0x00,(byte)0x00,(byte)0x7e});
+        }
+    }
 }

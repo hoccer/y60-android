@@ -24,8 +24,6 @@ public class GameControl extends Activity implements SensorEventListener{
 
 	private SensorManager           mSensorManager;
     private Sensor                  mSensor;
-    private Button                  mButton1;
-    private Button                  mButton2;
     
     private SynergyServer           synergyServer = new SynergyServer();
 
@@ -50,6 +48,13 @@ public class GameControl extends Activity implements SensorEventListener{
 
     private double                  mSquareLimit = 3.5;
 
+    private Button                  mButtonMouseLeft;
+    private Button                  mButtonMouseRight;
+
+    private Button                  mButtonLeft;
+    private Button                  mButtonRight;
+    private Button                  mButtonUp;
+    private Button                  mButtonDown;
 
     private double accelerateMovement(double movement) {
         if ( movement > mSquareLimit ) {
@@ -70,7 +75,7 @@ public class GameControl extends Activity implements SensorEventListener{
 
             mAccelerationX = event.values[1];
             mAccelerationY = event.values[0];
-
+/*
             //mAccelerationZ = event.values[2];
 
             //Logger.v(LOG_TAG, ">> ", Math.round(event.values[0]) , " ",Math.round(event.values[1]),
@@ -103,6 +108,33 @@ public class GameControl extends Activity implements SensorEventListener{
                 mMousePosXOld = mMousePosX;
                 mMousePosYOld = mMousePosY;
             }
+*/
+
+
+            if (mAccelerationX > 0 ) {
+                for(int i=0;i<Math.round(mAccelerationX);++i){
+                    synergyServer.keyDownArrowRight();
+                    synergyServer.keyUpArrowRight();
+                }
+            }
+            if (mAccelerationX < 0 ) {
+                for(int i=0;i<Math.round(mAccelerationX*-1);++i){
+                    synergyServer.keyDownArrowLeft();
+                    synergyServer.keyUpArrowLeft();
+                }
+            }
+            if (mAccelerationY > 0 ) {
+                for(int i=0;i<Math.round(mAccelerationY);++i){
+                    synergyServer.keyDownArrowDown();
+                    synergyServer.keyUpArrowDown();
+                }
+            }
+            if (mAccelerationY < 0 ) {
+                for(int i=0;i<Math.round(mAccelerationY*-1);++i){
+                    synergyServer.keyDownArrowUp();
+                    synergyServer.keyUpArrowUp();
+                }
+            }
 
             //if ((Math.abs(mMouseMovementX)>1) || (Math.abs(mMouseMovementY)>1) ) {
             //    synergyServer.relativeMousePosition((int) Math.round(mMouseMovementX),(int) Math.round(mMouseMovementY));
@@ -122,8 +154,8 @@ public class GameControl extends Activity implements SensorEventListener{
         mSensorManager = (SensorManager)getSystemService(Context.SENSOR_SERVICE);
         mSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
 
-        mButton1 = (Button) findViewById(R.id.button_1);
-        mButton1.setOnTouchListener(new OnTouchListener() {
+        mButtonMouseLeft = (Button) findViewById(R.id.button_MouseLeft);
+        mButtonMouseLeft.setOnTouchListener(new OnTouchListener() {
             public boolean onTouch(View v, MotionEvent event) {
                 if (event.getAction() == MotionEvent.ACTION_UP) {
                     synergyServer.mouseButtonLeftUp();
@@ -134,13 +166,61 @@ public class GameControl extends Activity implements SensorEventListener{
             }
         });
 
-        mButton2 = (Button) findViewById(R.id.button_2);
-        mButton2.setOnTouchListener(new OnTouchListener() {
+        mButtonMouseRight = (Button) findViewById(R.id.button_MouseRight);
+        mButtonMouseRight.setOnTouchListener(new OnTouchListener() {
             public boolean onTouch(View v, MotionEvent event) {
                 if (event.getAction() == MotionEvent.ACTION_UP) {
                     synergyServer.mouseButtonRightUp();
                 } else if (event.getAction() == MotionEvent.ACTION_DOWN) {
                     synergyServer.mouseButtonRightDown();
+                }
+                return false;
+            }
+        });
+
+        mButtonLeft = (Button) findViewById(R.id.button_Left);
+        mButtonLeft.setOnTouchListener(new OnTouchListener() {
+            public boolean onTouch(View v, MotionEvent event) {
+                if (event.getAction() == MotionEvent.ACTION_UP) {
+                    synergyServer.keyUpArrowLeft();
+                } else if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                    synergyServer.keyDownArrowLeft();
+                }
+                return false;
+            }
+        });
+
+        mButtonRight = (Button) findViewById(R.id.button_Right);
+        mButtonRight.setOnTouchListener(new OnTouchListener() {
+            public boolean onTouch(View v, MotionEvent event) {
+                if (event.getAction() == MotionEvent.ACTION_UP) {
+                    synergyServer.keyUpArrowRight();
+                } else if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                    synergyServer.keyDownArrowRight();
+                }
+                return false;
+            }
+        });
+
+        mButtonUp = (Button) findViewById(R.id.button_Up);
+        mButtonUp.setOnTouchListener(new OnTouchListener() {
+            public boolean onTouch(View v, MotionEvent event) {
+                if (event.getAction() == MotionEvent.ACTION_UP) {
+                    synergyServer.keyUpArrowUp();
+                } else if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                    synergyServer.keyDownArrowUp();
+                }
+                return false;
+            }
+        });
+
+        mButtonDown = (Button) findViewById(R.id.button_Down);
+        mButtonDown.setOnTouchListener(new OnTouchListener() {
+            public boolean onTouch(View v, MotionEvent event) {
+                if (event.getAction() == MotionEvent.ACTION_UP) {
+                    synergyServer.keyUpArrowDown();
+                } else if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                    synergyServer.keyDownArrowDown();
                 }
                 return false;
             }
