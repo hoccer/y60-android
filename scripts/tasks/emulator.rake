@@ -4,9 +4,11 @@ namespace :emulator do
   task :create => ['config:verify'] do
     puts "Creating emulator:"
     my_avd_name = avd_name
+    my_api_level = api_level
     myAvdDirectoryPath = File::expand_path(".android/avd/#{my_avd_name}.avd", "~")
 
     puts " * avd-name: #{my_avd_name}"
+    puts " * api-level: #{my_api_level}"
     puts " * avd-path: #{myAvdDirectoryPath}"
     
     if File::exists?(myAvdDirectoryPath)
@@ -14,7 +16,7 @@ namespace :emulator do
       fail
     end
     
-    cmd = "echo no | android create avd --name #{my_avd_name} --target android-4 --sdcard 256M"
+    cmd = "echo no | android create avd --name #{my_avd_name} --target android-#{my_api_level} --sdcard 256M"
     fail unless execute_command cmd, "creating emulator"
     puts "    ... done creating emulator."
   end
@@ -190,6 +192,15 @@ def avd_name
     return @config['avd_name']
   end
   puts "Could not determine avd_name - check the file #{@config_path}/app_settings.yml"
+  nil
+end
+
+def api_level
+  if @config["api_level"]
+    log "Determined api_level '#{@config["api_level"]}' from app_settings.yml"
+    return @config['api_level']
+  end
+  puts "Could not determine api_level - check the file #{@config_path}/app_settings.yml"
   nil
 end
 
