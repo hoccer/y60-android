@@ -75,7 +75,6 @@ public class GameControl extends Activity implements SensorEventListener{
 
             mAccelerationX = event.values[1];
             mAccelerationY = event.values[0];
-/*
             //mAccelerationZ = event.values[2];
 
             //Logger.v(LOG_TAG, ">> ", Math.round(event.values[0]) , " ",Math.round(event.values[1]),
@@ -108,9 +107,9 @@ public class GameControl extends Activity implements SensorEventListener{
                 mMousePosXOld = mMousePosX;
                 mMousePosYOld = mMousePosY;
             }
-*/
 
 
+            /*
             if (mAccelerationX > 0 ) {
                 for(int i=0;i<Math.round(mAccelerationX);++i){
                     synergyServer.keyDownArrowRight();
@@ -135,6 +134,7 @@ public class GameControl extends Activity implements SensorEventListener{
                     synergyServer.keyUpArrowUp();
                 }
             }
+            */
 
             //if ((Math.abs(mMouseMovementX)>1) || (Math.abs(mMouseMovementY)>1) ) {
             //    synergyServer.relativeMousePosition((int) Math.round(mMouseMovementX),(int) Math.round(mMouseMovementY));
