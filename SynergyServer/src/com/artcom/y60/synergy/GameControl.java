@@ -102,7 +102,7 @@ public class GameControl extends Activity implements SensorEventListener{
 
             mMousePosXDelta = Math.abs( mMousePosX - mMousePosXOld);
             mMousePosYDelta = Math.abs( mMousePosY - mMousePosYOld);
-            if ( (mMousePosXDelta > 1) || (mMousePosYDelta > 1) ) {
+            if ( (mMousePosXDelta >= 1) || (mMousePosYDelta >= 1) ) {
                 synergyServer.absoluteMousePosition((int) Math.round(mMousePosX),(int) Math.round(mMousePosY));
                 mMousePosXOld = mMousePosX;
                 mMousePosYOld = mMousePosY;
@@ -111,25 +111,30 @@ public class GameControl extends Activity implements SensorEventListener{
 
             /*
             if (mAccelerationX > 0 ) {
-                for(int i=0;i<Math.round(mAccelerationX);++i){
+            
+                //for(int i=0;i<Math.round(mAccelerationX);++i){
+                if ( Math.round(mAccelerationX) > 4 ) {
                     synergyServer.keyDownArrowRight();
                     synergyServer.keyUpArrowRight();
                 }
             }
             if (mAccelerationX < 0 ) {
-                for(int i=0;i<Math.round(mAccelerationX*-1);++i){
+                //for(int i=0;i<Math.round(mAccelerationX*-1);++i){
+                if ( Math.round(mAccelerationX) < -4 ) {
                     synergyServer.keyDownArrowLeft();
                     synergyServer.keyUpArrowLeft();
                 }
             }
             if (mAccelerationY > 0 ) {
-                for(int i=0;i<Math.round(mAccelerationY);++i){
+                //for(int i=0;i<Math.round(mAccelerationY);++i){
+                if ( Math.round(mAccelerationY) > 4 ) {
                     synergyServer.keyDownArrowDown();
                     synergyServer.keyUpArrowDown();
                 }
             }
             if (mAccelerationY < 0 ) {
-                for(int i=0;i<Math.round(mAccelerationY*-1);++i){
+                //for(int i=0;i<Math.round(mAccelerationY*-1);++i){
+                if ( Math.round(mAccelerationY) < -4 ) {
                     synergyServer.keyDownArrowUp();
                     synergyServer.keyUpArrowUp();
                 }

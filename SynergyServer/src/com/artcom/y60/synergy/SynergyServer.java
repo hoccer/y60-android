@@ -37,6 +37,7 @@ public class SynergyServer {
     // -------------------------
     private BlockingQueue<Vector<Byte>> mSendQueue          = new LinkedBlockingQueue<Vector<Byte>>();
     private BlockingQueue<Vector<Byte>> mReceiveQueue       = new LinkedBlockingQueue<Vector<Byte>>();
+    private Vector<Byte>            mHalfMessage            = new Vector<Byte>();
 
     private Thread                  mSocketThread           = null;
     private boolean                 mSocketThreadRun        = false;
@@ -116,7 +117,7 @@ public class SynergyServer {
                 while ( mClientSocket.getInputStream().available() > 0) {
                     receivedMessage.add( (byte) mClientSocket.getInputStream().read() );
                 }
-                if(SynergyServerHelper.addMessagetoQueue(receivedMessage,mReceiveQueue) >0 ){
+                if(SynergyServerHelper.addMessagetoQueue(receivedMessage,mReceiveQueue,mHalfMessage) >0 ){
                     resetConnectionTimer();
                 }
             }
@@ -260,6 +261,7 @@ public class SynergyServer {
 
         mSendQueue.clear();
         mReceiveQueue.clear();
+        mHalfMessage.clear();
 
         try {
             mServerSocket = new ServerSocket(SYNERGY_PORT);
