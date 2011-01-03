@@ -14,6 +14,7 @@ import android.test.FlakyTest;
 import android.test.ServiceTestCase;
 import android.test.suitebuilder.annotation.Suppress;
 
+@Suppress
 public class StatusWatcherTestCase extends ServiceTestCase<StatusWatcher> {
 
     private static final String LOG_TAG = "StatusWatcherTestCase";

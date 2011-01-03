@@ -19,6 +19,7 @@ import com.artcom.y60.TestHelper;
 import com.artcom.y60.Y60Action;
 import com.artcom.y60.http.HttpHelper;
 
+@Suppress
 public class DeviceControllerServiceTest extends ServiceTestCase<DeviceControllerService> {
 
     private static final String LOG_TAG = "DeviceControllerServiceTest";

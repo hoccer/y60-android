@@ -20,6 +20,8 @@ import android.content.IntentFilter;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
+import android.app.Notification;
+import android.app.PendingIntent;
 
 /**
  * Implementation of client-side caching for HTTP resources.
@@ -30,6 +32,7 @@ import android.os.RemoteException;
 public class HttpProxyService extends Y60Service {
 
     private static final String LOG_TAG        = "HttpProxyService";
+    private final int           notificationId = 60;
     static final String         CACHE_DIR      = "/sdcard/HttpProxyCache/";
     private ResourceManager     mResourceManager;
     private Map<String, Bundle> mCachedContent = null;
@@ -39,6 +42,9 @@ public class HttpProxyService extends Y60Service {
 
     @Override
     public void onCreate() {
+        Notification notification = new Notification(0, LOG_TAG, System.currentTimeMillis());
+        notification.setLatestEventInfo(this, LOG_TAG, "", PendingIntent.getBroadcast(this, 0, new Intent(), 0) );
+        startForeground(notificationId,notification);
 
         File dir = new File(CACHE_DIR);
         if (!dir.exists()) {
@@ -60,10 +66,11 @@ public class HttpProxyService extends Y60Service {
     }
 
     @Override
-    public void onStart(Intent pIntent, int startId) {
+    public int onStartCommand(Intent pIntent, int flags, int startId) {
+        Logger.v(LOG_TAG,"service command started");
         sendBroadcast(new Intent(Y60Action.SERVICE_HTTP_PROXY_READY));
         Logger.v(LOG_TAG, "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ sent broadcast http proxy ready");
-        super.onStart(pIntent, startId);
+        return START_STICKY;
     }
 
     @Override
@@ -71,6 +78,7 @@ public class HttpProxyService extends Y60Service {
         unregisterReceiver(mResetReceiver);
         mResourceManager.deactivate();
         clear();
+        stopForeground(true);
         super.onDestroy();
     }
 

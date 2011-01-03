@@ -8,6 +8,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.test.AssertionFailedError;
 import android.test.ServiceTestCase;
+import android.test.suitebuilder.annotation.Suppress;
 
 import com.artcom.y60.IoHelper;
 import com.artcom.y60.Logger;
@@ -15,6 +16,7 @@ import com.artcom.y60.Logger;
 /**
  * Direct service testing. No binding, no inter-vm-communication with aidl.
  */
+@Suppress
 public class HttpProxyServiceTest extends ServiceTestCase<HttpProxyService> {
 
     private static final String LOG_TAG = "HttpProxyServiceTest";

@@ -50,6 +50,8 @@ public abstract class Y60Action {
 
     public static final String GOM_NOTIFICATION_BC        = "y60.intent.GOM_NOTIFICATION";
 
+    public static final String SYNERGY_SERVER             = "y60.intent.SYNERGY_SERVER";
+
     public static final String MONITOR_GOM_NOTIFICATION   = "y60.intent.MONITOR_GOM_NOTIFICATION";
     public static final String RESET_BC                   = "y60.intent.RESET";
     public static final String RESET_BC_GOM_PROXY         = "y60.intent.RESET_BC_GOM_PROXY";

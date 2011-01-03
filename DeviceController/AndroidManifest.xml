@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.artcom.y60.dc">
     
-    <uses-sdk android:targetSdkVersion="4" android:minSdkVersion="4"></uses-sdk>
+    <uses-sdk android:targetSdkVersion="8" android:minSdkVersion="8"></uses-sdk>
     <uses-permission android:name="android.permission.READ_CONTACTS"/>
     <uses-permission android:name="android.permission.WRITE_CONTACTS"/>
     <uses-permission android:name="android.permission.WRITE_SETTINGS"/>
