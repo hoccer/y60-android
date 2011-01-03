@@ -1,5 +1,7 @@
 #Create an app_settings.yml file from this template and store it in the <y60-path>/config folder.
 #Since app_settings.yml is listed in .gitignore it wont be tracked.
+#For api level see: http://developer.android.com/guide/appendix/api-levels.html
 avd_name: "my_avd_name"
+api_level: "4" 
 gom: "http://gom2.t-gallery.act"
 device_path: "/areas/mobile/emulator_for_hudson"
