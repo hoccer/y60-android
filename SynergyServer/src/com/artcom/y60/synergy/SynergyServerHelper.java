@@ -76,17 +76,12 @@ public class SynergyServerHelper {
     static int addMessagetoQueue(Vector<Byte> message,BlockingQueue<Vector<Byte>> queue,
             Vector<Byte> halfMessage) throws InterruptedException {
         int addedMessages = 0;
-
-
         if (halfMessage.size() > 0 ) {
-            //for(int i=0;i<halfMessage.size();++i){
             for(int i=(halfMessage.size()-1);i>=0;--i){
                 message.add(0,halfMessage.get(i));
             }
             halfMessage.clear();
         }
-
-
         int messageLength = extractMessageDataLength(message);
         if (message.size() == (messageLength+MESSAGE_HEAD_OFFSET) ){
             queue.put(message);
@@ -99,9 +94,6 @@ public class SynergyServerHelper {
                     break;
                 }
                 messageLength = extractMessageDataLength(message,i);
-                if (messageLength == 0 ) {
-                    //break;
-                }
                 if ( (i+MESSAGE_HEAD_OFFSET+messageLength) <= message.size() ) {
                     Vector<Byte> partialMessage = new Vector<Byte>();
                     for(j=i;j<(i+MESSAGE_HEAD_OFFSET+messageLength);++j) {
@@ -112,8 +104,6 @@ public class SynergyServerHelper {
                     i += MESSAGE_HEAD_OFFSET;
                     i += messageLength;
                 } else {
-
-                    Logger.v(LOG_TAG,"partial message was too small");
                     for(j=i;j<message.size();++j){
                         halfMessage.add(message.get(j));
                     }
@@ -121,7 +111,6 @@ public class SynergyServerHelper {
                 }
             }
         } else {
-            Logger.v(LOG_TAG,"message was too small");
             halfMessage.addAll(message);
         }
         return addedMessages;
