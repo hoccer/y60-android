@@ -19,6 +19,7 @@ import android.view.animation.TranslateAnimation;
 import android.widget.AbsoluteLayout;
 import android.widget.ImageView;
 import android.widget.AbsoluteLayout.LayoutParams;
+import android.util.DisplayMetrics;
 
 /**
  * Helper for adding drag-and-drop functionality to views.
@@ -274,7 +275,7 @@ public class DragAndDropHelper implements OnTouchListener {
                 }
             }
 
-            float scaleFactor = 320.0f / mSourceView.getWidth() * SCALE_FACTOR;
+            float scaleFactor = SCALE_FACTOR * mActivity.getResources().getDisplayMetrics().density;
             if (mThumbView == null) {
                 mThumbView = mThumbnail;
 
