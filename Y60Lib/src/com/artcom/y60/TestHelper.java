@@ -81,10 +81,6 @@ public class TestHelper {
                 + "\"," + "\"name\": \"" + pName + "\"}}";
     }
 
-    public static boolean assertJsonEquality(JSONObject pA, JSONObject pB) {
-        return false;
-    }
-
     /**
      * @param pFailMessage
      * @param pTimeout
