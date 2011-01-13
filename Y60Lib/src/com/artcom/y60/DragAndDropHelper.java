@@ -253,7 +253,7 @@ public class DragAndDropHelper implements OnTouchListener {
                 mThumbView.getHeight(), "EventGetX: ", pEvent.getX(), "EventGetY: ", pEvent.getY(),
                 " left: ", mSourceView.getLeft(), " top: ", mSourceView.getTop());
         int x = (int) pEvent.getX() - mThumbView.getWidth() / 2 + mSourceView.getLeft();
-        int y = (int) pEvent.getY() - mThumbView.getHeight() / 2 - VERTICAL_OFFSET
+        int y = (int) pEvent.getY() - mThumbView.getHeight() / 2 - (int)(VERTICAL_OFFSET * mActivity.getResources().getDisplayMetrics().density)
                 + mSourceView.getTop();
 
         return new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT, x, y);
@@ -275,14 +275,15 @@ public class DragAndDropHelper implements OnTouchListener {
                 }
             }
 
-            float scaleFactor = SCALE_FACTOR * mActivity.getResources().getDisplayMetrics().density;
+            float scaleFactorDensityCorrected = SCALE_FACTOR * mActivity.getResources().getDisplayMetrics().density;
+            float verticalOffsetDensityCorrected = VERTICAL_OFFSET * mActivity.getResources().getDisplayMetrics().density;
             if (mThumbView == null) {
                 mThumbView = mThumbnail;
 
                 // if default View IS null
                 if (mThumbView == null) {
                     Logger.v(LOG_TAG, "thumbview is null");
-                    mThumbView = GraphicsHelper.scaleView(mSourceView, scaleFactor, mActivity);
+                    mThumbView = GraphicsHelper.scaleView(mSourceView, scaleFactorDensityCorrected, mActivity);
                 }
                 Logger.v(LOG_TAG, "Thumbview: ", mThumbView.getWidth(), mThumbView.getHeight());
                 mThumbView.setVisibility(View.INVISIBLE);
@@ -294,15 +295,15 @@ public class DragAndDropHelper implements OnTouchListener {
             int y = (int) pE.getY() - 10;// -mDrawable.getMinimumHeight()*2;
 
             ViewHelper.setAbsolutePos(mThumbView, x
-                    - (int) (mSourceView.getWidth() * scaleFactor / 2), y
-                    - (int) (mSourceView.getHeight() * scaleFactor / 2 - VERTICAL_OFFSET));
+                    - (int) (mSourceView.getWidth() * SCALE_FACTOR / 2), y
+                    - (int) (mSourceView.getHeight() * SCALE_FACTOR / 2 - verticalOffsetDensityCorrected));
 
             TranslateAnimation translate = new TranslateAnimation(0,
                     x - mSourceView.getWidth() / 2, 0, y - mSourceView.getHeight() / 2
-                            - VERTICAL_OFFSET);
+                            - verticalOffsetDensityCorrected);
             translate.setDuration(ANIMATION_DURATION);
 
-            ScaleAnimation scale = new ScaleAnimation(1.0f, scaleFactor, 1.0f, scaleFactor,
+            ScaleAnimation scale = new ScaleAnimation(1.0f, scaleFactorDensityCorrected, 1.0f, scaleFactorDensityCorrected,
                     Animation.ABSOLUTE, x, Animation.ABSOLUTE, y);
             scale.setDuration(ANIMATION_DURATION);
 
