@@ -97,6 +97,14 @@ public class DeviceConfiguration {
         return mColorCode;
     }
 
+    public static boolean switchMenuAndBackButton() {
+        if (android.os.Build.MODEL.equals("Nexus One")) {
+            return false;
+        } else {
+            return true;
+        }
+    }
+    
     public void saveLogLevel(Logger.Level pLevel) {
         mLogLevel = pLevel;
         save();
