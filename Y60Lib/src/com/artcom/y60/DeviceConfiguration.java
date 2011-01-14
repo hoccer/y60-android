@@ -40,7 +40,6 @@ public class DeviceConfiguration {
     private DeviceConfiguration() {
         JSONObject configuration = null;
         try {
-
             FileReader fr = new FileReader(CONFIG_FILE_PATH);
             char[] inputBuffer = new char[255];
             fr.read(inputBuffer);
@@ -52,14 +51,12 @@ public class DeviceConfiguration {
             if (configuration.has(COLOR_CODE)) {
                 mColorCode = configuration.getString(COLOR_CODE);
             }
-
         } catch (FileNotFoundException e) {
             Logger.e(LOG_TAG, "Could not find configuration file ", CONFIG_FILE_PATH);
             throw new RuntimeException(e);
         } catch (UnsupportedEncodingException e) {
-            Logger
-                    .e(LOG_TAG, "Configuration file ", CONFIG_FILE_PATH,
-                            " uses unsupported encoding");
+            Logger.e(LOG_TAG, "Configuration file ", CONFIG_FILE_PATH,
+                              " uses unsupported encoding");
             throw new RuntimeException(e);
         } catch (IOException e) {
             Logger.e(LOG_TAG, "Error while reading configuration file ", CONFIG_FILE_PATH);
@@ -69,8 +66,6 @@ public class DeviceConfiguration {
             throw new RuntimeException(e);
         }
     }
-
-    // Public Instance Methods -------------------------------------------
 
     public String getGomUrl() {
         return mGomUrl;
@@ -95,7 +90,6 @@ public class DeviceConfiguration {
     }
 
     public Logger.Level getLogLevel() {
-
         return mLogLevel;
     }
 
@@ -104,15 +98,11 @@ public class DeviceConfiguration {
     }
 
     public void saveLogLevel(Logger.Level pLevel) {
-
         mLogLevel = pLevel;
         save();
     }
 
-    // Private Instance Methods ------------------------------------------
-
     private void save() {
-
         try {
             JSONObject configJson = new JSONObject();
             configJson.put(GOM_URL_KEY, mGomUrl);
@@ -123,9 +113,7 @@ public class DeviceConfiguration {
             printer.println(configJson.toString());
             printer.flush();
             printer.close();
-
         } catch (Exception ex) {
-
             throw new RuntimeException(ex);
         }
     }
