@@ -3,10 +3,12 @@ namespace :emulator do
   desc "Creates the emulatator specified in settings"
   task :create => ['config:verify'] do
     puts "Creating emulator:"
+    my_skin_type = skin_type
     my_avd_name = avd_name
     my_api_level = api_level
     myAvdDirectoryPath = File::expand_path(".android/avd/#{my_avd_name}.avd", "~")
 
+    puts " * skin-type: #{my_skin_type}"
     puts " * avd-name: #{my_avd_name}"
     puts " * api-level: #{my_api_level}"
     puts " * avd-path: #{myAvdDirectoryPath}"
@@ -16,7 +18,7 @@ namespace :emulator do
       fail
     end
     
-    cmd = "echo no | android create avd --name #{my_avd_name} --target android-#{my_api_level} --sdcard 256M"
+    cmd = "echo no | android create avd --name #{my_avd_name} --target android-#{my_api_level} --skin #{my_skin_type} --sdcard 256M"
     fail unless execute_command cmd, "creating emulator"
     puts "    ... done creating emulator."
   end
@@ -184,6 +186,15 @@ namespace :emulator do
     end
   end
   
+end
+
+def skin_type
+  if @config["skin_type"]
+    log "Determined skin_type '#{@config["skin_type"]}' from app_settings.yml"
+    return @config['skin_type']
+  end
+  puts "Could not determine skin_type - check the file #{@config_path}/app_settings.yml"
+  nil
 end
 
 def avd_name

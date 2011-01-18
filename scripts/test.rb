@@ -9,6 +9,8 @@ require 'java_project'
 require 'android_project'
 require 'lib/test_result_collector'
 
+$boot_sleep_time = 120
+
 def main pj_names
   
   if pj_names.first == 'all' || pj_names == [] || pj_names.nil?
@@ -137,9 +139,9 @@ def prepare_emulator trial = 0
   system "rake emulator:create"
   sleep 5
   
-  LOGGER.info "    * Booting emulator... (120 secs startup...)"
+  LOGGER.info "    * Booting emulator... (#{$boot_sleep_time} secs startup...)"
   system("rake emulator:boot")
-  sleep 120
+  sleep $boot_sleep_time
   LOGGER.info "     ... done"
   
   LOGGER.info "    * Restarting adb server"
@@ -189,9 +191,9 @@ def verify_emulator
   system("rake emulator:kill_all")
   sleep 5
   
-  LOGGER.info "    * Booting emulator... (120 secs startup...)"
+  LOGGER.info "    * Booting emulator... (#{$boot_sleep_time} secs startup...)"
   system("rake emulator:boot")
-  sleep 120
+  sleep $boot_sleep_time
   LOGGER.info "     ... done"
   
   LOGGER.info "    * Restarting adb server"
