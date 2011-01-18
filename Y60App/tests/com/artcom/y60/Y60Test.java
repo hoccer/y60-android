@@ -5,23 +5,32 @@ import java.util.ArrayList;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.PackageManager;
 import android.test.ActivityInstrumentationTestCase2;
 import android.widget.EditText;
 import android.widget.Spinner;
 
 public class Y60Test extends ActivityInstrumentationTestCase2<Y60> {
 
+    private static final String LOG_TAG = "Y60Test";
+
     public Y60Test() {
 
         super("com.artcom.y60", Y60.class);
+    }
+
+    public void testDisableComponent() {
+        PackageManager pm = getActivity().getPackageManager();
+        ComponentName componentName = new ComponentName("com.android.launcher", "Launcher");
+        Logger.v(LOG_TAG, " -------------- ", pm.getComponentEnabledSetting(componentName));
     }
 
     public void testCorrectLauncherIsSelected() {
 
         ArrayList<ComponentName> names = new ArrayList<ComponentName>();
         ArrayList<IntentFilter> filters = new ArrayList<IntentFilter>();
-        getInstrumentation().getContext().getPackageManager().getPreferredActivities(filters,
-                names, null);
+        getInstrumentation().getContext().getPackageManager()
+                .getPreferredActivities(filters, names, null);
         ComponentName preferredActivityName = null;
         for (int i = 0; i < filters.size(); i++) {
 
