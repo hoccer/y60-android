@@ -1,5 +1,6 @@
 require 'os-helper'
 require 'tempfile'
+require 'open3'
 
 class Device
   include Comparable
@@ -34,6 +35,26 @@ class Device
 
   def screenshot path
     OS::execute "#{File.dirname(__FILE__)}/../external/screenshot/screenshot2 -s #{@id} #{path}", "taking screenshot" rescue puts "error while takting screenshot"
+  end
+  
+  def isAndroidHomescreenEnabled?
+    stdin, stdout, stderr = Open3.popen3("adb -s #{@id} shell am start -a android.intent.action.MAIN -c android.intent.category.HOME -c android.intent.category.MONKEY")
+    stderr = stderr.read
+    stdout = stdout.read
+    raise stderr if stderr != ''
+    
+    if stdout.include? "unable to resolve Intent"
+      return false
+    else
+      start "tgallery.intent.HOME_SCREEN"
+      return true
+    end
+  end
+  
+  def setHomescreenEnabled enabledFlag
+    myEnabledLookup = { true => 'enable',
+                        false => 'disable'}
+    execute "pm #{myEnabledLookup[enabledFlag]} com.android.launcher"
   end
   
   def <=>(other)

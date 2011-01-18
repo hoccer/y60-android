@@ -30,41 +30,53 @@ public class DeviceConfiguration {
 
     // Instance Variables ------------------------------------------------
 
-    private String       mGomUrl;
-    private String       mDevicePath;
+    private String       mGomUrl     = "gom url couldnt be read - sdcard probably not mounted";
+    private String       mDevicePath = "device path couldnt be read - sdcard probably not mounted";
+    private String       mColorCode  = "color code couldnt be read - sdcard probably not mounted";
     private Logger.Level mLogLevel;
-    private String       mColorCode;
 
     // Constructors ------------------------------------------------------
 
     private DeviceConfiguration() {
         JSONObject configuration = null;
+        FileReader fileReader = null;
         try {
-            FileReader fr = new FileReader(CONFIG_FILE_PATH);
-            char[] inputBuffer = new char[255];
-            fr.read(inputBuffer);
-            fr.close();
-            configuration = new JSONObject(new String(inputBuffer));
-            mGomUrl = configuration.getString(GOM_URL_KEY);
-            mDevicePath = configuration.getString(DEVICE_PATH_KEY);
-            mLogLevel = Logger.Level.fromString(configuration.getString(LOG_LEVEL_KEY));
-            if (configuration.has(COLOR_CODE)) {
-                mColorCode = configuration.getString(COLOR_CODE);
-            }
+            fileReader = new FileReader(CONFIG_FILE_PATH);
         } catch (FileNotFoundException e) {
-            Logger.e(LOG_TAG, "Could not find configuration file ", CONFIG_FILE_PATH);
-            throw new RuntimeException(e);
-        } catch (UnsupportedEncodingException e) {
-            Logger.e(LOG_TAG, "Configuration file ", CONFIG_FILE_PATH,
-                              " uses unsupported encoding");
-            throw new RuntimeException(e);
-        } catch (IOException e) {
-            Logger.e(LOG_TAG, "Error while reading configuration file ", CONFIG_FILE_PATH);
-            throw new RuntimeException(e);
-        } catch (JSONException e) {
-            Logger.e(LOG_TAG, "Error while parsing configuration file ", CONFIG_FILE_PATH);
-            throw new RuntimeException(e);
+            Logger.e(LOG_TAG, "Could not find configuration file ", CONFIG_FILE_PATH,
+                    "sdcard probably not mounted yet");
+            // throw new RuntimeException(e);
         }
+
+        if (fileReader != null) {
+
+            try {
+                char[] inputBuffer = new char[255];
+                fileReader.read(inputBuffer);
+                fileReader.close();
+                configuration = new JSONObject(new String(inputBuffer));
+
+                mGomUrl = configuration.getString(GOM_URL_KEY);
+                mDevicePath = configuration.getString(DEVICE_PATH_KEY);
+                mLogLevel = Logger.Level.fromString(configuration.getString(LOG_LEVEL_KEY));
+                if (configuration.has(COLOR_CODE)) {
+                    mColorCode = configuration.getString(COLOR_CODE);
+                }
+
+            } catch (UnsupportedEncodingException e) {
+                Logger.e(LOG_TAG, "Configuration file ", CONFIG_FILE_PATH,
+                        " uses unsupported encoding");
+                throw new RuntimeException(e);
+            } catch (IOException e) {
+                Logger.e(LOG_TAG, "Error while reading configuration file ", CONFIG_FILE_PATH);
+                throw new RuntimeException(e);
+            } catch (JSONException e) {
+                Logger.e(LOG_TAG, "Error while parsing configuration file ", CONFIG_FILE_PATH);
+                throw new RuntimeException(e);
+            }
+
+        }
+
     }
 
     public String getGomUrl() {
@@ -104,7 +116,7 @@ public class DeviceConfiguration {
             return true;
         }
     }
-    
+
     public void saveLogLevel(Logger.Level pLevel) {
         mLogLevel = pLevel;
         save();
