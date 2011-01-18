@@ -6,6 +6,7 @@ import android.content.ComponentName;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.test.ActivityInstrumentationTestCase2;
+import android.test.suitebuilder.annotation.Suppress;
 import android.widget.EditText;
 import android.widget.Spinner;
 
@@ -16,6 +17,7 @@ public class Y60Test extends ActivityInstrumentationTestCase2<Y60> {
         super("com.artcom.y60", Y60.class);
     }
 
+    @Suppress
     public void testCorrectLauncherIsSelected() {
 
         ArrayList<ComponentName> names = new ArrayList<ComponentName>();
