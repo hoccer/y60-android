@@ -3,6 +3,7 @@ package com.artcom.y60;
 import android.view.View;
 import android.widget.AbsoluteLayout;
 import android.widget.LinearLayout;
+import android.util.DisplayMetrics;
 
 @SuppressWarnings("deprecation")
 public class DnDTestActivityTest extends Y60ActivityInstrumentationTest<DnDTestActivity> implements
@@ -37,12 +38,17 @@ public class DnDTestActivityTest extends Y60ActivityInstrumentationTest<DnDTestA
 
         assertEquals("y callback param equals view value", mDraggingAboarted.y,
                 mDraggingAboarted.draggedView.getTop());
+
+        DisplayMetrics dm = new DisplayMetrics();
+        getActivity().getWindowManager().getDefaultDisplay().getMetrics(dm);
         assertEquals(
                 "dragged to y = 200 ",
                 200,
-                (int) (mDraggingAboarted.draggedView.getTop()
-                + (mDraggingAboarted.draggedView.getHeight() / 2.0)
- + DragAndDropHelper.VERTICAL_OFFSET));
+                (int)(  ( mDraggingAboarted.draggedView.getTop()
+                        + (mDraggingAboarted.draggedView.getHeight() / 2.0)
+                        + DragAndDropHelper.VERTICAL_OFFSET) 
+                        * dm.density )
+                );
     }
 
     public void testReleaseLongPress() throws InterruptedException {
