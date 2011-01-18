@@ -85,6 +85,7 @@ public class SynergyServerTest extends TestCase {
         Vector<Byte> halfMessage = new Vector<Byte>();
 
         // extract one single message
+        halfMessage.clear();
         assertEquals("",1, SynergyServerHelper.addMessagetoQueue(
                 arrayToByteVector(new byte[]{0,0,0,4,1,2,3,4}),
                 queue, halfMessage) );
@@ -94,6 +95,7 @@ public class SynergyServerTest extends TestCase {
         assertNull("queue should be empty",queue.peek());
 
         // extract three messages
+        halfMessage.clear();
         assertEquals("",3, SynergyServerHelper.addMessagetoQueue(
                 arrayToByteVector(new byte[]{0,0,0,4,1,2,3,4,  0,0,0,2,1,2,   0,0,0,3,1,2,3 }),
                 queue, halfMessage) );
@@ -111,15 +113,7 @@ public class SynergyServerTest extends TestCase {
         assertNull("queue should be empty",queue.peek());
 
         // extract one message and discard incomplete message
-        assertEquals("",1, SynergyServerHelper.addMessagetoQueue(
-                arrayToByteVector(new byte[]{0,0,0,4,1,2,3,4,  0,0,0,5,1 }),
-                queue, halfMessage) );
-        message = queue.poll(0,TimeUnit.SECONDS);
-        assertNotNull("",message);
-        assertEqual("",new byte[]{0,0,0,4,1,2,3,4},message);
-        assertNull("queue should be empty",queue.peek());
-
-        // extract one message and discard incomplete message
+        halfMessage.clear();
         assertEquals("",1, SynergyServerHelper.addMessagetoQueue(
                 arrayToByteVector(new byte[]{0,0,0,4,1,2,3,4,  0,0,0 }),
                 queue, halfMessage) );
@@ -128,6 +122,15 @@ public class SynergyServerTest extends TestCase {
         assertEqual("",new byte[]{0,0,0,4,1,2,3,4},message);
         assertNull("queue should be empty",queue.peek());
 
+        // extract one message and discard incomplete message
+        halfMessage.clear();
+        assertEquals("",1, SynergyServerHelper.addMessagetoQueue(
+                arrayToByteVector(new byte[]{0,0,0,4,1,2,3,4,  0,0,0,5,1 }),
+                queue, halfMessage) );
+        message = queue.poll(0,TimeUnit.SECONDS);
+        assertNotNull("",message);
+        assertEqual("",new byte[]{0,0,0,4,1,2,3,4},message);
+        assertNull("queue should be empty",queue.peek());
     }
 
     public void testHalfMessageToQueue() throws Exception {
