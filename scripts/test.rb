@@ -9,7 +9,7 @@ require 'java_project'
 require 'android_project'
 require 'lib/test_result_collector'
 
-$boot_sleep_time = 90
+$boot_sleep_time = 60
 
 def main pj_names
   
@@ -150,12 +150,22 @@ def prepare_emulator trial = 0
   system("adb start-server")
   sleep 15
   
-  LOGGER.info "    * Creating and uploading device_config.json onto sdcard"
-  system "rake device_config:generate[true]"
-  system "rake device_config:upload"
-  system "rake device_config:verify"
-  sleep 5
-  
+  result = false
+  20.times {  
+      LOGGER.info "    * Creating and uploading device_config.json onto sdcard"
+      system "rake device_config:generate[true]"
+      system "rake device_config:upload"
+      result = system "rake device_config:verify"
+      if result 
+        break
+      elsif
+          LOGGER.info "device_config.json is not present, will try again"
+      end
+      LOGGER.info "      * sleeping 10 secs..."
+      sleep 10
+  }
+  raise "Device config is not present!" unless result
+
   LOGGER.info "    * Disabling screen lock"
   system "rake emulator:deactivate_screen_lock"
   sleep 5
@@ -202,8 +212,18 @@ def verify_emulator
   system("adb start-server")
   sleep 15
   
-  LOGGER.info "    * Verifying device_config.json is stored persistently on sdcard"
-  result = system("rake device_config:verify")  
+  result = false
+  20.times {  
+      LOGGER.info "    * Verifying device_config.json is stored persistently on sdcard"
+      result = system("rake device_config:verify")  
+      if result 
+        break
+      elsif
+          LOGGER.info "device_config.json is not present, will try again"
+      end
+      LOGGER.info "      * sleeping 10 secs..."
+      sleep 10
+  }
   
   if result
     LOGGER.info " * Verifying emulator - SUCCESS"    

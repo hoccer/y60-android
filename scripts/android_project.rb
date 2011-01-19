@@ -10,6 +10,7 @@ class AndroidProject < Project
   attr_reader :manifest_xml
 
   ADB_SLEEP_TIME = 3
+  EMULATOR_BOOT_SLEEP_TIME = 60
 
   def initialize pj_name
     super pj_name
@@ -215,9 +216,9 @@ class AndroidProject < Project
       sleep 5
       
       system("rake emulator:boot")
-      LOGGER.info "      * sleeping 120 secs..."
-      sleep 120
-      
+      LOGGER.info "      * sleeping #{EMULATOR_BOOT_SLEEP_TIME} secs..."
+      sleep EMULATOR_BOOT_SLEEP_TIME
+
       system("adb kill-server")
       LOGGER.info "      * sleeping 5 secs..."
       sleep 5
@@ -235,12 +236,24 @@ class AndroidProject < Project
         raise "Cannot reboot emulator - giving up tries: #{trial}"
       end
       LOGGER.info "Emulator seems to have booted fine..."
-      system("rake emulator:port_forward --silent")
+
+      result = false
+      20.times {  
+          LOGGER.info "verifying device_config.json presence"
+          result = system("rake device_config:verify --silent")
+          if result 
+            break
+          elsif
+              LOGGER.info "device_config.json is not present, will try again"
+          end
+          LOGGER.info "      * sleeping 10 secs..."
+          sleep 10
+      }
+      raise "Device config is not present!" unless result
+      LOGGER.info "Setting port forward"
+      system("rake emulator:port_forward")
       LOGGER.info "      * sleeping 5 secs..."
       sleep 5
-      LOGGER.info "verifying device_config.json presence"
-      result = system("rake device_config:verify --silent")
-      raise "Device config is not present!" unless result
     end
   
     def self.reinstall_artcom_packages with_reboot=false
