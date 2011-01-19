@@ -8,6 +8,7 @@ import com.artcom.y60.http.HttpHelper;
 
 import android.test.suitebuilder.annotation.Suppress;
 
+@Suppress
 public class TestSweepingData extends HocEventTestCase {
 
     @SuppressWarnings("unused")
