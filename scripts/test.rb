@@ -9,7 +9,7 @@ require 'java_project'
 require 'android_project'
 require 'lib/test_result_collector'
 
-$boot_sleep_time = 120
+$boot_sleep_time = 60
 
 def main pj_names
   
