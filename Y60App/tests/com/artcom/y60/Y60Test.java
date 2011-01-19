@@ -20,13 +20,13 @@ public class Y60Test extends ActivityInstrumentationTestCase2<Y60> {
         super("com.artcom.y60", Y60.class);
     }
 
-    @Suppress
     public void testDisableComponent() {
         PackageManager pm = getActivity().getPackageManager();
         ComponentName componentName = new ComponentName("com.android.launcher", "Launcher");
         Logger.v(LOG_TAG, " -------------- ", pm.getComponentEnabledSetting(componentName));
     }
 
+    @Suppress
     public void testCorrectLauncherIsSelected() {
 
         ArrayList<ComponentName> names = new ArrayList<ComponentName>();
