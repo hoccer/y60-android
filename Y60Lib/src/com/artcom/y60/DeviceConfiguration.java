@@ -117,6 +117,14 @@ public class DeviceConfiguration {
         }
     }
 
+    public static boolean isWvga() {
+        if (android.os.Build.MODEL.equals("Nexus One")) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     public void saveLogLevel(Logger.Level pLevel) {
         mLogLevel = pLevel;
         save();

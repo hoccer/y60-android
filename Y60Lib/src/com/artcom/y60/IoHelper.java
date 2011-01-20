@@ -19,12 +19,12 @@ import java.util.List;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import com.artcom.y60.http.HttpProxyConstants;
+
 import android.app.ActivityManager;
 import android.app.ActivityManager.RunningServiceInfo;
 import android.content.Context;
 import android.os.Bundle;
-
-import com.artcom.y60.http.HttpProxyConstants;
 
 public class IoHelper {
     private static final String LOG_TAG = "IoHelper";
