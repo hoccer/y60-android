@@ -156,7 +156,7 @@ public class TestHelper {
     }
 
     public static void blockUntilBackendResumed(final Y60Activity pActivity) throws Exception {
-        blockUntilBackendResumed(pActivity, 10000);
+        blockUntilBackendResumed(pActivity, 60000);
     }
 
     public static void blockUntilResourceAvailable(String pFailMessage, final String pUrl)
