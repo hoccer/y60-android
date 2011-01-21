@@ -13,7 +13,6 @@ import java.util.List;
 import junit.framework.Assert;
 
 import org.apache.http.conn.HttpHostConnectException;
-import org.json.JSONObject;
 
 import android.app.Activity;
 import android.app.ActivityManager.RunningServiceInfo;

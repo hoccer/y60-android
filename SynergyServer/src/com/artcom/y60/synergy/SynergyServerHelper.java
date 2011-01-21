@@ -3,13 +3,14 @@ package com.artcom.y60.synergy;
 import java.util.Vector;
 import java.util.concurrent.BlockingQueue;
 
-import com.artcom.y60.Logger;
+//import com.artcom.y60.Logger;
 
 public class SynergyServerHelper {
 
     // ------------------------
     // |    Static Members    |
     // ------------------------
+    @SuppressWarnings("unused")
     private static final String     LOG_TAG                 = "SynergyServerHelper";
     static final int                BITMASK                 = 0x000000FF;
     static final int                MESSAGE_HEAD_OFFSET     = 4;
