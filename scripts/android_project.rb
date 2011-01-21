@@ -10,7 +10,7 @@ class AndroidProject < Project
   attr_reader :manifest_xml
 
   ADB_SLEEP_TIME = 3
-  EMULATOR_BOOT_SLEEP_TIME = 60
+  EMULATOR_BOOT_SLEEP_TIME = 40
 
   def initialize pj_name
     super pj_name
@@ -236,6 +236,26 @@ class AndroidProject < Project
         raise "Cannot reboot emulator - giving up tries: #{trial}"
       end
       LOGGER.info "Emulator seems to have booted fine..."
+
+      emulator_running_result = false
+      20.times {  
+          emulator_running_result= system "rake emulator:is_running --silent"
+          if emulator_running_result
+            LOGGER.info "    * could verify that the emulator is running"
+            break
+          end
+          LOGGER.info "    * could not verify that the emulator is running, sleeping 10 seconds ..."
+          sleep 10
+      }
+      unless emulator_running_result
+          if trial == 0 and
+            LOGGER.info "cannot see devices - rebooting once more..."
+            AndroidProject::reboot_emulator trial + 1
+          elsif trial > 0 and
+            LOGGER.error "Cannot boot device - giving up"
+            raise "Cannot reboot emulator - giving up tries: #{trial}"
+          end
+      end
 
       result = false
       20.times {  

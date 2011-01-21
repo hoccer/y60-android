@@ -79,6 +79,7 @@ namespace :emulator do
       log "Found one running emulator instance"
     else
       log "Currently no emulator is running"
+      fail
     end
   end
   

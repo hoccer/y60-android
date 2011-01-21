@@ -9,7 +9,7 @@ require 'java_project'
 require 'android_project'
 require 'lib/test_result_collector'
 
-$boot_sleep_time = 60
+$boot_sleep_time = 40
 
 def main pj_names
   
@@ -149,14 +149,34 @@ def prepare_emulator trial = 0
   sleep 5
   system("adb start-server")
   sleep 15
+
+  emulator_running_result = false
+  20.times {  
+      emulator_running_result= system "rake emulator:is_running"
+      if emulator_running_result
+        LOGGER.info "    * could verify that the emulator is running"
+        break
+      end
+      LOGGER.info "    * could not verify that the emulator is running, sleeping 10 seconds ..."
+      sleep 10
+  }
+  unless emulator_running_result
+      if trial == 0
+        LOGGER.info "    * could not see any emulator, starting again whole emulator preparation process "
+        prepare_emulator trial + 1
+      elsif trial > 2
+        LOGGER.error "Cannot find any emulator - tried hard for #{trial} times."
+        raise "Cannot find any emulator - tried hard for #{trial} times."
+      end
+  end
   
-  result = false
+  config_verify_result = false
   20.times {  
       LOGGER.info "    * Creating and uploading device_config.json onto sdcard"
       system "rake device_config:generate[true]"
       system "rake device_config:upload"
-      result = system "rake device_config:verify"
-      if result 
+      config_verify_result = system "rake device_config:verify"
+      if config_verify_result 
         break
       elsif
           LOGGER.info "device_config.json is not present, will try again"
@@ -164,7 +184,7 @@ def prepare_emulator trial = 0
       LOGGER.info "      * sleeping 10 secs..."
       sleep 10
   }
-  raise "Device config is not present!" unless result
+  raise "Device config is not present!" unless config_verify_result
 
   LOGGER.info "    * Disabling screen lock"
   system "rake emulator:deactivate_screen_lock"
@@ -211,6 +231,20 @@ def verify_emulator
   sleep 5
   system("adb start-server")
   sleep 15
+
+  emulator_running_result = false
+  20.times {  
+      emulator_running_result= system "rake emulator:is_running"
+      if emulator_running_result
+        LOGGER.info "    * could verify that the emulator is running"
+        break
+      end
+      LOGGER.info "    * could not verify that the emulator is running, sleeping 10 seconds ..."
+      sleep 10
+  }
+  unless emulator_running_result
+    return false
+  end
   
   result = false
   20.times {  
