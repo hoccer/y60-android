@@ -210,6 +210,9 @@ class AndroidProject < Project
   
     def self.reboot_emulator trial=0
       LOGGER.info "Rebooting emulator : try: #{trial}"
+      if trial > 3 and
+        raise "giving up tries: #{trial}"
+      end
       
       system("rake emulator:kill_all")
       LOGGER.info "      * sleeping 5 secs..."
@@ -225,20 +228,9 @@ class AndroidProject < Project
       system("adb start-server")
       LOGGER.info "      * sleeping 15 secs..."
       sleep 15
-      
-      if trial == 0 and
-        AndroidProject::get_device_list.size == 0
-        LOGGER.info "cannot see devices - rebooting once more..."
-        AndroidProject::reboot_emulator trial + 1
-      elsif trial > 0 and
-        AndroidProject::get_device_list.size == 0
-        LOGGER.error "Cannot boot device - giving up"
-        raise "Cannot reboot emulator - giving up tries: #{trial}"
-      end
-      LOGGER.info "Emulator seems to have booted fine..."
 
       emulator_running_result = false
-      20.times {  
+      10.times {  
           emulator_running_result= system "rake emulator:is_running --silent"
           if emulator_running_result
             LOGGER.info "    * could verify that the emulator is running"
@@ -248,14 +240,10 @@ class AndroidProject < Project
           sleep 10
       }
       unless emulator_running_result
-          if trial == 0 and
-            LOGGER.info "cannot see devices - rebooting once more..."
-            AndroidProject::reboot_emulator trial + 1
-          elsif trial > 0 and
-            LOGGER.error "Cannot boot device - giving up"
-            raise "Cannot reboot emulator - giving up tries: #{trial}"
-          end
+          LOGGER.info "cannot see devices - rebooting once more..."
+          AndroidProject::reboot_emulator trial + 1
       end
+      LOGGER.info "Emulator seems to have booted fine..."
 
       result = false
       20.times {  
@@ -269,7 +257,10 @@ class AndroidProject < Project
           LOGGER.info "      * sleeping 10 secs..."
           sleep 10
       }
-      raise "Device config is not present!" unless result
+      unless result
+          LOGGER.info "Device config is not present!"
+          AndroidProject::reboot_emulator trial + 1
+      end
       LOGGER.info "Setting port forward"
       system("rake emulator:port_forward")
       LOGGER.info "      * sleeping 5 secs..."
