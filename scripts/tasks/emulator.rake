@@ -217,7 +217,7 @@ def api_level
 end
 
 def boot_emulator avd_name
-  cmd = "emulator -avd #{avd_name} -no-boot-anim &"
+  cmd = "emulator -cpu-delay 0 -no-window -avd #{avd_name} -no-boot-anim &"
   puts " * Starting emulator via command:\n\t#{cmd}"
   system cmd
 end
