@@ -56,7 +56,7 @@ public abstract class Y60ActivityInstrumentationTest<T extends Activity> extends
         TestHelper.assertDeviceControllerIsRunning(getInstrumentation().getContext());
 
         super.setUp();
-        assertNoErrorLogOnSdcard();
+        //assertNoErrorLogOnSdcard();
     }
 
     public void blockUntilActivityIsResponsive() throws Exception {
@@ -112,7 +112,7 @@ public abstract class Y60ActivityInstrumentationTest<T extends Activity> extends
         Logger.logMemoryInfo(tag(), getInstrumentation().getContext());
 
         super.tearDown();
-        assertNoErrorLogOnSdcard();
+        //assertNoErrorLogOnSdcard();
     }
 
     // Protected Instance Methods ----------------------------------------
