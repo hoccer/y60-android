@@ -13,7 +13,6 @@ import android.test.suitebuilder.annotation.Suppress;
 
 public class IoHelperTest extends TestCase {
 
-    @SuppressWarnings("unused")
     private static final String LOG_TAG = "IoHelperTest";
     private static final String FILE_1  = "/sdcard/test_file_"
                                                 + String.valueOf(System.currentTimeMillis());

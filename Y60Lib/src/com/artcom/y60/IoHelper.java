@@ -27,6 +27,8 @@ import android.content.Context;
 import android.os.Bundle;
 
 public class IoHelper {
+    
+    @SuppressWarnings("unused")
     private static final String LOG_TAG = "IoHelper";
 
     public static String encodeUrl(String pString) {

@@ -10,10 +10,9 @@ import java.util.concurrent.TimeUnit;
 
 import android.test.AssertionFailedError;
 
-import com.artcom.y60.Logger;
-
 public class SynergyServerTest extends TestCase {
 
+    @SuppressWarnings("unused")
     private static final String     LOG_TAG                 = "SynergyServerTest";
 
     public void testMessagePreparation() throws Exception {

@@ -19,7 +19,6 @@ import android.view.animation.TranslateAnimation;
 import android.widget.AbsoluteLayout;
 import android.widget.ImageView;
 import android.widget.AbsoluteLayout.LayoutParams;
-import android.util.DisplayMetrics;
 
 /**
  * Helper for adding drag-and-drop functionality to views.

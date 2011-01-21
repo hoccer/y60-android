@@ -1,7 +1,6 @@
 package com.artcom.y60;
 
 import android.app.Activity;
-import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.view.ViewGroup;
 import android.view.Window;
@@ -12,6 +11,7 @@ import android.widget.LinearLayout;
 import android.widget.LinearLayout.LayoutParams;
 
 
+@SuppressWarnings("deprecation")
 public class DnDTestActivity extends Activity {
 
     public static final String LOG_TAG = "DndTestActivity";
