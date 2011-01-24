@@ -22,6 +22,8 @@ public abstract class Y60Activity extends Activity {
 
     public abstract boolean hasResumeWithBackendBeenCalled();
 
+    protected boolean           onEarlySystemStartup = false;
+
     // Package Protected Instance Methods --------------------------------
 
     protected void kill() {
@@ -66,9 +68,6 @@ public abstract class Y60Activity extends Activity {
     protected void onCreate(Bundle pSavedInstanceState) {
 
         super.onCreate(pSavedInstanceState);
-        startDeviceController();
-        FallbackExceptionHandler.register(this);
-
         mShutdownReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context pArg0, Intent pArg1) {
@@ -80,6 +79,10 @@ public abstract class Y60Activity extends Activity {
 
         IntentFilter intentFilter = new IntentFilter(Y60Action.SHUTDOWN_ACTIVITIES_BC);
         registerReceiver(mShutdownReceiver, intentFilter);
+
+        if (onEarlySystemStartup == true ) { return; }
+        startDeviceController();
+        FallbackExceptionHandler.register(this);
     }
 
     @Override
@@ -91,6 +94,7 @@ public abstract class Y60Activity extends Activity {
         super.onDestroy();
 
         Logger.d(LOG_TAG, "onDestroy called for activity ", getClass());
+        if (onEarlySystemStartup == true ) { return; }
     }
 
     protected void startDeviceController() {
@@ -109,6 +113,7 @@ public abstract class Y60Activity extends Activity {
 
     @Override
     public boolean onKeyDown(int pKeyCode, KeyEvent pEvent) {
+        if (onEarlySystemStartup == true ) { return false; }
         if (pKeyCode == KeyEvent.KEYCODE_T) {
             // used to test the responsiveness of the gui
             mResponsivnessCounterForTestPurposesOnly++;
