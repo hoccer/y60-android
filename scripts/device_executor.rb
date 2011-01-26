@@ -2,7 +2,7 @@
 
 require 'rubygems'
 require 'activesupport'
-
+    
 $:.unshift File.join(File.dirname(__FILE__), 'lib')
 require 'hash_from_argv'
 require 'os-helper'
@@ -23,6 +23,7 @@ class DeviceExecutor
     refresh_device_list
     @connected_devices
   end
+  
   
   def execution_loop
     while (true)
@@ -65,6 +66,24 @@ class DeviceExecutor
     end
     
     return @connected_devices
+  end
+  
+  
+  def get_offline_devices
+    puts "start get_offline_devices"
+    offline_devices = Array.new  
+    adb_in = open "|adb devices"
+    while (line = adb_in.gets)
+      next unless !line.strip.end_with? 'offline' 
+      device_id = extract_device_id line
+      offline_device = Device.new(device_id)
+      offline_device.is_online_device = false
+      offline_devices << offline_device
+    end
+    adb_in.close  
+    puts "end of get_offline_devices"
+    puts offline_devices.inspect    
+    return offline_devices
   end
   
   private

@@ -6,12 +6,13 @@ class Device
   include Comparable
   
   def initialize adb_id
-    @id ||= adb_id  
+    @id ||= adb_id
+    @owner = "not_set"
+    @name = "not_found"
+    @odp_enabled = "not_found" 
+    @is_online_device = true
   end
-  
-  def id
-    @id
-  end
+  attr_accessor :owner, :name, :odp_enabled, :id, :is_online_device
   
   def wait
     OS::execute "adb -s #{@id} wait-for-device", "wait for device", 20
