@@ -47,7 +47,18 @@ class Device
     if stdout.include? "unable to resolve Intent"
       return false
     else
-      start "tgallery.intent.HOME_SCREEN"
+      
+      stdin, stdout, stderr = Open3.popen3("adb -s #{@id} shell pm list packages")
+      stderr = stderr.read
+      stdout = stdout.read
+      raise stderr if stderr != ''
+      
+      if stdout.include? "com.artcom.tgallery.homescreen"
+        start "tgallery.intent.HOME_SCREEN"
+      else
+        start "y60.intent.SUPER_COW_POWER"
+      end 
+      
       return true
     end
   end
