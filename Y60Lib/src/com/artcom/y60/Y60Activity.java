@@ -87,7 +87,6 @@ public abstract class Y60Activity extends Activity {
 
     @Override
     protected void onDestroy() {
-
         if (mShutdownReceiver != null) {
             unregisterReceiver(mShutdownReceiver);
         }
@@ -113,7 +112,6 @@ public abstract class Y60Activity extends Activity {
 
     @Override
     public boolean onKeyDown(int pKeyCode, KeyEvent pEvent) {
-        if (onEarlySystemStartup == true ) { return false; }
         if (pKeyCode == KeyEvent.KEYCODE_T) {
             // used to test the responsiveness of the gui
             mResponsivnessCounterForTestPurposesOnly++;
