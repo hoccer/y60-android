@@ -371,7 +371,7 @@ public class MainActivity extends Activity
 
 		if (state)
 		{
-			String port=preferences.getString("port", "5901");
+			String port=preferences.getString("port", "5900");
 			String httpport;
 			try
 			{
@@ -381,8 +381,8 @@ public class MainActivity extends Activity
 			}
 			catch(NumberFormatException e)
 			{
-				port="5901";
-				httpport="5801";
+				port="5900";
+				httpport="5800";
 			}
 
 			String ip=getIpAddress();
@@ -498,7 +498,7 @@ public class MainActivity extends Activity
 			if (!scaling.equals("0"))
 				scaling_string="-s " + scaling;
 
-			String port=preferences.getString("port", "5901");
+			String port=preferences.getString("port", "5900");
 
 			String tm=preferences.getString("testmode", "0");
 			String testmode="-t " + tm;
@@ -509,7 +509,7 @@ public class MainActivity extends Activity
 			}
 			catch(NumberFormatException e)
 			{
-				port="5901";
+				port="5900";
 			}
 			String port_string="-P " + port;
 

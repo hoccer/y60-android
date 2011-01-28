@@ -39,7 +39,7 @@ public class StartAtBootService extends Service {
 	{
 		SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
 
-		Boolean startdaemon=preferences.getBoolean("startdaemononboot", false);
+		Boolean startdaemon=preferences.getBoolean("startdaemononboot", true);
 		
 		//Lets see if i need to boot daemon...
 		Log.v("VNC","Let me see if we need to start daemon..." + (startdaemon?"Yes":"No"));
@@ -69,7 +69,7 @@ public class StartAtBootService extends Service {
 
 			String donate=free_version()?"":" -d ";
 			
-			String port=preferences.getString("port", "5901");
+			String port=preferences.getString("port", "5900");
 			try
 			{
 				int port1=Integer.parseInt(port);
@@ -77,7 +77,7 @@ public class StartAtBootService extends Service {
 			}
 			catch(NumberFormatException e)
 			{
-				port="5901";
+				port="5900";
 			}
 			String port_string="-P " + port;
 
