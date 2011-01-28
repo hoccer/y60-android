@@ -47,6 +47,7 @@ public class IntentExtraKeys {
 
     public static final String PROFILING                 = "profiling";
 
+    public static final String DEVICE_BOOTING            = "device_booting";
     public static final String INIT_PROGRESS             = "progress";
     public static final String INIT_LOG_MSG              = "init_log_msg";
     public static final String INIT_IN_DEBUG_MODE        = "init_in_debug_mode";
