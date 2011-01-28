@@ -74,7 +74,7 @@ class DeviceExecutor
     offline_devices = Array.new  
     adb_in = open "|adb devices"
     while (line = adb_in.gets)
-      next unless !line.strip.end_with? 'offline' 
+      next unless line.strip.end_with? 'offline' 
       device_id = extract_device_id line
       offline_device = Device.new(device_id)
       offline_device.is_online_device = false
