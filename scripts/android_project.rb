@@ -97,6 +97,7 @@ class AndroidProject < Project
     
     LOGGER.info "    * Determining testsuites present for project '#{@name}' ..."
     log_command = "adb shell am instrument -w -e log true #{package}/#{testrunner}"
+    Logger.info "      * Command used: '#{log_command}'"
     adb_test_suites = open "|#{log_command}"
     
     puts "#{adb_test_suites}.inspect"
