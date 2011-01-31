@@ -122,7 +122,7 @@ class Project
   
   # remove all generated files to start a fresh build
   def cleanup
-    puts "cleaning up #{name}"
+    LOGGER.info "cleaning up #{name}"
     run "cleaning up", <<-EOT
       rm -f #{name}/build.xml && \
       rm -rf #{name}/bin/*
@@ -131,7 +131,7 @@ class Project
 
   # generates the build.xml and configs for ant
   def create_build_env
-    puts "creating build environment for #{name}"
+    LOGGER.info "creating build environment for #{name}"
     build_template = self.class.name.underscore.split("_")[0] + "_build.xml.erb"
     generate_from_template "build.xml", build_template
     # creating libs dir for ant
@@ -141,10 +141,10 @@ class Project
   # copies the content of projects this project depends on in this project's
   # source folder
   def merge_dependencies
-    puts "merging dependencies into #{name}"
+    LOGGER.info "merging dependencies into #{name}"
     dependencies.each do |dep_pj|
       if !dep_pj.respond_to? :jar_path
-        puts "Warning: Can't depend on project #{dep_pj.name}, because it doesn't have a jar!"
+        LOGGER.warn "Cannot depend on project #{dep_pj.name}, because it doesn't have a jar!"
       else
         run "copying #{dep_pj.name}s jar", <<-EOT
           cp #{dep_pj.jar_path} #{path}/libs/
@@ -155,7 +155,7 @@ class Project
 
   # run ant to build the project
   def build
-    puts "starting ant build for #{name}"
+    LOGGER.info "starting ant build for #{name}"
     run "building", <<-EOT
       cd #{path} && ant debug -q
     EOT
