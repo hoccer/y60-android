@@ -26,10 +26,6 @@ public class StartAtBootService extends Service {
         return START_STICKY;
     }
 
-    public boolean free_version() {
-        return getPackageName().equals("org.onaips.vnc");
-    }
-
     public void startServer() {
         SharedPreferences preferences = PreferenceManager
                 .getDefaultSharedPreferences(this);
@@ -60,8 +56,6 @@ public class StartAtBootService extends Service {
             if (!scaling.equals("0"))
                 scaling_string = "-s " + scaling;
 
-            String donate = free_version() ? "" : " -d ";
-
             String port = preferences.getString("port", "5900");
             try {
                 int port1 = Integer.parseInt(port);
@@ -78,12 +72,12 @@ public class StartAtBootService extends Service {
                     + "/androidvncserver");
             writeCommand(os, getFilesDir().getAbsolutePath()
                     + "/androidvncserver " + password_check + " " + rotation
-                    + " " + scaling_string + " " + port_string + donate);
+                    + " " + scaling_string + " " + port_string);
 
             // dont show password on logcat
             Log.v("VNC", "Starting " + getFilesDir().getAbsolutePath()
                     + "/androidvncserver " + " " + rotation + " "
-                    + scaling_string + " " + port_string + donate);
+                    + scaling_string + " " + port_string);
 
         } catch (IOException e) {
             Log.v("VNC", "startServer():" + e.getMessage());
