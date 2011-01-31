@@ -17,7 +17,6 @@ package org.onaips.vnc;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -26,11 +25,8 @@ import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.util.Enumeration;
-import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -45,8 +41,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
-import android.content.pm.ResolveInfo;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.graphics.Color;
 import android.net.ConnectivityManager;
@@ -54,7 +48,6 @@ import android.net.LocalServerSocket;
 import android.net.LocalSocket;
 import android.net.NetworkInfo;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.PowerManager;
 import android.preference.PreferenceManager;
@@ -73,7 +66,6 @@ public class MainActivity extends Activity {
     private static final int MENU_QUIT = 0;
     private static final int MENU_HELP = 1;
     private static final int MENU_ONAIPS = 2;
-    private static final int MENU_SENDLOG = 3;
     private static final int APP_ID = 123;
     public static String SOCKET_ADDRESS = "org.onaips.vnc.localsocket";
 
@@ -235,7 +227,6 @@ public class MainActivity extends Activity {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.menu, menu);
 
-        menu.add(0, MENU_SENDLOG, 0, "Report issue");
         menu.add(0, MENU_ONAIPS, 0, "About");
         menu.add(0, MENU_HELP, 0, "Help");
         menu.add(0, MENU_QUIT, 0, "Close");
@@ -469,9 +460,9 @@ public class MainActivity extends Activity {
         case MENU_HELP:
             showHelp();
             break;
-        case MENU_SENDLOG:
+        /*case MENU_SENDLOG:
             collectAndSendLog();
-            break;
+            break;*/
         case MENU_ONAIPS:
 
             new AlertDialog.Builder(this)
@@ -564,7 +555,7 @@ public class MainActivity extends Activity {
     public static final String EXTRA_FORMAT = "com.xtralogic.logcollector.intent.extra.FORMAT";//$NON-NLS-1$
     public static final String EXTRA_BUFFER = "com.xtralogic.logcollector.intent.extra.BUFFER";//$NON-NLS-1$
 
-    void collectAndSendLog() {
+    /*void collectAndSendLog() {
         final PackageManager packageManager = getPackageManager();
         final Intent intent = new Intent(ACTION_SEND_LOG);
         List<ResolveInfo> list = packageManager.queryIntentActivities(intent,
@@ -636,60 +627,60 @@ public class MainActivity extends Activity {
                             }).setNegativeButton(android.R.string.cancel, null)
                     .show();
         }
-    }
+    }*/
 
-    private String getFormattedKernelVersion() {
-        String procVersionStr;
+//    private String getFormattedKernelVersion() {
+//        String procVersionStr;
+//
+//        try {
+//            BufferedReader reader = new BufferedReader(new FileReader(
+//                    "/proc/version"), 256);
+//            try {
+//                procVersionStr = reader.readLine();
+//            } finally {
+//                reader.close();
+//            }
+//
+//            final String PROC_VERSION_REGEX = "\\w+\\s+" + /* ignore: Linux */
+//            "\\w+\\s+" + /* ignore: version */
+//            "([^\\s]+)\\s+" + /* group 1: 2.6.22-omap1 */
+//            "\\(([^\\s@]+(?:@[^\\s.]+)?)[^)]*\\)\\s+" + /*
+//                                                         * group 2:
+//                                                         * (xxxxxx@xxxxx
+//                                                         * .constant)
+//                                                         */
+//            "\\([^)]+\\)\\s+" + /* ignore: (gcc ..) */
+//            "([^\\s]+)\\s+" + /* group 3: #26 */
+//            "(?:PREEMPT\\s+)?" + /* ignore: PREEMPT (optional) */
+//            "(.+)"; /* group 4: date */
+//
+//            Pattern p = Pattern.compile(PROC_VERSION_REGEX);
+//            Matcher m = p.matcher(procVersionStr);
+//
+//            if (!m.matches()) {
+//                Log.e("VNC", "Regex did not match on /proc/version: "
+//                        + procVersionStr);
+//                return "Unavailable";
+//            } else if (m.groupCount() < 4) {
+//                Log.e("VNC",
+//                        "Regex match on /proc/version only returned "
+//                                + m.groupCount() + " groups");
+//                return "Unavailable";
+//            } else {
+//                return (new StringBuilder(m.group(1)).append("\n")
+//                        .append(m.group(2)).append(" ").append(m.group(3))
+//                        .append("\n").append(m.group(4))).toString();
+//            }
+//        } catch (IOException e) {
+//            Log.e("VNC",
+//                    "IO Exception when getting kernel version for Device Info screen",
+//                    e);
+//
+//            return "Unavailable";
+//        }
+//    }
 
-        try {
-            BufferedReader reader = new BufferedReader(new FileReader(
-                    "/proc/version"), 256);
-            try {
-                procVersionStr = reader.readLine();
-            } finally {
-                reader.close();
-            }
-
-            final String PROC_VERSION_REGEX = "\\w+\\s+" + /* ignore: Linux */
-            "\\w+\\s+" + /* ignore: version */
-            "([^\\s]+)\\s+" + /* group 1: 2.6.22-omap1 */
-            "\\(([^\\s@]+(?:@[^\\s.]+)?)[^)]*\\)\\s+" + /*
-                                                         * group 2:
-                                                         * (xxxxxx@xxxxx
-                                                         * .constant)
-                                                         */
-            "\\([^)]+\\)\\s+" + /* ignore: (gcc ..) */
-            "([^\\s]+)\\s+" + /* group 3: #26 */
-            "(?:PREEMPT\\s+)?" + /* ignore: PREEMPT (optional) */
-            "(.+)"; /* group 4: date */
-
-            Pattern p = Pattern.compile(PROC_VERSION_REGEX);
-            Matcher m = p.matcher(procVersionStr);
-
-            if (!m.matches()) {
-                Log.e("VNC", "Regex did not match on /proc/version: "
-                        + procVersionStr);
-                return "Unavailable";
-            } else if (m.groupCount() < 4) {
-                Log.e("VNC",
-                        "Regex match on /proc/version only returned "
-                                + m.groupCount() + " groups");
-                return "Unavailable";
-            } else {
-                return (new StringBuilder(m.group(1)).append("\n")
-                        .append(m.group(2)).append(" ").append(m.group(3))
-                        .append("\n").append(m.group(4))).toString();
-            }
-        } catch (IOException e) {
-            Log.e("VNC",
-                    "IO Exception when getting kernel version for Device Info screen",
-                    e);
-
-            return "Unavailable";
-        }
-    }
-
-    private static String getVersionNumber(Context context) {
+    /*private static String getVersionNumber(Context context) {
         String version = "?";
         try {
             PackageInfo packagInfo = context.getPackageManager()
@@ -700,7 +691,7 @@ public class MainActivity extends Activity {
         ;
 
         return version;
-    }
+    }*/
 
     static void writeCommand(OutputStream os, String command) throws Exception {
         os.write((command + "\n").getBytes("ASCII"));
