@@ -130,7 +130,7 @@ public class MainActivity extends Activity {
             });
             startDialog.show();
         }
-        
+
         // register wifi event receiver
         registerReceiver(mReceiver, new IntentFilter(
                 ConnectivityManager.CONNECTIVITY_ACTION));

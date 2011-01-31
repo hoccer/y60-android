@@ -14,93 +14,89 @@ import android.util.Log;
 
 public class MainApplication extends Application {
 
-	@Override
-	public void onCreate() {
-		super.onCreate(); 
+    @Override
+    public void onCreate() {
+        super.onCreate();
 
-		if (firstRun())
-			createBinary();
-	}
+        if (firstRun())
+            createBinary();
+    }
 
-	public boolean firstRun()
-	{
-		int versionCode = 0;
-		try {
-			versionCode = getPackageManager()
-			.getPackageInfo(getPackageName(), PackageManager.GET_META_DATA)
-			.versionCode;
-		} catch (NameNotFoundException e) {
-			Log.e("VNC", "Package not found... Odd, since we're in that package...", e);
-		}
+    public boolean firstRun() {
+        int versionCode = 0;
+        try {
+            versionCode = getPackageManager().getPackageInfo(getPackageName(),
+                    PackageManager.GET_META_DATA).versionCode;
+        } catch (NameNotFoundException e) {
+            Log.e("VNC",
+                    "Package not found... Odd, since we're in that package...",
+                    e);
+        }
 
-		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-		int lastFirstRun = prefs.getInt("last_run", 0);
+        SharedPreferences prefs = PreferenceManager
+                .getDefaultSharedPreferences(this);
+        int lastFirstRun = prefs.getInt("last_run", 0);
 
-		if (lastFirstRun >= versionCode) {
-			Log.d("VNC", "Not first run");
-			return false;
-		}
-		Log.d("VNC", "First run for version " + versionCode);
+        if (lastFirstRun >= versionCode) {
+            Log.d("VNC", "Not first run");
+            return false;
+        }
+        Log.d("VNC", "First run for version " + versionCode);
 
-		SharedPreferences.Editor editor = prefs.edit();
-		editor.putInt("last_run", versionCode);
-		editor.commit();
-		return true;
-	}
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putInt("last_run", versionCode);
+        editor.commit();
+        return true;
+    }
 
-	public void createBinary()  
-	{ 
-		copyBinary(R.raw.androidvncserver, getFilesDir().getAbsolutePath() + "/androidvncserver");
-		copyBinary(R.raw.vncviewer, getFilesDir().getAbsolutePath()+"/VncViewer.jar");
-		copyBinary(R.raw.indexvnc, getFilesDir().getAbsolutePath()+"/index.vnc");
+    public void createBinary() {
+        copyBinary(R.raw.androidvncserver, getFilesDir().getAbsolutePath()
+                + "/androidvncserver");
+        copyBinary(R.raw.vncviewer, getFilesDir().getAbsolutePath()
+                + "/VncViewer.jar");
+        copyBinary(R.raw.indexvnc, getFilesDir().getAbsolutePath()
+                + "/index.vnc");
 
-		Process sh;
-		try {
-			sh = Runtime.getRuntime().exec("su");
+        Process sh;
+        try {
+            sh = Runtime.getRuntime().exec("su");
 
-			OutputStream os = sh.getOutputStream();
+            OutputStream os = sh.getOutputStream();
 
-			writeCommand(os, "killall androidvncserver");
-			writeCommand(os, "killall -KILL androidvncserver");			
-			//chmod 777 SHOULD exist
-			writeCommand(os, "chmod 777 " + getFilesDir().getAbsolutePath() + "/androidvncserver");
-			os.close();
-		} catch (IOException e) {
-			Log.v("VNC",e.getMessage());		
-		}catch (Exception e) {
-			Log.v("VNC",e.getMessage());		
-		}
-	}
+            writeCommand(os, "killall androidvncserver");
+            writeCommand(os, "killall -KILL androidvncserver");
+            // chmod 777 SHOULD exist
+            writeCommand(os, "chmod 777 " + getFilesDir().getAbsolutePath()
+                    + "/androidvncserver");
+            os.close();
+        } catch (IOException e) {
+            Log.v("VNC", e.getMessage());
+        } catch (Exception e) {
+            Log.v("VNC", e.getMessage());
+        }
+    }
 
+    public void copyBinary(int id, String path) {
+        try {
+            InputStream ins = getResources().openRawResource(id);
+            int size = ins.available();
 
+            // Read the entire resource into a local byte buffer.
+            byte[] buffer = new byte[size];
+            ins.read(buffer);
+            ins.close();
 
-	public void copyBinary(int id,String path)
-	{
-		try {
-			InputStream ins = getResources().openRawResource(id);
-			int size = ins.available();
+            FileOutputStream fos = new FileOutputStream(path);
+            fos.write(buffer);
+            fos.close();
+        } catch (Exception e) {
+            Log.v("VNC", "public void createBinary(): " + e.getMessage());
+        }
 
-			// Read the entire resource into a local byte buffer.
-			byte[] buffer = new byte[size];
-			ins.read(buffer);
-			ins.close();
+    }
 
-			FileOutputStream fos = new FileOutputStream(path);
-			fos.write(buffer);
-			fos.close();
-		}
-		catch (Exception e)
-		{
-			Log.v("VNC","public void createBinary(): " + e.getMessage());
-		}
-
-
-	}  
-
-	static void writeCommand(OutputStream os, String command) throws Exception
-	{
-		os.write((command + "\n").getBytes("ASCII"));
-	} 
-	
+    static void writeCommand(OutputStream os, String command) throws Exception {
+        os.write((command + "\n").getBytes("ASCII"));
+    }
 
 }
