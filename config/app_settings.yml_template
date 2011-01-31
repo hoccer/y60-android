@@ -6,3 +6,11 @@ api_level: "8"
 gom: "http://gom2.t-gallery.act"
 device_path: "/areas/mobile/emulator_for_hudson"
 skin_type: "WVGA800"
+#   possible skin_type values:
+#       HVGA        320x480 medium density
+#       QVGA        240x320 low density
+#       WVGA800     480x800 high density
+#       WVGA854     480x854 high density
+#       WVGA400     240x400 low density
+#       WVGA432     240x432 low density 
+#       400x400     any desired resolution
