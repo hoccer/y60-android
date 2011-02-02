@@ -5,7 +5,7 @@
       android:versionName="1.0">
     <application android:icon="@drawable/icon" android:label="@string/app_name" android:name="MainApplication">
         <service android:name=".VncService">
-            <intent-filter><action android:name="y60.intent.VNC_SERVER_SERVICE"/></intent-filter> 
+            <intent-filter><action android:name="y60.intent.SERVICE_VNC_SERVER"/></intent-filter> 
         </service>
         
         <receiver android:name="VncBroadcastReceiver">
