@@ -15,6 +15,7 @@
 
 package com.artcom.y60.dc;
 
+import com.artcom.y60.Logger;
 import com.artcom.y60.Y60Action;
 
 import android.app.Activity;
@@ -30,7 +31,7 @@ public class DeviceControllerActivity extends Activity {
     public static final boolean __NIO_DEFAULT  = true;
 
     @SuppressWarnings("unused")
-	private static final String LOG_TAG = "DeviceController";
+	private static final String LOG_TAG = "DeviceControllerActivity";
 
     public void onCreate(Bundle icicle) {
         super.onCreate(icicle);

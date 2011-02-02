@@ -5,7 +5,7 @@ import android.os.IBinder;
 
 import com.artcom.y60.Y60Service;
 
-public class MockService extends Y60Service {
+public class MockService extends DeviceControllerService {
 
     private Intent mIntent;
 
@@ -24,6 +24,21 @@ public class MockService extends Y60Service {
     public Intent getBroadcastIntent() {
 
         return mIntent;
+    }
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+    }
+
+    @Override
+    public int onStartCommand(Intent pIntent, int flags, int startId) {
+        return START_STICKY;
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
     }
 
 }

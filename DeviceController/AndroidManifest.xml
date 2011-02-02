@@ -10,6 +10,7 @@
     <uses-permission android:name="android.permission.RUN_INSTRUMENTATION"/>
     <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE"/>
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.READ_LOGS"/>
     
     <application android:label="@string/manage_jetty" android:icon="@drawable/smooth" android:debuggable="true">
         <uses-library android:name="android.test.runner" />
