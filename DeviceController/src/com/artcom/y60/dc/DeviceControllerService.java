@@ -38,6 +38,7 @@ public class DeviceControllerService extends Y60Service {
     Server                      mServer;
 
     private final IBinder       mBinder          = new DeviceControllerBinder();
+    private CommandBuffer       mLogcatBuffer    = null;
 
     @Override
     public void onCreate() {
@@ -47,6 +48,9 @@ public class DeviceControllerService extends Y60Service {
             LOG_TAG, System.currentTimeMillis());
         notification.setLatestEventInfo(this, LOG_TAG, "", PendingIntent.getBroadcast(this, 0, new Intent(), 0) );
         startForeground(notificationId,notification);
+
+        mLogcatBuffer = new CommandBuffer(); 
+        mLogcatBuffer.startCommandCapture("logcat -v time");
 
         try {
             if (mServer == null) {
@@ -65,20 +69,14 @@ public class DeviceControllerService extends Y60Service {
         } catch (HttpException e) {
             ErrorHandling.signalHttpError(LOG_TAG, e, this);
         }
+
         Logger.v(LOG_TAG, "onCreate END");
         super.onCreate();
     }
-    @Override
-    public void onStart(Intent pIntent, int startId) {
-        Logger.i(LOG_TAG, "onStartCommand called");
 
-        DeviceConfiguration conf = DeviceConfiguration.load();
-        Logger.setFilterLevel(conf.getLogLevel());
-
-        sendBroadcast(new Intent(Y60Action.DEVICE_CONTROLLER_READY));
-        Logger.v(LOG_TAG, "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ sent broadcast device controller ready");
+    public CommandBuffer getLogcatCommandBuffer() {
+        return mLogcatBuffer;
     }
-
 
     @Override
     public int onStartCommand(Intent pIntent, int flags, int startId) {
@@ -117,17 +115,19 @@ public class DeviceControllerService extends Y60Service {
             }
 
             ipAddress = NetworkHelper.getStagingIp().getHostAddress();
-            String command_uri = "http://" + ipAddress + ":" + Constants.Network.DEFAULT_PORT
-                    + "/commands";
+            String hostAddress = "http://" + ipAddress + ":" + Constants.Network.DEFAULT_PORT; 
+
+            String command_uri = hostAddress + DeviceControllerHandler.RCA_TARGET;
             Logger.v(LOG_TAG, "command_uri of local device controller is ", command_uri);
             GomHttpWrapper.updateOrCreateAttribute(deviceUri + ":rci_uri", command_uri);
 
-            createAttributeIfNotExistentWith(Constants.Gom.URI + Constants.Gom.ENABLE_ODP_ATTR,
-                    "false");
-            createAttributeIfNotExistentWith(Constants.Gom.URI + Constants.Gom.ENABLE_ODP_AGC_ATTR,
-                    "false");
-            createAttributeIfNotExistentWith(Constants.Gom.URI + Constants.Gom.DEBUG_MODE_ATTR,
-                    "false");
+            String log_uri = hostAddress + DeviceControllerHandler.LOG_COMMAND;
+            Logger.v(LOG_TAG, "log_uri of local device controller is ", log_uri);
+            GomHttpWrapper.updateOrCreateAttribute(deviceUri + ":log_uri", log_uri);
+
+            createAttributeIfNotExistentWith(Constants.Gom.URI + Constants.Gom.ENABLE_ODP_ATTR, "false");
+            createAttributeIfNotExistentWith(Constants.Gom.URI + Constants.Gom.ENABLE_ODP_AGC_ATTR, "false");
+            createAttributeIfNotExistentWith(Constants.Gom.URI + Constants.Gom.DEBUG_MODE_ATTR, "false");
 
         } catch (IpAddressNotFoundException e) {
             ErrorHandling.signalNetworkError(LOG_TAG, e, this);
@@ -152,6 +152,10 @@ public class DeviceControllerService extends Y60Service {
                 ErrorHandling.signalServiceError(LOG_TAG, e, this);
             }
         }
+
+        mLogcatBuffer.stopCommandCapture();
+        mLogcatBuffer = null;
+
         stopForeground(true);
         super.onDestroy();
     }

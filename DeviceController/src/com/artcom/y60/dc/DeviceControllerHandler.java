@@ -2,6 +2,7 @@ package com.artcom.y60.dc;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.PrintWriter;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -28,21 +29,24 @@ public class DeviceControllerHandler extends DefaultHandler {
 
     // Constants ---------------------------------------------------------
 
-    private static final String LOG_TAG          = "DeviceControllerHandler";
+    private static final String LOG_TAG                 = "DeviceControllerHandler";
 
     /** path prefix for proc requests */
-    public static final String  PROC_PATH_PREFIX = "/proc";
+    public static final String  PROC_PATH_PREFIX        = "/proc";
 
     /** target for RCA HTTP requests */
-    public static final String  RCA_TARGET       = "/commands";
+    public static final String  RCA_TARGET              = "/commands";
+
+    public static final String  LOG_COMMAND             = "/logcat";
+    public static final String  CUSTOM_COMMAND          = "/exec/";
 
     // Instance Variables ------------------------------------------------
 
-    private final Service       mService;
+    private final DeviceControllerService mService;
 
     // Constructors ------------------------------------------------------
 
-    public DeviceControllerHandler(Service pService) {
+    public DeviceControllerHandler(DeviceControllerService pService) {
         mService = pService;
     }
 
@@ -53,7 +57,6 @@ public class DeviceControllerHandler extends DefaultHandler {
             int pDispatch) {
 
         try {
-
             String method = pRequest.getMethod();
             //String path = pRequest.getPathInfo();
 
@@ -67,9 +70,21 @@ public class DeviceControllerHandler extends DefaultHandler {
 
                 handleGomNotification(pRequest);
 
+            } else if ("GET".equals(method) && LOG_COMMAND.equals(pTarget)) {
+                commandBufferResponse(pResponse, mService.getLogcatCommandBuffer());
+
+            } else if ("GET".equals(method) && pTarget.startsWith(CUSTOM_COMMAND)) {
+                String customCommand = pTarget.substring(CUSTOM_COMMAND.length());
+                Logger.v(LOG_TAG,"CUSTOM COMMAND: ", customCommand);
+
+                CommandBuffer commandBuffer = new CommandBuffer(); 
+                commandBuffer.getCommandOutput(customCommand);
+                commandBufferResponse(pResponse, commandBuffer);
+
             } else if ("HEAD".equals(method) || "GET".equals(method)) {
                 Logger.v(LOG_TAG, "Not found");
                 respondNotFound(pResponse);
+
             } else {
                 Logger.v(LOG_TAG, "Not supported");
                 respondNotImplemented(pResponse);
@@ -244,6 +259,16 @@ public class DeviceControllerHandler extends DefaultHandler {
         response.setContentType("text/plain");
         response.setStatus(HttpServletResponse.SC_NOT_FOUND);
         response.setContentLength(0);
+    }
+
+    private void commandBufferResponse(HttpServletResponse response, CommandBuffer commandBuffer) throws ServletException, IOException {
+        response.setContentType("text/plain");
+        response.setStatus(HttpServletResponse.SC_OK);
+        PrintWriter out = response.getWriter();
+        if (commandBuffer != null) {
+            out.print(commandBuffer.getCommandBuffer()); 
+        }
+        out.flush();
     }
 
 }
