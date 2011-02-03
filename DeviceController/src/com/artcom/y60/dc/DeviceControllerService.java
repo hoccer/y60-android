@@ -9,14 +9,6 @@ import org.mortbay.jetty.bio.SocketConnector;
 import org.mortbay.jetty.handler.HandlerCollection;
 import org.mortbay.thread.QueuedThreadPool;
 
-import android.app.ActivityManager;
-import android.app.ActivityManager.MemoryInfo;
-import android.content.Intent;
-import android.os.Binder;
-import android.os.IBinder;
-import android.app.Notification;
-import android.app.PendingIntent;
-
 import com.artcom.y60.Constants;
 import com.artcom.y60.DeviceConfiguration;
 import com.artcom.y60.ErrorHandling;
@@ -27,6 +19,14 @@ import com.artcom.y60.Y60Action;
 import com.artcom.y60.Y60Service;
 import com.artcom.y60.gom.GomHttpWrapper;
 import com.artcom.y60.http.HttpException;
+
+import android.app.ActivityManager;
+import android.app.ActivityManager.MemoryInfo;
+import android.app.Notification;
+import android.app.PendingIntent;
+import android.content.Intent;
+import android.os.Binder;
+import android.os.IBinder;
 
 public class DeviceControllerService extends Y60Service {
 
@@ -44,10 +44,11 @@ public class DeviceControllerService extends Y60Service {
     public void onCreate() {
     	Logger.v(LOG_TAG, "onCreate START");
     	
-        Notification notification = new Notification( R.drawable.statusbar_dc, 
-            LOG_TAG, System.currentTimeMillis());
-        notification.setLatestEventInfo(this, LOG_TAG, "", PendingIntent.getBroadcast(this, 0, new Intent(), 0) );
-        startForeground(notificationId,notification);
+        Notification notification = new Notification(R.drawable.statusbar_dc, LOG_TAG,
+                System.currentTimeMillis());
+        notification.setLatestEventInfo(this, LOG_TAG, "",
+                PendingIntent.getBroadcast(this, 0, new Intent(), 0));
+        startForeground(notificationId, notification);
 
         mLogcatBuffer = new CommandBuffer(); 
         mLogcatBuffer.executeNonReturningCommandAndCapture("logcat -v time");
@@ -61,7 +62,7 @@ public class DeviceControllerService extends Y60Service {
         }
 
         try {
-        	Logger.v(LOG_TAG, "onCreate updating gom attributes for device... START");
+            Logger.v(LOG_TAG, "onCreate updating gom attributes for device... START");
             updateGomAttributesForDevice();
             Logger.v(LOG_TAG, "onCreate updating gom attributes for device... DONE");
         } catch (IOException e) {
@@ -107,7 +108,8 @@ public class DeviceControllerService extends Y60Service {
             // to take care of this
             if (!DeviceConfiguration.isRunningViaArtcomDevelopmentVpn()) {
                 ipAddress = NetworkHelper.getDeviceIpAddress();
-                GomHttpWrapper.updateOrCreateAttribute(deviceUri + ":" + Constants.Network.IP_ADDRESS_ATTRIBUTE, ipAddress);
+                GomHttpWrapper.updateOrCreateAttribute(deviceUri + ":"
+                        + Constants.Network.IP_ADDRESS_ATTRIBUTE, ipAddress);
                 GomHttpWrapper.updateOrCreateAttribute(deviceUri + ":rtp_address", ipAddress);
                 GomHttpWrapper.updateOrCreateAttribute(deviceUri + ":rtp_port", "16384");
             } else {
@@ -115,7 +117,7 @@ public class DeviceControllerService extends Y60Service {
             }
 
             ipAddress = NetworkHelper.getStagingIp().getHostAddress();
-            String hostAddress = "http://" + ipAddress + ":" + Constants.Network.DEFAULT_PORT; 
+            String hostAddress = "http://" + ipAddress + ":" + Constants.Network.DEFAULT_PORT;
 
             String command_uri = hostAddress + DeviceControllerHandler.RCA_TARGET;
             Logger.v(LOG_TAG, "command_uri of local device controller is ", command_uri);
@@ -125,9 +127,12 @@ public class DeviceControllerService extends Y60Service {
             Logger.v(LOG_TAG, "log_uri of local device controller is ", log_uri);
             GomHttpWrapper.updateOrCreateAttribute(deviceUri + ":log_uri", log_uri);
 
-            createAttributeIfNotExistentWith(Constants.Gom.URI + Constants.Gom.ENABLE_ODP_ATTR, "false");
-            createAttributeIfNotExistentWith(Constants.Gom.URI + Constants.Gom.ENABLE_ODP_AGC_ATTR, "false");
-            createAttributeIfNotExistentWith(Constants.Gom.URI + Constants.Gom.DEBUG_MODE_ATTR, "false");
+            createAttributeIfNotExistentWith(Constants.Gom.URI + Constants.Gom.ENABLE_ODP_ATTR,
+                    "false");
+            createAttributeIfNotExistentWith(Constants.Gom.URI + Constants.Gom.ENABLE_ODP_AGC_ATTR,
+                    "false");
+            createAttributeIfNotExistentWith(Constants.Gom.URI + Constants.Gom.DEBUG_MODE_ATTR,
+                    "false");
 
         } catch (IpAddressNotFoundException e) {
             ErrorHandling.signalNetworkError(LOG_TAG, e, this);

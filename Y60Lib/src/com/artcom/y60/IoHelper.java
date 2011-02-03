@@ -28,7 +28,7 @@ import android.content.res.Resources;
 import android.os.Bundle;
 
 public class IoHelper {
-    
+
     private static final String LOG_TAG = "IoHelper";
 
     public static String encodeUrl(String pString) {
@@ -276,16 +276,16 @@ public class IoHelper {
         fos.write(arrayTmp);
         fos.close();
     }
-    
+
     public static boolean hasBusybox() {
         File busyboxFile = findExecutableOnPath("busybox");
         return busyboxFile != null;
     }
-    
+
     public static void writeCommand(OutputStream os, String command) throws Exception {
         os.write((command + "\n").getBytes("ASCII"));
     }
-    
+
     public static File findExecutableOnPath(String executableName) {
         String systemPath = System.getenv("PATH");
         String[] pathDirs = systemPath.split(File.pathSeparator);
@@ -300,49 +300,49 @@ public class IoHelper {
         }
         return fullyQualifiedExecutable;
     }
-    
+
     public static void copyRawResourceToPath(int id, String path, Resources res) throws IOException {
-        //try {
-            InputStream ins = res.openRawResource(id);
-            int size = ins.available();
+        // try {
+        InputStream ins = res.openRawResource(id);
+        int size = ins.available();
 
-            // Read the entire resource into a local byte buffer.
-            byte[] buffer = new byte[size];
-            ins.read(buffer);
-            ins.close();
+        // Read the entire resource into a local byte buffer.
+        byte[] buffer = new byte[size];
+        ins.read(buffer);
+        ins.close();
 
-            FileOutputStream fos = new FileOutputStream(path);
-            fos.write(buffer);
-            fos.close();
-        /*} catch (Exception e) {
-            Logger.v(LOG_TAG, "public void createBinary(): " + e.getMessage());
-        }*/
+        FileOutputStream fos = new FileOutputStream(path);
+        fos.write(buffer);
+        fos.close();
+        /*
+         * } catch (Exception e) { Logger.v(LOG_TAG, "public void createBinary(): " +
+         * e.getMessage()); }
+         */
     }
-    
+
     public enum ProcessStates {
-        RUNNNING,
-        STOPPED,
-        UNKNOWN
+        RUNNNING, STOPPED, UNKNOWN
     };
-    
+
     public static ProcessStates isProcessRunning(String theProcessName) {
         String result = "";
         ProcessStates status = ProcessStates.STOPPED;
         try {
             Process sh;
             if (hasBusybox()) {
-                    sh = Runtime.getRuntime().exec("busybox ps w");
+                sh = Runtime.getRuntime().exec("busybox ps w");
             } else {
                 if (findExecutableOnPath("ps") == null)
-                    Logger.v(LOG_TAG, "I cant find the ps executable, please install busybox or i'm wont be able to check process state");
+                    Logger.v(LOG_TAG,
+                            "I cant find the ps executable, please install busybox or i'm wont be able to check process state");
                 sh = Runtime.getRuntime().exec("ps");
             }
-    
+
             InputStream is = sh.getInputStream();
             InputStreamReader isr = new InputStreamReader(is);
             BufferedReader br = new BufferedReader(isr);
             String line;
-    
+
             while ((line = br.readLine()) != null) {
                 result += line;
                 if (result.indexOf(theProcessName) > 0) {
@@ -350,13 +350,39 @@ public class IoHelper {
                     break;
                 }
             }
-            
+
             Logger.v(LOG_TAG, "process '", theProcessName, "' running: ", status);
             return status;
         } catch (IOException e) {
             Logger.e(LOG_TAG, e);
             return ProcessStates.UNKNOWN;
         }
+    }
+
+    public static void launchExecutable(String executableCommand) throws Exception {
+        Logger.v(LOG_TAG, "Starting " + executableCommand);
+        Process sh = Runtime.getRuntime().exec("su");
+        OutputStream os = sh.getOutputStream();
+        IoHelper.writeCommand(os, executableCommand);
+        IoHelper.writeCommand(os, "exit");
+        os.flush();
+        os.close();
+        Thread.sleep(100);
+    }
+
+    public static void changeAccessRightsTo777(String filePath) throws Exception {
+        boolean fileExists = new File(filePath).exists();
+        Logger.v(LOG_TAG, "does file: '", filePath, "' exists? : ", fileExists);
+
+        Process sh = Runtime.getRuntime().exec("su");
+        OutputStream os = sh.getOutputStream();
+        String chmodCommand = "su chmod 777 " + filePath;
+        Logger.v(LOG_TAG, "exec : ", chmodCommand);
+        IoHelper.writeCommand(os, chmodCommand);
+        IoHelper.writeCommand(os, "exit");
+        os.flush();
+        os.close();
+        Thread.sleep(100);
     }
 
 }

@@ -5,7 +5,9 @@ import java.io.OutputStream;
 
 import com.artcom.y60.ErrorHandling;
 import com.artcom.y60.IoHelper;
+import com.artcom.y60.IpAddressNotFoundException;
 import com.artcom.y60.Logger;
+import com.artcom.y60.NetworkHelper;
 import com.artcom.y60.Y60Action;
 import com.artcom.y60.Y60Service;
 
@@ -18,23 +20,28 @@ import android.os.IBinder;
 
 public class VncService extends Y60Service {
 
-    private static final String LOG_TAG         = "VNCService";
+    private static final String LOG_TAG         = "VncService";
     private static final int    NOTIFICATION_ID = 123;               // TODO receive from
                                                                       // constants?
     private static final String PORT            = "5900";
     private static final String SCALING         = "100";
     private static final String ROTATION        = "0";
-    private static final String VNC_EXECUTABLE  = "androidvncserver";
+    static final String         VNC_EXECUTABLE  = "androidvncserver";
 
     private Notification        notification    = null;
+    private String              mIpAddress      = "unknown";
+    private Intent              mNotificationPressedIntent;
 
     @Override
     public void onCreate() {
         Logger.v(LOG_TAG, "onCreate()");
+
+        mNotificationPressedIntent = new Intent("tgallery.intent.SUPER_COW_POWER");
+
         notification = new Notification(R.drawable.icon_neutral, LOG_TAG,
                 System.currentTimeMillis());
         notification.setLatestEventInfo(this, LOG_TAG, "Service created - status unknown",
-                PendingIntent.getBroadcast(this, 0, new Intent(this, VncService.class), 0));
+                PendingIntent.getActivity(this, 0, mNotificationPressedIntent, 0));
         startForeground(NOTIFICATION_ID, notification);
         super.onCreate();
     }
@@ -62,7 +69,12 @@ public class VncService extends Y60Service {
     public int onStartCommand(Intent intent, int flags, int startId) {
         Logger.v(LOG_TAG, "onStartCommand  - id: " + startId); // , id: " + startId + " " + this, "
                                                                // " + Thread.currentThread());
-        Logger.v(LOG_TAG, "start intent: " + intent);
+        try {
+            mIpAddress = NetworkHelper.getDeviceIpAddress();
+        } catch (IpAddressNotFoundException e) {
+            ErrorHandling.signalNetworkError(LOG_TAG, e, this);
+        }
+
         try {
             startServer();
             sendBroadcast(new Intent(Y60Action.VNC_SERVICE_READY));
@@ -78,17 +90,18 @@ public class VncService extends Y60Service {
 
         String myMsg = "Server is";
         if (isVncServerRunning()) {
-            myMsg += " started";
+            myMsg += " started (" + mIpAddress + ")";
             myIcon = R.drawable.icon_started;
         } else {
             myMsg += " stopped";
             myIcon = R.drawable.icon_stopped;
         }
+
         // Notification notification = new Notification(myIcon, LOG_TAG,
         // System.currentTimeMillis());
         notification.icon = myIcon;
         notification.setLatestEventInfo(this, LOG_TAG, myMsg,
-                PendingIntent.getBroadcast(this, 0, new Intent(this, VncService.class), 0));
+                PendingIntent.getActivity(this, 0, mNotificationPressedIntent, 0));
         return notification;
     }
 
@@ -127,19 +140,16 @@ public class VncService extends Y60Service {
             notificationManager.notify(NOTIFICATION_ID, getCurrentNotification());
             return;
         }
-        String myCmdParams = " -r " + ROTATION + " -s " + SCALING + " -P " + PORT;
-        String myCmdString = getFilesDir().getAbsolutePath() + "/" + VNC_EXECUTABLE + myCmdParams;
-        Process sh = Runtime.getRuntime().exec("su");
-        OutputStream os = sh.getOutputStream();
 
-        IoHelper.writeCommand(os, "chmod 777 " + getFilesDir().getAbsolutePath() + "/"
-                + VNC_EXECUTABLE);
-        IoHelper.writeCommand(os, myCmdString);
-        Logger.v(LOG_TAG, "Starting " + myCmdString);
+        String vncExecutablePath = getFilesDir().getAbsolutePath() + "/" + VNC_EXECUTABLE;
+        String cmdParams = " -r " + ROTATION + " -s " + SCALING + " -P " + PORT;
+
+        IoHelper.changeAccessRightsTo777(vncExecutablePath);
+        IoHelper.launchExecutable(vncExecutablePath + cmdParams);
+
         Thread.sleep(500);
         NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         notificationManager.notify(NOTIFICATION_ID, getCurrentNotification());
-
     }
 
     static void killServer() throws Exception {
