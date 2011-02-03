@@ -6,8 +6,17 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.StringReader;
 import java.io.FileNotFoundException;
+import java.io.File;
+import java.io.RandomAccessFile;
 
 import junit.framework.TestCase;
+
+
+
+
+
+import java.io.FileReader;
+import java.io.FileWriter;
 
 import com.artcom.y60.Logger;
 
@@ -143,4 +152,30 @@ public class CommandBufferUnitTests extends TestCase {
 
     }
 
+    public void testReadFromEndOfFile() throws Exception {
+        String  fileName = "/sdcard/testReadFromEndOfFile";
+        File    bufferFile = new File(fileName);
+        if (bufferFile.exists()){
+            Logger.v(LOG_TAG,"test file: " + fileName + " already exits deliting it..");
+            bufferFile.delete();
+            bufferFile = new File(fileName);
+        }
+        bufferFile.createNewFile();
+        RandomAccessFile fileAccess = new RandomAccessFile(bufferFile,"rw");
+        int myLines = 30;
+        for(int i=0;i<myLines;++i){
+            fileAccess.writeBytes(oneLineExampleString+"\n");
+        }
+
+        String  specialString = "0123456789";
+        fileAccess.writeBytes(specialString +"\n");
+        fileAccess.close();
+
+        String readFromFile = CommandBuffer.getFromEndOfBufferFile(specialString.length() +1,
+            fileName);
+
+        Logger.v(LOG_TAG,"read from file:" , readFromFile);
+        assertEquals("",specialString+"\n",readFromFile);
+
+    }
 }

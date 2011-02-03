@@ -1,6 +1,7 @@
 package com.artcom.y60.dc;
 
 import java.io.BufferedReader;
+import java.io.RandomAccessFile;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -28,7 +29,7 @@ public class CommandBuffer {
     private static final int        WAIT_FOR_COMMAND_TIMEOUT            = 5000; //milliseconds
     private static final String     PERSISTENT_BUFFER_DEFAULT_FILENAME  = "/sdcard/logcat.txt";
     private static final int        BUFFER_SIZE_FOR_TIMESTAMP_SEARCH    = 5000;
-    private static final int        BUFFER_FILE_VISIBLE_LENGTH          = 10000;
+    private static final long       BUFFER_FILE_VISIBLE_LENGTH          = 50000;
     private static final String     TIMESTAMP_SEARCH_PATTERN           = "\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}\\.\\d{3}";
     private static final int        TIMESTAMP_STRING_LENGTH             = 19;
 
@@ -74,28 +75,60 @@ public class CommandBuffer {
     // +     Static Helpers     +
     // +------------------------+
     public static void writeStringToFile(String text, String fileName) throws IOException {
-        FileWriter fw;
-        fw = new FileWriter(fileName,true);
-        fw.write(text);
-        fw.close();
+        File    bufferFile = new File(fileName);
+        if (!bufferFile.exists()){
+            bufferFile.createNewFile();
+        }
+        for(int i=0;i<60;++i){
+            if(bufferFile.canWrite()){
+                break;
+            }
+            try{
+                Thread.sleep(500);
+            } catch(InterruptedException e){
+                Logger.v(LOG_TAG,"InterruptedException during waiting for file write access ",e);
+            }
+        }
+        if (bufferFile.canWrite()){
+            FileWriter fw;
+            fw = new FileWriter(bufferFile,true);
+            fw.write(text);
+            fw.close();
+        } else {
+            Logger.v(LOG_TAG,"could not get File write Access");
+        }
     }
 
     public static void clearBuffer(StringBuffer buffer) {
         buffer.delete(0,buffer.length());
     }
 
-    public static String getFromEndOfBufferedReader(int bytesToRead, BufferedReader buffer, long bufferSize)
+    public static String getFromEndOfBufferedReader(long bytesToRead, BufferedReader buffer, long bufferSize)
         throws IOException {
         String  readString = "";
-        int     bytesToSkip = (int)(bufferSize - bytesToRead);
+        long     bytesToSkip = bufferSize - bytesToRead;
         if (bytesToSkip > 0) {
-            char            charArray[] = new char[bytesToRead];
-            buffer.skip(bytesToSkip);
-            buffer.read(charArray, 0, bytesToRead);
-            readString = new String(charArray);
-            int firstNewlinePosition = readString.indexOf("\n");
-            if ( (firstNewlinePosition > 0) && (readString.length() > (firstNewlinePosition+1)) ) {
-                readString = readString.substring(firstNewlinePosition + 1);
+            for(int i=0;i<20;++i){
+                if (buffer.ready() ) {
+                    break;
+                }
+                try{
+                    Thread.sleep(500);
+                } catch(InterruptedException e){
+                    Logger.v(LOG_TAG,"InterruptedException during waiting for file bufferedReader to be ready ",e);
+                }
+            }
+            if (buffer.ready() ) {
+                char            charArray[] = new char[(int)bytesToRead];
+                long actuallySkipped = buffer.skip(bytesToSkip);
+                buffer.read(charArray, 0, (int)bytesToRead);
+                readString = new String(charArray);
+                int firstNewlinePosition = readString.indexOf("\n");
+                if ( (firstNewlinePosition > 0) && (readString.length() > (firstNewlinePosition+1)) ) {
+                    readString = readString.substring(firstNewlinePosition + 1);
+                }
+            } else {
+                Logger.v(LOG_TAG,"buffer is NOT ready");
             }
         } else {
             char            charArray[] = new char[(int)bufferSize];
@@ -105,15 +138,29 @@ public class CommandBuffer {
         return readString;
     }
 
-    public static String getFromEndOfBufferFile(int bytesToRead, String fileName)
+    public static String getFromEndOfBufferFile(long bytesToRead, String fileName)
         throws IOException, FileNotFoundException{
         String  fileText = "";
         File    bufferFile = new File(fileName);
         if (bufferFile.exists()){
-            long            fileSize = bufferFile.length();
-            BufferedReader  bufferedFileReader = new BufferedReader(new FileReader(bufferFile));
-            fileText = getFromEndOfBufferedReader(bytesToRead,bufferedFileReader,fileSize);
-            bufferedFileReader.close();
+            for(int i=0;i<20;++i){
+                if(bufferFile.canRead()){
+                    break;
+                }
+                try{
+                    Thread.sleep(500);
+                } catch(InterruptedException e){
+                    Logger.v(LOG_TAG,"InterruptedException during waiting for file read access ", e);
+                }
+            }
+            if (bufferFile.canRead()){
+                long            fileSize = bufferFile.length();
+                BufferedReader  bufferedFileReader = new BufferedReader(new FileReader(bufferFile));
+                fileText = getFromEndOfBufferedReader(bytesToRead,bufferedFileReader,fileSize);
+                bufferedFileReader.close();
+            } else {
+                Logger.v(LOG_TAG,"could not get file read access");
+            }
         }
         return fileText;
     }
@@ -236,7 +283,8 @@ public class CommandBuffer {
         return getCommandBufferFromFile(BUFFER_FILE_VISIBLE_LENGTH);
     }
 
-    public String getCommandBufferFromFile(int visibleCharacters) {
+    public String getCommandBufferFromFile(long visibleCharacters) {
+        Logger.v(LOG_TAG,"reading logs for http:");
         try {
             flushBufferToFile(commandStdoutBuffer,persistentBufferFileName);
             return getFromEndOfBufferFile(visibleCharacters,persistentBufferFileName);
@@ -286,6 +334,7 @@ public class CommandBuffer {
                                 }
                                 try {
                                     flushBufferToFile(commandStdoutBuffer,persistentBufferFileName);
+                                    Logger.v(LOG_TAG,"flushed buffer to file");
                                 } catch( IOException e ){
                                     Logger.v(LOG_TAG,logException("BufferedReader Error: ", e));
                                 }
