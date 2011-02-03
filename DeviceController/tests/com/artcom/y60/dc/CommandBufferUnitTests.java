@@ -5,7 +5,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.StringReader;
-
+import java.io.FileNotFoundException;
 
 import junit.framework.TestCase;
 
@@ -106,7 +106,7 @@ public class CommandBufferUnitTests extends TestCase {
     }
 
 
-    public void testGetFromBufferEnd() {
+    public void testGetFromBufferEnd() throws IOException, FileNotFoundException{
 
         BufferedReader  buffer;
         String          bufferString;

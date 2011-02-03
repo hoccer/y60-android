@@ -50,7 +50,7 @@ public class DeviceControllerService extends Y60Service {
         startForeground(notificationId,notification);
 
         mLogcatBuffer = new CommandBuffer(); 
-        mLogcatBuffer.startCommandCapture("logcat -v time");
+        mLogcatBuffer.executeNonReturningCommandAndCapture("logcat -v time");
 
         try {
             if (mServer == null) {
@@ -153,7 +153,7 @@ public class DeviceControllerService extends Y60Service {
             }
         }
 
-        mLogcatBuffer.stopCommandCapture();
+        mLogcatBuffer.stopCommandAndCapture();
         mLogcatBuffer = null;
 
         stopForeground(true);
