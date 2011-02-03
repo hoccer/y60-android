@@ -38,7 +38,7 @@ public class DeviceControllerHandler extends DefaultHandler {
     public static final String  RCA_TARGET              = "/commands";
 
     public static final String  LOG_COMMAND             = "/logcat";
-    public static final String  CUSTOM_COMMAND          = "/exec/";
+    public static final String  CUSTOM_COMMAND          = "/exec?";
 
     // Instance Variables ------------------------------------------------
 
@@ -71,7 +71,7 @@ public class DeviceControllerHandler extends DefaultHandler {
                 handleGomNotification(pRequest);
 
             } else if ("GET".equals(method) && LOG_COMMAND.equals(pTarget)) {
-                commandBufferResponse(pResponse, mService.getLogcatCommandBuffer());
+                commandBufferResponse(pResponse, mService.getLogcatCommandBuffer().getCommandBufferFromFile());
 
             } else if ("GET".equals(method) && pTarget.startsWith(CUSTOM_COMMAND)) {
                 String customCommand = pTarget.substring(CUSTOM_COMMAND.length());
@@ -79,7 +79,7 @@ public class DeviceControllerHandler extends DefaultHandler {
 
                 CommandBuffer commandBuffer = new CommandBuffer(); 
                 commandBuffer.getCommandOutput(customCommand);
-                commandBufferResponse(pResponse, commandBuffer);
+                commandBufferResponse(pResponse, commandBuffer.getCommandBuffer());
 
             } else if ("HEAD".equals(method) || "GET".equals(method)) {
                 Logger.v(LOG_TAG, "Not found");
@@ -261,13 +261,11 @@ public class DeviceControllerHandler extends DefaultHandler {
         response.setContentLength(0);
     }
 
-    private void commandBufferResponse(HttpServletResponse response, CommandBuffer commandBuffer) throws ServletException, IOException {
+    private void commandBufferResponse(HttpServletResponse response, String responseText) throws ServletException, IOException {
         response.setContentType("text/plain");
         response.setStatus(HttpServletResponse.SC_OK);
         PrintWriter out = response.getWriter();
-        if (commandBuffer != null) {
-            out.print(commandBuffer.getCommandBuffer()); 
-        }
+        out.print(responseText); 
         out.flush();
     }
 
