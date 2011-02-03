@@ -60,4 +60,8 @@ public abstract class Y60Action {
     public static final String MOVIE_CONTROL_BC           = "y60.intent.MOVIE_CONTROL_BC";
     public static final String PICTURE_CONTROL_BC         = "y60.intent.PICTURE_CONTROL_BC";
     public static final String USER_FEEDBACK_BC           = "y60.intent.USER_FEEDBACK_BC";
+
+    public static final String SERVICE_VNC_SERVER         = "y60.intent.SERVICE_VNC_SERVER";
+    public static final String KILL_VNC_SERVER            = "y60.intent.KILL_VNC_SERVER";
+    public static final String VNC_SERVICE_READY          = "y60.intent.VNC_SERVICE_READY";
 }

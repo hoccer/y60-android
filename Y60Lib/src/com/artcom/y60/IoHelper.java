@@ -24,11 +24,11 @@ import com.artcom.y60.http.HttpProxyConstants;
 import android.app.ActivityManager;
 import android.app.ActivityManager.RunningServiceInfo;
 import android.content.Context;
+import android.content.res.Resources;
 import android.os.Bundle;
 
 public class IoHelper {
     
-    @SuppressWarnings("unused")
     private static final String LOG_TAG = "IoHelper";
 
     public static String encodeUrl(String pString) {
@@ -275,7 +275,88 @@ public class IoHelper {
         FileOutputStream fos = new FileOutputStream(filepath);
         fos.write(arrayTmp);
         fos.close();
+    }
+    
+    public static boolean hasBusybox() {
+        File busyboxFile = findExecutableOnPath("busybox");
+        return busyboxFile != null;
+    }
+    
+    public static void writeCommand(OutputStream os, String command) throws Exception {
+        os.write((command + "\n").getBytes("ASCII"));
+    }
+    
+    public static File findExecutableOnPath(String executableName) {
+        String systemPath = System.getenv("PATH");
+        String[] pathDirs = systemPath.split(File.pathSeparator);
 
+        File fullyQualifiedExecutable = null;
+        for (String pathDir : pathDirs) {
+            File file = new File(pathDir, executableName);
+            if (file.isFile()) {
+                fullyQualifiedExecutable = file;
+                break;
+            }
+        }
+        return fullyQualifiedExecutable;
+    }
+    
+    public static void copyRawResourceToPath(int id, String path, Resources res) throws IOException {
+        //try {
+            InputStream ins = res.openRawResource(id);
+            int size = ins.available();
+
+            // Read the entire resource into a local byte buffer.
+            byte[] buffer = new byte[size];
+            ins.read(buffer);
+            ins.close();
+
+            FileOutputStream fos = new FileOutputStream(path);
+            fos.write(buffer);
+            fos.close();
+        /*} catch (Exception e) {
+            Logger.v(LOG_TAG, "public void createBinary(): " + e.getMessage());
+        }*/
+    }
+    
+    public enum ProcessStates {
+        RUNNNING,
+        STOPPED,
+        UNKNOWN
+    };
+    
+    public static ProcessStates isProcessRunning(String theProcessName) {
+        String result = "";
+        ProcessStates status = ProcessStates.STOPPED;
+        try {
+            Process sh;
+            if (hasBusybox()) {
+                    sh = Runtime.getRuntime().exec("busybox ps w");
+            } else {
+                if (findExecutableOnPath("ps") == null)
+                    Logger.v(LOG_TAG, "I cant find the ps executable, please install busybox or i'm wont be able to check process state");
+                sh = Runtime.getRuntime().exec("ps");
+            }
+    
+            InputStream is = sh.getInputStream();
+            InputStreamReader isr = new InputStreamReader(is);
+            BufferedReader br = new BufferedReader(isr);
+            String line;
+    
+            while ((line = br.readLine()) != null) {
+                result += line;
+                if (result.indexOf(theProcessName) > 0) {
+                    status = ProcessStates.RUNNNING;
+                    break;
+                }
+            }
+            
+            Logger.v(LOG_TAG, "process '", theProcessName, "' running: ", status);
+            return status;
+        } catch (IOException e) {
+            Logger.e(LOG_TAG, e);
+            return ProcessStates.UNKNOWN;
+        }
     }
 
 }
