@@ -75,15 +75,23 @@ public class DeviceControllerHandler extends DefaultHandler {
 
             } else if ("GET".equals(method) && LOG_COMMAND.equals(pTarget)) {
                 long     visible_characters = 0;
+                int      refreshRate = 0;
                 if (pRequest.getQueryString() != null) {
                     String[]    parameterList = URLDecoder.decode(pRequest.getQueryString()).split("&");
                     String      sizeParamterIdentifier = "size=";
+                    String      refreshRateParamterIdentifier = "refresh=";
                     for(int i=0;i<parameterList.length;++i){
                         if(parameterList[i].startsWith(sizeParamterIdentifier)){
                            String numberString = parameterList[i].substring(sizeParamterIdentifier.length()); 
                            try {
                                visible_characters = Long.parseLong(numberString);
-                               break;
+                           } catch(NumberFormatException e){
+                           }
+                        }
+                        if(parameterList[i].startsWith(refreshRateParamterIdentifier)){
+                           String numberString = parameterList[i].substring(refreshRateParamterIdentifier.length()); 
+                           try {
+                               refreshRate = Integer.parseInt(numberString);
                            } catch(NumberFormatException e){
                            }
                         }
@@ -96,8 +104,9 @@ public class DeviceControllerHandler extends DefaultHandler {
                 } else {
                     commandBufferText = mService.getLogcatCommandBuffer().getCommandBufferFromFile();
                 }
+
                 if (commandBufferText != null ){
-                    respondOKWithMessage(pResponse, commandBufferText);
+                    respondOKWithMessage(pResponse, commandBufferText,refreshRate);
                 } else {
                     respondServerErrorWithMessage(pResponse,mService.getLogcatCommandBuffer().getExceptionMessage());
                 }
@@ -111,12 +120,12 @@ public class DeviceControllerHandler extends DefaultHandler {
                     commandBuffer.executeReturningCommand(customCommand);
                     String commandBufferText = commandBuffer.getCommandBufferFromRam();
                     if (commandBufferText != null){
-                        respondOKWithMessage(pResponse, commandBufferText);
+                        respondOKWithMessage(pResponse, commandBufferText,0);
                     } else {
                         respondServerErrorWithMessage(pResponse,commandBuffer.getExceptionMessage());
                     }
                 } else {
-                    respondOKWithMessage(pResponse, "no command was specified, usage: " + CUSTOM_COMMAND + "?shellcommand");
+                    respondOKWithMessage(pResponse, "no command was specified, usage: " + CUSTOM_COMMAND + "?shellcommand",0);
                 }
 
             } else if ("HEAD".equals(method) || "GET".equals(method)) {
@@ -297,21 +306,20 @@ public class DeviceControllerHandler extends DefaultHandler {
         response.setContentLength(0);
     }
 
-    private void respondOKWithMessage(HttpServletResponse response, String responseText) throws ServletException, IOException {
-        response.setContentType("text/html");
+    private void respondOKWithMessage(HttpServletResponse response, String responseText,int refreshrate) throws ServletException, IOException {
+        response.setContentType("text/html; charset=UTF-8");
         response.setStatus(HttpServletResponse.SC_OK);
         PrintWriter out = response.getWriter();
         out.print("<!DOCTYPE html PUBLIC \"-//W3C//DTD HTML 4.01//EN\"");
         out.print("\"http://www.w3.org/TR/html4/strict.dtd\">");
         out.print("<html><head><title>Mobile Logs</title>");
-        //out.print("<meta http-equiv=\"refresh\" content=\"2\"/>");
+        if (refreshrate > 0){
+            out.print("<meta http-equiv=\"refresh\" content=\"" + refreshrate + "\"/>");
+        }
         out.print("</head><body>");
-        out.print("<h1>Logs:</h1><pre>");
+        out.print("<pre>");
         out.flush();
         out.print(responseText); 
-        //for(int i=0;i<responseText.length();++i){
-        //    out.print(String.format("%d %2h",i,(byte)responseText.charAt(i)) + " :(" + responseText.charAt(i) +")\n");
-        //}
         out.print("</pre></body></html>");
         out.flush();
     }

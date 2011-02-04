@@ -5,6 +5,7 @@ import java.io.RandomAccessFile;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.lang.Runtime;
@@ -30,8 +31,12 @@ public class CommandBuffer {
     private static final String     PERSISTENT_BUFFER_DEFAULT_FILENAME  = "/sdcard/logcat.txt";
     private static final int        BUFFER_SIZE_FOR_TIMESTAMP_SEARCH    = 5000;
     private static final long       BUFFER_FILE_VISIBLE_LENGTH          = 50000;
-    private static final String     TIMESTAMP_SEARCH_PATTERN           = "\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}\\.\\d{3}";
+    private static final String     TIMESTAMP_SEARCH_PATTERN            = "\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}\\.\\d{3}";
     private static final int        TIMESTAMP_STRING_LENGTH             = 19;
+    private static final int        WAIT_FOR_NO_CAPTURE_BLOCKING        = 3000; //milliseconds
+    private static final int        WAIT_FOR_FILE_WRITE_ACCESS          = 500; // milliseconds
+    private static final int        WAIT_FOR_BUFFER_READY               = 500; // milliseconds
+    private static final int        WAIT_FOR_FILE_READ_ACCESS           = 500; // milliseconds
 
     
     // +-------------------------+
@@ -49,6 +54,9 @@ public class CommandBuffer {
 
     private String                  exceptionMessage;
 
+    private boolean                 blockFileAccessByCapture;
+    private boolean                 blockFileAccessByRequest;
+
     // +----------------------+
     // +     Constructors     +
     // +----------------------+
@@ -59,6 +67,8 @@ public class CommandBuffer {
         lastTimeStampFromBufferFile = null;
         persistentBufferFileName = bufferFileName;
         exceptionMessage = null;
+        blockFileAccessByCapture = false;
+        blockFileAccessByRequest = false;
     }
 
     public CommandBuffer() {
@@ -79,12 +89,12 @@ public class CommandBuffer {
         if (!bufferFile.exists()){
             bufferFile.createNewFile();
         }
-        for(int i=0;i<60;++i){
+        for(int i=0;i<(int)(WAIT_FOR_FILE_WRITE_ACCESS/100);++i){
             if(bufferFile.canWrite()){
                 break;
             }
             try{
-                Thread.sleep(500);
+                Thread.sleep(100);
             } catch(InterruptedException e){
                 Logger.v(LOG_TAG,"InterruptedException during waiting for file write access ",e);
             }
@@ -95,7 +105,7 @@ public class CommandBuffer {
             fw.write(text);
             fw.close();
         } else {
-            Logger.v(LOG_TAG,"could not get File write Access");
+            Logger.v(LOG_TAG,"could not get write Access to file: ", fileName);
         }
     }
 
@@ -108,21 +118,21 @@ public class CommandBuffer {
         String  readString = "";
         long     bytesToSkip = bufferSize - bytesToRead;
         if (bytesToSkip > 0) {
-            for(int i=0;i<20;++i){
+            for(int i=0;i<(int)(WAIT_FOR_BUFFER_READY/50);++i){
                 if (buffer.ready() ) {
                     break;
                 }
                 try{
-                    Thread.sleep(500);
+                    Thread.sleep(50);
                 } catch(InterruptedException e){
                     Logger.v(LOG_TAG,"InterruptedException during waiting for file bufferedReader to be ready ",e);
                 }
             }
             if (buffer.ready() ) {
-                char            charArray[] = new char[(int)bytesToRead];
-                long actuallySkipped = buffer.skip(bytesToSkip);
-                buffer.read(charArray, 0, (int)bytesToRead);
-                readString = new String(charArray);
+                char    charArray[] = new char[(int)bytesToRead];
+                long    actuallySkipped = buffer.skip(bytesToSkip);
+                int     actullyReadBytes = buffer.read(charArray, 0, (int)bytesToRead);
+                readString = new String(charArray,0,actullyReadBytes);
                 int firstNewlinePosition = readString.indexOf("\n");
                 if ( (firstNewlinePosition > 0) && (readString.length() > (firstNewlinePosition+1)) ) {
                     readString = readString.substring(firstNewlinePosition + 1);
@@ -131,9 +141,9 @@ public class CommandBuffer {
                 Logger.v(LOG_TAG,"buffer is NOT ready");
             }
         } else {
-            char            charArray[] = new char[(int)bufferSize];
-            buffer.read(charArray, 0, (int)bufferSize);
-            readString = new String(charArray);
+            char    charArray[] = new char[(int)bufferSize];
+            int     actullyReadBytes = buffer.read(charArray, 0, (int)bufferSize);
+            readString = new String(charArray,0,actullyReadBytes);
         }
         return readString;
     }
@@ -143,12 +153,12 @@ public class CommandBuffer {
         String  fileText = "";
         File    bufferFile = new File(fileName);
         if (bufferFile.exists()){
-            for(int i=0;i<20;++i){
+            for(int i=0;i<(int)(WAIT_FOR_FILE_READ_ACCESS/50);++i){
                 if(bufferFile.canRead()){
                     break;
                 }
                 try{
-                    Thread.sleep(500);
+                    Thread.sleep(50);
                 } catch(InterruptedException e){
                     Logger.v(LOG_TAG,"InterruptedException during waiting for file read access ", e);
                 }
@@ -240,10 +250,14 @@ public class CommandBuffer {
             logToY60AndBuffer(logException("could not start command: " + command + "\n", e));
             return false;
         }
-        processStdoutStream = new BufferedReader( new InputStreamReader(commandProcess.getInputStream()),
-                STDOUT_BUFFER_SIZE );
-        processStderrStream = new BufferedReader( new InputStreamReader(commandProcess.getErrorStream()),
-                STDOUT_BUFFER_SIZE );
+        try {
+            processStdoutStream = new BufferedReader( new InputStreamReader(commandProcess.getInputStream(),"ISO-8859-1"),
+                    STDOUT_BUFFER_SIZE );
+            processStderrStream = new BufferedReader( new InputStreamReader(commandProcess.getErrorStream(),"ISO-8859-1"),
+                    STDOUT_BUFFER_SIZE );
+        } catch(UnsupportedEncodingException e){
+            Logger.v(LOG_TAG,"UnsupportedEncodingException at InputStreamReader creation ",e);
+        }
         return true;
     }
     
@@ -284,15 +298,36 @@ public class CommandBuffer {
     }
 
     public String getCommandBufferFromFile(long visibleCharacters) {
-        Logger.v(LOG_TAG,"reading logs for http:");
+        blockFileAccessByRequest = true;
+        if (blockFileAccessByCapture){
+            for (int i=0;i<(WAIT_FOR_NO_CAPTURE_BLOCKING/100);++i){
+                if (!blockFileAccessByCapture) {
+                    break;
+                }
+                try {
+                    Thread.sleep(100);
+                } catch(InterruptedException e){
+                    Logger.v(LOG_TAG,logException("Thread.sleep Error: ", e));
+                    blockFileAccessByRequest = false;
+                    return null;
+                }
+            }
+            if (blockFileAccessByCapture){
+                blockFileAccessByRequest = false;
+                return "could not read from command capture file because file access was blocked for too long time by the main capture process";
+            }
+        }
         try {
             flushBufferToFile(commandStdoutBuffer,persistentBufferFileName);
-            return getFromEndOfBufferFile(visibleCharacters,persistentBufferFileName);
+            String logText = getFromEndOfBufferFile(visibleCharacters,persistentBufferFileName);
+            blockFileAccessByRequest = false;
+            return logText;
         } catch (FileNotFoundException e){
             Logger.v(LOG_TAG,logException("File open Error: ", e));
         } catch (IOException e){
             Logger.v(LOG_TAG,logException("BufferedReader Error: ", e));
         }
+        blockFileAccessByRequest = false;
         return null;
     }
 
@@ -301,13 +336,13 @@ public class CommandBuffer {
     }
 
     public void stopCommandAndCapture() {
-        doProcessStdoutCapture = true;
+        doProcessStdoutCapture = false;
     }
 
     public void executeNonReturningCommandAndCapture(String command) {
         if (startCommandProcess(command)) {
             doProcessStdoutCapture = true;
-            
+            blockFileAccessByCapture = false;
             String fileBuffer = null;
             try{
                 fileBuffer = getFromEndOfBufferFile(BUFFER_SIZE_FOR_TIMESTAMP_SEARCH, persistentBufferFileName);
@@ -321,6 +356,12 @@ public class CommandBuffer {
             (new Thread() {
                 public void run() {
                     while(doProcessStdoutCapture) {
+                        try {
+                            Thread.sleep(CAPTURE_SLEEP_TIME);
+                        } catch(InterruptedException e){
+                            Logger.v(LOG_TAG,logException("Thread.sleep Error: ", e));
+                            break;
+                        }
                         if (exceptionMessage != null){
                             break;
                         }
@@ -332,21 +373,18 @@ public class CommandBuffer {
                                 if (clearBufferUntilTimeStamp(commandStdoutBuffer,lastTimeStampFromBufferFile)) {
                                     lastTimeStampFromBufferFile = null;
                                 }
-                                try {
-                                    flushBufferToFile(commandStdoutBuffer,persistentBufferFileName);
-                                    Logger.v(LOG_TAG,"flushed buffer to file");
-                                } catch( IOException e ){
-                                    Logger.v(LOG_TAG,logException("BufferedReader Error: ", e));
+                                if (!blockFileAccessByRequest){
+                                    blockFileAccessByCapture = true;
+                                    try {
+                                        flushBufferToFile(commandStdoutBuffer,persistentBufferFileName);
+                                    } catch( IOException e ){
+                                        Logger.v(LOG_TAG,logException("BufferedReader Error: ", e));
+                                    }
+                                    blockFileAccessByCapture = false;
                                 }
                             }
                         } catch(IOException e) {
                             Logger.v(LOG_TAG,logException("BufferedReader Error: ", e));
-                            break;
-                        }
-                        try {
-                            Thread.sleep(CAPTURE_SLEEP_TIME);
-                        } catch(InterruptedException e){
-                            Logger.v(LOG_TAG,logException("Thread.sleep Error: ", e));
                             break;
                         }
                     }
