@@ -3,10 +3,13 @@ package com.artcom.y60.dc;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.Arrays;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import java.net.URLDecoder;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -38,7 +41,7 @@ public class DeviceControllerHandler extends DefaultHandler {
     public static final String  RCA_TARGET              = "/commands";
 
     public static final String  LOG_COMMAND             = "/logcat";
-    public static final String  CUSTOM_COMMAND          = "/exec/";
+    public static final String  CUSTOM_COMMAND          = "/exec";
 
     // Instance Variables ------------------------------------------------
 
@@ -61,7 +64,7 @@ public class DeviceControllerHandler extends DefaultHandler {
             //String path = pRequest.getPathInfo();
 
             Logger.v(LOG_TAG, "Incoming HTTP request________");
-
+            
             if ("POST".equals(method) && RCA_TARGET.equals(pTarget)) {
 
                 handleCommand(pRequest);
@@ -71,15 +74,59 @@ public class DeviceControllerHandler extends DefaultHandler {
                 handleGomNotification(pRequest);
 
             } else if ("GET".equals(method) && LOG_COMMAND.equals(pTarget)) {
-                commandBufferResponse(pResponse, mService.getLogcatCommandBuffer());
+                long     visible_characters = 0;
+                int      refreshRate = 0;
+                if (pRequest.getQueryString() != null) {
+                    String[]    parameterList = URLDecoder.decode(pRequest.getQueryString()).split("&");
+                    String      sizeParamterIdentifier = "size=";
+                    String      refreshRateParamterIdentifier = "refresh=";
+                    for(int i=0;i<parameterList.length;++i){
+                        if(parameterList[i].startsWith(sizeParamterIdentifier)){
+                           String numberString = parameterList[i].substring(sizeParamterIdentifier.length()); 
+                           try {
+                               visible_characters = Long.parseLong(numberString);
+                           } catch(NumberFormatException e){
+                           }
+                        }
+                        if(parameterList[i].startsWith(refreshRateParamterIdentifier)){
+                           String numberString = parameterList[i].substring(refreshRateParamterIdentifier.length()); 
+                           try {
+                               refreshRate = Integer.parseInt(numberString);
+                           } catch(NumberFormatException e){
+                           }
+                        }
+                    }
+                }
+
+                String commandBufferText = null;
+                if( visible_characters != 0 ){
+                    commandBufferText = mService.getLogcatCommandBuffer().getCommandBufferFromFile(visible_characters);
+                } else {
+                    commandBufferText = mService.getLogcatCommandBuffer().getCommandBufferFromFile();
+                }
+
+                if (commandBufferText != null ){
+                    respondOKWithMessage(pResponse, commandBufferText,refreshRate);
+                } else {
+                    respondServerErrorWithMessage(pResponse,mService.getLogcatCommandBuffer().getExceptionMessage());
+                }
 
             } else if ("GET".equals(method) && pTarget.startsWith(CUSTOM_COMMAND)) {
-                String customCommand = pTarget.substring(CUSTOM_COMMAND.length());
-                Logger.v(LOG_TAG,"CUSTOM COMMAND: ", customCommand);
+                if (pRequest.getQueryString() != null) {
+                    String customCommand = URLDecoder.decode(pRequest.getQueryString());
+                    Logger.v(LOG_TAG,"CUSTOM COMMAND: ", customCommand);
 
-                CommandBuffer commandBuffer = new CommandBuffer(); 
-                commandBuffer.getCommandOutput(customCommand);
-                commandBufferResponse(pResponse, commandBuffer);
+                    CommandBuffer commandBuffer = new CommandBuffer(); 
+                    commandBuffer.executeReturningCommand(customCommand);
+                    String commandBufferText = commandBuffer.getCommandBufferFromRam();
+                    if (commandBufferText != null){
+                        respondOKWithMessage(pResponse, commandBufferText,0);
+                    } else {
+                        respondServerErrorWithMessage(pResponse,commandBuffer.getExceptionMessage());
+                    }
+                } else {
+                    respondOKWithMessage(pResponse, "no command was specified, usage: " + CUSTOM_COMMAND + "?shellcommand",0);
+                }
 
             } else if ("HEAD".equals(method) || "GET".equals(method)) {
                 Logger.v(LOG_TAG, "Not found");
@@ -248,27 +295,41 @@ public class DeviceControllerHandler extends DefaultHandler {
 
     private void respondNotImplemented(HttpServletResponse response) throws ServletException,
             IOException {
-
         response.setContentType("text/plain");
         response.setStatus(HttpServletResponse.SC_NOT_IMPLEMENTED);
         response.setContentLength(0);
     }
 
     private void respondNotFound(HttpServletResponse response) throws ServletException, IOException {
-
         response.setContentType("text/plain");
         response.setStatus(HttpServletResponse.SC_NOT_FOUND);
         response.setContentLength(0);
     }
 
-    private void commandBufferResponse(HttpServletResponse response, CommandBuffer commandBuffer) throws ServletException, IOException {
-        response.setContentType("text/plain");
+    private void respondOKWithMessage(HttpServletResponse response, String responseText,int refreshrate) throws ServletException, IOException {
+        response.setContentType("text/html; charset=UTF-8");
         response.setStatus(HttpServletResponse.SC_OK);
         PrintWriter out = response.getWriter();
-        if (commandBuffer != null) {
-            out.print(commandBuffer.getCommandBuffer()); 
+        out.print("<!DOCTYPE html PUBLIC \"-//W3C//DTD HTML 4.01//EN\"");
+        out.print("\"http://www.w3.org/TR/html4/strict.dtd\">");
+        out.print("<html><head><title>Mobile Logs</title>");
+        if (refreshrate > 0){
+            out.print("<meta http-equiv=\"refresh\" content=\"" + refreshrate + "\"/>");
         }
+        out.print("</head><body>");
+        out.print("<pre>");
+        out.flush();
+        out.print(responseText); 
+        out.print("</pre></body></html>");
         out.flush();
     }
 
+    private void respondServerErrorWithMessage(HttpServletResponse response, String responseText) throws ServletException, IOException {
+        response.setContentType("text/plain");
+        response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+        PrintWriter out = response.getWriter();
+        out.print(responseText); 
+        out.flush();
+    }
+ 
 }

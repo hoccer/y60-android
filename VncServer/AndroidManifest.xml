@@ -3,7 +3,9 @@
       package="com.artcom.y60.vncserver"
       android:versionCode="1"
       android:versionName="1.0">
-    <application android:icon="@drawable/icon" android:label="@string/app_name" android:name="MainApplication">
+    
+    <application android:icon="@drawable/icon" android:label="@string/app_name" android:name="VncServerMainApplication">
+    
         <service android:name=".VncService">
             <intent-filter><action android:name="y60.intent.SERVICE_VNC_SERVER"/></intent-filter> 
         </service>
@@ -31,4 +33,13 @@
         android:permissionGroup="android.permission-group.SYSTEM_TOOLS"
         android:protectionLevel="signature" /-->
 
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"></uses-permission>
+    <uses-permission android:name="android.permission.ACCESS_SUPERUSER"></uses-permission>
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"></uses-permission>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"></uses-permission>
+    <uses-permission android:name="android.permission.INTERNET"></uses-permission>
+    <uses-permission android:name="android.permission.GET_TASKS"></uses-permission>
+    <uses-permission android:name="android.permission.READ_PHONE_STATE"></uses-permission>
+    <uses-permission android:name="android.permission.WAKE_LOCK"></uses-permission>
+    
 </manifest> 
