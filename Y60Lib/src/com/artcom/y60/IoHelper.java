@@ -376,7 +376,7 @@ public class IoHelper {
 
         Process sh = Runtime.getRuntime().exec("su");
         OutputStream os = sh.getOutputStream();
-        String chmodCommand = "su chmod 777 " + filePath;
+        String chmodCommand = "chmod 777 " + filePath;
         Logger.v(LOG_TAG, "exec : ", chmodCommand);
         IoHelper.writeCommand(os, chmodCommand);
         IoHelper.writeCommand(os, "exit");
