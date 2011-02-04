@@ -16,13 +16,16 @@ import android.preference.PreferenceManager;
 public class MainApplication extends Application {
 
     private static String LOG_TAG = "VNCServerMainApplication";
-    
+
     @Override
     public void onCreate() {
         super.onCreate();
 
         if (firstRun()) {
             Logger.v(LOG_TAG, "firstRun is true");
+
+            DBHelper dbHelper = new DBHelper(getApplicationContext());
+
             createBinary();
         } else {
             Logger.v(LOG_TAG, "firstRun is false");
@@ -36,13 +39,10 @@ public class MainApplication extends Application {
             versionCode = getPackageManager().getPackageInfo(getPackageName(),
                     PackageManager.GET_META_DATA).versionCode;
         } catch (NameNotFoundException e) {
-            Logger.e(LOG_TAG,
-                    "Package not found... Odd, since we're in that package...",
-                    e);
+            Logger.e(LOG_TAG, "Package not found... Odd, since we're in that package...", e);
         }
 
-        SharedPreferences prefs = PreferenceManager
-                .getDefaultSharedPreferences(this);
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         int lastFirstRun = prefs.getInt("last_run", 0);
 
         if (lastFirstRun >= versionCode) {
@@ -60,11 +60,11 @@ public class MainApplication extends Application {
     public void createBinary() {
         try {
             IoHelper.copyRawResourceToPath(R.raw.androidvncserver, getFilesDir().getAbsolutePath()
-                + "/androidvncserver", getResources());
+                    + "/androidvncserver", getResources());
             IoHelper.copyRawResourceToPath(R.raw.vncviewer, getFilesDir().getAbsolutePath()
-                + "/VncViewer.jar", getResources());
+                    + "/VncViewer.jar", getResources());
             IoHelper.copyRawResourceToPath(R.raw.indexvnc, getFilesDir().getAbsolutePath()
-                + "/index.vnc", getResources());
+                    + "/index.vnc", getResources());
 
             Process sh;
             sh = Runtime.getRuntime().exec("su");
@@ -72,7 +72,8 @@ public class MainApplication extends Application {
             IoHelper.writeCommand(os, "killall androidvncserver");
             IoHelper.writeCommand(os, "killall -KILL androidvncserver");
             // chmod 777 SHOULD exist
-            IoHelper.writeCommand(os, "chmod 777 " + getFilesDir().getAbsolutePath() + "/androidvncserver");
+            IoHelper.writeCommand(os, "chmod 777 " + getFilesDir().getAbsolutePath()
+                    + "/androidvncserver");
             os.close();
         } catch (IOException e) {
             ErrorHandling.signalIOError(LOG_TAG, e, this);

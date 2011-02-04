@@ -15,7 +15,20 @@
             </intent-filter>
         </receiver>
         
+        <receiver android:name="SuRequestReceiver">
+            <intent-filter>
+                <action android:name="com.noshufou.android.su.REQUEST" />
+            </intent-filter>
+        </receiver>
+        
     </application>
-
+    
+    <uses-permission android:name="com.noshufou.android.su.RESPOND" />
+    
+    <!-- permission android:name="com.noshufou.android.su.RESPOND"
+        android:label="@string/permlab_respond"
+        android:description="@string/permdesc_respond"
+        android:permissionGroup="android.permission-group.SYSTEM_TOOLS"
+        android:protectionLevel="signature" /-->
 
 </manifest> 

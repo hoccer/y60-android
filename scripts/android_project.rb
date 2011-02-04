@@ -7,16 +7,19 @@ require 'lib/test_result_collector'
 
 class AndroidProject < Project
 
-  attr_reader :manifest_xml
+  attr_reader :manifest_xml, :package
 
   ADB_SLEEP_TIME = 3
   EMULATOR_BOOT_SLEEP_TIME = 40
+  SU_PACKAGE = "com.noshufou.android.su"
 
   def initialize pj_name
     super pj_name
     manifest_file = "#{@path}/AndroidManifest.xml"
-    LOGGER.debug "reading manifest for project '#{@name}' from '#{manifest_file}'"
+    LOGGER.info "reading manifest for project '#{@name}' from '#{manifest_file}'"
     @manifest_xml = REXML::Document.new(File.new(manifest_file))
+    @package = @manifest_xml.root.attributes["package"]
+    LOGGER.info "manifest: #{manifest_xml.to_s}"
   end
 
   def create_build_env
@@ -52,11 +55,10 @@ class AndroidProject < Project
     s = "-s #{device_id}" unless device_id.nil? || device_id.empty?
 
     LOGGER.info " * Uninstalling '#{name}' on device id: '#{device_id}'"
-    package = @manifest_xml.root.attributes["package"]
-    LOGGER.info "   * Uninstalling package: #{package}"
+    LOGGER.info "   * Uninstalling package: #{@package}"
     run "uninstalling with adb", <<-EOT
       sleep #{ADB_SLEEP_TIME}
-      adb #{s} uninstall #{package} 
+      adb #{s} uninstall #{@package} 
     EOT
   end
 
@@ -73,6 +75,43 @@ class AndroidProject < Project
         adb #{s} shell pm install #{additional_install_flags} /data/local/#{File.basename apk}
       EOT
     end
+    
+    if File::exist? "#{path}/grant_root_permission" 
+      Logger.info "granting root permissions to #{@package} (#{@name})"
+      grant_root_permission device_id
+    end
+    
+  end
+  
+  def grant_root_permission device_id=""
+    s = "-s #{device_id}" unless device_id.nil? || device_id.empty?
+
+    uid = self.getPackageUid @package, device_id
+
+    sqlPatch = <<MYSQLITE
+INSERT INTO apps (uid,package,name,exec_uid, exec_cmd,allow)
+VALUES(#{uid},"#{@package}","#{@name}",0,"/system/bin/sh",1) 
+MYSQLITE
+    
+    mySqlPatchFile = Tempfile.new "grant_root_for_#{@package}.sql"
+    mySqlPatchFile << sqlPatch
+    mySqlPatchFile.flush
+    
+    system "adb #{s} pull /data/data/#{SU_PACKAGE}/databases/permissions.sqlite /tmp/permissions.sqlite.db"
+    system "sqlite3 /tmp/permissions.sqlite.db < #{mySqlPatchFile.path}"
+    system "adb #{s} push /tmp/permissions.sqlite.db /data/data/#{SU_PACKAGE}/databases/permissions.sqlite"
+    mySqlPatchFile.close
+    system "rm /tmp/permissions.sqlite.db"
+    
+    su_package_uid = self.getPackageUid SU_PACKAGE, device_id
+    system "adb #{s} chmod 660 /data/data/#{SU_PACKAGE}/databases/permissions.sqlite"
+    system "adb #{s} chown #{su_package_uid}:#{su_package_uid} /data/data/#{SU_PACKAGE}/databases/permissions.sqlite"
+  end
+  
+  def self.getPackageUid package, device_id=""
+    s = "-s #{device_id}" unless device_id.nil? || device_id.empty?
+    myResult = system "adb #{s} shell busybox ls -la /data/data/#{package}"
+    myResult.to_s.lines.to_a[1].split[2]
   end
 
   def reinstall device_id=""
