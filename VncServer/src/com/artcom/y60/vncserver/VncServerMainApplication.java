@@ -70,15 +70,11 @@ public class VncServerMainApplication extends Application {
             OutputStream os = sh.getOutputStream();
             IoHelper.writeCommand(os, "killall androidvncserver");
             IoHelper.writeCommand(os, "killall -KILL androidvncserver");
+            
             // chmod 777 SHOULD exist
             IoHelper.writeCommand(os, "chmod 777 " + getFilesDir().getAbsolutePath()
                     + "/androidvncserver");
             os.close();
-
-            Logger.v(LOG_TAG, "before chmod");
-            IoHelper.changeAccessRightsTo777(getFilesDir().getAbsolutePath() + "/"
-                    + VncService.VNC_EXECUTABLE);
-            Logger.v(LOG_TAG, "after chmod");
 
         } catch (IOException e) {
             ErrorHandling.signalIOError(LOG_TAG, e, this);

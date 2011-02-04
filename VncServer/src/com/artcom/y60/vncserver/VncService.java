@@ -144,11 +144,10 @@ public class VncService extends Y60Service {
         String vncExecutablePath = getFilesDir().getAbsolutePath() + "/" + VNC_EXECUTABLE;
         String cmdParams = " -r " + ROTATION + " -s " + SCALING + " -P " + PORT;
 
-        //IoHelper.changeAccessRightsTo777(vncExecutablePath);
         Process sh = Runtime.getRuntime().exec("su");
         OutputStream os = sh.getOutputStream();
         IoHelper.writeCommand(os, "chmod 777 " + getFilesDir().getAbsolutePath() + "/" + VNC_EXECUTABLE);
-        
+        os.close();
         
         IoHelper.launchExecutable(vncExecutablePath + cmdParams);
 

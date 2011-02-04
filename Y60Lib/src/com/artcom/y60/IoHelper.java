@@ -370,19 +370,11 @@ public class IoHelper {
         Thread.sleep(100);
     }
 
-    public static void changeAccessRightsTo777(String filePath) throws Exception {
-        boolean fileExists = new File(filePath).exists();
-        Logger.v(LOG_TAG, "does file: '", filePath, "' exists? : ", fileExists);
-
+    public static void changeAccessRights(String filePath, String newRights) throws Exception {
+        Logger.v(LOG_TAG, "changing AccessRights on file '" + filePath + "' to '" + newRights + "'");
         Process sh = Runtime.getRuntime().exec("su");
         OutputStream os = sh.getOutputStream();
-        String chmodCommand = "chmod 777 " + filePath;
-        Logger.v(LOG_TAG, "exec : ", chmodCommand);
-        IoHelper.writeCommand(os, chmodCommand);
-        IoHelper.writeCommand(os, "exit");
-        os.flush();
-        os.close();
-        Thread.sleep(100);
+        IoHelper.writeCommand(os, "chmod " + filePath + " " + filePath);
     }
 
 }
