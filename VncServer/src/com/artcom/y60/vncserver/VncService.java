@@ -75,6 +75,11 @@ public class VncService extends Y60Service {
         notificationManager.cancel(NOTIFICATION_ID);
     }
 
+    private void updateNotification() {
+        NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        notificationManager.notify(NOTIFICATION_ID, getCurrentNotification());
+    }
+
     @Override
     public IBinder onBind(Intent intent) {
         Logger.v(LOG_TAG, "onBind: " + intent);
@@ -153,6 +158,9 @@ public class VncService extends Y60Service {
         Logger.v(LOG_TAG, "launching exec");
         IoHelper.launchExecutable(vncExecutablePath + cmdParams);
         Logger.v(LOG_TAG, "launched exec");
+
+        Thread.sleep(1000);
+        updateNotification();
     }
 
     public void stopServer() throws Exception {
@@ -212,13 +220,13 @@ public class VncService extends Y60Service {
                 boolean vncCurrentRunningState = isVncServerRunning();
                 if (lastSeenStatus != vncCurrentRunningState) {
                     Logger.v(LOG_TAG, "watchdog updates notification, ", this);
-                    NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-                    notificationManager.notify(NOTIFICATION_ID, getCurrentNotification());
+                    updateNotification();
                     lastSeenStatus = vncCurrentRunningState;
                 }
 
             }
         }
+
     }
 
 }

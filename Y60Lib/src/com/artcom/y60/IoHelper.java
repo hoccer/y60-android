@@ -351,7 +351,6 @@ public class IoHelper {
                 }
             }
 
-            Logger.v(LOG_TAG, "process '", theProcessName, "' running: ", status);
             return status;
         } catch (IOException e) {
             Logger.e(LOG_TAG, e);
