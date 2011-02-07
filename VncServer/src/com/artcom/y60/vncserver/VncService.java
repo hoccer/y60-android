@@ -20,21 +20,24 @@ import android.os.IBinder;
 
 public class VncService extends Y60Service {
 
-    private static final String LOG_TAG         = "VncService";
-    private static final int    NOTIFICATION_ID = 123;               // TODO receive from
-                                                                      // constants?
-    private static final String PORT            = "5900";
-    private static final String SCALING         = "100";
-    private static final String ROTATION        = "0";
-    static final String         VNC_EXECUTABLE  = "androidvncserver";
+    private static final String LOG_TAG           = "VncService";
+    private static final int    NOTIFICATION_ID   = 123;               // TODO receive from
+                                                                        // constants?
+    private static final String PORT              = "5900";
+    private static final String SCALING           = "100";
+    private static final String ROTATION          = "0";
+    static final String         VNC_EXECUTABLE    = "androidvncserver";
+    public static final long    WATCHDOG_INTERVAL = 5 * 1000;
 
-    private Notification        notification    = null;
-    private String              mIpAddress      = "unknown";
+    private Notification        notification      = null;
+    private String              mIpAddress        = "unknown";
     private Intent              mNotificationPressedIntent;
+
+    private Thread              vncWatchdog;
 
     @Override
     public void onCreate() {
-        Logger.v(LOG_TAG, "onCreate()");
+        Logger.v(LOG_TAG, "onCreate() ", this);
 
         mNotificationPressedIntent = new Intent("tgallery.intent.SUPER_COW_POWER");
 
@@ -43,6 +46,10 @@ public class VncService extends Y60Service {
         notification.setLatestEventInfo(this, LOG_TAG, "Service created - status unknown",
                 PendingIntent.getActivity(this, 0, mNotificationPressedIntent, 0));
         startForeground(NOTIFICATION_ID, notification);
+
+        vncWatchdog = new VncExecutableWatcher();
+        vncWatchdog.start();
+
         super.onCreate();
     }
 
@@ -54,9 +61,18 @@ public class VncService extends Y60Service {
         } catch (Exception e) {
             ErrorHandling.signalError(LOG_TAG, e, this, ErrorHandling.Category.COMMAND_EXECUTION);
         }
+
+        vncWatchdog.interrupt();
+        vncWatchdog = null;
+
+        cancelNotification();
+
+        super.onDestroy();
+    }
+
+    private synchronized void cancelNotification() {
         NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         notificationManager.cancel(NOTIFICATION_ID);
-        super.onDestroy();
     }
 
     @Override
@@ -99,8 +115,6 @@ public class VncService extends Y60Service {
             myIcon = R.drawable.icon_stopped;
         }
 
-        // Notification notification = new Notification(myIcon, LOG_TAG,
-        // System.currentTimeMillis());
         notification.icon = myIcon;
         notification.setLatestEventInfo(this, LOG_TAG, myMsg,
                 PendingIntent.getActivity(this, 0, mNotificationPressedIntent, 0));
@@ -120,26 +134,10 @@ public class VncService extends Y60Service {
         }
     }
 
-    public void stopServer() throws Exception {
-        Logger.v(LOG_TAG, "stopServer");
-        if (!isVncServerRunning()) {
-            Logger.v(LOG_TAG, "Server is already stopped...");
-            NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-            notificationManager.notify(NOTIFICATION_ID, getCurrentNotification());
-            return;
-        }
-        killServer();
-        Thread.sleep(500);
-        NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        notificationManager.notify(NOTIFICATION_ID, getCurrentNotification());
-    }
-
     public void startServer() throws Exception {
         Logger.v(LOG_TAG, "startServer()");
         if (isVncServerRunning()) {
-            Logger.v(LOG_TAG, "Server is already running...");
-            NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-            notificationManager.notify(NOTIFICATION_ID, getCurrentNotification());
+            Logger.v(LOG_TAG, "Server is already running... return");
             return;
         }
 
@@ -155,17 +153,24 @@ public class VncService extends Y60Service {
         Logger.v(LOG_TAG, "launching exec");
         IoHelper.launchExecutable(vncExecutablePath + cmdParams);
         Logger.v(LOG_TAG, "launched exec");
-
-        Thread.sleep(1000);
-        NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        notificationManager.notify(NOTIFICATION_ID, getCurrentNotification());
     }
 
-    static void killServer() throws Exception {
+    public void stopServer() throws Exception {
+        Logger.v(LOG_TAG, "stopServer");
+        if (!isVncServerRunning()) {
+            Logger.v(LOG_TAG, "Server is already stopped...");
+            return;
+        }
+        killVncExecutable();
+    }
+
+    static void killVncExecutable() throws Exception {
         Process sh;
 
         sh = Runtime.getRuntime().exec("su");
         OutputStream os = sh.getOutputStream();
+
+        Logger.v(LOG_TAG, "killServer");
 
         if (IoHelper.hasBusybox()) {
             IoHelper.writeCommand(os, "busybox killall androidvncserver");
@@ -174,7 +179,6 @@ public class VncService extends Y60Service {
             IoHelper.writeCommand(os, "killall androidvncserver");
             IoHelper.writeCommand(os, "killall -KILL androidvncserver");
             if (IoHelper.findExecutableOnPath("killall") == null) {
-                // showTextOnScreen("I couldn't find the killall executable, please install busybox or i can't stop server");
                 Logger.v(LOG_TAG,
                         "I couldn't find the killall executable, please install busybox or i can't stop server");
             }
@@ -184,4 +188,37 @@ public class VncService extends Y60Service {
         os.flush();
         os.close();
     }
+
+    public class VncExecutableWatcher extends Thread {
+
+        boolean lastSeenStatus = false;
+
+        public VncExecutableWatcher() {
+            lastSeenStatus = isVncServerRunning();
+        }
+
+        @Override
+        public void run() {
+            while (!isInterrupted()) {
+
+                try {
+                    Thread.sleep(WATCHDOG_INTERVAL);
+                } catch (InterruptedException e) {
+                    Logger.e(LOG_TAG, "Thread sleep got interrupted in VncExecutableWatcher ", this);
+                    cancelNotification();
+                    break;
+                }
+
+                boolean vncCurrentRunningState = isVncServerRunning();
+                if (lastSeenStatus != vncCurrentRunningState) {
+                    Logger.v(LOG_TAG, "watchdog updates notification, ", this);
+                    NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+                    notificationManager.notify(NOTIFICATION_ID, getCurrentNotification());
+                    lastSeenStatus = vncCurrentRunningState;
+                }
+
+            }
+        }
+    }
+
 }

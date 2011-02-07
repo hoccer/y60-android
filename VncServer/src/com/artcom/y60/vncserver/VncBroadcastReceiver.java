@@ -15,11 +15,11 @@ public class VncBroadcastReceiver extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         if (intent.getAction().equals(Y60Action.KILL_VNC_SERVER)) {
             try {
-                VncService.killServer();
+                VncService.killVncExecutable();
             } catch (Exception e) {
-                ErrorHandling.signalError(LOG_TAG, e, context, ErrorHandling.Category.COMMAND_EXECUTION);
+                ErrorHandling.signalError(LOG_TAG, e, context,
+                        ErrorHandling.Category.COMMAND_EXECUTION);
             }
         }
     }
-
 }

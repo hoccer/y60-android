@@ -77,9 +77,7 @@ public class NetworkHelper {
     }
 
     public static HashSet<InetAddress> getLocalIpAddresses() throws SocketException {
-        Logger.v(LOG_TAG, "1");
         HashSet<InetAddress> addresses = new HashSet<InetAddress>();
-        Logger.v(LOG_TAG, "2");
         Enumeration<NetworkInterface> nis;
         try {
             nis = NetworkInterface.getNetworkInterfaces();
@@ -87,22 +85,16 @@ public class NetworkHelper {
             Logger.v(LOG_TAG, "SOCKET EXCEPTION");
         }
         nis = NetworkInterface.getNetworkInterfaces();
-        Logger.v(LOG_TAG, "3");
         while (nis.hasMoreElements()) {
-            Logger.v(LOG_TAG, "4");
 
             NetworkInterface ni = nis.nextElement();
             Enumeration<InetAddress> iis = ni.getInetAddresses();
             while (iis.hasMoreElements()) {
                 InetAddress inetAddress = iis.nextElement();
-                Logger.v(LOG_TAG, inetAddress.getHostAddress()
-                        + "--------------------------<<------ host add ------------------");
                 addresses.add(inetAddress);
             }
         }
 
-        Logger.v(LOG_TAG, addresses.size()
-                + "--------------------------<<------ size of add ------------------");
         return addresses;
     }
 
@@ -156,9 +148,6 @@ public class NetworkHelper {
      */
     public static String getDeviceIpAddress() throws IpAddressNotFoundException {
 
-        Logger.v(LOG_TAG, "getDeviceIpAddress "
-                + "--------------------------<<------------------------");
-
         HashSet<InetAddress> addresses = null;
         try {
             addresses = NetworkHelper.getLocalIpAddresses();
@@ -169,7 +158,6 @@ public class NetworkHelper {
         Iterator<InetAddress> itr = addresses.iterator();
         while (itr.hasNext()) {
             InetAddress addr = itr.next();
-            Logger.v(LOG_TAG, addr + "--------------------------<<------------------------");
             String addrString = addr.getHostAddress();
             if (!addrString.equals("127.0.0.1")) {
                 return addrString;
