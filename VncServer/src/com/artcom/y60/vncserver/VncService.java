@@ -77,7 +77,9 @@ public class VncService extends Y60Service {
 
         try {
             startServer();
+            Logger.v(LOG_TAG, "before sending vcn ready!");
             sendBroadcast(new Intent(Y60Action.VNC_SERVICE_READY));
+            Logger.v(LOG_TAG, "bc send");
         } catch (Exception e) {
             ErrorHandling.signalError(LOG_TAG, e, this, ErrorHandling.Category.COMMAND_EXECUTION);
         }
@@ -146,12 +148,15 @@ public class VncService extends Y60Service {
 
         Process sh = Runtime.getRuntime().exec("su");
         OutputStream os = sh.getOutputStream();
-        IoHelper.writeCommand(os, "chmod 777 " + getFilesDir().getAbsolutePath() + "/" + VNC_EXECUTABLE);
+        IoHelper.writeCommand(os, "chmod 777 " + getFilesDir().getAbsolutePath() + "/"
+                + VNC_EXECUTABLE);
         os.close();
-        
-        IoHelper.launchExecutable(vncExecutablePath + cmdParams);
 
-        Thread.sleep(500);
+        Logger.v(LOG_TAG, "launching exec");
+        IoHelper.launchExecutable(vncExecutablePath + cmdParams);
+        Logger.v(LOG_TAG, "launched exec");
+
+        Thread.sleep(1000);
         NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         notificationManager.notify(NOTIFICATION_ID, getCurrentNotification());
     }
