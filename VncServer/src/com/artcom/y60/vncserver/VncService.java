@@ -27,7 +27,7 @@ public class VncService extends Y60Service {
     private static final String SCALING           = "100";
     private static final String ROTATION          = "0";
     static final String         VNC_EXECUTABLE    = "androidvncserver";
-    public static final long    WATCHDOG_INTERVAL = 5 * 1000;
+    public static final long    WATCHDOG_INTERVAL = 30 * 1000;
 
     private Notification        notification      = null;
     private String              mIpAddress        = "unknown";
@@ -88,8 +88,8 @@ public class VncService extends Y60Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Logger.v(LOG_TAG, "onStartCommand  - id: " + startId); // , id: " + startId + " " + this, "
-                                                               // " + Thread.currentThread());
+        Logger.v(LOG_TAG, "onStartCommand  - id: " + startId);
+
         try {
             mIpAddress = NetworkHelper.getDeviceIpAddress();
         } catch (IpAddressNotFoundException e) {
@@ -203,6 +203,7 @@ public class VncService extends Y60Service {
 
         public VncExecutableWatcher() {
             lastSeenStatus = isVncServerRunning();
+            updateNotification();
         }
 
         @Override
