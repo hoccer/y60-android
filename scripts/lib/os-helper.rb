@@ -7,6 +7,9 @@
 #  puts "sudo gem install SystemTimer"
   require 'timeout'
   MyTimer = Timeout
+  
+  require 'open3'
+  
 #end
 
 module OS
@@ -18,6 +21,15 @@ module OS
     end
   rescue Timeout::Error
     raise "Timeout while executing cmd: '#{cmd}'"
+  end
+  
+  def self.executePopen3 cmd
+    stdin, stdout, stderr = Open3.popen3("#{cmd}")
+    stderr = stderr.read
+    stdout = stdout.read
+    raise stderr if stderr != ''  
+
+    return [stdin, stdout, stderr]
   end
   
 end

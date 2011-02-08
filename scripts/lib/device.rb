@@ -39,28 +39,33 @@ class Device
   end
   
   def isAndroidHomescreenEnabled?
-    stdin, stdout, stderr = Open3.popen3("adb -s #{@id} shell am start -a android.intent.action.MAIN -c android.intent.category.HOME -c android.intent.category.MONKEY")
-    stderr = stderr.read
-    stdout = stdout.read
-    raise stderr if stderr != ''
     
+    if isAndroidHomescreenRunning?
+      return true
+    end
+    
+    stdin, stdout, stderr = OS::executePopen3("adb -s #{@id} shell am start -a android.intent.action.MAIN -c android.intent.category.HOME -c android.intent.category.MONKEY")    
     if stdout.include? "unable to resolve Intent"
-      return false
-    else
-      
-      stdin, stdout, stderr = Open3.popen3("adb -s #{@id} shell pm list packages")
-      stderr = stderr.read
-      stdout = stdout.read
-      raise stderr if stderr != ''
-      
+      return false    
+    else      
+      stdin, stdout, stderr =  OS::executePopen3("adb -s #{@id} shell pm list packages")      
       if stdout.include? "com.artcom.tgallery.homescreen"
         start "tgallery.intent.HOME_SCREEN"
       else
         start "y60.intent.SUPER_COW_POWER"
-      end 
-      
+      end       
       return true
     end
+    
+  end
+  
+  def isAndroidHomescreenRunning?
+    homescreen_package = "com.android.launcher"
+    stdin, stdout, stderr = OS::executePopen3("adb -s #{@id} shell busybox ps aux | grep #{homescreen_package}")
+    if stdout.to_s.include? homescreen_package
+      return true
+    end        
+    return false
   end
   
   def setHomescreenEnabled enabledFlag
