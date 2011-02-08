@@ -154,15 +154,13 @@ public class SynergyServer {
 
                 } else if ( SynergyServerHelper.messageSearchString(message,"DINF") ) {
                     Logger.v(LOG_TAG,"got Dinfo message");
-                    /*
-                    mClientScreenPosLeft =  (message.get(8) << 8) + message.get(9);
-                    mClientScreenPosTop =  (message.get(10) << 8) + message.get(11);
+                    //mClientScreenPosLeft =  (message.get(8) << 8) + message.get(9);
+                    //mClientScreenPosTop =  (message.get(10) << 8) + message.get(11);
                     mClientScreenWidth =  (message.get(12) << 8) + message.get(13);
                     mClientScreenHeight =  (message.get(14) << 8) + message.get(15);
-                    mClientScreenWarpZone =  (message.get(16) << 8) + message.get(17);
-                    mClientScreenMousePosX =  (message.get(18) << 8) + message.get(19);
-                    mClientScreenMousePosY =  (message.get(20) << 8) + message.get(21);
-                    */
+                    //mClientScreenWarpZone =  (message.get(16) << 8) + message.get(17);
+                    //mClientScreenMousePosX =  (message.get(18) << 8) + message.get(19);
+                    //mClientScreenMousePosY =  (message.get(20) << 8) + message.get(21);
                     sendMessage("CIAK");
                     if ( mIsConnectedToClient == false ) {
                         sendMessage("CROP");
