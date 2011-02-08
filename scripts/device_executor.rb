@@ -21,9 +21,14 @@ class DeviceExecutor
   
   def devices
     refresh_device_list
-    @connected_devices
-  end
+    return @connected_devices
+  end  
   
+  #like this naming more, dont want to break usage of old function, TODO: clean usage
+  def get_refreshed_devices
+    refresh_device_list
+    return @connected_devices
+  end
   
   def execution_loop
     while (true)
@@ -33,7 +38,7 @@ class DeviceExecutor
   end
   
   def process_devices
-    devices.each {|device|
+     get_refreshed_devices.each {|device|
         MyTimer.timeout(600.seconds) do
           execute_cmds_for device
         end
@@ -70,19 +75,17 @@ class DeviceExecutor
   
   
   def get_offline_devices
-    puts "start get_offline_devices"
     offline_devices = Array.new  
     adb_in = open "|adb devices"
     while (line = adb_in.gets)
       next unless line.strip.end_with? 'offline' 
       device_id = extract_device_id line
-      offline_device = Device.new(device_id)
-      offline_device.is_online_device = false
-      offline_devices << offline_device
+      off_device = Device.new(device_id)
+      off_device.is_online_device = false
+      offline_devices << off_device
     end
     adb_in.close  
-    puts "end of get_offline_devices"
-    puts offline_devices.inspect    
+    puts "offline devices are: #{offline_devices.inspect}"    
     return offline_devices
   end
   
