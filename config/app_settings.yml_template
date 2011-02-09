@@ -1,10 +1,10 @@
 #Create an app_settings.yml file from this template and store it in the <y60-path>/config folder.
 #Since app_settings.yml is listed in .gitignore it wont be tracked.
 #For api level see: http://developer.android.com/guide/appendix/api-levels.html
-avd_name: "my_avd_name"
+avd_name: "DellStreak7-ACTG-01"
 api_level: "8" 
-gom: "http://gom2.t-gallery.act"
-device_path: "/areas/mobile/emulator_for_hudson"
+gom: "http://gom.t-gallery.act"
+device_path: "/areas/mobile/DellStreak7-ACTG-01"
 skin_type: "WVGA800"
 #   possible skin_type values:
 #       HVGA        320x480 medium density

@@ -1,9 +1,9 @@
 #!/usr/bin/env ruby
-
 $:.unshift File.join(File.dirname(__FILE__), '..', 'scripts')
 require 'project'
 require 'open3'
 require 'lib/test_result_collector'
+require 'lib/os-helper'
 
 class AndroidProject < Project
 
@@ -81,12 +81,26 @@ class AndroidProject < Project
     else 
       LOGGER.info "NOT granting root permissions to #{@package} (#{@name})"
     end
-    
   end
   
+  def has_device_root device_id="hans"
+    s = "-s #{device_id}" unless device_id.nil? || device_id.empty?        
+     stdin, stdout, stderr = OS::executePopen3("adb #{s} shell id")    
+     puts "buh #{stdout}"
+     if stdout.to_s.include? "root"
+       return true
+     end
+     return false
+   end
+  
   def grant_root_permission device_id=""
-    s = "-s #{device_id}" unless device_id.nil? || device_id.empty?
 
+    if has_device_root device_id    
+      LOGGER.info " * Device with device id: '#{device_id}' has no root permissions"
+      return
+    end
+
+    s = "-s #{device_id}" unless device_id.nil? || device_id.empty?
     uid = getPackageUid @package, device_id
 
     sqlPatch = <<MYSQLITE
