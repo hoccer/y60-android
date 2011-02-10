@@ -76,17 +76,14 @@ class AndroidProject < Project
     end
     
     if File::exist? "#{path}/grant_root_permission" 
-      LOGGER.info "Granting root permissions to #{@package} (#{@name})"
+      LOGGER.info " * Trying to grant root permissions to #{@package} (#{@name})"
       grant_root_permission device_id
-    else 
-      LOGGER.info "NOT granting root permissions to #{@package} (#{@name})"
     end
   end
   
-  def has_device_root device_id="hans"
+  def has_device_root_permissions device_id=""
     s = "-s #{device_id}" unless device_id.nil? || device_id.empty?        
      stdin, stdout, stderr = OS::executePopen3("adb #{s} shell id")    
-     puts "buh #{stdout}"
      if stdout.to_s.include? "root"
        return true
      end
@@ -95,7 +92,7 @@ class AndroidProject < Project
   
   def grant_root_permission device_id=""
 
-    if has_device_root device_id    
+    if !has_device_root_permissions device_id    
       LOGGER.info " * Device with device id: '#{device_id}' has no root permissions"
       return
     end
@@ -120,6 +117,7 @@ MYSQLITE
     su_package_uid = self.getPackageUid SU_PACKAGE, device_id
     system "adb #{s} shell chmod 660 /data/data/#{SU_PACKAGE}/databases/permissions.sqlite"
     system "adb #{s} shell chown #{su_package_uid}:#{su_package_uid} /data/data/#{SU_PACKAGE}/databases/permissions.sqlite"
+    LOGGER.info "   * Successfully granted root permissions"    
   end
   
   def getPackageUid package, device_id=""
