@@ -125,6 +125,14 @@ public class DeviceConfiguration {
         }
     }
 
+    public static boolean hasRootPermissions() {
+        if (android.os.Build.MODEL.equals("Nexus One")) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     public void saveLogLevel(Logger.Level pLevel) {
         mLogLevel = pLevel;
         save();
@@ -145,4 +153,5 @@ public class DeviceConfiguration {
             throw new RuntimeException(ex);
         }
     }
+
 }

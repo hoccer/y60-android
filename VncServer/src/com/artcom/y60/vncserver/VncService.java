@@ -3,6 +3,7 @@ package com.artcom.y60.vncserver;
 import java.io.IOException;
 import java.io.OutputStream;
 
+import com.artcom.y60.DeviceConfiguration;
 import com.artcom.y60.ErrorHandling;
 import com.artcom.y60.IoHelper;
 import com.artcom.y60.IpAddressNotFoundException;
@@ -141,6 +142,12 @@ public class VncService extends Y60Service {
 
     public void startServer() throws Exception {
         Logger.v(LOG_TAG, "startServer()");
+
+        if (!DeviceConfiguration.hasRootPermissions()) {
+            Logger.v(LOG_TAG, "Device has no root permissions, not starting vnc server");
+            return;
+        }
+
         if (isVncServerRunning()) {
             Logger.v(LOG_TAG, "Server is already running... return");
             return;
