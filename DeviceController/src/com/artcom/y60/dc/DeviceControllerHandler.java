@@ -3,13 +3,11 @@ package com.artcom.y60.dc;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.Arrays;
+import java.net.URLDecoder;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import java.net.URLDecoder;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -25,23 +23,22 @@ import com.artcom.y60.IntentExtraKeys;
 import com.artcom.y60.Logger;
 import com.artcom.y60.Y60Action;
 
-import android.app.Service;
 import android.content.Intent;
 
 public class DeviceControllerHandler extends DefaultHandler {
 
     // Constants ---------------------------------------------------------
 
-    private static final String LOG_TAG                 = "DeviceControllerHandler";
+    private static final String           LOG_TAG          = "DeviceControllerHandler";
 
     /** path prefix for proc requests */
-    public static final String  PROC_PATH_PREFIX        = "/proc";
+    public static final String            PROC_PATH_PREFIX = "/proc";
 
     /** target for RCA HTTP requests */
-    public static final String  RCA_TARGET              = "/commands";
+    public static final String            RCA_TARGET       = "/commands";
 
-    public static final String  LOG_COMMAND             = "/logcat";
-    public static final String  CUSTOM_COMMAND          = "/exec";
+    public static final String            LOG_COMMAND      = "/logcat";
+    public static final String            CUSTOM_COMMAND   = "/exec";
 
     // Instance Variables ------------------------------------------------
 
@@ -61,10 +58,10 @@ public class DeviceControllerHandler extends DefaultHandler {
 
         try {
             String method = pRequest.getMethod();
-            //String path = pRequest.getPathInfo();
+            // String path = pRequest.getPathInfo();
 
             Logger.v(LOG_TAG, "Incoming HTTP request________");
-            
+
             if ("POST".equals(method) && RCA_TARGET.equals(pTarget)) {
 
                 handleCommand(pRequest);
@@ -74,58 +71,64 @@ public class DeviceControllerHandler extends DefaultHandler {
                 handleGomNotification(pRequest);
 
             } else if ("GET".equals(method) && LOG_COMMAND.equals(pTarget)) {
-                long     visible_characters = 0;
-                int      refreshRate = 0;
+                long visible_characters = 0;
+                int refreshRate = 0;
                 if (pRequest.getQueryString() != null) {
-                    String[]    parameterList = URLDecoder.decode(pRequest.getQueryString()).split("&");
-                    String      sizeParamterIdentifier = "size=";
-                    String      refreshRateParamterIdentifier = "refresh=";
-                    for(int i=0;i<parameterList.length;++i){
-                        if(parameterList[i].startsWith(sizeParamterIdentifier)){
-                           String numberString = parameterList[i].substring(sizeParamterIdentifier.length()); 
-                           try {
-                               visible_characters = Long.parseLong(numberString);
-                           } catch(NumberFormatException e){
-                           }
+                    String[] parameterList = URLDecoder.decode(pRequest.getQueryString())
+                            .split("&");
+                    String sizeParamterIdentifier = "size=";
+                    String refreshRateParamterIdentifier = "refresh=";
+                    for (int i = 0; i < parameterList.length; ++i) {
+                        if (parameterList[i].startsWith(sizeParamterIdentifier)) {
+                            String numberString = parameterList[i].substring(sizeParamterIdentifier
+                                    .length());
+                            try {
+                                visible_characters = Long.parseLong(numberString);
+                            } catch (NumberFormatException e) {
+                            }
                         }
-                        if(parameterList[i].startsWith(refreshRateParamterIdentifier)){
-                           String numberString = parameterList[i].substring(refreshRateParamterIdentifier.length()); 
-                           try {
-                               refreshRate = Integer.parseInt(numberString);
-                           } catch(NumberFormatException e){
-                           }
+                        if (parameterList[i].startsWith(refreshRateParamterIdentifier)) {
+                            String numberString = parameterList[i]
+                                    .substring(refreshRateParamterIdentifier.length());
+                            try {
+                                refreshRate = Integer.parseInt(numberString);
+                            } catch (NumberFormatException e) {
+                            }
                         }
                     }
                 }
 
-                String commandBufferText = null;
-                if( visible_characters != 0 ){
-                    commandBufferText = mService.getLogcatCommandBuffer().getCommandBufferFromFile(visible_characters);
-                } else {
-                    commandBufferText = mService.getLogcatCommandBuffer().getCommandBufferFromFile();
-                }
-
-                if (commandBufferText != null ){
-                    respondOKWithMessage(pResponse, commandBufferText,refreshRate);
-                } else {
-                    respondServerErrorWithMessage(pResponse,mService.getLogcatCommandBuffer().getExceptionMessage());
-                }
+                // String commandBufferText = null;
+                // if( visible_characters != 0 ){
+                // commandBufferText =
+                // mService.getLogcatCommandBuffer().getCommandBufferFromFile(visible_characters);
+                // } else {
+                // commandBufferText = mService.getLogcatCommandBuffer().getCommandBufferFromFile();
+                // }
+                //
+                // if (commandBufferText != null ){
+                // respondOKWithMessage(pResponse, commandBufferText,refreshRate);
+                // } else {
+                // respondServerErrorWithMessage(pResponse,mService.getLogcatCommandBuffer().getExceptionMessage());
+                // }
 
             } else if ("GET".equals(method) && pTarget.startsWith(CUSTOM_COMMAND)) {
                 if (pRequest.getQueryString() != null) {
                     String customCommand = URLDecoder.decode(pRequest.getQueryString());
-                    Logger.v(LOG_TAG,"CUSTOM COMMAND: ", customCommand);
+                    Logger.v(LOG_TAG, "CUSTOM COMMAND: ", customCommand);
 
-                    CommandBuffer commandBuffer = new CommandBuffer(); 
+                    CommandBuffer commandBuffer = new CommandBuffer();
                     commandBuffer.executeReturningCommand(customCommand);
                     String commandBufferText = commandBuffer.getCommandBufferFromRam();
-                    if (commandBufferText != null){
-                        respondOKWithMessage(pResponse, commandBufferText,0);
+                    if (commandBufferText != null) {
+                        respondOKWithMessage(pResponse, commandBufferText, 0);
                     } else {
-                        respondServerErrorWithMessage(pResponse,commandBuffer.getExceptionMessage());
+                        respondServerErrorWithMessage(pResponse,
+                                commandBuffer.getExceptionMessage());
                     }
                 } else {
-                    respondOKWithMessage(pResponse, "no command was specified, usage: " + CUSTOM_COMMAND + "?shellcommand",0);
+                    respondOKWithMessage(pResponse, "no command was specified, usage: "
+                            + CUSTOM_COMMAND + "?shellcommand", 0);
                 }
 
             } else if ("HEAD".equals(method) || "GET".equals(method)) {
@@ -185,9 +188,11 @@ public class DeviceControllerHandler extends DefaultHandler {
         UrlEncoded.decodeUtf8To(argumentsUrl.getBytes(), 0, argumentsUrl.length(), argumentsMap);
         String argumentsJson = new JSONObject(argumentsMap).toString();
 
-        Logger.v(LOG_TAG, "target = " + (String) parameters.get("target") + ", sender = "
-                + (String) parameters.get("sender") + ", receiver = "
-                + (String) parameters.get("receiver") + ", arguments = " + argumentsJson);
+        Logger.v(
+                LOG_TAG,
+                "target = " + (String) parameters.get("target") + ", sender = "
+                        + (String) parameters.get("sender") + ", receiver = "
+                        + (String) parameters.get("receiver") + ", arguments = " + argumentsJson);
 
         Intent broadcastIntent = null;
 
@@ -306,30 +311,32 @@ public class DeviceControllerHandler extends DefaultHandler {
         response.setContentLength(0);
     }
 
-    private void respondOKWithMessage(HttpServletResponse response, String responseText,int refreshrate) throws ServletException, IOException {
+    private void respondOKWithMessage(HttpServletResponse response, String responseText,
+            int refreshrate) throws ServletException, IOException {
         response.setContentType("text/html; charset=UTF-8");
         response.setStatus(HttpServletResponse.SC_OK);
         PrintWriter out = response.getWriter();
         out.print("<!DOCTYPE html PUBLIC \"-//W3C//DTD HTML 4.01//EN\"");
         out.print("\"http://www.w3.org/TR/html4/strict.dtd\">");
         out.print("<html><head><title>Mobile Logs</title>");
-        if (refreshrate > 0){
+        if (refreshrate > 0) {
             out.print("<meta http-equiv=\"refresh\" content=\"" + refreshrate + "\"/>");
         }
         out.print("</head><body>");
         out.print("<pre>");
         out.flush();
-        out.print(responseText); 
+        out.print(responseText);
         out.print("</pre></body></html>");
         out.flush();
     }
 
-    private void respondServerErrorWithMessage(HttpServletResponse response, String responseText) throws ServletException, IOException {
+    private void respondServerErrorWithMessage(HttpServletResponse response, String responseText)
+            throws ServletException, IOException {
         response.setContentType("text/plain");
         response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         PrintWriter out = response.getWriter();
-        out.print(responseText); 
+        out.print(responseText);
         out.flush();
     }
- 
+
 }
