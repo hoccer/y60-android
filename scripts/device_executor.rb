@@ -39,7 +39,7 @@ class DeviceExecutor
   
   def process_devices
      get_refreshed_devices.each {|device|
-        MyTimer.timeout(600.seconds) do
+        MyTimer.timeout(600) do
           execute_cmds_for device
         end
     }
@@ -48,6 +48,10 @@ class DeviceExecutor
   def execute_cmds_for device
     putsf "executing tasks for #{device}"
     device.wait
+  end
+
+  def new_device_connected device
+    putsf "new Device connected: #{device}"
   end
   
   def refresh_device_list
@@ -59,7 +63,7 @@ class DeviceExecutor
       if known_device_ids.include? device_id
         known_device_ids.delete device_id
       else
-        putsf "new Device connected: #{device_id}"
+        new_device_connected device_id
         @connected_devices << Device.new(device_id)
       end
     end
