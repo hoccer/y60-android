@@ -38,21 +38,20 @@ public class DeviceControllerService extends Y60Service {
     Server                      mServer;
 
     private final IBinder       mBinder          = new DeviceControllerBinder();
-
-    // private CommandBuffer mLogcatBuffer = null;
+    private CommandBuffer       mLogcatBuffer    = null;
 
     @Override
     public void onCreate() {
-        Logger.v(LOG_TAG, "onCreate START");
-
+    	Logger.v(LOG_TAG, "onCreate START");
+    	
         Notification notification = new Notification(R.drawable.statusbar_dc, LOG_TAG,
                 System.currentTimeMillis());
         notification.setLatestEventInfo(this, LOG_TAG, "",
                 PendingIntent.getBroadcast(this, 0, new Intent(), 0));
         startForeground(notificationId, notification);
 
-        // mLogcatBuffer = new CommandBuffer();
-        // mLogcatBuffer.executeNonReturningCommandAndCapture("logcat -v time");
+        mLogcatBuffer = new CommandBuffer(); 
+        mLogcatBuffer.executeNonReturningCommandAndCapture("logcat -v time");
 
         try {
             if (mServer == null) {
@@ -76,9 +75,9 @@ public class DeviceControllerService extends Y60Service {
         super.onCreate();
     }
 
-    // public CommandBuffer getLogcatCommandBuffer() {
-    // return mLogcatBuffer;
-    // }
+    public CommandBuffer getLogcatCommandBuffer() {
+        return mLogcatBuffer;
+    }
 
     @Override
     public int onStartCommand(Intent pIntent, int flags, int startId) {
@@ -159,8 +158,8 @@ public class DeviceControllerService extends Y60Service {
             }
         }
 
-        // mLogcatBuffer.stopCommandAndCapture();
-        // mLogcatBuffer = null;
+        mLogcatBuffer.stopCommandAndCapture();
+        mLogcatBuffer = null;
 
         stopForeground(true);
         super.onDestroy();
