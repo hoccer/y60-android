@@ -270,7 +270,7 @@ public class CommandBuffer {
     private void stopCommandProcess() {
         commandProcess.destroy();
         commandProcess = null;
-        Logger.v(LOG_TAG,"destoyed command process");
+        Logger.v(LOG_TAG,"destroyed command process");
 
         try {
             processStdoutStream.close();
