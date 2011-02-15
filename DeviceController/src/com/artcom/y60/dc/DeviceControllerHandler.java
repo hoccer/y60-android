@@ -116,7 +116,7 @@ public class DeviceControllerHandler extends DefaultHandler {
                     String customCommand = URLDecoder.decode(pRequest.getQueryString());
                     Logger.v(LOG_TAG,"CUSTOM COMMAND: ", customCommand);
 
-                    CommandBuffer commandBuffer = new CommandBuffer(); 
+                    CommandBuffer commandBuffer = new CommandBuffer(mService); 
                     commandBuffer.executeReturningCommand(customCommand);
                     String commandBufferText = commandBuffer.getCommandBufferFromRam();
                     if (commandBufferText != null){

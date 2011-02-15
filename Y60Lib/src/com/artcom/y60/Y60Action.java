@@ -50,6 +50,9 @@ public abstract class Y60Action {
 
     public static final String GOM_NOTIFICATION_BC        = "y60.intent.GOM_NOTIFICATION";
 
+    public static final String COMMAND_BUFFER_FLUSH_BC    = "y60.intent.COMMAND_BUFFER_FLUSH";
+    public static final String COMMAND_BUFFER_DELETE_BC   = "y60.intent.COMMAND_BUFFER_DELETE";
+
     public static final String SYNERGY_SERVER             = "y60.intent.SYNERGY_SERVER";
 
     public static final String MONITOR_GOM_NOTIFICATION   = "y60.intent.MONITOR_GOM_NOTIFICATION";

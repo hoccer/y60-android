@@ -1,5 +1,10 @@
 package com.artcom.y60.dc;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+
 import java.io.BufferedReader;
 import java.io.RandomAccessFile;
 import java.io.File;
@@ -17,6 +22,7 @@ import java.io.FileWriter;
 import java.util.regex.Pattern;
 
 import com.artcom.y60.Logger;
+import com.artcom.y60.Y60Action;
 
 public class CommandBuffer {
 
@@ -25,18 +31,17 @@ public class CommandBuffer {
     // +------------------------+
     private static final String     LOG_TAG                             = "CommandBuffer";
     private static final int        STDOUT_BUFFER_SIZE                  = 1024;
-    private static final int        DEFAULT_BUFFER_SIZE                 = 50000; //512000;
+    private static final int        DEFAULT_BUFFER_SIZE                 = 50000;
     private static final int        CAPTURE_SLEEP_TIME                  = 1000;  //milliseconds
-    private static final int        WAIT_FOR_COMMAND_TIMEOUT            = 5000; //milliseconds
+    private static final int        WAIT_FOR_COMMAND_TIMEOUT            = 5000;  //milliseconds
     private static final String     PERSISTENT_BUFFER_DEFAULT_FILENAME  = "/sdcard/logcat.txt";
     private static final int        BUFFER_SIZE_FOR_TIMESTAMP_SEARCH    = 5000;
     private static final long       BUFFER_FILE_VISIBLE_LENGTH          = 50000;
+    private static final long       BUFFER_FILE_MAXIMAL_LENGTH          = 50000000;
     private static final String     TIMESTAMP_SEARCH_PATTERN            = "\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}\\.\\d{3}";
     private static final int        TIMESTAMP_STRING_LENGTH             = 19;
     private static final int        WAIT_FOR_NO_CAPTURE_BLOCKING        = 3000; //milliseconds
-    private static final int        WAIT_FOR_FILE_WRITE_ACCESS          = 500; // milliseconds
-    private static final int        WAIT_FOR_BUFFER_READY               = 500; // milliseconds
-    private static final int        WAIT_FOR_FILE_READ_ACCESS           = 500; // milliseconds
+    private static final int        WAIT_FOR_BUFFER_READY               = 500;  // milliseconds
 
     
     // +-------------------------+
@@ -57,10 +62,14 @@ public class CommandBuffer {
     private boolean                 blockFileAccessByCapture;
     private boolean                 blockFileAccessByRequest;
 
+    private BroadcastReceiver       writeBufferToFileReceiver;
+    private BroadcastReceiver       deleteBufferFileReceiver;
+    private Context                 systemContext;
+
     // +----------------------+
     // +     Constructors     +
     // +----------------------+
-    public CommandBuffer(int bufferSize,String bufferFileName) {
+    public CommandBuffer(int bufferSize,String bufferFileName, Context context) {
         commandStdoutBuffer = null;
         maxStdoutBufferLength = bufferSize;
         commandProcess = null;
@@ -69,44 +78,29 @@ public class CommandBuffer {
         exceptionMessage = null;
         blockFileAccessByCapture = false;
         blockFileAccessByRequest = false;
+        writeBufferToFileReceiver = null;
+        deleteBufferFileReceiver = null;
+        systemContext = context;
     }
 
-    public CommandBuffer() {
-        this(DEFAULT_BUFFER_SIZE, PERSISTENT_BUFFER_DEFAULT_FILENAME);
+    public CommandBuffer(Context context) {
+        this(DEFAULT_BUFFER_SIZE, PERSISTENT_BUFFER_DEFAULT_FILENAME, context);
     }
-    public CommandBuffer(int bufferSize) {
-        this(bufferSize, PERSISTENT_BUFFER_DEFAULT_FILENAME);
+    public CommandBuffer(int bufferSize, Context context) {
+        this(bufferSize, PERSISTENT_BUFFER_DEFAULT_FILENAME, context);
     }
-    public CommandBuffer(String bufferFileName) {
-        this(DEFAULT_BUFFER_SIZE, bufferFileName);
+    public CommandBuffer(String bufferFileName, Context context) {
+        this(DEFAULT_BUFFER_SIZE, bufferFileName, context);
     }
 
     // +------------------------+
     // +     Static Helpers     +
     // +------------------------+
     public static void writeStringToFile(String text, String fileName) throws IOException {
-        File    bufferFile = new File(fileName);
-        if (!bufferFile.exists()){
-            bufferFile.createNewFile();
-        }
-        for(int i=0;i<(int)(WAIT_FOR_FILE_WRITE_ACCESS/100);++i){
-            if(bufferFile.canWrite()){
-                break;
-            }
-            try{
-                Thread.sleep(100);
-            } catch(InterruptedException e){
-                Logger.v(LOG_TAG,"InterruptedException during waiting for file write access ",e);
-            }
-        }
-        if (bufferFile.canWrite()){
-            FileWriter fw;
-            fw = new FileWriter(bufferFile,true);
-            fw.write(text);
-            fw.close();
-        } else {
-            Logger.v(LOG_TAG,"could not get write Access to file: ", fileName);
-        }
+        FileWriter fw;
+        fw = new FileWriter(fileName,true);
+        fw.write(text);
+        fw.close();
     }
 
     public static void clearBuffer(StringBuffer buffer) {
@@ -151,26 +145,11 @@ public class CommandBuffer {
     public static String getFromEndOfBufferFile(long bytesToRead, String fileName)
         throws IOException, FileNotFoundException{
         String  fileText = "";
-        File    bufferFile = new File(fileName);
+        File bufferFile = new File(fileName);
         if (bufferFile.exists()){
-            for(int i=0;i<(int)(WAIT_FOR_FILE_READ_ACCESS/50);++i){
-                if(bufferFile.canRead()){
-                    break;
-                }
-                try{
-                    Thread.sleep(50);
-                } catch(InterruptedException e){
-                    Logger.v(LOG_TAG,"InterruptedException during waiting for file read access ", e);
-                }
-            }
-            if (bufferFile.canRead()){
-                long            fileSize = bufferFile.length();
-                BufferedReader  bufferedFileReader = new BufferedReader(new FileReader(bufferFile));
-                fileText = getFromEndOfBufferedReader(bytesToRead,bufferedFileReader,fileSize);
-                bufferedFileReader.close();
-            } else {
-                Logger.v(LOG_TAG,"could not get file read access");
-            }
+            BufferedReader  bufferedFileReader = new BufferedReader(new FileReader(fileName));
+            fileText = getFromEndOfBufferedReader(bytesToRead,bufferedFileReader,getFileByteSize(fileName));
+            bufferedFileReader.close();
         }
         return fileText;
     }
@@ -212,6 +191,30 @@ public class CommandBuffer {
     public static void flushBufferToFile(StringBuffer buffer, String fileName) throws IOException {
         writeStringToFile(buffer.toString(),fileName);
         clearBuffer(buffer);
+    }
+
+    private static void deleteFile(String fileName) {
+        File    bufferFile = new File(fileName);
+        if (bufferFile.exists()){
+            bufferFile.delete();
+        }
+    }
+
+    private static long getFileByteSize(String fileName) {
+        long    fileSize = 0;
+        File    bufferFile = new File(fileName);
+        if (bufferFile.exists()){
+            fileSize = bufferFile.length();
+        }
+        return fileSize;
+    }
+
+    private static void checkFileSize(String fileName) {
+        if (getFileByteSize(fileName) > BUFFER_FILE_MAXIMAL_LENGTH) {
+            Logger.v(LOG_TAG,"deleting buffer file because its size exceeds the maximal size of: ",
+                BUFFER_FILE_MAXIMAL_LENGTH);
+            deleteFile(fileName);
+        }
     }
 
     // +-------------------------+
@@ -258,6 +261,9 @@ public class CommandBuffer {
         } catch(UnsupportedEncodingException e){
             Logger.v(LOG_TAG,"UnsupportedEncodingException at InputStreamReader creation ",e);
         }
+
+        registerBroadcastReceiver();
+
         return true;
     }
     
@@ -278,6 +284,45 @@ public class CommandBuffer {
             Logger.v(LOG_TAG,"closed Stderr BufferedReader");
         } catch (IOException e){
             Logger.v(LOG_TAG,"could not close Stderr BufferedReader: ", e);
+        }
+
+        unregisterBroadcastReceiver();
+    }
+
+    private void registerBroadcastReceiver() {
+        writeBufferToFileReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context pContext, Intent pIntent) {
+                Logger.v(LOG_TAG,"got flush buffer to file on sdcard BC request");
+                try {
+                    if( (commandStdoutBuffer!=null)&&(persistentBufferFileName!=null) ){
+                        flushBufferToFile(commandStdoutBuffer,persistentBufferFileName);
+                    }
+                } catch (IOException e){
+                    Logger.v(LOG_TAG, "could not write buffer to sdcard on BC request");
+                }
+            }
+        };
+        systemContext.registerReceiver(writeBufferToFileReceiver, new IntentFilter(Y60Action.COMMAND_BUFFER_FLUSH_BC));
+
+        deleteBufferFileReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context pContext, Intent pIntent) {
+                deleteFile(persistentBufferFileName);
+                Logger.v(LOG_TAG,"got delete buffer file on sdcard BC request");
+            }
+        };
+        systemContext.registerReceiver(deleteBufferFileReceiver, new IntentFilter(Y60Action.COMMAND_BUFFER_DELETE_BC));
+    }
+
+    private void unregisterBroadcastReceiver() {
+        if (writeBufferToFileReceiver != null) {
+            systemContext.unregisterReceiver(writeBufferToFileReceiver);
+            writeBufferToFileReceiver = null;
+        }
+        if (deleteBufferFileReceiver != null) {
+            systemContext.unregisterReceiver(deleteBufferFileReceiver);
+            deleteBufferFileReceiver = null;
         }
     }
 
@@ -376,6 +421,8 @@ public class CommandBuffer {
                                 if (!blockFileAccessByRequest){
                                     blockFileAccessByCapture = true;
                                     try {
+                                        Logger.v(LOG_TAG,"writing command buffer to sdcard file: ", persistentBufferFileName);
+                                        checkFileSize(persistentBufferFileName);
                                         flushBufferToFile(commandStdoutBuffer,persistentBufferFileName);
                                     } catch( IOException e ){
                                         Logger.v(LOG_TAG,logException("BufferedReader Error: ", e));
