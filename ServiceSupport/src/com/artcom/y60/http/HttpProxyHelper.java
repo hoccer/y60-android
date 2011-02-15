@@ -144,10 +144,10 @@ public class HttpProxyHelper {
         return new String(IoHelper.convertResourceBundleToByteArray(resourceDescription));
     }
 
-    /*@Deprecated
-    public void requestResourceWhichIsDeprecated(Uri pUri) {
-        requestResource(pUri.toString());
-    }*/
+    /*
+     * @Deprecated public void requestResourceWhichIsDeprecated(Uri pUri) {
+     * requestResource(pUri.toString()); }
+     */
 
     public void requestResource(String pUri) {
         RpcStatus status = new RpcStatus();
@@ -350,7 +350,6 @@ public class HttpProxyHelper {
         public void onReceive(Context pCtx, Intent pIntent) {
             synchronized (mUpdateNotificationQueue) {
                 String uri = pIntent.getStringExtra(HttpProxyConstants.URI_EXTRA);
-                Logger.v(logTag(), "received update broadcast for uri ", uri);
                 mUpdateNotificationQueue.add(Uri.parse(uri));
             }
         }
@@ -361,7 +360,6 @@ public class HttpProxyHelper {
         public void onReceive(Context pCtx, Intent pIntent) {
             synchronized (mNotAvailableNotificationQueue) {
                 String uri = pIntent.getStringExtra(HttpProxyConstants.URI_EXTRA);
-                Logger.v(logTag(), "received not available broadcast for uri ", uri);
                 mNotAvailableNotificationQueue.add(Uri.parse(uri));
             }
         }
@@ -381,8 +379,6 @@ public class HttpProxyHelper {
                 // that the broadcast receiver gets blocked when
                 // adding new URIs
                 if (updatedUri != null) {
-                    Logger.v(logTag(), "registered listeners: ", mListeners.keySet());
-                    Logger.v(logTag(), "updating listeners for uri ", updatedUri);
 
                     Set<ResourceListener> listeners = getListenersFor(updatedUri);
                     if (listeners != null) {
