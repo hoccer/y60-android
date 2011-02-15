@@ -61,6 +61,7 @@ public class Y60 extends Activity {
     private Button                             mStopDcButton;
     private Button                             mWifiCfgButton;
     private Button                             mClearButton;
+    private Button                             mDeleteLogBufferButton;
 
     private TextView                           mDeployedVersionText;
 
@@ -138,6 +139,15 @@ public class Y60 extends Activity {
                 stopService(stopDcIntent);
                 Intent stopSwIntent = new Intent(Y60Action.SERVICE_STATUS_WATCHER);
                 stopService(stopSwIntent);
+            }
+        });
+
+        mDeleteLogBufferButton = (Button) findViewById(R.id.delete_logcat_file_button);
+        mDeleteLogBufferButton.setOnClickListener(new OnClickListener() {
+            // @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(Y60Action.COMMAND_BUFFER_DELETE_BC);
+                sendBroadcast(intent);
             }
         });
 

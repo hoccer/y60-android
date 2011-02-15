@@ -50,7 +50,7 @@ public class DeviceControllerService extends Y60Service {
                 PendingIntent.getBroadcast(this, 0, new Intent(), 0));
         startForeground(notificationId, notification);
 
-        mLogcatBuffer = new CommandBuffer(); 
+        mLogcatBuffer = new CommandBuffer(this); 
         mLogcatBuffer.executeNonReturningCommandAndCapture("logcat -v time");
 
         try {
