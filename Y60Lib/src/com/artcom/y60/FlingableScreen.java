@@ -51,9 +51,9 @@ public class FlingableScreen implements AnimationListener {
 
     // Constructors ------------------------------------------------------
 
-    public FlingableScreen(String p_Name, Activity pActivity, int pBackgroundResource) {
+    public FlingableScreen(String name, Activity pActivity, int pBackgroundResource) {
 
-        mName = p_Name;
+        mName = name;
         mActivity = pActivity;
         ProgressBar progress = new ProgressBar(pActivity);
         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
