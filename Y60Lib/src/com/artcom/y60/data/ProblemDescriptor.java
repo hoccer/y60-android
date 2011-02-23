@@ -3,6 +3,8 @@ package com.artcom.y60.data;
 public interface ProblemDescriptor {
 
     public static class Problems {
+        public static final String HOCCABILITY_INIT  = "hoccability_init";
+
         public static final String HOCCABILITY_BAD  = "hoccability_bad";
         public static final String HOCCABILITY_OK   = "hoccability_ok";
         public static final String HOCCABILITY_GOOD = "hoccability_good";
@@ -12,6 +14,7 @@ public interface ProblemDescriptor {
     }
 
     public static class Suggestions {
+        public static final String HOCCABILITY_INIT_SUGGESTION  = "hoccability_init_suggestion";
 
         public static final String HOCCABILITY_0                     = "hoccability_0";
 
