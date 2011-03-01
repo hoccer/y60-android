@@ -37,7 +37,7 @@ public class CommandBuffer {
     private static final String     PERSISTENT_BUFFER_DEFAULT_FILENAME  = "/sdcard/logcat.txt";
     private static final int        BUFFER_SIZE_FOR_TIMESTAMP_SEARCH    = 5000;
     private static final long       BUFFER_FILE_VISIBLE_LENGTH          = 50000;
-    private static final long       BUFFER_FILE_MAXIMAL_LENGTH          = 50000000;
+    private static final long       BUFFER_FILE_MAXIMAL_LENGTH          = 5000000;
     private static final String     TIMESTAMP_SEARCH_PATTERN            = "\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}\\.\\d{3}";
     private static final int        TIMESTAMP_STRING_LENGTH             = 19;
     private static final int        WAIT_FOR_NO_CAPTURE_BLOCKING        = 3000; //milliseconds
