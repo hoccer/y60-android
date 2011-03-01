@@ -11,6 +11,8 @@ public class JsonHelper {
 
     // Static Methods ----------------------------------------------------
 
+    private static final String LOG_TAG = "JsonHelper";
+
     /**
      * Convenience method to navigate to a down a path on a JSON tree.
      */
@@ -28,23 +30,20 @@ public class JsonHelper {
     }
 
     /**
-     * Peels an object which the caller is actually interested in from a wrapper
-     * object (similar to stripping the containing tag from a complex type in
-     * XML), e.g. if you HTTP-GET a customer object as
-     * <code>{ "customer ": { "name": "John Doe" } }</code>, a
+     * Peels an object which the caller is actually interested in from a wrapper object (similar to
+     * stripping the containing tag from a complex type in XML), e.g. if you HTTP-GET a customer
+     * object as <code>{ "customer ": { "name": "John Doe" } }</code>, a
      * <code>getMemberOrSelf(customer, "customer")</code> would return
-     * <code>{ "name": "John Doe" }</code> and strip the "customer" object. If
-     * the given object doesn't have a member for the given key which is a
-     * JSONObject, the given object itself is returned. Thus invoking
-     * getMemberOrSelf in the above example on a result, again using "customer"
-     * as key, would return that same object, i.e. it's idempotent if the key is
-     * always the same.
+     * <code>{ "name": "John Doe" }</code> and strip the "customer" object. If the given object
+     * doesn't have a member for the given key which is a JSONObject, the given object itself is
+     * returned. Thus invoking getMemberOrSelf in the above example on a result, again using
+     * "customer" as key, would return that same object, i.e. it's idempotent if the key is always
+     * the same.
      * 
      * @param pObj
      *            the JSONOBject, possibly a wrapper
      * @param pKey
      *            the key of the object the caller is actually interested in
-     * 
      * @return
      * @throws JSONException
      *             if something went wrong while processing the JSON data
@@ -76,10 +75,17 @@ public class JsonHelper {
             try {
                 return pJson.getString(name);
             } catch (JSONException e) {
-                e.printStackTrace();
+                Logger.e(LOG_TAG, e);
             }
         }
         return "";
     }
 
+    public static String getGomAttributeValue(JSONObject jsonObject) throws JSONException {
+        if (jsonObject.has(Constants.Gom.Keywords.ATTRIBUTE)) {
+            JSONObject inner = jsonObject.getJSONObject(Constants.Gom.Keywords.ATTRIBUTE);
+            return inner.getString(Constants.Gom.Keywords.VALUE);
+        }
+        throw new JSONException("Json is malformed");
+    }
 }

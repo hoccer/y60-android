@@ -6,8 +6,7 @@ import java.util.HashMap;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.StatusLine;
-
-import android.content.BroadcastReceiver;
+import org.json.JSONObject;
 
 import com.artcom.y60.BindingException;
 import com.artcom.y60.Constants;
@@ -19,6 +18,8 @@ import com.artcom.y60.NetworkHelper;
 import com.artcom.y60.http.HttpClientException;
 import com.artcom.y60.http.HttpHelper;
 import com.artcom.y60.http.HttpServerException;
+
+import android.content.BroadcastReceiver;
 
 public class GomNotificationHelper {
 
@@ -173,6 +174,48 @@ public class GomNotificationHelper {
                 } catch (Throwable t) {
                     Logger.v(LOG_TAG, t.toString());
                 }
+            }
+        }).start();
+        return receiver;
+    }
+
+    /**
+     * Register a GOM observer for a given path. Filtering options are currently not supported.
+     * 
+     * @param path
+     *            Gom path to observe
+     * @param pGomObserver
+     *            the observer??? Don't know!
+     * @param pErrorHandler
+     *            pass your own error handling code to the registration thread
+     */
+    public static BroadcastReceiver createObserverAndNotifyWithoutCache(final String path,
+            final GomObserver pGomObserver, final GomProxyHelper pGom, final boolean pBubbleUp,
+            final ErrorHandler pErrorHandler) throws IOException, IpAddressNotFoundException {
+        BroadcastReceiver receiver = createBroadcastReceiver(path, pGomObserver, pBubbleUp, pGom);
+        if (!pGom.isBound() || pGom == null) {
+            throw new IllegalStateException("GomProxyHelper " + pGom.toString() + " is not bound!");
+        }
+
+        new Thread(new Runnable() {
+            public void run() {
+
+                try {
+                    putObserverToGom(path, pBubbleUp);
+                } catch (Exception e) {
+                    pErrorHandler.handle(e);
+                }
+
+                JSONObject response;
+                try {
+                    response = HttpHelper.getJson(Constants.Gom.URI + path);
+                    Logger.v(LOG_TAG, "without cache: immediate response: ", response);
+                    pGomObserver.onEntryUpdated(path, response);
+                } catch (Exception e) {
+                    pGomObserver.onEntryDeleted(path, null);
+                    Logger.e(LOG_TAG, e);
+                }
+
             }
         }).start();
         return receiver;
