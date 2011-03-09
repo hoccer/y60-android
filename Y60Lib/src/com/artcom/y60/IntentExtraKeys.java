@@ -63,4 +63,6 @@ public class IntentExtraKeys {
     public static final String BOOT_UP_DEVICE_BOOTED     = "boot_up_device_booted";
     public static final String DRAW_ATTENTION            = "draw_attention";
 
+    public static final String WIDGET_NODE_PATH          = "widget_node_path";
+
 }
