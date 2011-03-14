@@ -17,10 +17,8 @@ public class DeviceConfiguration {
     private static final String LOG_TAG          = "DeviceConfiguration";
     public static final String  CONFIG_FILE_PATH = "/sdcard/device_config.json";
 
-    private static final String GOM_URL_KEY      = "gom-url";
-    private static final String DEVICE_PATH_KEY  = "device-path";
-    private static final String LOG_LEVEL_KEY    = "log-level";
-    private static final String COLOR_CODE       = "color-code";
+    private static final String GOM_URL_KEY      = "gom_url";
+    private static final String DEVICE_PATH_KEY  = "device_path";
 
     // Static Methods ----------------------------------------------------
 
@@ -32,7 +30,6 @@ public class DeviceConfiguration {
 
     private String       mGomUrl     = "gom url couldnt be read - sdcard probably not mounted";
     private String       mDevicePath = "device path couldnt be read - sdcard probably not mounted";
-    private String       mColorCode  = "color code couldnt be read - sdcard probably not mounted";
     private Logger.Level mLogLevel;
 
     // Constructors ------------------------------------------------------
@@ -58,10 +55,7 @@ public class DeviceConfiguration {
 
                 mGomUrl = configuration.getString(GOM_URL_KEY);
                 mDevicePath = configuration.getString(DEVICE_PATH_KEY);
-                mLogLevel = Logger.Level.fromString(configuration.getString(LOG_LEVEL_KEY));
-                if (configuration.has(COLOR_CODE)) {
-                    mColorCode = configuration.getString(COLOR_CODE);
-                }
+                mLogLevel = Logger.Level.VERBOSE;
 
             } catch (UnsupportedEncodingException e) {
                 Logger.e(LOG_TAG, "Configuration file ", CONFIG_FILE_PATH,
@@ -105,10 +99,6 @@ public class DeviceConfiguration {
         return mLogLevel;
     }
 
-    public String getColorCode() {
-        return mColorCode;
-    }
-
     public static boolean switchMenuAndBackButton() {
         if (android.os.Build.MODEL.equals("Nexus One")) {
             return false;
@@ -143,7 +133,6 @@ public class DeviceConfiguration {
             JSONObject configJson = new JSONObject();
             configJson.put(GOM_URL_KEY, mGomUrl);
             configJson.put(DEVICE_PATH_KEY, mDevicePath);
-            configJson.put(LOG_LEVEL_KEY, mLogLevel.toString());
             FileWriter writer = new FileWriter(CONFIG_FILE_PATH);
             PrintWriter printer = new PrintWriter(writer);
             printer.println(configJson.toString());

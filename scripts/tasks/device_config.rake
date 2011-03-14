@@ -12,10 +12,9 @@ namespace :device_config do
       puts " * Generating device config at '#{@device_config_file}':"
       my_device_config_json = <<-JSON
 {
-  "gom-url" : "#{@config['gom']}",
-  "device-path" : "#{@config['device_path']}",
-  "log-level" : "verbose",
-  "color-code" : "orange"
+  "gom_url" : "#{@config['gom_url']}",
+  "device_path" : "#{@config['device_path']}",
+  "launcher_apk" : "#{@config['launcher_apk']}"
 }
 JSON
       f = File.open @device_config_file, "w"
