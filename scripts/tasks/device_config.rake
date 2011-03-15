@@ -31,9 +31,9 @@ JSON
     else
       device_config_file = File.open @device_config_file
       puts "Content of '#{@device_config_file}':"
-      puts "------------------------------------"
+      puts "------------------------------------START"
       device_config_file.each {|line| puts line }
-      puts "------------------------------------\n"
+      puts "END------------------------------------\n"
     end
   end
   

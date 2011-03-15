@@ -1,6 +1,7 @@
 require 'os-helper'
 require 'tempfile'
 require 'open3'
+require 'json'
 
 class Device
   include Comparable
@@ -72,6 +73,19 @@ class Device
     myEnabledLookup = { true => 'enable',
                         false => 'disable'}
     execute "pm #{myEnabledLookup[enabledFlag]} com.android.launcher"
+  end
+  
+  def get_device_config
+    stdin, stdout, stderr = OS::executePopen3("adb -s #{@id} shell cat /sdcard/device_config.json")  
+    
+    puts "get dev_config: #{stdout}"
+    
+    if stdout.include? "No such file or directory"
+      return nil
+    end  
+    
+    return JSON.parse(stdout)
+    
   end
   
   def <=>(other)
