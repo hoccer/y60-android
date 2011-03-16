@@ -8,7 +8,7 @@ class DeviceConfigVerifier
   def initialize
     
     @device_config_sample = nil
-    
+    stdin, stdout, stderr = OS::executePopen3("rake device_config:create_sample[true]") 
     stdin, stdout, stderr = OS::executePopen3("rake device_config:generate[true]") 
     dc_start = stdout.index('--START')
     dc_end = stdout.index('END--') - dc_start

@@ -10,6 +10,7 @@ end
 @y60_scripts_path = "#{@y60_path}/scripts"
 @config_path = "#{@y60_path}/config"
 @config_file = "#{@config_path}/app_settings.yml"
+@config_file_template = "#{@config_path}/app_settings.yml_template"
 @device_config_file = "#{@config_path}/device_config.json"
 
 @config = nil # Not yet initialized
