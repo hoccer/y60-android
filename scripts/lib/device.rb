@@ -61,8 +61,8 @@ class Device
   end
   
   def isAndroidHomescreenRunning?
-    homescreen_package = "com.android.launcher"
-    stdin, stdout, stderr = OS::executePopen3("adb -s #{@id} shell busybox ps aux | grep #{homescreen_package}")
+    launcher_package = get_device_config['launcher_apk']
+    stdin, stdout, stderr = OS::executePopen3("adb -s #{@id} shell busybox ps aux | grep #{launcher_package}")
     if stdout.to_s.include? homescreen_package
       return true
     end        
@@ -70,9 +70,10 @@ class Device
   end
   
   def setHomescreenEnabled enabledFlag
+    launcher_package = get_device_config['launcher_apk']    
     myEnabledLookup = { true => 'enable',
                         false => 'disable'}
-    execute "pm #{myEnabledLookup[enabledFlag]} com.android.launcher"
+    execute "pm #{myEnabledLookup[enabledFlag]} #{launcher_package}"
   end
   
   def get_device_config
