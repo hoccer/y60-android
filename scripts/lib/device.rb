@@ -62,6 +62,7 @@ class Device
   
   def isAndroidHomescreenRunning?
     launcher_package = get_device_config['launcher_apk']
+    puts "EXECUTING: adb -s #{@id} shell busybox ps aux | grep #{launcher_package}"
     stdin, stdout, stderr = OS::executePopen3("adb -s #{@id} shell busybox ps aux | grep #{launcher_package}")
     if stdout.to_s.include? launcher_package
       return true
