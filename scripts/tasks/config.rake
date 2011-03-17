@@ -3,6 +3,22 @@ require 'set'
 
 namespace :config do
 
+  desc "Creates app_settings.yml from template in y60-android folder"
+   task :copy_from_template, [:force] do |t, args|
+     puts "Creating app settings sample from the yml template '#{@config_file_template}':"
+     args.with_defaults(:force => false)
+     puts " * INFO : Forcing generation of settings sample" if args[:force]
+     
+     if !args[:force] && File.exists?("#{@config_file}")
+       puts " * WARNING::\n    The config sample already exists at '#{@device_config}'\n    - use force parameter to overwrite"
+     else
+       puts " * Generating config sample at '#{@config_file}':"
+       puts "cp #{@config_file_template} #{@config_file}"
+       system "cp #{@config_file_template} #{@config_file}"
+     end
+   end
+
+
   desc "Loads the y60 configuration from '#{@config_file}'"
   task :load do
     if @config.nil?
