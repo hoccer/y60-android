@@ -27,8 +27,16 @@ class Device
     OS::execute "adb -s #{@id} #{params}", "adb #{params}"
   end
 
+  def start_with_extra(activity, extra)
+    execute "am start -a #{activity} #{extra}"
+  end
+
   def start activity
     execute "am start -a #{activity}"
+  end
+
+  def broadcast_with_extra(bc_name, extra)
+    execute "am broadcast -a #{bc_name} #{extra}"
   end
 
   def broadcast bc_name
