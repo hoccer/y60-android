@@ -97,7 +97,7 @@ class AndroidProject < Project
       return
     end
 
-    s = "-s #{device_id}" unless device_id.nil? || device_id.empty?
+    s = "-s #{device_id}" unless device_id.nil? || device_id.empty?        
     uid = getPackageUid @package, device_id
 
     sqlPatch = <<MYSQLITE
@@ -121,8 +121,14 @@ MYSQLITE
   end
   
   def getPackageUid package, device_id=""
+    
+    puts "trying to get package uid, pkg: #{package}, dev_id: #{device_id}"
+    
     s = "-s #{device_id}" unless device_id.nil? || device_id.empty?
     myResult = `adb #{s} shell busybox ls -la /data/data/#{package}`
+    
+    puts "Result of `adb #{s} shell busybox ls -la /data/data/#{package}` is: #{myResult}"
+    
     myResult.to_s.split("\n").to_a[1].split[2]
   end
 

@@ -100,7 +100,12 @@ public class DeviceConfiguration {
     }
 
     public static boolean switchMenuAndBackButton() {
+
+        Logger.v(LOG_TAG, "BUILD MODEL: ", android.os.Build.MODEL);
+
         if (android.os.Build.MODEL.equals("Nexus One")) {
+            return false;
+        } else if (android.os.Build.MODEL.equals("Nexus S")) {
             return false;
         } else {
             return true;
@@ -110,6 +115,8 @@ public class DeviceConfiguration {
     public static boolean isWvga() {
         if (android.os.Build.MODEL.equals("Nexus One")) {
             return true;
+        } else if (android.os.Build.MODEL.equals("Nexus S")) {
+            return true;
         } else {
             return false;
         }
@@ -117,6 +124,8 @@ public class DeviceConfiguration {
 
     public static boolean hasRootPermissions() {
         if (android.os.Build.MODEL.equals("Nexus One")) {
+            return true;
+        } else if (android.os.Build.MODEL.equals("Nexus S")) {
             return true;
         } else {
             return false;
