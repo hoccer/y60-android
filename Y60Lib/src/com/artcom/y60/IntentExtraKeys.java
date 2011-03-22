@@ -61,7 +61,10 @@ public class IntentExtraKeys {
     public static final String BOOT_UP_MEDIA_MOUNTED     = "boot_up_media_mounted";
     public static final String BOOT_UP_NETWORK_CONNECTED = "boot_up_network_connected";
     public static final String BOOT_UP_DEVICE_BOOTED     = "boot_up_device_booted";
+
     public static final String DRAW_ATTENTION            = "draw_attention";
+    public static final String COMPARE_DEPLOYED_VERSION  = "compare_deployed_version";
+    public static final String SHOW_DEPLOYMENT           = "show_deployment";
 
     public static final String WIDGET_NODE_PATH          = "widget_node_path";
 
