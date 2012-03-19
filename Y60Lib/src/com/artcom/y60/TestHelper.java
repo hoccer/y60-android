@@ -136,33 +136,6 @@ public class TestHelper {
                 + mesuredValue + ">");
     }
 
-    public static void blockUntilBackendAvailable(final Y60Activity pActivity) throws Exception {
-        blockUntilTrue("Backend is not available", 10000, new TestHelper.Condition() {
-            @Override
-            public boolean isSatisfied() {
-                return pActivity.hasBackendAvailableBeenCalled();
-            }
-        });
-    }
-
-    public static void blockUntilBackendResumed(final Y60Activity pActivity, int pTimeout)
-            throws Exception {
-        blockUntilBackendAvailable(pActivity);
-        blockUntilTrue("ResumeWithBackend should have been called", pTimeout,
-                new TestHelper.Condition() {
-
-                    @Override
-                    public boolean isSatisfied() {
-                        return pActivity.hasResumeWithBackendBeenCalled();
-                    }
-                });
-
-    }
-
-    public static void blockUntilBackendResumed(final Y60Activity pActivity) throws Exception {
-        blockUntilBackendResumed(pActivity, 10000);
-    }
-
     public static void blockUntilResourceAvailable(String pFailMessage, final String pUrl)
             throws Exception {
         blockUntilResourceAvailable(pFailMessage, pUrl, 3000);
@@ -197,80 +170,6 @@ public class TestHelper {
                 }
             }
         });
-    }
-
-    public static void assertDeviceControllerIsRunning(Context pContext) throws Exception {
-        Intent startIntent = new Intent(Y60Action.SERVICE_DEVICE_CONTROLLER);
-        pContext.startService(startIntent);
-        TestHelper.blockUntilDeviceControllerIsRunning();
-    }
-
-    public static void blockUntilDeviceControllerIsRunning() throws Exception {
-        blockUntilDeviceControllerIsRunning(10000);
-    }
-
-    public static void blockUntilDeviceControllerIsRunning(long pTimeout) throws Exception {
-        TestHelper.blockUntilEquals("device controller should have started within " + pTimeout
-                + " milliseconds", pTimeout, "404", new TestHelper.Measurement() {
-            @Override
-            public Object getActualValue() {
-
-                String statusCode;
-                try {
-                    statusCode = String.valueOf(HttpHelper.getStatusCode("http://localhost:4042/"));
-                } catch (HttpHostConnectException e) {
-                    return "HttpHostConnectException";
-                } catch (SocketTimeoutException e) {
-                    return "SocketTimeoutException";
-                } catch (IOException e) {
-                    return "SocketTimeoutException";
-                }
-                return statusCode;
-            }
-        });
-    }
-
-    public static void sendCreateAttributeNotificationBroadcast(String pPath, Context pContext) {
-        sendNotificationBroadcast(pPath, generateAttributeDummyJsonString(pPath), "create",
-                pContext);
-    }
-
-    public static void sendUpdateAttributeNotificationBroadcast(String pPath, Context pContext) {
-
-        sendNotificationBroadcast(pPath, generateAttributeDummyJsonString(pPath), "update",
-                pContext);
-    }
-
-    public static void sendDeleteAttributeNotificationBroadcast(String pPath, Context pContext) {
-
-        sendNotificationBroadcast(pPath, generateAttributeDummyJsonString(pPath), "delete",
-                pContext);
-    }
-
-    public static void sendCreateNodeNotificationBroadcast(String pPath, Context pContext) {
-
-        sendNotificationBroadcast(pPath, generateNodeDummyJsonString(pPath), "create", pContext);
-    }
-
-    public static void sendUpdateNodeNotificationBroadcast(String pPath, Context pContext) {
-
-        sendNotificationBroadcast(pPath, generateNodeDummyJsonString(pPath), "update", pContext);
-    }
-
-    public static void sendDeleteNodeNotificationBroadcast(String pPath, Context pContext) {
-
-        sendNotificationBroadcast(pPath, generateNodeDummyJsonString(pPath), "delete", pContext);
-    }
-
-    public static void sendNotificationBroadcast(String pPath, String pData, String pOperation,
-            Context pContext) {
-
-        Intent notification = new Intent();
-        notification.setAction(Y60Action.GOM_NOTIFICATION_BC);
-        notification.putExtra(IntentExtraKeys.NOTIFICATION_PATH, pPath);
-        notification.putExtra(IntentExtraKeys.NOTIFICATION_OPERATION, pOperation);
-        notification.putExtra(IntentExtraKeys.NOTIFICATION_DATA_STRING, pData);
-        pContext.sendBroadcast(notification);
     }
 
     public static String generateAttributeDummyJsonString(String pPath) {
